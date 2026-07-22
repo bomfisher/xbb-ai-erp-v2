@@ -9,9 +9,9 @@ description: 当agent完成代码开发任务并且通过验证，新增了接�
 
 
 ## 执行流程
-1、计算接口领域，计算方式参考 `.claude/commands/gen-api-md/cal-domain.md`
-2、根据修改的接口所在的领域，查询
-1、如果接口文档内接口数量已经>=20 则新增一份接口文档
+- 计算接口领域，计算方式参考 `.claude/commands/gen-api-md/cal-domain.md`
+- 根据修改的接口所在的领域，查询
+- 如果接口文档内接口数量已经>=20 则新增一份接口文档
 
 ## 边界规则
 修改的接口查询接口文档时，根据接口所在module的名称后缀，例如xbb-erp-module-sales，当前接口领域就是sales

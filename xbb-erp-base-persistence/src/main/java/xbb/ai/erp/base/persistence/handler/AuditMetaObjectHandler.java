@@ -3,19 +3,22 @@ package xbb.ai.erp.base.persistence.handler;
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 import org.apache.ibatis.reflection.MetaObject;
 
-import java.time.LocalDateTime;
-
 public class AuditMetaObjectHandler implements MetaObjectHandler {
 
     @Override
     public void insertFill(MetaObject metaObject) {
-        strictInsertFill(metaObject, "createTime", LocalDateTime.class, LocalDateTime.now());
-        strictInsertFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
-        strictInsertFill(metaObject, "deleted", Integer.class, 0);
+        long now = System.currentTimeMillis();
+        if (getFieldValByName("addTime", metaObject) == null) {
+            setFieldValByName("addTime", now, metaObject);
+        }
+        setFieldValByName("updateTime", now, metaObject);
+        if (getFieldValByName("del", metaObject) == null) {
+            setFieldValByName("del", 0, metaObject);
+        }
     }
 
     @Override
     public void updateFill(MetaObject metaObject) {
-        strictUpdateFill(metaObject, "updateTime", LocalDateTime.class, LocalDateTime.now());
+        setFieldValByName("updateTime", System.currentTimeMillis(), metaObject);
     }
 }

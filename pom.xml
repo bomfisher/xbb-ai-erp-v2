@@ -18,9 +18,11 @@
         <module>xbb-erp-base-idgen</module>
         <module>xbb-erp-base-log</module>
         <module>xbb-erp-base-test</module>
+        <module>xbb-erp-module-customer</module>
         <module>xbb-erp-app-admin</module>
         <module>xbb-erp-app-mobile</module>
         <module>xbb-erp-app-job</module>
+        <module>xbb-erp-module-common</module>
     </modules>
 
     <properties>

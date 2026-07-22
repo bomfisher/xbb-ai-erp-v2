@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: xbb-erp-app-admin
+  profiles:
+    active: local
+  datasource:
+    url: jdbc:mysql://192.168.10.14:3306/db_xbb_ai_erp?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&useAffectedRows=true
+    username: ms2
+    password: Ms2.com.cn
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  data:
+    redis:
+      password: mUWPMPpWyv8I069o
+      host: 192.168.10.5
+      port: 6379
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health

@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="Encoding" defaultCharsetForPropertiesFiles="UTF-8">
+    <file url="file://$PROJECT_DIR$/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-app-admin/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-app-admin/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-app-job/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-app-job/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-app-mobile/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-app-mobile/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-cache/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-cache/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-common/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-common/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-idgen/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-idgen/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-log/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-log/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-persistence/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-persistence/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-security/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-security/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-tenant/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-tenant/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-test/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-test/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-web/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-base-web/src/main/resources" charset="UTF-8" />
+    <file url="PROJECT" charset="UTF-8" />
+  </component>
+</project>

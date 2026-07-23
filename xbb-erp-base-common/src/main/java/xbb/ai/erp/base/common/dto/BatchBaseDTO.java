@@ -5,6 +5,6 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class BatchBaseDTO extends BaseDTO{
+public class BatchBaseDTO extends BaseDTO {
     private List<Long> idList;
 }

@@ -1,0 +1,24 @@
+package xbb.ai.erp.module.customer.domain.model;
+
+import lombok.Data;
+
+@Data
+public class CustomerInvoiceProfile {
+    private Long id;
+    private String corpid;
+    private Long customerId;
+    private String invoiceTitle;
+    private String taxNo;
+    private String addressPhone;
+    private String bankName;
+    private String bankAccountNo;
+    private Integer defaultFlag;
+    private String bizStatus;
+    private String remark;
+    private String creatorId;
+    private String modifyId;
+    private Integer version;
+    private Integer del;
+    private Long addTime;
+    private Long updateTime;
+}

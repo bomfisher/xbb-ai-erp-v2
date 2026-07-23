@@ -13,6 +13,6 @@ class BaseDTOTest {
         dto.setUserId("123");
 
         assertEquals("corp-001", dto.getCorpid());
-        assertEquals(1001L, dto.getUserId());
+        assertEquals("123", dto.getUserId());
     }
 }

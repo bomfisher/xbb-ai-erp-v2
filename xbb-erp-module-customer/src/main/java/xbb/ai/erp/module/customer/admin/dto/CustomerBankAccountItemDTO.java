@@ -1,0 +1,16 @@
+package xbb.ai.erp.module.customer.admin.dto;
+
+import lombok.Data;
+
+@Data
+public class CustomerBankAccountItemDTO {
+    private Long id;
+    private String accountName;
+    private String bankName;
+    private String accountNo;
+    private String accountUsage;
+    private Integer defaultFlag;
+    private String bizStatus;
+    private String remark;
+    private Integer version;
+}

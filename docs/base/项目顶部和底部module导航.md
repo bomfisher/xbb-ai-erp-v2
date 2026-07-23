@@ -90,7 +90,13 @@
 - 不负责什么：不承载业务测试用例
 - 当前依赖与被谁依赖：供后续 `base` / `module` / `app` 测试复用
 
-### xbb-erp-app-*
+### xbb-erp-module-*
+
+#### xbb-erp-module-supplier
+- 功能定位：供应商管理业务模块
+- 责任范围：供应商主档、联系人、地址、银行账户、开票信息的领域模型、仓储接口、持久层映射与后台管理端应用服务骨架
+- 不负责什么：不承接采购/应付/付款等下游业务单据快照，不负责附件中心、引用摘要、操作流水、幂等记录的完整业务实现
+- 当前依赖与被谁依赖：依赖 `xbb-erp-base-common`、`xbb-erp-base-persistence`、`xbb-erp-base-web`，后续供 `xbb-erp-app-admin` 装配使用
 
 #### xbb-erp-app-admin
 - 功能定位：PC 管理后台启动装配入口

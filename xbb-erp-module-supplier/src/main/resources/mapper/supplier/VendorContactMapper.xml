@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.supplier.infrastructure.persistence.mapper.VendorContactMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, vendor_id, contact_name, mobile, phone, email, position_name, default_flag, biz_status, creator_id, modify_id, del, add_time, update_time, version
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.vendorId != null">
+            and vendor_id = #{conditionMap.vendorId}
+        </if>
+        <if test="conditionMap.contactName != null and conditionMap.contactName != ''">
+            and contact_name = #{conditionMap.contactName}
+        </if>
+        <if test="conditionMap.mobile != null and conditionMap.mobile != ''">
+            and mobile = #{conditionMap.mobile}
+        </if>
+        <if test="conditionMap.defaultFlag != null">
+            and default_flag = #{conditionMap.defaultFlag}
+        </if>
+        <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
+            and biz_status = #{conditionMap.bizStatus}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into vendor_contact (
+            id, corpid, vendor_id, contact_name, mobile, phone, email, position_name, default_flag, biz_status, creator_id, modify_id, del, add_time, update_time, version
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.corpid}, #{item.vendorId}, #{item.contactName}, #{item.mobile}, #{item.phone}, #{item.email}, #{item.positionName}, #{item.defaultFlag}, #{item.bizStatus}, #{item.creatorId}, #{item.modifyId}, #{item.deleted}, #{item.addTime}, #{item.updateTime}, #{item.version})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update vendor_contact
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update vendor_contact
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.supplier.infrastructure.persistence.po.VendorContactPO">
+        update vendor_contact
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="vendorId != null">vendor_id = #{vendorId},</if>
+            <if test="contactName != null">contact_name = #{contactName},</if>
+            <if test="mobile != null">mobile = #{mobile},</if>
+            <if test="phone != null">phone = #{phone},</if>
+            <if test="email != null">email = #{email},</if>
+            <if test="positionName != null">position_name = #{positionName},</if>
+            <if test="defaultFlag != null">default_flag = #{defaultFlag},</if>
+            <if test="bizStatus != null">biz_status = #{bizStatus},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+            <if test="deleted != null">del = #{deleted},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="version != null">version = #{version},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.supplier.infrastructure.persistence.po.VendorContactPO">
+        select <include refid="BaseColumns"/>
+        from vendor_contact
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.supplier.infrastructure.persistence.po.VendorContactPO">
+        select <include refid="BaseColumns"/>
+        from vendor_contact
+        where <include refid="BaseCondition"/>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from vendor_contact
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

@@ -27,7 +27,7 @@ public class ListBaseVO<T> {
             this.page = page;
             this.count = count;
             this.hasLeft = page > 1;
-            this.hasRight = count >  page;
+            this.hasRight = count > page;
         }
     }
 }

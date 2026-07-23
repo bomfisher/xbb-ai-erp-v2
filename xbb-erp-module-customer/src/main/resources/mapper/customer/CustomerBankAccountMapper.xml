@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerBankAccountMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, customer_id, account_name, bank_name, account_no, account_usage,
+        default_flag, biz_status, remark, creator_id, modify_id, version, del, add_time, update_time
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.customerId != null">
+            and customer_id = #{conditionMap.customerId}
+        </if>
+        <if test="conditionMap.accountName != null and conditionMap.accountName != ''">
+            and account_name like concat('%', #{conditionMap.accountName}, '%')
+        </if>
+        <if test="conditionMap.bankName != null and conditionMap.bankName != ''">
+            and bank_name like concat('%', #{conditionMap.bankName}, '%')
+        </if>
+        <if test="conditionMap.accountNo != null and conditionMap.accountNo != ''">
+            and account_no = #{conditionMap.accountNo}
+        </if>
+        <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
+            and biz_status = #{conditionMap.bizStatus}
+        </if>
+        <if test="conditionMap.defaultFlag != null">
+            and default_flag = #{conditionMap.defaultFlag}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into customer_bank_account (
+            id, corpid, customer_id, account_name, bank_name, account_no, account_usage,
+            default_flag, biz_status, remark, creator_id, modify_id, version, del, add_time, update_time
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.corpid}, #{item.customerId}, #{item.accountName}, #{item.bankName}, #{item.accountNo}, #{item.accountUsage},
+                #{item.defaultFlag}, #{item.bizStatus}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.version}, #{item.del}, #{item.addTime}, #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update customer_bank_account
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update customer_bank_account
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerBankAccountPO">
+        update customer_bank_account
+        <set>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="accountName != null">account_name = #{accountName},</if>
+            <if test="bankName != null">bank_name = #{bankName},</if>
+            <if test="accountNo != null">account_no = #{accountNo},</if>
+            <if test="accountUsage != null">account_usage = #{accountUsage},</if>
+            <if test="defaultFlag != null">default_flag = #{defaultFlag},</if>
+            <if test="bizStatus != null">biz_status = #{bizStatus},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerBankAccountPO">
+        select <include refid="BaseColumns"/>
+        from customer_bank_account
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerBankAccountPO">
+        select <include refid="BaseColumns"/>
+        from customer_bank_account
+        where <include refid="BaseCondition"/>
+        <include refid="QueryTail"/>
+    </select>
+</mapper>

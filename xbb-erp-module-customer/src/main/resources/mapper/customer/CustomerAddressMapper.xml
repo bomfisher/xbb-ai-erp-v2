@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerAddressMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, customer_id, address_type, receiver_name, receiver_mobile, province_code,
+        city_code, district_code, detail_address, postal_code, default_flag, biz_status,
+        creator_id, modify_id, version, del, add_time, update_time
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.customerId != null">
+            and customer_id = #{conditionMap.customerId}
+        </if>
+        <if test="conditionMap.addressType != null and conditionMap.addressType != ''">
+            and address_type = #{conditionMap.addressType}
+        </if>
+        <if test="conditionMap.receiverName != null and conditionMap.receiverName != ''">
+            and receiver_name like concat('%', #{conditionMap.receiverName}, '%')
+        </if>
+        <if test="conditionMap.receiverMobile != null and conditionMap.receiverMobile != ''">
+            and receiver_mobile = #{conditionMap.receiverMobile}
+        </if>
+        <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
+            and biz_status = #{conditionMap.bizStatus}
+        </if>
+        <if test="conditionMap.defaultFlag != null">
+            and default_flag = #{conditionMap.defaultFlag}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into customer_address (
+            id, corpid, customer_id, address_type, receiver_name, receiver_mobile, province_code,
+            city_code, district_code, detail_address, postal_code, default_flag, biz_status,
+            creator_id, modify_id, version, del, add_time, update_time
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.corpid}, #{item.customerId}, #{item.addressType}, #{item.receiverName}, #{item.receiverMobile}, #{item.provinceCode},
+                #{item.cityCode}, #{item.districtCode}, #{item.detailAddress}, #{item.postalCode}, #{item.defaultFlag}, #{item.bizStatus},
+                #{item.creatorId}, #{item.modifyId}, #{item.version}, #{item.del}, #{item.addTime}, #{item.updateTime}
+            )
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update customer_address
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update customer_address
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerAddressPO">
+        update customer_address
+        <set>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="addressType != null">address_type = #{addressType},</if>
+            <if test="receiverName != null">receiver_name = #{receiverName},</if>
+            <if test="receiverMobile != null">receiver_mobile = #{receiverMobile},</if>
+            <if test="provinceCode != null">province_code = #{provinceCode},</if>
+            <if test="cityCode != null">city_code = #{cityCode},</if>
+            <if test="districtCode != null">district_code = #{districtCode},</if>
+            <if test="detailAddress != null">detail_address = #{detailAddress},</if>
+            <if test="postalCode != null">postal_code = #{postalCode},</if>
+            <if test="defaultFlag != null">default_flag = #{defaultFlag},</if>
+            <if test="bizStatus != null">biz_status = #{bizStatus},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerAddressPO">
+        select <include refid="BaseColumns"/>
+        from customer_address
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerAddressPO">
+        select <include refid="BaseColumns"/>
+        from customer_address
+        where <include refid="BaseCondition"/>
+        <include refid="QueryTail"/>
+    </select>
+</mapper>

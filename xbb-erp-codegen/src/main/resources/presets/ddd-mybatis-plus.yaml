@@ -1,0 +1,18 @@
+pathStrategy:
+  strategyName: ddd-mybatis-plus
+  moduleRootPattern: xbb-erp-module-{moduleCode}
+  basePackagePattern: xbb.ai.erp.module.{moduleCode}
+  slots:
+    ADMIN_CONTROLLER: src/main/java/{packageBasePath}/admin
+    ADMIN_DTO: src/main/java/{packageBasePath}/admin/dto
+    ADMIN_VO: src/main/java/{packageBasePath}/admin/vo
+    APP_SERVICE: src/main/java/{packageBasePath}/application/service
+    APP_SERVICE_IMPL: src/main/java/{packageBasePath}/application/service/impl
+    APP_ASSEMBLER: src/main/java/{packageBasePath}/application/assembler
+    DOMAIN_MODEL: src/main/java/{packageBasePath}/domain/model
+    DOMAIN_REPOSITORY: src/main/java/{packageBasePath}/domain/repository
+    PERSISTENCE_PO: src/main/java/{packageBasePath}/infrastructure/persistence/po
+    PERSISTENCE_MAPPER: src/main/java/{packageBasePath}/infrastructure/persistence/mapper
+    PERSISTENCE_CONVERTOR: src/main/java/{packageBasePath}/infrastructure/persistence/convertor
+    PERSISTENCE_REPOSITORY_IMPL: src/main/java/{packageBasePath}/infrastructure/persistence/repository
+    MAPPER_XML: src/main/resources/mapper/{moduleCodeLower}

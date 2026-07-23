@@ -1,0 +1,111 @@
+moduleCode: supplier
+moduleName: 供应商联系人
+packageBase: xbb.ai.erp.module.supplier
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: VendorContact
+  tableName: vendor_contact
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: vendorId
+      column: vendor_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: contactName
+      column: contact_name
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: mobile
+      column: mobile
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: phone
+      column: phone
+      javaType: String
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: email
+      column: email
+      javaType: String
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: positionName
+      column: position_name
+      javaType: String
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: defaultFlag
+      column: default_flag
+      javaType: Integer
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: bizStatus
+      column: biz_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+generate:
+  admin: false
+  application: false
+  domain: true
+  persistence: true
+  xml: true

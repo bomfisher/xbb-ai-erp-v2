@@ -1,0 +1,45 @@
+moduleCode: customer
+moduleName: 客户
+packageBase: xbb.ai.erp.module.customer
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: Customer
+  tableName: customer
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: customerCode
+      column: customer_code
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: customerName
+      column: customer_name
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: deleted
+      column: deleted
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

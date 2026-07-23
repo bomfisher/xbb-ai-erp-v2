@@ -1,0 +1,152 @@
+moduleCode: supplier
+moduleName: 供应商
+packageBase: xbb.ai.erp.module.supplier
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: Vendor
+  tableName: vendor
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: vendorCode
+      column: vendor_code
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: vendorName
+      column: vendor_name
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: vendorShortName
+      column: vendor_short_name
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: vendorCategory
+      column: vendor_category
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: mainBusinessCategory
+      column: main_business_category
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: ownerPurchaserId
+      column: owner_purchaser_id
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: ownerPurchaserNameSnapshot
+      column: owner_purchaser_name_snapshot
+      javaType: String
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: bizStatus
+      column: biz_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: refStatus
+      column: ref_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: defaultContactId
+      column: default_contact_id
+      javaType: Long
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: defaultAddressId
+      column: default_address_id
+      javaType: Long
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: defaultBankAccountId
+      column: default_bank_account_id
+      javaType: Long
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: defaultInvoiceProfileId
+      column: default_invoice_profile_id
+      javaType: Long
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: remark
+      column: remark
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true
+  children:
+    - VendorContact
+    - VendorAddress
+    - VendorBankAccount
+    - VendorInvoiceProfile

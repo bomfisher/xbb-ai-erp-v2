@@ -75,6 +75,7 @@ public class CodeGenerator {
             write(rootPath, pathResolver.resolve(moduleSpec, pathStrategySpec, FileSlotEnum.PERSISTENCE_MAPPER, aggregateName + "Mapper.java"), templateRenderer.renderMapper(moduleSpec));
             write(rootPath, pathResolver.resolve(moduleSpec, pathStrategySpec, FileSlotEnum.PERSISTENCE_CONVERTOR, aggregateName + "Convertor.java"), templateRenderer.renderConvertor(moduleSpec));
             write(rootPath, pathResolver.resolve(moduleSpec, pathStrategySpec, FileSlotEnum.PERSISTENCE_REPOSITORY_IMPL, aggregateName + "RepositoryImpl.java"), templateRenderer.renderRepositoryImpl(moduleSpec));
+            write(rootPath, pathResolver.resolve(moduleSpec, pathStrategySpec, FileSlotEnum.PERSISTENCE_REPOSITORY_IMPL, "ConditionMapHelper.java"), templateRenderer.renderConditionMapHelper(moduleSpec));
         }
         if (generateSpec.isXml()) {
             write(rootPath, pathResolver.resolveMapperXml(moduleSpec, pathStrategySpec, aggregateName + "Mapper.xml"), templateRenderer.renderMapperXml(moduleSpec));

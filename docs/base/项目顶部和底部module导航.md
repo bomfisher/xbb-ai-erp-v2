@@ -105,6 +105,15 @@
 - 当前代码落位：`admin`、`app/service`、`domain/model`、`domain/repository`、`infrastructure/persistence/po`、`infrastructure/persistence/mapper`、`infrastructure/persistence/repository`
 - 不负责什么：规格、多条码、多单位、库存控制、默认业务属性、制造属性、facade 对外能力
 
+#### xbb-erp-module-purchase
+- 功能定位：采购管理最小核心链路模块
+- 责任范围：待采购任务、采购申请、采购订单、采购来源关系 6 个核心聚合的领域模型、仓储接口、持久层映射与后台管理端 CRUD 骨架
+- 当前表范围：`purchase_pending_task`、`purchase_request`、`purchase_request_item`、`purchase_order`、`purchase_order_item`、`purchase_source_relation`
+- 当前代码落位：`admin`、`application/service`、`application/assembler`、`domain/model`、`domain/repository`、`infrastructure/persistence/po`、`infrastructure/persistence/mapper`、`infrastructure/persistence/repository`、`src/main/resources/mapper/purchase`
+- 复用边界：只复用 `xbb-erp-module-supplier` 的供应商主档能力，采购单据内保留 `vendor_id` 与 `vendor_name_snapshot`，不复制供应商主数据表
+- 当前约束：查询条件通过 `ConditionMapHelper` 统一规整分页与 `groupByStr`/`orderByStr`；删除链路统一走批量逻辑删除仓储方法
+- 不负责什么：本期不初始化收料通知、采购入库、采购退料、采购变更、结算计划、快照扩展、摘要回写日志、幂等记录等扩展链路
+
 ### xbb-erp-app-*
 
 #### xbb-erp-app-admin

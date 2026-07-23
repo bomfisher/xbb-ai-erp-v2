@@ -62,4 +62,58 @@ class CodeGeneratorTest {
         assertTrue(poContent.contains("private Long updateTime;"));
         assertTrue(xmlContent.contains("and del = 0"));
     }
+
+    @Test
+    void should_resolve_purchase_paths_without_hard_coding_supplier_directory() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
+        new SpecValidator().validate(moduleSpec);
+        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
+        Map<String, String> pathMap = new CodeGenerator().dryRun(moduleSpec, pathStrategySpec);
+        assertEquals("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java", pathMap.get("ADMIN_CONTROLLER"));
+        assertEquals("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/application/service/PurchaseRequestAdminAppService.java", pathMap.get("APP_SERVICE"));
+        assertEquals("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java", pathMap.get("DOMAIN_MODEL"));
+        assertEquals("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml", pathMap.get("MAPPER_XML"));
+    }
+
+    @Test
+    void should_generate_purchase_request_core_files() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
+        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
+        Path outputRoot = Files.createTempDirectory("xbb-codegen-purchase-");
+        new CodeGenerator().generate(outputRoot, moduleSpec, pathStrategySpec);
+        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java")));
+        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/application/service/PurchaseRequestAdminAppService.java")));
+        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java")));
+        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/po/PurchaseRequestPO.java")));
+        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml")));
+    }
+
+    @Test
+    void should_generate_purchase_request_crud_details() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
+        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
+        Path outputRoot = Files.createTempDirectory("xbb-codegen-purchase-crud-");
+        new CodeGenerator().generate(outputRoot, moduleSpec, pathStrategySpec);
+
+        String appServiceImpl = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/application/service/impl/PurchaseRequestAdminAppServiceImpl.java"));
+        String repositoryImpl = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/PurchaseRequestRepositoryImpl.java"));
+        String mapperXml = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml"));
+        String conditionMapHelper = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/ConditionMapHelper.java"));
+
+        assertTrue(appServiceImpl.contains("conditionMap.put(\"pageNum\", dto.getPageNum());"));
+        assertTrue(appServiceImpl.contains("purchaseRequestRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());"));
+        assertFalse(appServiceImpl.contains("dto.getIdList().forEach(id -> purchaseRequestRepository.removeById(dto.getCorpid(), id));"));
+
+        assertTrue(repositoryImpl.contains("Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);"));
+        assertTrue(repositoryImpl.contains("return purchaseRequestMapper.findByCondition(preparedConditionMap).stream().map(PurchaseRequestConvertor::toDomain).toList();"));
+        assertTrue(repositoryImpl.contains("return purchaseRequestMapper.count(preparedConditionMap);"));
+
+        assertTrue(mapperXml.contains("<sql id=\"BaseCondition\">"));
+        assertTrue(mapperXml.contains("group by ${conditionMap.groupByStr}"));
+        assertTrue(mapperXml.contains("order by ${conditionMap.orderByStr}"));
+
+        assertTrue(conditionMapHelper.contains("static Map<String, Object> prepare(Map<String, Object> source)"));
+        assertTrue(conditionMapHelper.contains("conditionMap.put(\"offset\", (pageNum - 1) * pageSize);"));
+        assertTrue(conditionMapHelper.contains("throw new IllegalArgumentException(key + \" contains invalid characters\");"));
+    }
 }

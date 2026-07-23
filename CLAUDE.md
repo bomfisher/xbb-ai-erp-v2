@@ -5,6 +5,7 @@
 - 对话永远在中文语境下
 - 前端仓库位置/Users/bomfish/xbb-ai-erp-v2-front
 - 主动询问我，代码修改是否要创建worktree
+- 每个claude任务确认完成后，都执行技能`.claude/commands/gen-api-md/SKILL.md`
 
 - 运行时：`JDK 21`
 - 应用框架：`Spring Boot 3.3.2`

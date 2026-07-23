@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseRequestItemMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, request_id, line_no, sku_id, sku_code_snapshot, sku_name_snapshot, spec_snapshot, purchase_unit_id, request_qty, reserved_qty, executed_qty, closed_qty, suggested_vendor_id, suggested_delivery_date, version, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.requestId != null">
+            and request_id = #{conditionMap.requestId}
+        </if>
+        <if test="conditionMap.lineNo != null">
+            and line_no = #{conditionMap.lineNo}
+        </if>
+        <if test="conditionMap.skuId != null">
+            and sku_id = #{conditionMap.skuId}
+        </if>
+        <if test="conditionMap.skuCodeSnapshot != null and conditionMap.skuCodeSnapshot != ''">
+            and sku_code_snapshot = #{conditionMap.skuCodeSnapshot}
+        </if>
+        <if test="conditionMap.skuNameSnapshot != null and conditionMap.skuNameSnapshot != ''">
+            and sku_name_snapshot = #{conditionMap.skuNameSnapshot}
+        </if>
+        <if test="conditionMap.purchaseUnitId != null">
+            and purchase_unit_id = #{conditionMap.purchaseUnitId}
+        </if>
+        <if test="conditionMap.suggestedVendorId != null">
+            and suggested_vendor_id = #{conditionMap.suggestedVendorId}
+        </if>
+        <if test="conditionMap.suggestedDeliveryDate != null">
+            and suggested_delivery_date = #{conditionMap.suggestedDeliveryDate}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into purchase_request_item (
+            id, corpid, request_id, line_no, sku_id, sku_code_snapshot, sku_name_snapshot, spec_snapshot, purchase_unit_id, request_qty, reserved_qty, executed_qty, closed_qty, suggested_vendor_id, suggested_delivery_date, version, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.corpid}, #{item.requestId}, #{item.lineNo}, #{item.skuId}, #{item.skuCodeSnapshot}, #{item.skuNameSnapshot}, #{item.specSnapshot}, #{item.purchaseUnitId}, #{item.requestQty}, #{item.reservedQty}, #{item.executedQty}, #{item.closedQty}, #{item.suggestedVendorId}, #{item.suggestedDeliveryDate}, #{item.version}, #{item.deleted}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update purchase_request_item
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update purchase_request_item
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseRequestItemPO">
+        update purchase_request_item
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="requestId != null">request_id = #{requestId},</if>
+            <if test="lineNo != null">line_no = #{lineNo},</if>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="skuCodeSnapshot != null">sku_code_snapshot = #{skuCodeSnapshot},</if>
+            <if test="skuNameSnapshot != null">sku_name_snapshot = #{skuNameSnapshot},</if>
+            <if test="specSnapshot != null">spec_snapshot = #{specSnapshot},</if>
+            <if test="purchaseUnitId != null">purchase_unit_id = #{purchaseUnitId},</if>
+            <if test="requestQty != null">request_qty = #{requestQty},</if>
+            <if test="reservedQty != null">reserved_qty = #{reservedQty},</if>
+            <if test="executedQty != null">executed_qty = #{executedQty},</if>
+            <if test="closedQty != null">closed_qty = #{closedQty},</if>
+            <if test="suggestedVendorId != null">suggested_vendor_id = #{suggestedVendorId},</if>
+            <if test="suggestedDeliveryDate != null">suggested_delivery_date = #{suggestedDeliveryDate},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="deleted != null">del = #{deleted},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseRequestItemPO">
+        select <include refid="BaseColumns"/>
+        from purchase_request_item
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseRequestItemPO">
+        select <include refid="BaseColumns"/>
+        from purchase_request_item
+        where <include refid="BaseCondition"/>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from purchase_request_item
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

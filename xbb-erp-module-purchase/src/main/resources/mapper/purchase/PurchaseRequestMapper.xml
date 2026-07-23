@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseRequestMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, purchase_org_id, request_no, request_dept_id, applicant_id, source_type, source_no, suggested_vendor_id, suggested_delivery_date, biz_status, approval_status, gross_amount, net_amount, tax_amount, version, remark, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.purchaseOrgId != null">
+            and purchase_org_id = #{conditionMap.purchaseOrgId}
+        </if>
+        <if test="conditionMap.requestNo != null and conditionMap.requestNo != ''">
+            and request_no = #{conditionMap.requestNo}
+        </if>
+        <if test="conditionMap.requestDeptId != null">
+            and request_dept_id = #{conditionMap.requestDeptId}
+        </if>
+        <if test="conditionMap.applicantId != null and conditionMap.applicantId != ''">
+            and applicant_id = #{conditionMap.applicantId}
+        </if>
+        <if test="conditionMap.sourceType != null and conditionMap.sourceType != ''">
+            and source_type = #{conditionMap.sourceType}
+        </if>
+        <if test="conditionMap.sourceNo != null and conditionMap.sourceNo != ''">
+            and source_no = #{conditionMap.sourceNo}
+        </if>
+        <if test="conditionMap.suggestedVendorId != null">
+            and suggested_vendor_id = #{conditionMap.suggestedVendorId}
+        </if>
+        <if test="conditionMap.suggestedDeliveryDate != null">
+            and suggested_delivery_date = #{conditionMap.suggestedDeliveryDate}
+        </if>
+        <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
+            and biz_status = #{conditionMap.bizStatus}
+        </if>
+        <if test="conditionMap.approvalStatus != null and conditionMap.approvalStatus != ''">
+            and approval_status = #{conditionMap.approvalStatus}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into purchase_request (
+            id, corpid, purchase_org_id, request_no, request_dept_id, applicant_id, source_type, source_no, suggested_vendor_id, suggested_delivery_date, biz_status, approval_status, gross_amount, net_amount, tax_amount, version, remark, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.corpid}, #{item.purchaseOrgId}, #{item.requestNo}, #{item.requestDeptId}, #{item.applicantId}, #{item.sourceType}, #{item.sourceNo}, #{item.suggestedVendorId}, #{item.suggestedDeliveryDate}, #{item.bizStatus}, #{item.approvalStatus}, #{item.grossAmount}, #{item.netAmount}, #{item.taxAmount}, #{item.version}, #{item.remark}, #{item.deleted}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update purchase_request
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update purchase_request
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseRequestPO">
+        update purchase_request
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="purchaseOrgId != null">purchase_org_id = #{purchaseOrgId},</if>
+            <if test="requestNo != null">request_no = #{requestNo},</if>
+            <if test="requestDeptId != null">request_dept_id = #{requestDeptId},</if>
+            <if test="applicantId != null">applicant_id = #{applicantId},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="sourceNo != null">source_no = #{sourceNo},</if>
+            <if test="suggestedVendorId != null">suggested_vendor_id = #{suggestedVendorId},</if>
+            <if test="suggestedDeliveryDate != null">suggested_delivery_date = #{suggestedDeliveryDate},</if>
+            <if test="bizStatus != null">biz_status = #{bizStatus},</if>
+            <if test="approvalStatus != null">approval_status = #{approvalStatus},</if>
+            <if test="grossAmount != null">gross_amount = #{grossAmount},</if>
+            <if test="netAmount != null">net_amount = #{netAmount},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="deleted != null">del = #{deleted},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseRequestPO">
+        select <include refid="BaseColumns"/>
+        from purchase_request
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseRequestPO">
+        select <include refid="BaseColumns"/>
+        from purchase_request
+        where <include refid="BaseCondition"/>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from purchase_request
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

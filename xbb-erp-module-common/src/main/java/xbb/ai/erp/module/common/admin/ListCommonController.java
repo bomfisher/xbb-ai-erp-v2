@@ -1,0 +1,36 @@
+package xbb.ai.erp.module.common.admin;
+
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+import xbb.ai.erp.base.common.dto.BusinessBaseDTO;
+import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
+import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
+import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
+import xbb.ai.erp.module.common.application.service.ListCommonService;
+
+@RestController
+@RequestMapping("/erp/v1/common/list")
+@RequiredArgsConstructor
+public class ListCommonController {
+
+    private final ListCommonService listCommonService;
+
+    @PostMapping("/filter")
+    public ListFilterVO filter(@RequestBody BusinessBaseDTO dto) {
+        return listCommonService.filter(dto);
+    }
+
+    @PostMapping("/topButton")
+    public ListTopButtonVO topButton(@RequestBody BusinessBaseDTO dto) {
+        return listCommonService.topButton(dto);
+    }
+    @PostMapping("/bottomButton")
+    public ListBottomButtonVO bottomButton(@RequestBody BusinessBaseDTO dto) {
+        return listCommonService.bottomButton(dto);
+    }
+
+
+}

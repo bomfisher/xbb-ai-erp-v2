@@ -98,6 +98,15 @@
 - 不负责什么：不承接采购/应付/付款等下游业务单据快照，不负责附件中心、引用摘要、操作流水、幂等记录的完整业务实现
 - 当前依赖与被谁依赖：依赖 `xbb-erp-base-common`、`xbb-erp-base-persistence`、`xbb-erp-base-web`，后续供 `xbb-erp-app-admin` 装配使用
 
+#### xbb-erp-module-product
+- 功能定位：商品主数据最小初始化模块
+- 责任范围：商品分类、品牌、单位、SPU、SKU 的基础主档、持久化映射、管理端最小 CRUD 与商品聚合查询入口
+- 当前表范围：`product_category`、`product_brand`、`product_unit`、`product_spu`、`product_sku`
+- 当前代码落位：`admin`、`app/service`、`domain/model`、`domain/repository`、`infrastructure/persistence/po`、`infrastructure/persistence/mapper`、`infrastructure/persistence/repository`
+- 不负责什么：规格、多条码、多单位、库存控制、默认业务属性、制造属性、facade 对外能力
+
+### xbb-erp-app-*
+
 #### xbb-erp-app-admin
 - 功能定位：PC 管理后台启动装配入口
 - 责任范围：`AdminApplication`、配置装配、健康检查、示例接口

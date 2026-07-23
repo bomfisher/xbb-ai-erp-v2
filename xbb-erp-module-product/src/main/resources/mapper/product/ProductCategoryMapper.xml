@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductCategoryMapper">
+
+    <resultMap id="ProductCategoryResultMap" type="xbb.ai.erp.module.product.infrastructure.persistence.po.ProductCategoryPO">
+        <id property="id" column="id"/>
+        <result property="corpid" column="corpid"/>
+        <result property="categoryCode" column="category_code"/>
+        <result property="categoryName" column="category_name"/>
+        <result property="parentId" column="parent_id"/>
+        <result property="categoryLevel" column="category_level"/>
+        <result property="sortNo" column="sort_no"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="del" column="del"/>
+        <result property="addTime" column="add_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="modifyId" column="modify_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, corpid, category_code, category_name, parent_id, category_level, sort_no,
+        enable_status, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="Condition_Where">
+        <where>
+            del = 0
+            <if test="corpid != null and corpid != ''">
+                AND corpid = #{corpid}
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="categoryCode != null and categoryCode != ''">
+                AND category_code = #{categoryCode}
+            </if>
+            <if test="categoryName != null and categoryName != ''">
+                AND category_name LIKE CONCAT('%', #{categoryName}, '%')
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insert">
+        INSERT INTO product_category (
+            id, corpid, category_code, category_name, parent_id, category_level, sort_no,
+            enable_status, del, add_time, update_time, creator_id, modify_id
+        ) VALUES (
+            #{id}, #{corpid}, #{categoryCode}, #{categoryName}, #{parentId}, #{categoryLevel}, #{sortNo},
+            #{enableStatus}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId}
+        )
+    </insert>
+
+    <insert id="insertBatch">
+        INSERT INTO product_category (
+            id, corpid, category_code, category_name, parent_id, category_level, sort_no,
+            enable_status, del, add_time, update_time, creator_id, modify_id
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.corpid}, #{item.categoryCode}, #{item.categoryName}, #{item.parentId}, #{item.categoryLevel}, #{item.sortNo},
+                #{item.enableStatus}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId}
+            )
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        UPDATE product_category
+        SET del = 1, modify_id = #{modifyId}, update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND id = #{id} AND del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        UPDATE product_category
+        SET del = 1, modify_id = #{modifyId}, update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND del = 0
+        <if test="ids != null and ids.size() > 0">
+            AND id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="update">
+        UPDATE product_category
+        SET category_code = #{categoryCode},
+            category_name = #{categoryName},
+            parent_id = #{parentId},
+            category_level = #{categoryLevel},
+            sort_no = #{sortNo},
+            enable_status = #{enableStatus},
+            modify_id = #{modifyId},
+            update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND id = #{id} AND del = 0
+    </update>
+
+    <select id="findById" resultMap="ProductCategoryResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_category
+        WHERE corpid = #{corpid} AND id = #{id} AND del = 0
+    </select>
+
+    <select id="findByCondition" resultMap="ProductCategoryResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM product_category
+        <include refid="Condition_Where"/>
+        <if test="groupByStr != null and groupByStr != ''">
+            GROUP BY ${groupByStr}
+        </if>
+        <choose>
+            <when test="orderByStr != null and orderByStr != ''">
+                ORDER BY ${orderByStr}
+            </when>
+            <otherwise>
+                ORDER BY id DESC
+            </otherwise>
+        </choose>
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+        <if test="offset == null and pageSize != null">
+            LIMIT #{pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(1)
+        FROM product_category
+        <include refid="Condition_Where"/>
+    </select>
+</mapper>

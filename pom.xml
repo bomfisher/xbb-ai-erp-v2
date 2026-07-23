@@ -20,6 +20,7 @@
         <module>xbb-erp-base-test</module>
         <module>xbb-erp-codegen</module>
         <module>xbb-erp-module-supplier</module>
+        <module>xbb-erp-module-product</module>
         <module>xbb-erp-app-admin</module>
         <module>xbb-erp-app-mobile</module>
         <module>xbb-erp-app-job</module>

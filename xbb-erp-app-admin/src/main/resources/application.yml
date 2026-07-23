@@ -3,6 +3,8 @@ spring:
     name: xbb-erp-app-admin
   profiles:
     active: local
+  server:
+    port: 8001
   datasource:
     url: jdbc:mysql://192.168.10.14:3306/db_xbb_ai_erp?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true&useAffectedRows=true
     username: ms2

@@ -3,6 +3,8 @@ spring:
     name: xbb-erp-app-mobile
   profiles:
     active: local
+  server:
+    port: 8002
   datasource:
     url: jdbc:mysql://127.0.0.1:3306/xbb_erp?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai
     username: root

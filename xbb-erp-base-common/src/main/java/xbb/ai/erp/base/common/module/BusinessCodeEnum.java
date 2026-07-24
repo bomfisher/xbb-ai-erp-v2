@@ -6,12 +6,12 @@ import lombok.Getter;
  * 业务code枚举
  */
 @Getter
-public enum BusinessTypeEnum {
+public enum BusinessCodeEnum {
     CUSTOMER("CUSTOMER")
     ;
     private String code;
 
-    BusinessTypeEnum(String code) {
+    BusinessCodeEnum(String code) {
         this.code = code;
     }
 }

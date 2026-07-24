@@ -114,3 +114,25 @@ CREATE TABLE `product_sku` (
   KEY `idx_sku_produce` (`corpid`, `can_produce`, `enable_status`, `del`),
   KEY `idx_sku_mnemonic` (`corpid`, `mnemonic_code`, `del`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `warehouse` (
+  `id` bigint NOT NULL,
+  `corpid` varchar(50) NOT NULL,
+  `biz_org_id` bigint NOT NULL,
+  `warehouse_code` varchar(64) NOT NULL,
+  `warehouse_name` varchar(128) NOT NULL,
+  `warehouse_type` varchar(32) NOT NULL,
+  `enable_status` tinyint NOT NULL,
+  `address` varchar(255) DEFAULT NULL,
+  `manager_id` varchar(50) DEFAULT NULL,
+  `biz_status` varchar(32) NOT NULL,
+  `del` tinyint NOT NULL,
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(50) NOT NULL,
+  `modify_id` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_warehouse_code` (`corpid`, `warehouse_code`, `del`),
+  KEY `idx_warehouse_list` (`corpid`, `biz_org_id`, `enable_status`, `del`),
+  KEY `idx_warehouse_name` (`corpid`, `warehouse_name`, `del`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

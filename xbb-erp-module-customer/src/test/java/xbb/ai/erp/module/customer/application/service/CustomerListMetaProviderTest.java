@@ -1,7 +1,7 @@
 package xbb.ai.erp.module.customer.application.service;
 
 import org.junit.jupiter.api.Test;
-import xbb.ai.erp.base.common.module.BusinessTypeEnum;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
@@ -21,14 +21,16 @@ class CustomerListMetaProviderTest {
         ListCommonQueryDTO dto = new ListCommonQueryDTO();
         dto.setCorpid("corp-001");
         dto.setUserId("user-001");
-        dto.setBusinessCode(BusinessTypeEnum.CUSTOMER.getCode());
+        dto.setBusinessCode(BusinessCodeEnum.CUSTOMER.getCode());
 
-        ListMetaBundlePojo bundle = provider.buildBaseMeta(dto);
-        List<FilterField> filterList = bundle.getFilterList();
+        List<FilterField> filterList = provider.buildFilterMeta(dto);
+        ListMetaBundlePojo topBundle = provider.buildTopButtonMeta(dto);
+        ListMetaBundlePojo bottomBundle = provider.buildBottomButtonMeta(dto);
 
-        assertEquals(BusinessTypeEnum.CUSTOMER.getCode(), provider.businessCode());
+        assertEquals(BusinessCodeEnum.CUSTOMER.getCode(), provider.businessCode());
         assertFalse(filterList.isEmpty());
         assertEquals("main.customerCode", filterList.get(0).getAttr());
-        assertEquals("新增", bundle.getTopButtonList().get(0).getButtonName());
+        assertEquals("新增", topBundle.getTopButtonList().get(0).getButtonName());
+        assertEquals("导出", bottomBundle.getBottomButtonList().get(0).getButtonName());
     }
 }

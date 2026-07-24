@@ -1,0 +1,285 @@
+moduleCode: purchase
+moduleName: 采购订单
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: PurchaseOrder
+  tableName: purchase_order
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: purchaseOrgId
+      column: purchase_org_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: orderNo
+      column: order_no
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: vendorId
+      column: vendor_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: vendorNameSnapshot
+      column: vendor_name_snapshot
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: purchaserId
+      column: purchaser_id
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: purchaserNameSnapshot
+      column: purchaser_name_snapshot
+      javaType: String
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: warehouseId
+      column: warehouse_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: warehouseNameSnapshot
+      column: warehouse_name_snapshot
+      javaType: String
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: settlementMethodId
+      column: settlement_method_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: settlementMethodSnapshot
+      column: settlement_method_snapshot
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: paymentTermSnapshot
+      column: payment_term_snapshot
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: currencyCode
+      column: currency_code
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: deliveryDate
+      column: delivery_date
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: sourceType
+      column: source_type
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: sourceNo
+      column: source_no
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: salesLinkedFlag
+      column: sales_linked_flag
+      javaType: Integer
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: bizStatus
+      column: biz_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: approvalStatus
+      column: approval_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: executionStatus
+      column: execution_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: receiptStatus
+      column: receipt_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: inboundStatus
+      column: inbound_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: payableStatus
+      column: payable_status
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: invoiceStatus
+      column: invoice_status
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: paymentStatus
+      column: payment_status
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: grossAmount
+      column: gross_amount
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: netAmount
+      column: net_amount
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: taxAmount
+      column: tax_amount
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: inboundedQtySummary
+      column: inbounded_qty_summary
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: uninboundedQtySummary
+      column: uninbounded_qty_summary
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: closedQtySummary
+      column: closed_qty_summary
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: payableAmountSummary
+      column: payable_amount_summary
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: paidAmountSummary
+      column: paid_amount_summary
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: invoicedAmountSummary
+      column: invoiced_amount_summary
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: lastInboundTime
+      column: last_inbound_time
+      javaType: Long
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: lastPayableTime
+      column: last_payable_time
+      javaType: Long
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: periodLockedFlag
+      column: period_locked_flag
+      javaType: Integer
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: remark
+      column: remark
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

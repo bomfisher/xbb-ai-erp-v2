@@ -19,6 +19,7 @@
         <module>xbb-erp-base-log</module>
         <module>xbb-erp-base-test</module>
         <module>xbb-erp-codegen</module>
+        <module>xbb-erp-scene-meta</module>
         <module>xbb-erp-module-common</module>
         <module>xbb-erp-module-customer</module>
         <module>xbb-erp-module-supplier</module>

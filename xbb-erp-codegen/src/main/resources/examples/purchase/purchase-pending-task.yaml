@@ -1,0 +1,177 @@
+moduleCode: purchase
+moduleName: 待采购任务
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: PurchasePendingTask
+  tableName: purchase_pending_task
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: purchaseOrgId
+      column: purchase_org_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: taskNo
+      column: task_no
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: sourceType
+      column: source_type
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: sourceDocId
+      column: source_doc_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: sourceLineId
+      column: source_line_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: sourceDocNo
+      column: source_doc_no
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: skuId
+      column: sku_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: skuCodeSnapshot
+      column: sku_code_snapshot
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: skuNameSnapshot
+      column: sku_name_snapshot
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: needQty
+      column: need_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: occupiedQty
+      column: occupied_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: generatedRequestQty
+      column: generated_request_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: generatedOrderQty
+      column: generated_order_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: closedQty
+      column: closed_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: suggestedVendorId
+      column: suggested_vendor_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: suggestedDeliveryDate
+      column: suggested_delivery_date
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: priorityLevel
+      column: priority_level
+      javaType: Integer
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: taskStatus
+      column: task_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: salesLinkedFlag
+      column: sales_linked_flag
+      javaType: Integer
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

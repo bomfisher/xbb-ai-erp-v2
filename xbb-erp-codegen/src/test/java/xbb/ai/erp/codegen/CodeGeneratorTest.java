@@ -1,6 +1,7 @@
 package xbb.ai.erp.codegen;
 
 import org.junit.jupiter.api.Test;
+import xbb.ai.erp.codegen.cli.DbTableCodegenCli;
 import xbb.ai.erp.codegen.generator.CodeGenerator;
 import xbb.ai.erp.codegen.spec.ModuleSpec;
 import xbb.ai.erp.codegen.spec.ModuleSpecLoader;
@@ -8,8 +9,12 @@ import xbb.ai.erp.codegen.spec.PathStrategyLoader;
 import xbb.ai.erp.codegen.spec.PathStrategySpec;
 import xbb.ai.erp.codegen.spec.SpecValidator;
 
+import java.io.ByteArrayOutputStream;
+import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -86,6 +91,66 @@ class CodeGeneratorTest {
         assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java")));
         assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/po/PurchaseRequestPO.java")));
         assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml")));
+    }
+
+    @Test
+    void should_generate_yaml_from_table_meta() throws Exception {
+        Path yamlOutputDir = Files.createTempDirectory("xbb-codegen-yaml-");
+        DbTableCodegenCli.TableMeta tableMeta = new DbTableCodegenCli.TableMeta(
+            "purchase_request",
+            List.of(
+                new DbTableCodegenCli.ColumnMeta("id", "bigint", "主键", false, true),
+                new DbTableCodegenCli.ColumnMeta("corpid", "varchar", "公司ID", false, false),
+                new DbTableCodegenCli.ColumnMeta("request_no", "varchar", "申请单号", false, false),
+                new DbTableCodegenCli.ColumnMeta("deleted", "tinyint", "删除标记", false, false),
+                new DbTableCodegenCli.ColumnMeta("created_time", "datetime", "创建时间", true, false)
+            )
+        );
+
+        Path yamlPath = DbTableCodegenCli.writeYaml(
+            tableMeta,
+            "purchase",
+            "采购",
+            "xbb.ai.erp.module.purchase",
+            yamlOutputDir
+        );
+
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(yamlPath);
+        assertEquals("purchase", moduleSpec.getModuleCode());
+        assertEquals("xbb.ai.erp.module.purchase", moduleSpec.getPackageBase());
+        assertEquals("PurchaseRequest", moduleSpec.getAggregate().getAggregateName());
+        assertEquals("purchase_request", moduleSpec.getAggregate().getTableName());
+        assertEquals("Integer", moduleSpec.getAggregate().getFields().stream()
+            .filter(field -> "deleted".equals(field.getName()))
+            .findFirst()
+            .orElseThrow()
+            .getJavaType());
+        assertEquals("purchase_request.yaml", yamlPath.getFileName().toString());
+    }
+
+    @Test
+    void should_skip_codegen_when_mapper_xml_exists() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
+        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
+        Path outputRoot = Files.createTempDirectory("xbb-codegen-skip-");
+        Path mapperXmlPath = outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml");
+        Files.createDirectories(mapperXmlPath.getParent());
+        Files.writeString(mapperXmlPath, "existing", StandardCharsets.UTF_8);
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        PrintStream originalOut = System.out;
+        try {
+            System.setOut(new PrintStream(byteArrayOutputStream, true, StandardCharsets.UTF_8));
+            boolean generated = DbTableCodegenCli.generateIfMapperXmlMissing(outputRoot, moduleSpec, pathStrategySpec, new CodeGenerator());
+            assertFalse(generated);
+        } finally {
+            System.setOut(originalOut);
+        }
+
+        String console = byteArrayOutputStream.toString(StandardCharsets.UTF_8);
+        assertTrue(console.contains("skip codegen, mapper xml exists"));
+        assertFalse(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java")));
+        assertEquals("existing", Files.readString(mapperXmlPath));
     }
 
     @Test

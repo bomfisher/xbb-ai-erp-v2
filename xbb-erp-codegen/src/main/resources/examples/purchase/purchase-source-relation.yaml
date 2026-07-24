@@ -1,0 +1,135 @@
+moduleCode: purchase
+moduleName: 采购来源关系
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: PurchaseSourceRelation
+  tableName: purchase_source_relation
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: sourceDocType
+      column: source_doc_type
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: sourceDocId
+      column: source_doc_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: sourceLineId
+      column: source_line_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: targetDocType
+      column: target_doc_type
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: targetDocId
+      column: target_doc_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: targetLineId
+      column: target_line_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: sourceQty
+      column: source_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: reservedQty
+      column: reserved_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: executedQty
+      column: executed_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: closedQty
+      column: closed_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: reversedQty
+      column: reversed_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: relationStatus
+      column: relation_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

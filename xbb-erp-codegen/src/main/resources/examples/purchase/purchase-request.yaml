@@ -1,0 +1,147 @@
+moduleCode: purchase
+moduleName: 采购申请
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: PurchaseRequest
+  tableName: purchase_request
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: purchaseOrgId
+      column: purchase_org_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: requestNo
+      column: request_no
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: requestDeptId
+      column: request_dept_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: applicantId
+      column: applicant_id
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: sourceType
+      column: source_type
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: sourceNo
+      column: source_no
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: suggestedVendorId
+      column: suggested_vendor_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: suggestedDeliveryDate
+      column: suggested_delivery_date
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: bizStatus
+      column: biz_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: approvalStatus
+      column: approval_status
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: grossAmount
+      column: gross_amount
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: netAmount
+      column: net_amount
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: taxAmount
+      column: tax_amount
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: remark
+      column: remark
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

@@ -10,7 +10,7 @@
         <version>1.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>xbb-erp-module-customer</artifactId>
+    <artifactId>xbb-erp-scene-meta</artifactId>
 
     <dependencies>
         <dependency>
@@ -19,24 +19,9 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-scene-meta</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-persistence</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-web</artifactId>
-            <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.junit.jupiter</groupId>

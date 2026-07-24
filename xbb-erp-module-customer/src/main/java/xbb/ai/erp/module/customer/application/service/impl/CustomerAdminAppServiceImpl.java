@@ -18,6 +18,8 @@ import xbb.ai.erp.module.customer.admin.vo.CustomerSaveItemVO;
 import xbb.ai.erp.module.customer.application.assembler.CustomerAdminAssembler;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
 import xbb.ai.erp.module.customer.application.service.CustomerAdminAppService;
+import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
+import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.model.CustomerAddress;
 import xbb.ai.erp.module.customer.domain.model.CustomerBankAccount;
@@ -28,6 +30,8 @@ import xbb.ai.erp.module.customer.domain.repository.CustomerBankAccountRepositor
 import xbb.ai.erp.module.customer.domain.repository.CustomerContactRepository;
 import xbb.ai.erp.module.customer.domain.repository.CustomerInvoiceProfileRepository;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
+
+import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 import java.util.HashMap;
 import java.util.List;
@@ -45,9 +49,10 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
     private final CustomerAddressRepository customerAddressRepository;
     private final CustomerBankAccountRepository customerBankAccountRepository;
     private final CustomerInvoiceProfileRepository customerInvoiceProfileRepository;
+    private final CustomerFieldFactory customerFieldFactory;
 
     public CustomerAdminAppServiceImpl() {
-        this(null, null, null, null, null);
+        this(null, null, null, null, null, new DefaultCustomerFieldFactory(List.of()));
     }
 
     public CustomerAdminAppServiceImpl(
@@ -55,13 +60,15 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         CustomerContactRepository customerContactRepository,
         CustomerAddressRepository customerAddressRepository,
         CustomerBankAccountRepository customerBankAccountRepository,
-        CustomerInvoiceProfileRepository customerInvoiceProfileRepository
+        CustomerInvoiceProfileRepository customerInvoiceProfileRepository,
+        CustomerFieldFactory customerFieldFactory
     ) {
         this.customerRepository = customerRepository;
         this.customerContactRepository = customerContactRepository;
         this.customerAddressRepository = customerAddressRepository;
         this.customerBankAccountRepository = customerBankAccountRepository;
         this.customerInvoiceProfileRepository = customerInvoiceProfileRepository;
+        this.customerFieldFactory = customerFieldFactory;
     }
 
     public static CustomerAdminAppServiceImpl forTesting(
@@ -76,7 +83,26 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
             customerContactRepository,
             customerAddressRepository,
             customerBankAccountRepository,
-            customerInvoiceProfileRepository
+            customerInvoiceProfileRepository,
+            new DefaultCustomerFieldFactory(List.of())
+        );
+    }
+
+    public static CustomerAdminAppServiceImpl forTesting(
+        CustomerRepository customerRepository,
+        CustomerContactRepository customerContactRepository,
+        CustomerAddressRepository customerAddressRepository,
+        CustomerBankAccountRepository customerBankAccountRepository,
+        CustomerInvoiceProfileRepository customerInvoiceProfileRepository,
+        CustomerFieldFactory customerFieldFactory
+    ) {
+        return new CustomerAdminAppServiceImpl(
+            customerRepository,
+            customerContactRepository,
+            customerAddressRepository,
+            customerBankAccountRepository,
+            customerInvoiceProfileRepository,
+            customerFieldFactory
         );
     }
 
@@ -101,7 +127,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }).toList();
 
         ListBaseVO<CustomerListItemVO> vo = new ListBaseVO<>();
-        vo.setHeadList(CustomerFieldAssembler.buildListHeadList());
+        vo.setHeadList(CustomerFieldAssembler.buildHeadList(customerFieldFactory.getFields(SceneTypeEnum.LIST)));
         vo.setList(list);
         vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum(), dto.getPageNum()));
         return vo;
@@ -110,7 +136,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
     @Override
     public SaveItemVO<CustomerSaveItemVO> addItem(BaseDTO dto) {
         SaveItemVO<CustomerSaveItemVO> vo = new SaveItemVO<>();
-        vo.setHeadList(CustomerFieldAssembler.buildAddItemHeadList());
+        vo.setHeadList(CustomerFieldAssembler.buildHeadList(customerFieldFactory.getFields(SceneTypeEnum.CREATE)));
         vo.setData(CustomerAdminAssembler.buildEmptySaveItemVO());
         return vo;
     }
@@ -118,7 +144,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
     @Override
     public SaveItemVO<CustomerSaveItemVO> updateItem(IdBaseDTO dto) {
         SaveItemVO<CustomerSaveItemVO> vo = new SaveItemVO<>();
-        vo.setHeadList(CustomerFieldAssembler.buildAddItemHeadList());
+        vo.setHeadList(CustomerFieldAssembler.buildHeadList(customerFieldFactory.getFields(SceneTypeEnum.UPDATE)));
         vo.setData(CustomerAdminAssembler.buildEmptySaveItemVO());
         return vo;
     }

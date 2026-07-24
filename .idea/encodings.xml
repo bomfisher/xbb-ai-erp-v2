@@ -39,6 +39,8 @@
     <file url="file://$PROJECT_DIR$/xbb-erp-module-purchase/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-supplier/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-supplier/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-scene-meta/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-scene-meta/src/main/resources" charset="UTF-8" />
     <file url="PROJECT" charset="UTF-8" />
   </component>
 </project>

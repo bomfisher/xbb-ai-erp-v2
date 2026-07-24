@@ -1,0 +1,141 @@
+moduleCode: purchase
+moduleName: 采购申请明细
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregate:
+  aggregateName: PurchaseRequestItem
+  tableName: purchase_request_item
+  fields:
+    - name: id
+      column: id
+      javaType: Long
+      primaryKey: true
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: corpid
+      column: corpid
+      javaType: String
+      queryable: true
+      visibleInList: false
+      visibleInDetail: false
+    - name: requestId
+      column: request_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: lineNo
+      column: line_no
+      javaType: Integer
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: skuId
+      column: sku_id
+      javaType: Long
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: skuCodeSnapshot
+      column: sku_code_snapshot
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: skuNameSnapshot
+      column: sku_name_snapshot
+      javaType: String
+      queryable: true
+      visibleInList: true
+      visibleInDetail: true
+    - name: specSnapshot
+      column: spec_snapshot
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: purchaseUnitId
+      column: purchase_unit_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: requestQty
+      column: request_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: reservedQty
+      column: reserved_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: executedQty
+      column: executed_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: closedQty
+      column: closed_qty
+      javaType: java.math.BigDecimal
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: suggestedVendorId
+      column: suggested_vendor_id
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: suggestedDeliveryDate
+      column: suggested_delivery_date
+      javaType: Long
+      queryable: true
+      visibleInList: false
+      visibleInDetail: true
+    - name: version
+      column: version
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: true
+    - name: deleted
+      column: del
+      javaType: Integer
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: addTime
+      column: add_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: updateTime
+      column: update_time
+      javaType: Long
+      queryable: false
+      visibleInList: true
+      visibleInDetail: true
+    - name: creatorId
+      column: creator_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+    - name: modifyId
+      column: modify_id
+      javaType: String
+      queryable: false
+      visibleInList: false
+      visibleInDetail: false
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

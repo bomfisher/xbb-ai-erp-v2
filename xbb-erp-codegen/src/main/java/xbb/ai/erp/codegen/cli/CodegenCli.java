@@ -41,6 +41,6 @@ public class CodegenCli {
     private static void printUsage() {
         System.out.println("用法:");
         System.out.println("  java -jar xbb-erp-codegen.jar dry-run <spec.yaml>");
-        System.out.println("  java -jar xbb-erp-codegen.jar generate <spec.yaml> [outputRoot]");
+        System.out.println("  java -jar xbb-erp-codegen.jar generate <spec.yaml> [chu]");
     }
 }

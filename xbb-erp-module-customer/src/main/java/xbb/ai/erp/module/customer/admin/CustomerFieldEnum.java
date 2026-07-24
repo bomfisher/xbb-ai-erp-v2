@@ -1,13 +1,10 @@
 package xbb.ai.erp.module.customer.admin;
 
 import lombok.Getter;
-import xbb.ai.erp.base.common.filed.BusinessField;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
 
-import java.util.List;
-
 @Getter
-public enum CustomerFieldEnum implements BusinessField {
+public enum CustomerFieldEnum {
     CUSTOMER_CODE("main.customerCode", "客户编码", FieldTypeEnum.TEXT),
     CUSTOMER_NAME("main.customerName", "客户名称", FieldTypeEnum.TEXT),
     CUSTOMER_SHORT_NAME("main.customerShortName", "客户简称", FieldTypeEnum.TEXT),
@@ -49,23 +46,5 @@ public enum CustomerFieldEnum implements BusinessField {
         this.attr = attr;
         this.attrName = attrName;
         this.fieldType = fieldType.getType();
-    }
-
-    @Override
-    public List<String> getRequiredList() {
-        return List.of(
-            CUSTOMER_CODE.getAttr(),
-            CUSTOMER_NAME.getAttr(),
-            CUSTOMER_CATEGORY.getAttr(),
-            BIZ_STATUS.getAttr(),
-            CONTACT_NAME.getAttr(),
-            ADDRESS_TYPE.getAttr(),
-            DETAIL_ADDRESS.getAttr(),
-            ACCOUNT_NAME.getAttr(),
-            BANK_NAME.getAttr(),
-            ACCOUNT_NO.getAttr(),
-            INVOICE_TITLE.getAttr(),
-            TAX_NO.getAttr()
-        );
     }
 }

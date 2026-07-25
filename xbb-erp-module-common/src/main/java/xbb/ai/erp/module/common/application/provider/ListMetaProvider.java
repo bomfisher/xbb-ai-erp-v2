@@ -1,0 +1,28 @@
+package xbb.ai.erp.module.common.application.provider;
+
+import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
+import xbb.ai.erp.module.common.admin.pojo.FilterField;
+import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
+import xbb.ai.erp.module.common.application.pojo.ListMetaContextPojo;
+
+import java.util.List;
+
+public interface ListMetaProvider {
+
+    String businessCode();
+
+    List<FilterField> buildFilterMeta(ListCommonQueryDTO dto);
+
+    List<FieldEntity> buildHeaderMeta(ListCommonQueryDTO dto);
+
+    ListMetaBundlePojo buildTopButtonMeta(ListCommonQueryDTO dto);
+
+    ListMetaBundlePojo buildBottomButtonMeta(ListCommonQueryDTO dto);
+
+    default void applyPackageExtension(ListMetaBundlePojo bundle, ListMetaContextPojo context) {
+    }
+
+    default void applyPermissionTrim(ListMetaBundlePojo bundle, ListMetaContextPojo context) {
+    }
+}

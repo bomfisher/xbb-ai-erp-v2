@@ -127,7 +127,6 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }).toList();
 
         ListBaseVO<CustomerListItemVO> vo = new ListBaseVO<>();
-        vo.setHeadList(CustomerFieldAssembler.buildHeadList(customerFieldFactory.getFields(SceneTypeEnum.LIST)));
         vo.setList(list);
         vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum(), dto.getPageNum()));
         return vo;

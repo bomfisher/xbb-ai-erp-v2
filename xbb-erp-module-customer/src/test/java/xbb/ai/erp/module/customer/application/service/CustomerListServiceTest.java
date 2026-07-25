@@ -1,14 +1,12 @@
 package xbb.ai.erp.module.customer.application.service;
 
 import org.junit.jupiter.api.Test;
-import xbb.ai.erp.base.common.filed.FieldTypeEnum;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerListDTO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerListItemVO;
 import xbb.ai.erp.module.customer.application.service.impl.CustomerAdminAppServiceImpl;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerContactRepository;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerRepository;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldRule;
 import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.model.CustomerContact;
@@ -19,6 +17,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CustomerListServiceTest {
@@ -55,19 +54,14 @@ class CustomerListServiceTest {
     }
 
     @Test
-    void should_use_field_factory_for_list_head() {
-        CustomerFieldRule extensionRule = fields -> {
-            fields.add(new xbb.ai.erp.module.customer.domain.field.CustomerFieldMeta("main.customLevel", "客户等级", FieldTypeEnum.TEXT.getType(), 0, 1));
-            return fields;
-        };
-        DefaultCustomerFieldFactory fieldFactory = new DefaultCustomerFieldFactory(List.of(extensionRule));
+    void should_not_return_head_list_in_list_response() {
         CustomerAdminAppServiceImpl service = CustomerAdminAppServiceImpl.forTesting(
             new FakeCustomerRepository(List.of()),
             new FakeCustomerContactRepository(List.of()),
             null,
             null,
             null,
-            fieldFactory
+            new DefaultCustomerFieldFactory(List.of())
         );
         CustomerListDTO dto = new CustomerListDTO();
         dto.setCorpid("corp-001");
@@ -76,6 +70,7 @@ class CustomerListServiceTest {
 
         ListBaseVO<CustomerListItemVO> result = service.list(dto);
 
-        assertTrue(result.getHeadList().stream().anyMatch(field -> "main.customLevel".equals(field.getAttr())));
+        assertNull(result.getHeadList());
     }
+
 }

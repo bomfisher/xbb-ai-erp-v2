@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
+import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
 import xbb.ai.erp.module.common.application.service.ListCommonService;
 
@@ -21,6 +22,11 @@ public class ListCommonController {
     @PostMapping("/filter")
     public ListFilterVO filter(@RequestBody ListCommonQueryDTO dto) {
         return listCommonService.filter(dto);
+    }
+
+    @PostMapping("/header")
+    public ListHeaderVO header(@RequestBody ListCommonQueryDTO dto) {
+        return listCommonService.header(dto);
     }
 
     @PostMapping("/topButton")

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.product.infrastructure.persistence.mapper.WarehouseMapper">
+
+    <resultMap id="WarehouseResultMap" type="xbb.ai.erp.module.product.infrastructure.persistence.po.WarehousePO">
+        <id property="id" column="id"/>
+        <result property="corpid" column="corpid"/>
+        <result property="bizOrgId" column="biz_org_id"/>
+        <result property="warehouseCode" column="warehouse_code"/>
+        <result property="warehouseName" column="warehouse_name"/>
+        <result property="warehouseType" column="warehouse_type"/>
+        <result property="enableStatus" column="enable_status"/>
+        <result property="address" column="address"/>
+        <result property="managerId" column="manager_id"/>
+        <result property="bizStatus" column="biz_status"/>
+        <result property="del" column="del"/>
+        <result property="addTime" column="add_time"/>
+        <result property="updateTime" column="update_time"/>
+        <result property="creatorId" column="creator_id"/>
+        <result property="modifyId" column="modify_id"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id, corpid, biz_org_id, warehouse_code, warehouse_name, warehouse_type, enable_status,
+        address, manager_id, biz_status, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="Condition_Where">
+        <where>
+            del = 0
+            <if test="corpid != null and corpid != ''">
+                AND corpid = #{corpid}
+            </if>
+            <if test="id != null">
+                AND id = #{id}
+            </if>
+            <if test="bizOrgId != null">
+                AND biz_org_id = #{bizOrgId}
+            </if>
+            <if test="warehouseCode != null and warehouseCode != ''">
+                AND warehouse_code = #{warehouseCode}
+            </if>
+            <if test="warehouseName != null and warehouseName != ''">
+                AND warehouse_name LIKE CONCAT('%', #{warehouseName}, '%')
+            </if>
+            <if test="warehouseType != null and warehouseType != ''">
+                AND warehouse_type = #{warehouseType}
+            </if>
+            <if test="enableStatus != null">
+                AND enable_status = #{enableStatus}
+            </if>
+            <if test="address != null and address != ''">
+                AND address = #{address}
+            </if>
+            <if test="managerId != null and managerId != ''">
+                AND manager_id = #{managerId}
+            </if>
+            <if test="bizStatus != null and bizStatus != ''">
+                AND biz_status = #{bizStatus}
+            </if>
+        </where>
+    </sql>
+
+    <insert id="insertBatch">
+        INSERT INTO warehouse (
+            id, corpid, biz_org_id, warehouse_code, warehouse_name, warehouse_type, enable_status,
+            address, manager_id, biz_status, del, add_time, update_time, creator_id, modify_id
+        ) VALUES
+        <foreach collection="list" item="item" separator=",">
+            (
+                #{item.id}, #{item.corpid}, #{item.bizOrgId}, #{item.warehouseCode}, #{item.warehouseName}, #{item.warehouseType}, #{item.enableStatus},
+                #{item.address}, #{item.managerId}, #{item.bizStatus}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId}
+            )
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        UPDATE warehouse
+        SET del = 1, modify_id = #{modifyId}, update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND id = #{id} AND del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        UPDATE warehouse
+        SET del = 1, modify_id = #{modifyId}, update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND del = 0
+        <if test="ids != null and ids.size() > 0">
+            AND id IN
+            <foreach collection="ids" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+    </update>
+
+    <update id="update">
+        UPDATE warehouse
+        SET biz_org_id = #{bizOrgId},
+            warehouse_code = #{warehouseCode},
+            warehouse_name = #{warehouseName},
+            warehouse_type = #{warehouseType},
+            enable_status = #{enableStatus},
+            address = #{address},
+            manager_id = #{managerId},
+            biz_status = #{bizStatus},
+            modify_id = #{modifyId},
+            update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND id = #{id} AND del = 0
+    </update>
+
+    <select id="findById" resultMap="WarehouseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM warehouse
+        WHERE corpid = #{corpid} AND id = #{id} AND del = 0
+    </select>
+
+    <select id="findByCondition" resultMap="WarehouseResultMap">
+        SELECT <include refid="Base_Column_List"/>
+        FROM warehouse
+        <include refid="Condition_Where"/>
+        <if test="groupByStr != null and groupByStr != ''">
+            GROUP BY ${groupByStr}
+        </if>
+        <choose>
+            <when test="orderByStr != null and orderByStr != ''">
+                ORDER BY ${orderByStr}
+            </when>
+            <otherwise>
+                ORDER BY id DESC
+            </otherwise>
+        </choose>
+        <if test="offset != null and pageSize != null">
+            LIMIT #{offset}, #{pageSize}
+        </if>
+        <if test="offset == null and pageSize != null">
+            LIMIT #{pageSize}
+        </if>
+    </select>
+
+    <select id="count" resultType="long">
+        SELECT COUNT(1)
+        FROM warehouse
+        <include refid="Condition_Where"/>
+    </select>
+</mapper>

@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
+import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
@@ -22,6 +23,14 @@ public class ListCommonServiceImpl implements ListCommonService {
         ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
         ListFilterVO vo = new ListFilterVO();
         vo.setList(provider.buildFilterMeta(dto));
+        return vo;
+    }
+
+    @Override
+    public ListHeaderVO header(ListCommonQueryDTO dto) {
+        ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
+        ListHeaderVO vo = new ListHeaderVO();
+        vo.setList(provider.buildHeaderMeta(dto));
         return vo;
     }
 

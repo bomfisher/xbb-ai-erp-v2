@@ -73,4 +73,45 @@ class CustomerListServiceTest {
         assertNull(result.getHeadList());
     }
 
+    @Test
+    void should_apply_keyword_and_region_filters_with_paged_result() {
+        Customer first = buildCustomer(1L, "corp-001", "CUST-001", "杭州客户一", "330100");
+        Customer second = buildCustomer(2L, "corp-001", "CUST-002", "杭州客户二", "330100");
+        Customer third = buildCustomer(3L, "corp-001", "CUST-003", "宁波客户", "330200");
+
+        CustomerAdminAppServiceImpl service = CustomerAdminAppServiceImpl.forTesting(
+            new FakeCustomerRepository(List.of(first, second, third)),
+            new FakeCustomerContactRepository(List.of()),
+            null,
+            null,
+            null,
+            new DefaultCustomerFieldFactory(List.of())
+        );
+        CustomerListDTO dto = new CustomerListDTO();
+        dto.setCorpid("corp-001");
+        dto.setKeyword("杭州");
+        dto.setRegionCode("330100");
+        dto.setPageNum(1);
+        dto.setPageSize(1);
+
+        ListBaseVO<CustomerListItemVO> result = service.list(dto);
+
+        assertEquals(1, result.getList().size());
+        assertEquals("CUST-001", result.getList().get(0).getCustomerCode());
+        assertEquals(2, result.getPageHelper().getCount());
+        assertFalse(result.getPageHelper().getHasLeft());
+        assertTrue(result.getPageHelper().getHasRight());
+    }
+
+    private static Customer buildCustomer(Long id, String corpid, String customerCode, String customerName, String regionCode) {
+        Customer customer = new Customer();
+        customer.setId(id);
+        customer.setCorpid(corpid);
+        customer.setCustomerCode(customerCode);
+        customer.setCustomerName(customerName);
+        customer.setRegionCode(regionCode);
+        customer.setBizStatus("ENABLED");
+        customer.setRefStatus("0");
+        return customer;
+    }
 }

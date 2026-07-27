@@ -108,16 +108,13 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
 
     @Override
     public ListBaseVO<CustomerListItemVO> list(CustomerListDTO dto) {
-        Map<String, Object> conditionMap = new HashMap<>();
-        conditionMap.put("corpid", dto.getCorpid());
-        conditionMap.put("customerCode", dto.getCustomerCode());
-        conditionMap.put("customerName", dto.getCustomerName());
-        conditionMap.put("customerCategory", dto.getCustomerCategory());
-        conditionMap.put("regionCode", dto.getRegionCode());
-        conditionMap.put("ownerSalesId", dto.getOwnerSalesId());
-        conditionMap.put("bizStatus", dto.getBizStatus());
-        conditionMap.put("refStatus", dto.getRefStatus());
-        List<Customer> customers = customerRepository == null ? List.of() : customerRepository.findByCondition(conditionMap);
+        Map<String, Object> fullConditionMap = buildListConditionMap(dto);
+        List<Customer> allMatchedCustomers = customerRepository == null ? List.of() : customerRepository.findByCondition(fullConditionMap);
+
+        Map<String, Object> pagedConditionMap = new HashMap<>(fullConditionMap);
+        pagedConditionMap.put("pageNum", dto.getPageNum());
+        pagedConditionMap.put("pageSize", dto.getPageSize());
+        List<Customer> customers = customerRepository == null ? List.of() : customerRepository.findByCondition(pagedConditionMap);
 
         List<CustomerListItemVO> list = customers.stream().map(customer -> {
             CustomerContact defaultContact = findDefaultContact(dto.getCorpid(), customer.getId());
@@ -126,10 +123,28 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
             return CustomerAdminAssembler.toListItemVO(customer, defaultContact, defaultAddress, defaultInvoiceProfile);
         }).toList();
 
+        int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
+        int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? Math.max(allMatchedCustomers.size(), 1) : dto.getPageSize();
+        int pageCount = Math.max((allMatchedCustomers.size() + pageSize - 1) / pageSize, 1);
+
         ListBaseVO<CustomerListItemVO> vo = new ListBaseVO<>();
         vo.setList(list);
-        vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum(), dto.getPageNum()));
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, pageCount));
         return vo;
+    }
+
+    private Map<String, Object> buildListConditionMap(CustomerListDTO dto) {
+        Map<String, Object> conditionMap = new HashMap<>();
+        conditionMap.put("corpid", dto.getCorpid());
+        conditionMap.put("keyword", dto.getKeyword());
+        conditionMap.put("customerCode", dto.getCustomerCode());
+        conditionMap.put("customerName", dto.getCustomerName());
+        conditionMap.put("customerCategory", dto.getCustomerCategory());
+        conditionMap.put("regionCode", dto.getRegionCode());
+        conditionMap.put("ownerSalesId", dto.getOwnerSalesId());
+        conditionMap.put("bizStatus", dto.getBizStatus());
+        conditionMap.put("refStatus", dto.getRefStatus());
+        return conditionMap;
     }
 
     @Override

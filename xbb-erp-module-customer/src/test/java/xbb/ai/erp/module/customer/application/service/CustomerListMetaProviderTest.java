@@ -13,6 +13,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CustomerListMetaProviderTest {
 
@@ -36,5 +37,28 @@ class CustomerListMetaProviderTest {
         assertEquals("main.customerCode", headerList.get(0).getAttr());
         assertEquals("新增", topBundle.getTopButtonList().get(0).getButtonName());
         assertEquals("导出", bottomBundle.getBottomButtonList().get(0).getButtonName());
+    }
+
+    @Test
+    void should_only_expose_supported_customer_list_filters() {
+        ListMetaProvider provider = new CustomerListMetaProvider();
+        ListCommonQueryDTO dto = new ListCommonQueryDTO();
+        dto.setCorpid("corp-001");
+        dto.setUserId("user-001");
+        dto.setBusinessCode(BusinessCodeEnum.CUSTOMER.getCode());
+
+        List<String> attrs = provider.buildFilterMeta(dto).stream().map(FilterField::getAttr).toList();
+
+        assertEquals(List.of(
+            "main.customerCode",
+            "main.customerName",
+            "main.customerCategory",
+            "main.regionCode",
+            "main.ownerSalesId",
+            "main.bizStatus"
+        ), attrs);
+        assertTrue(attrs.stream().noneMatch(attr -> attr.startsWith("contacts.")));
+        assertTrue(attrs.stream().noneMatch(attr -> attr.startsWith("addresses.")));
+        assertTrue(attrs.stream().noneMatch(attr -> attr.startsWith("invoiceProfiles.")));
     }
 }

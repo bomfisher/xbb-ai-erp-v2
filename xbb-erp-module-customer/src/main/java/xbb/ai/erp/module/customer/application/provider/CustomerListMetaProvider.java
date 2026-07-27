@@ -8,6 +8,7 @@ import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
+import xbb.ai.erp.module.customer.admin.CustomerFieldEnum;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
 import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
 import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
@@ -36,7 +37,14 @@ public class CustomerListMetaProvider implements ListMetaProvider {
 
     @Override
     public List<FilterField> buildFilterMeta(ListCommonQueryDTO dto) {
-        return customerFieldFactory.getFields(SceneTypeEnum.LIST).stream()
+        return List.of(
+                CustomerFieldEnum.CUSTOMER_CODE,
+                CustomerFieldEnum.CUSTOMER_NAME,
+                CustomerFieldEnum.CUSTOMER_CATEGORY,
+                CustomerFieldEnum.REGION_CODE,
+                CustomerFieldEnum.OWNER_SALES_ID,
+                CustomerFieldEnum.BIZ_STATUS
+            ).stream()
             .map(this::toFilterField)
             .toList();
     }
@@ -65,6 +73,14 @@ public class CustomerListMetaProvider implements ListMetaProvider {
         field.setAttr(fieldMeta.getAttr());
         field.setAttrName(fieldMeta.getAttrName());
         field.setFieldType(fieldMeta.getFieldType());
+        return field;
+    }
+
+    private FilterField toFilterField(CustomerFieldEnum fieldEnum) {
+        FilterField field = new FilterField();
+        field.setAttr(fieldEnum.getAttr());
+        field.setAttrName(fieldEnum.getAttrName());
+        field.setFieldType(fieldEnum.getFieldType());
         return field;
     }
 

@@ -17,14 +17,23 @@
         <if test="conditionMap.id != null">
             and id = #{conditionMap.id}
         </if>
+        <if test="conditionMap.keyword != null and conditionMap.keyword != ''">
+            and (
+                customer_code like concat('%', #{conditionMap.keyword}, '%')
+                or customer_name like concat('%', #{conditionMap.keyword}, '%')
+            )
+        </if>
         <if test="conditionMap.customerCode != null and conditionMap.customerCode != ''">
-            and customer_code = #{conditionMap.customerCode}
+            and customer_code like concat('%', #{conditionMap.customerCode}, '%')
         </if>
         <if test="conditionMap.customerName != null and conditionMap.customerName != ''">
             and customer_name like concat('%', #{conditionMap.customerName}, '%')
         </if>
         <if test="conditionMap.customerCategory != null and conditionMap.customerCategory != ''">
             and customer_category = #{conditionMap.customerCategory}
+        </if>
+        <if test="conditionMap.regionCode != null and conditionMap.regionCode != ''">
+            and region_code = #{conditionMap.regionCode}
         </if>
         <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
             and biz_status = #{conditionMap.bizStatus}

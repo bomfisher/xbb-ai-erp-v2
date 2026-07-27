@@ -14,6 +14,7 @@
   "userId": "u-001",
   "pageNum": 1,
   "pageSize": 20,
+  "keyword": "杭州", // 关键字，同时匹配客户编码、客户名称
   "customerCode": "CUST-001", // 客户编码，模糊筛选
   "customerName": "杭州", // 客户名称，模糊筛选
   "customerCategory": "RETAIL", // 客户分类
@@ -41,7 +42,7 @@
   ],
   "pageHelper": {
     "page": 1,
-    "count": 1,
+    "count": 1, // 总页数
     "hasLeft": false,
     "hasRight": false
   }

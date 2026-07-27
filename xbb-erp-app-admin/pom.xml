@@ -15,42 +15,27 @@
     <dependencies>
         <dependency>
             <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-common</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-web</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-tenant</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-persistence</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-cache</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-base-idgen</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-base-log</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-product</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-customer</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-purchase</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

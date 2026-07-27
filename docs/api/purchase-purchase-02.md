@@ -4,7 +4,7 @@
 
 ## 采购订单
 
-### `/erp/v1/purchase/list` - 采购订单列表
+### `/erp/v1/purchase/order/list` - 采购订单列表
 
 - 请求方式：`POST`
 - 入参：`PurchaseOrderListDTO`
@@ -122,7 +122,7 @@
 }
 ```
 
-### `/erp/v1/purchase/addItem` - 采购订单新增表单
+### `/erp/v1/purchase/order/addItem` - 采购订单新增表单
 
 - 请求方式：`POST`
 - 入参：`BaseDTO`
@@ -148,7 +148,7 @@
 }
 ```
 
-### `/erp/v1/purchase/updateItem` - 采购订单编辑表单
+### `/erp/v1/purchase/order/updateItem` - 采购订单编辑表单
 
 - 请求方式：`POST`
 - 入参：`IdBaseDTO`
@@ -221,7 +221,7 @@
 }
 ```
 
-### `/erp/v1/purchase/save` - 采购订单保存
+### `/erp/v1/purchase/order/save` - 采购订单保存
 
 - 请求方式：`POST`
 - 入参：`PurchaseOrderSaveDTO`
@@ -345,7 +345,7 @@
 1
 ```
 
-### `/erp/v1/purchase/detail` - 采购订单详情
+### `/erp/v1/purchase/order/detail` - 采购订单详情
 
 - 请求方式：`POST`
 - 入参：`IdBaseDTO`
@@ -417,7 +417,7 @@
 }
 ```
 
-### `/erp/v1/purchase/delete` - 采购订单删除
+### `/erp/v1/purchase/order/delete` - 采购订单删除
 
 - 请求方式：`POST`
 - 入参：`BatchBaseDTO`
@@ -451,7 +451,7 @@ null
 
 ## 采购订单行
 
-### `/erp/v1/purchase/list` - 采购订单行列表
+### `/erp/v1/purchase/order-item/list` - 采购订单行列表
 
 - 请求方式：`POST`
 - 入参：`PurchaseOrderItemListDTO`
@@ -540,7 +540,7 @@ null
 }
 ```
 
-### `/erp/v1/purchase/addItem` - 采购订单行新增表单
+### `/erp/v1/purchase/order-item/addItem` - 采购订单行新增表单
 
 - 请求方式：`POST`
 - 入参：`BaseDTO`
@@ -566,7 +566,7 @@ null
 }
 ```
 
-### `/erp/v1/purchase/updateItem` - 采购订单行编辑表单
+### `/erp/v1/purchase/order-item/updateItem` - 采购订单行编辑表单
 
 - 请求方式：`POST`
 - 入参：`IdBaseDTO`
@@ -626,7 +626,7 @@ null
 }
 ```
 
-### `/erp/v1/purchase/save` - 采购订单行保存
+### `/erp/v1/purchase/order-item/save` - 采购订单行保存
 
 - 请求方式：`POST`
 - 入参：`PurchaseOrderItemSaveDTO`
@@ -724,7 +724,7 @@ null
 1
 ```
 
-### `/erp/v1/purchase/detail` - 采购订单行详情
+### `/erp/v1/purchase/order-item/detail` - 采购订单行详情
 
 - 请求方式：`POST`
 - 入参：`IdBaseDTO`
@@ -783,7 +783,7 @@ null
 }
 ```
 
-### `/erp/v1/purchase/delete` - 采购订单行删除
+### `/erp/v1/purchase/order-item/delete` - 采购订单行删除
 
 - 请求方式：`POST`
 - 入参：`BatchBaseDTO`

@@ -13,7 +13,7 @@ class CustomerAddItemViewTest {
 
     @Test
     void should_return_head_list_and_empty_nested_data() {
-        CustomerAdminAppServiceImpl service = new CustomerAdminAppServiceImpl();
+        CustomerAdminAppServiceImpl service = CustomerAdminAppServiceImpl.forTesting(null, null, null, null, null);
         SaveItemVO<CustomerSaveItemVO> result = service.addItem(new BaseDTO());
 
         assertNotNull(result.getHeadList());

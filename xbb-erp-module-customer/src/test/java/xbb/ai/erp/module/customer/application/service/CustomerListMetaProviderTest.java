@@ -8,6 +8,7 @@ import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.customer.application.provider.CustomerListMetaProvider;
+import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
 
 import java.util.List;
 
@@ -19,7 +20,7 @@ class CustomerListMetaProviderTest {
 
     @Test
     void should_build_customer_filter_and_default_top_button() {
-        ListMetaProvider provider = new CustomerListMetaProvider();
+        ListMetaProvider provider = new CustomerListMetaProvider(new DefaultCustomerFieldFactory(List.of()));
         ListCommonQueryDTO dto = new ListCommonQueryDTO();
         dto.setCorpid("corp-001");
         dto.setUserId("user-001");
@@ -41,7 +42,7 @@ class CustomerListMetaProviderTest {
 
     @Test
     void should_only_expose_supported_customer_list_filters() {
-        ListMetaProvider provider = new CustomerListMetaProvider();
+        ListMetaProvider provider = new CustomerListMetaProvider(new DefaultCustomerFieldFactory(List.of()));
         ListCommonQueryDTO dto = new ListCommonQueryDTO();
         dto.setCorpid("corp-001");
         dto.setUserId("user-001");

@@ -17,7 +17,7 @@
   - 测试：`JUnit 5 + Testcontainers`
 
 ## agent约束
-- 对话永远在中文语境下
+- 对话永远在中文语境下，注释使用中文
 - 主动询问我，代码修改是否要创建worktree
 - 每个claude任务确认完成后，都执行技能`.claude/commands/gen-api-md/SKILL.md`
 
@@ -29,3 +29,5 @@
 - 所有接口接口DTO作为参数，而不是散列的参数。非脚本接口，入参DTO都需要继承BaseDTO 
 - userId 员工Id是字符串id
 - getter setter用Lombok管理
+- 如果接口业务代码没有需要返回的，用BaseVO返回
+- 所有接口的参数返回，都使用ResultVO.success()包装返回

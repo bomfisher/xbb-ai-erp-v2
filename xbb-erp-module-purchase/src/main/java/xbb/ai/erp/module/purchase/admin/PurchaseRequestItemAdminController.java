@@ -18,7 +18,7 @@ import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestItemSaveItemVO;
 import xbb.ai.erp.module.purchase.application.service.PurchaseRequestItemAdminAppService;
 
 @RestController
-@RequestMapping("/erp/v1/purchase")
+@RequestMapping("/erp/v1/purchase/request-item")
 @RequiredArgsConstructor
 public class PurchaseRequestItemAdminController {
 

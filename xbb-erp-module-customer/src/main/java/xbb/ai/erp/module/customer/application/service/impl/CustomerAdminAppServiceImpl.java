@@ -51,9 +51,6 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
     private final CustomerInvoiceProfileRepository customerInvoiceProfileRepository;
     private final CustomerFieldFactory customerFieldFactory;
 
-    public CustomerAdminAppServiceImpl() {
-        this(null, null, null, null, null, new DefaultCustomerFieldFactory(List.of()));
-    }
 
     public CustomerAdminAppServiceImpl(
         CustomerRepository customerRepository,

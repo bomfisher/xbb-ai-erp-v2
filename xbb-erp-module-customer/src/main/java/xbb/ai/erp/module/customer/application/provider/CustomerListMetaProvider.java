@@ -11,7 +11,6 @@ import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.customer.admin.CustomerFieldEnum;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
 import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
-import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
@@ -21,10 +20,6 @@ import java.util.List;
 public class CustomerListMetaProvider implements ListMetaProvider {
 
     private final CustomerFieldFactory customerFieldFactory;
-
-    public CustomerListMetaProvider() {
-        this(new DefaultCustomerFieldFactory(List.of()));
-    }
 
     public CustomerListMetaProvider(CustomerFieldFactory customerFieldFactory) {
         this.customerFieldFactory = customerFieldFactory;

@@ -38,6 +38,4 @@ public class ListCommonController {
     public ListBottomButtonVO bottomButton(@RequestBody ListCommonQueryDTO dto) {
         return listCommonService.bottomButton(dto);
     }
-
-
 }

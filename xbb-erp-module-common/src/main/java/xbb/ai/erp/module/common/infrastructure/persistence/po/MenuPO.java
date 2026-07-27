@@ -20,7 +20,6 @@ public class MenuPO extends BaseEntity {
     private String icon;
     private String pinnedHome;
     private Integer enableStatus;
-    private String remark;
     private String creatorId;
     private String modifyId;
 }

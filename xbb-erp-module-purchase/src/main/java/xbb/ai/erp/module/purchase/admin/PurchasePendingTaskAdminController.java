@@ -18,7 +18,7 @@ import xbb.ai.erp.module.purchase.admin.vo.PurchasePendingTaskSaveItemVO;
 import xbb.ai.erp.module.purchase.application.service.PurchasePendingTaskAdminAppService;
 
 @RestController
-@RequestMapping("/erp/v1/purchase")
+@RequestMapping("/erp/v1/purchase/pending-task")
 @RequiredArgsConstructor
 public class PurchasePendingTaskAdminController {
 

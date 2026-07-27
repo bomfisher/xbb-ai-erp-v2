@@ -26,9 +26,6 @@ public class WarehouseAdminAppServiceImpl implements WarehouseAdminAppService {
 
     private final WarehouseRepository warehouseRepository;
 
-    public WarehouseAdminAppServiceImpl() {
-        this(null);
-    }
 
     public WarehouseAdminAppServiceImpl(WarehouseRepository warehouseRepository) {
         this.warehouseRepository = warehouseRepository;

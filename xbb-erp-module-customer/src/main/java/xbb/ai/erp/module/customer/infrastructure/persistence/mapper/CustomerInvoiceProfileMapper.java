@@ -1,12 +1,14 @@
 package xbb.ai.erp.module.customer.infrastructure.persistence.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerInvoiceProfilePO;
 
 import java.util.List;
 import java.util.Map;
 
+@Mapper
 public interface CustomerInvoiceProfileMapper extends BaseMapper<CustomerInvoiceProfilePO> {
     int insertBatch(@Param("list") List<CustomerInvoiceProfilePO> customerInvoiceProfilePOList);
 

@@ -12,7 +12,7 @@ class CustomerUpdateItemViewTest {
 
     @Test
     void should_return_existing_data_structure_for_update_item() {
-        CustomerAdminAppServiceImpl service = new CustomerAdminAppServiceImpl();
+        CustomerAdminAppServiceImpl service = CustomerAdminAppServiceImpl.forTesting(null, null, null, null, null);
         IdBaseDTO dto = new IdBaseDTO();
         dto.setCorpid("corp-001");
         dto.setId(1L);

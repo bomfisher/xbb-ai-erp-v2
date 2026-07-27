@@ -12,7 +12,7 @@ class WarehouseAddItemViewTest {
 
     @Test
     void should_return_head_list_and_empty_main_data() {
-        WarehouseAdminAppServiceImpl service = new WarehouseAdminAppServiceImpl();
+        WarehouseAdminAppServiceImpl service = WarehouseAdminAppServiceImpl.forTesting(null);
 
         SaveItemVO<WarehouseSaveItemVO> result = service.addItem(new BaseDTO());
 

@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
+import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseSourceRelationListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseSourceRelationSaveDTO;
@@ -25,32 +26,33 @@ public class PurchaseSourceRelationAdminController {
     private final PurchaseSourceRelationAdminAppService purchaseSourceRelationAdminAppService;
 
     @PostMapping("/list")
-    public ListBaseVO<PurchaseSourceRelationListItemVO> list(@RequestBody PurchaseSourceRelationListDTO dto) {
-        return purchaseSourceRelationAdminAppService.list(dto);
+    public ResultVO<ListBaseVO<PurchaseSourceRelationListItemVO>> list(@RequestBody PurchaseSourceRelationListDTO dto) {
+        return ResultVO.success(purchaseSourceRelationAdminAppService.list(dto));
     }
 
     @PostMapping("/addItem")
-    public SaveItemVO<PurchaseSourceRelationSaveItemVO> addItem(@RequestBody BaseDTO dto) {
-        return purchaseSourceRelationAdminAppService.addItem(dto);
+    public ResultVO<SaveItemVO<PurchaseSourceRelationSaveItemVO>> addItem(@RequestBody BaseDTO dto) {
+        return ResultVO.success(purchaseSourceRelationAdminAppService.addItem(dto));
     }
 
     @PostMapping("/updateItem")
-    public SaveItemVO<PurchaseSourceRelationSaveItemVO> updateItem(@RequestBody IdBaseDTO dto) {
-        return purchaseSourceRelationAdminAppService.updateItem(dto);
+    public ResultVO<SaveItemVO<PurchaseSourceRelationSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseSourceRelationAdminAppService.updateItem(dto));
     }
 
     @PostMapping("/save")
-    public Long save(@RequestBody PurchaseSourceRelationSaveDTO dto) {
-        return purchaseSourceRelationAdminAppService.save(dto);
+    public ResultVO<Long> save(@RequestBody PurchaseSourceRelationSaveDTO dto) {
+        return ResultVO.success(purchaseSourceRelationAdminAppService.save(dto));
     }
 
     @PostMapping("/detail")
-    public PurchaseSourceRelationDetailVO detail(@RequestBody IdBaseDTO dto) {
-        return purchaseSourceRelationAdminAppService.detail(dto);
+    public ResultVO<PurchaseSourceRelationDetailVO> detail(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseSourceRelationAdminAppService.detail(dto));
     }
 
     @PostMapping("/delete")
-    public void delete(@RequestBody BatchBaseDTO dto) {
+    public ResultVO<Void> delete(@RequestBody BatchBaseDTO dto) {
         purchaseSourceRelationAdminAppService.delete(dto);
+        return ResultVO.success(null);
     }
 }

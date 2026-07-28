@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
@@ -20,22 +21,22 @@ public class ListCommonController {
     private final ListCommonService listCommonService;
 
     @PostMapping("/filter")
-    public ListFilterVO filter(@RequestBody ListCommonQueryDTO dto) {
-        return listCommonService.filter(dto);
+    public ResultVO<ListFilterVO> filter(@RequestBody ListCommonQueryDTO dto) {
+        return ResultVO.success(listCommonService.filter(dto));
     }
 
     @PostMapping("/header")
-    public ListHeaderVO header(@RequestBody ListCommonQueryDTO dto) {
-        return listCommonService.header(dto);
+    public ResultVO<ListHeaderVO> header(@RequestBody ListCommonQueryDTO dto) {
+        return ResultVO.success(listCommonService.header(dto));
     }
 
     @PostMapping("/topButton")
-    public ListTopButtonVO topButton(@RequestBody ListCommonQueryDTO dto) {
-        return listCommonService.topButton(dto);
+    public ResultVO<ListTopButtonVO> topButton(@RequestBody ListCommonQueryDTO dto) {
+        return ResultVO.success(listCommonService.topButton(dto));
     }
 
     @PostMapping("/bottomButton")
-    public ListBottomButtonVO bottomButton(@RequestBody ListCommonQueryDTO dto) {
-        return listCommonService.bottomButton(dto);
+    public ResultVO<ListBottomButtonVO> bottomButton(@RequestBody ListCommonQueryDTO dto) {
+        return ResultVO.success(listCommonService.bottomButton(dto));
     }
 }

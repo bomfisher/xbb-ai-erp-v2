@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
+import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderSaveDTO;
@@ -25,32 +26,33 @@ public class PurchaseOrderAdminController {
     private final PurchaseOrderAdminAppService purchaseOrderAdminAppService;
 
     @PostMapping("/list")
-    public ListBaseVO<PurchaseOrderListItemVO> list(@RequestBody PurchaseOrderListDTO dto) {
-        return purchaseOrderAdminAppService.list(dto);
+    public ResultVO<ListBaseVO<PurchaseOrderListItemVO>> list(@RequestBody PurchaseOrderListDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.list(dto));
     }
 
     @PostMapping("/addItem")
-    public SaveItemVO<PurchaseOrderSaveItemVO> addItem(@RequestBody BaseDTO dto) {
-        return purchaseOrderAdminAppService.addItem(dto);
+    public ResultVO<SaveItemVO<PurchaseOrderSaveItemVO>> addItem(@RequestBody BaseDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.addItem(dto));
     }
 
     @PostMapping("/updateItem")
-    public SaveItemVO<PurchaseOrderSaveItemVO> updateItem(@RequestBody IdBaseDTO dto) {
-        return purchaseOrderAdminAppService.updateItem(dto);
+    public ResultVO<SaveItemVO<PurchaseOrderSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.updateItem(dto));
     }
 
     @PostMapping("/save")
-    public Long save(@RequestBody PurchaseOrderSaveDTO dto) {
-        return purchaseOrderAdminAppService.save(dto);
+    public ResultVO<Long> save(@RequestBody PurchaseOrderSaveDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.save(dto));
     }
 
     @PostMapping("/detail")
-    public PurchaseOrderDetailVO detail(@RequestBody IdBaseDTO dto) {
-        return purchaseOrderAdminAppService.detail(dto);
+    public ResultVO<PurchaseOrderDetailVO> detail(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.detail(dto));
     }
 
     @PostMapping("/delete")
-    public void delete(@RequestBody BatchBaseDTO dto) {
+    public ResultVO<Void> delete(@RequestBody BatchBaseDTO dto) {
         purchaseOrderAdminAppService.delete(dto);
+        return ResultVO.success(null);
     }
 }

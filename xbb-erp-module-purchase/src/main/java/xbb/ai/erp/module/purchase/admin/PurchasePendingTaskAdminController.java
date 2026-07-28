@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
+import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchasePendingTaskListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchasePendingTaskSaveDTO;
@@ -25,32 +26,33 @@ public class PurchasePendingTaskAdminController {
     private final PurchasePendingTaskAdminAppService purchasePendingTaskAdminAppService;
 
     @PostMapping("/list")
-    public ListBaseVO<PurchasePendingTaskListItemVO> list(@RequestBody PurchasePendingTaskListDTO dto) {
-        return purchasePendingTaskAdminAppService.list(dto);
+    public ResultVO<ListBaseVO<PurchasePendingTaskListItemVO>> list(@RequestBody PurchasePendingTaskListDTO dto) {
+        return ResultVO.success(purchasePendingTaskAdminAppService.list(dto));
     }
 
     @PostMapping("/addItem")
-    public SaveItemVO<PurchasePendingTaskSaveItemVO> addItem(@RequestBody BaseDTO dto) {
-        return purchasePendingTaskAdminAppService.addItem(dto);
+    public ResultVO<SaveItemVO<PurchasePendingTaskSaveItemVO>> addItem(@RequestBody BaseDTO dto) {
+        return ResultVO.success(purchasePendingTaskAdminAppService.addItem(dto));
     }
 
     @PostMapping("/updateItem")
-    public SaveItemVO<PurchasePendingTaskSaveItemVO> updateItem(@RequestBody IdBaseDTO dto) {
-        return purchasePendingTaskAdminAppService.updateItem(dto);
+    public ResultVO<SaveItemVO<PurchasePendingTaskSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchasePendingTaskAdminAppService.updateItem(dto));
     }
 
     @PostMapping("/save")
-    public Long save(@RequestBody PurchasePendingTaskSaveDTO dto) {
-        return purchasePendingTaskAdminAppService.save(dto);
+    public ResultVO<Long> save(@RequestBody PurchasePendingTaskSaveDTO dto) {
+        return ResultVO.success(purchasePendingTaskAdminAppService.save(dto));
     }
 
     @PostMapping("/detail")
-    public PurchasePendingTaskDetailVO detail(@RequestBody IdBaseDTO dto) {
-        return purchasePendingTaskAdminAppService.detail(dto);
+    public ResultVO<PurchasePendingTaskDetailVO> detail(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchasePendingTaskAdminAppService.detail(dto));
     }
 
     @PostMapping("/delete")
-    public void delete(@RequestBody BatchBaseDTO dto) {
+    public ResultVO<Void> delete(@RequestBody BatchBaseDTO dto) {
         purchasePendingTaskAdminAppService.delete(dto);
+        return ResultVO.success(null);
     }
 }

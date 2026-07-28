@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
+import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.product.admin.dto.WarehouseListDTO;
 import xbb.ai.erp.module.product.admin.dto.WarehouseSaveDTO;
@@ -25,32 +26,33 @@ public class WarehouseAdminController {
     private final WarehouseAdminAppService warehouseAdminAppService;
 
     @PostMapping("/list")
-    public ListBaseVO<WarehouseListItemVO> list(@RequestBody WarehouseListDTO dto) {
-        return warehouseAdminAppService.list(dto);
+    public ResultVO<ListBaseVO<WarehouseListItemVO>> list(@RequestBody WarehouseListDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.list(dto));
     }
 
     @PostMapping("/addItem")
-    public SaveItemVO<WarehouseSaveItemVO> addItem(@RequestBody BaseDTO dto) {
-        return warehouseAdminAppService.addItem(dto);
+    public ResultVO<SaveItemVO<WarehouseSaveItemVO>> addItem(@RequestBody BaseDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.addItem(dto));
     }
 
     @PostMapping("/updateItem")
-    public SaveItemVO<WarehouseSaveItemVO> updateItem(@RequestBody IdBaseDTO dto) {
-        return warehouseAdminAppService.updateItem(dto);
+    public ResultVO<SaveItemVO<WarehouseSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.updateItem(dto));
     }
 
     @PostMapping("/save")
-    public Long save(@RequestBody WarehouseSaveDTO dto) {
-        return warehouseAdminAppService.save(dto);
+    public ResultVO<Long> save(@RequestBody WarehouseSaveDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.save(dto));
     }
 
     @PostMapping("/detail")
-    public WarehouseDetailVO detail(@RequestBody IdBaseDTO dto) {
-        return warehouseAdminAppService.detail(dto);
+    public ResultVO<WarehouseDetailVO> detail(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.detail(dto));
     }
 
     @PostMapping("/delete")
-    public void delete(@RequestBody BatchBaseDTO dto) {
+    public ResultVO<Void> delete(@RequestBody BatchBaseDTO dto) {
         warehouseAdminAppService.delete(dto);
+        return ResultVO.success(null);
     }
 }

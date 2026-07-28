@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
+import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerListDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerSaveDTO;
@@ -25,32 +26,33 @@ public class CustomerAdminController {
     private final CustomerAdminAppService customerAdminAppService;
 
     @PostMapping("/list")
-    public ListBaseVO<CustomerListItemVO> list(@RequestBody CustomerListDTO dto) {
-        return customerAdminAppService.list(dto);
+    public ResultVO<ListBaseVO<CustomerListItemVO>> list(@RequestBody CustomerListDTO dto) {
+        return ResultVO.success(customerAdminAppService.list(dto));
     }
 
     @PostMapping("/addItem")
-    public SaveItemVO<CustomerSaveItemVO> addItem(@RequestBody BaseDTO dto) {
-        return customerAdminAppService.addItem(dto);
+    public ResultVO<SaveItemVO<CustomerSaveItemVO>> addItem(@RequestBody BaseDTO dto) {
+        return ResultVO.success(customerAdminAppService.addItem(dto));
     }
 
     @PostMapping("/updateItem")
-    public SaveItemVO<CustomerSaveItemVO> updateItem(@RequestBody IdBaseDTO dto) {
-        return customerAdminAppService.updateItem(dto);
+    public ResultVO<SaveItemVO<CustomerSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(customerAdminAppService.updateItem(dto));
     }
 
     @PostMapping("/save")
-    public Long save(@RequestBody CustomerSaveDTO dto) {
-        return customerAdminAppService.save(dto);
+    public ResultVO<Long> save(@RequestBody CustomerSaveDTO dto) {
+        return ResultVO.success(customerAdminAppService.save(dto));
     }
 
     @PostMapping("/detail")
-    public CustomerDetailVO detail(@RequestBody IdBaseDTO dto) {
-        return customerAdminAppService.detail(dto);
+    public ResultVO<CustomerDetailVO> detail(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(customerAdminAppService.detail(dto));
     }
 
     @PostMapping("/delete")
-    public void delete(@RequestBody BatchBaseDTO dto) {
+    public ResultVO<Void> delete(@RequestBody BatchBaseDTO dto) {
         customerAdminAppService.delete(dto);
+        return ResultVO.success(null);
     }
 }

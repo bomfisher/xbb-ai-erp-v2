@@ -1,6 +1,7 @@
 package xbb.ai.erp.module.product.infrastructure.persistence.repository;
 
 import org.junit.jupiter.api.Test;
+import xbb.ai.erp.base.common.exception.BizException;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -53,6 +54,6 @@ class WarehouseConditionMapHelperTest {
         Map<String, Object> conditionMap = new HashMap<>();
         conditionMap.put("orderByStr", "update_time desc; drop table warehouse");
 
-        assertThrows(IllegalArgumentException.class, () -> WarehouseConditionMapHelper.prepare(conditionMap));
+        assertThrows(BizException.class, () -> WarehouseConditionMapHelper.prepare(conditionMap));
     }
 }

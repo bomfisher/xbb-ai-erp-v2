@@ -1,6 +1,7 @@
 package xbb.ai.erp.module.common.application.provider;
 
 import org.springframework.stereotype.Component;
+import xbb.ai.erp.base.common.exception.BizException;
 
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -27,7 +28,7 @@ public class ListMetaRegistry {
     public ListMetaProvider getRequiredProvider(String businessCode) {
         ListMetaProvider provider = providerMap.get(businessCode);
         if (provider == null) {
-            throw new IllegalArgumentException("未找到业务编码对应的列表元数据提供者: " + businessCode);
+            throw new BizException("未找到业务编码对应的列表元数据提供者: " + businessCode);
         }
         return provider;
     }

@@ -8,14 +8,23 @@ import org.springframework.web.bind.annotation.RestController;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerDraftListDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerDraftLoadDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerDraftSaveDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerListDTO;
-import xbb.ai.erp.module.customer.admin.dto.CustomerSaveDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerSubmitSaveDTO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerDetailVO;
+import xbb.ai.erp.module.customer.admin.vo.CustomerDraftDetailVO;
+import xbb.ai.erp.module.customer.admin.vo.CustomerDraftListItemVO;
+import xbb.ai.erp.module.customer.admin.vo.CustomerDraftSaveVO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerListItemVO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerSaveItemVO;
+
+import java.util.List;
 import xbb.ai.erp.module.customer.application.service.CustomerAdminAppService;
 
 @RestController
@@ -40,9 +49,24 @@ public class CustomerAdminController {
         return ResultVO.success(customerAdminAppService.updateItem(dto));
     }
 
-    @PostMapping("/save")
-    public ResultVO<Long> save(@RequestBody CustomerSaveDTO dto) {
-        return ResultVO.success(customerAdminAppService.save(dto));
+    @PostMapping("/saveDraft")
+    public ResultVO<CustomerDraftSaveVO> saveDraft(@RequestBody CustomerDraftSaveDTO dto) {
+        return ResultVO.success(customerAdminAppService.saveDraft(dto));
+    }
+
+    @PostMapping("/saveAndSubmit")
+    public ResultVO<BaseVO> saveAndSubmit(@RequestBody CustomerSubmitSaveDTO dto) {
+        return ResultVO.success(customerAdminAppService.saveAndSubmit(dto));
+    }
+
+    @PostMapping("/draftList")
+    public ResultVO<List<CustomerDraftListItemVO>> draftList(@RequestBody CustomerDraftListDTO dto) {
+        return ResultVO.success(customerAdminAppService.draftList(dto));
+    }
+
+    @PostMapping("/loadDraft")
+    public ResultVO<CustomerDraftDetailVO> loadDraft(@RequestBody CustomerDraftLoadDTO dto) {
+        return ResultVO.success(customerAdminAppService.loadDraft(dto));
     }
 
     @PostMapping("/detail")

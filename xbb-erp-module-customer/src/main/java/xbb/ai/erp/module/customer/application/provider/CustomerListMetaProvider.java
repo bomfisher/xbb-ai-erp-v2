@@ -2,22 +2,43 @@ package xbb.ai.erp.module.customer.application.provider;
 
 import org.springframework.stereotype.Component;
 import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo;
+import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
-import xbb.ai.erp.module.customer.admin.CustomerFieldEnum;
+import xbb.ai.erp.module.customer.admin.CustomerBizStatusEnum;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
 import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
-import xbb.ai.erp.scene.meta.SceneFieldMeta;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Component
 public class CustomerListMetaProvider implements ListMetaProvider {
+
+    private static final List<String> TEXT_SYMBOLS = List.of("EQ", "NE", "CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY");
+    private static final List<String> ENUM_SYMBOLS = List.of("EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY");
+    private static final List<String> ID_SYMBOLS = List.of("EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY");
+    private static final List<String> DATE_SYMBOLS = List.of("EQ", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY");
+    private static final List<FieldItem> BIZ_STATUS_ITEMS = CustomerBizStatusEnum.toFieldItems();
+    private static final List<CustomerListFilterDefinition> FILTER_DEFINITIONS = List.of(
+        new CustomerListFilterDefinition("customerCode", "客户编码", "TEXT", "customer_code", TEXT_SYMBOLS, List.of()),
+        new CustomerListFilterDefinition("customerName", "客户名称", "TEXT", "customer_name", TEXT_SYMBOLS, List.of()),
+        new CustomerListFilterDefinition("customerCategory", "客户分类", "ENUM", "customer_category", ENUM_SYMBOLS, List.of()),
+        new CustomerListFilterDefinition("regionCode", "所属区域", "ENUM", "region_code", ENUM_SYMBOLS, List.of()),
+        new CustomerListFilterDefinition("ownerSalesId", "归属销售", "ID", "owner_sales_id", ID_SYMBOLS, List.of()),
+        new CustomerListFilterDefinition("bizStatus", "业务状态", "ENUM", "biz_status", ENUM_SYMBOLS, BIZ_STATUS_ITEMS),
+        new CustomerListFilterDefinition("createTime", "创建时间", "DATE", "add_time", DATE_SYMBOLS, List.of())
+    );
+    private static final Map<String, ListFilterMetaPojo> CONDITION_META_MAP = buildConditionMetaMap(FILTER_DEFINITIONS);
 
     private final CustomerFieldFactory customerFieldFactory;
 
@@ -32,16 +53,28 @@ public class CustomerListMetaProvider implements ListMetaProvider {
 
     @Override
     public List<FilterField> buildFilterMeta(ListCommonQueryDTO dto) {
-        return List.of(
-                CustomerFieldEnum.CUSTOMER_CODE,
-                CustomerFieldEnum.CUSTOMER_NAME,
-                CustomerFieldEnum.CUSTOMER_CATEGORY,
-                CustomerFieldEnum.REGION_CODE,
-                CustomerFieldEnum.OWNER_SALES_ID,
-                CustomerFieldEnum.BIZ_STATUS
-            ).stream()
-            .map(this::toFilterField)
-            .toList();
+        return FILTER_DEFINITIONS.stream().map(CustomerListMetaProvider::buildFilterField).toList();
+    }
+
+    public static Map<String, ListFilterMetaPojo> conditionMetaMap() {
+        return CONDITION_META_MAP;
+    }
+
+    public static Map<String, ListFilterMetaPojo> buildConditionMetaMap() {
+        return conditionMetaMap();
+    }
+
+    private static Map<String, ListFilterMetaPojo> buildConditionMetaMap(List<CustomerListFilterDefinition> definitions) {
+        Map<String, ListFilterMetaPojo> metaMap = new LinkedHashMap<>();
+        for (CustomerListFilterDefinition definition : definitions) {
+            metaMap.put(definition.attr(), new ListFilterMetaPojo(
+                definition.attr(),
+                definition.column(),
+                definition.fieldType(),
+                Set.copyOf(definition.supportedSymbols())
+            ));
+        }
+        return Collections.unmodifiableMap(metaMap);
     }
 
     @Override
@@ -63,19 +96,13 @@ public class CustomerListMetaProvider implements ListMetaProvider {
         return bundle;
     }
 
-    private FilterField toFilterField(SceneFieldMeta fieldMeta) {
+    private static FilterField buildFilterField(CustomerListFilterDefinition definition) {
         FilterField field = new FilterField();
-        field.setAttr(fieldMeta.getAttr());
-        field.setAttrName(fieldMeta.getAttrName());
-        field.setFieldType(fieldMeta.getFieldType());
-        return field;
-    }
-
-    private FilterField toFilterField(CustomerFieldEnum fieldEnum) {
-        FilterField field = new FilterField();
-        field.setAttr(fieldEnum.getAttr());
-        field.setAttrName(fieldEnum.getAttrName());
-        field.setFieldType(fieldEnum.getFieldType());
+        field.setAttr(definition.attr());
+        field.setAttrName(definition.attrName());
+        field.setFieldType(definition.fieldType());
+        field.setSupportedSymbols(definition.supportedSymbols());
+        field.setItemList(definition.itemList());
         return field;
     }
 
@@ -86,5 +113,15 @@ public class CustomerListMetaProvider implements ListMetaProvider {
         item.setSort(sort);
         item.setActionCode(actionCode);
         return item;
+    }
+
+    private record CustomerListFilterDefinition(
+        String attr,
+        String attrName,
+        String fieldType,
+        String column,
+        List<String> supportedSymbols,
+        List<FieldItem> itemList
+    ) {
     }
 }

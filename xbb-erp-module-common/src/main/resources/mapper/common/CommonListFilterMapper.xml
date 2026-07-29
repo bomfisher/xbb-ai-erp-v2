@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper">
+
+    <sql id="dynamicCondition">
+        <choose>
+            <when test="c.symbol == 'IS_EMPTY'">
+                and (${c.attr} is null or ${c.attr} = '')
+            </when>
+            <when test="c.symbol == 'IS_NOT_EMPTY'">
+                and (${c.attr} is not null and ${c.attr} != '')
+            </when>
+            <when test="c.symbol == 'EQ'">
+                and ${c.attr} = #{c.value[0]}
+            </when>
+            <when test="c.symbol == 'NE'">
+                and ${c.attr} != #{c.value[0]}
+            </when>
+            <when test="c.symbol == 'CONTAINS'">
+                and ${c.attr} like concat('%', #{c.value[0]}, '%')
+            </when>
+            <when test="c.symbol == 'NOT_CONTAINS'">
+                and ${c.attr} not like concat('%', #{c.value[0]}, '%')
+            </when>
+            <when test="c.symbol == 'IN'">
+                and ${c.attr} in
+                <foreach collection="c.value" item="item" open="(" separator="," close=")">
+                    #{item}
+                </foreach>
+            </when>
+            <when test="c.symbol == 'GE'">
+                and ${c.attr} &gt;= #{c.value[0]}
+            </when>
+            <when test="c.symbol == 'LE'">
+                and ${c.attr} &lt;= #{c.value[0]}
+            </when>
+            <when test="c.symbol == 'BETWEEN'">
+                and ${c.attr} between #{c.value[0]} and #{c.value[1]}
+            </when>
+        </choose>
+    </sql>
+</mapper>

@@ -1,5 +1,7 @@
 package xbb.ai.erp.module.product.infrastructure.persistence.repository;
 
+import xbb.ai.erp.base.common.exception.BizException;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -47,7 +49,7 @@ final class WarehouseConditionMapHelper {
             return;
         }
         if (!trimmed.matches("[a-zA-Z0-9_,\\s]+")) {
-            throw new IllegalArgumentException(key + " contains invalid characters");
+            throw new BizException(key + " contains invalid characters");
         }
         conditionMap.put(key, trimmed.replaceAll("\\s+", " "));
     }

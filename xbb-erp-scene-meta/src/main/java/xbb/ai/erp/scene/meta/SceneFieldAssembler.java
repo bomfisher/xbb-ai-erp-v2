@@ -20,6 +20,7 @@ public final class SceneFieldAssembler {
         entity.setFieldType(String.valueOf(definition.getFieldType()));
         entity.setRequired(definition.getRequired());
         entity.setEditable(definition.getEditable());
+        entity.setItemList(definition.getItemList());
         return entity;
     }
 }

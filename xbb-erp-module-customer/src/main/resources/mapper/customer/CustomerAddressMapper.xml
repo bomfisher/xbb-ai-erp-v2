@@ -19,6 +19,12 @@
         <if test="conditionMap.customerId != null">
             and customer_id = #{conditionMap.customerId}
         </if>
+        <if test="conditionMap.customerIds != null and conditionMap.customerIds.size() > 0">
+            and customer_id in
+            <foreach collection="conditionMap.customerIds" item="customerId" open="(" separator="," close=")">
+                #{customerId}
+            </foreach>
+        </if>
         <if test="conditionMap.addressType != null and conditionMap.addressType != ''">
             and address_type = #{conditionMap.addressType}
         </if>

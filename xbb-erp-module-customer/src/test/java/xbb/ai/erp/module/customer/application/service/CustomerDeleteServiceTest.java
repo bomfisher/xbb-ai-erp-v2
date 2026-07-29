@@ -2,6 +2,7 @@ package xbb.ai.erp.module.customer.application.service;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.module.customer.application.service.impl.CustomerAdminAppServiceImpl;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerAddressRepository;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerBankAccountRepository;
@@ -35,7 +36,7 @@ class CustomerDeleteServiceTest {
         customer.setCorpid("corp-001");
         customer.setCustomerCode("CUST-001");
         customer.setCustomerName("杭州客户");
-        customer.setBizStatus("ENABLED");
+        customer.setBizStatus("1");
         customerRepository.seed(customer);
 
         CustomerContact contact = new CustomerContact();
@@ -116,7 +117,7 @@ class CustomerDeleteServiceTest {
         dto.setCorpid("corp-001");
         dto.setIdList(List.of(1L));
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.delete(dto));
+        BizException ex = assertThrows(BizException.class, () -> service.delete(dto));
         assertEquals("客户已被引用，不能删除", ex.getMessage());
     }
 
@@ -134,7 +135,7 @@ class CustomerDeleteServiceTest {
         dto.setCorpid("corp-001");
         dto.setIdList(List.of(999L));
 
-        IllegalArgumentException ex = assertThrows(IllegalArgumentException.class, () -> service.delete(dto));
+        BizException ex = assertThrows(BizException.class, () -> service.delete(dto));
         assertEquals("客户不存在", ex.getMessage());
     }
 }

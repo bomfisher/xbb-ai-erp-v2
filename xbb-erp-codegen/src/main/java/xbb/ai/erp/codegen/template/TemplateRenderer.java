@@ -551,7 +551,7 @@ public class TemplateRenderer {
             + "            return;\n"
             + "        }\n"
             + "        if (!trimmed.matches(\"[a-zA-Z0-9_,\\\\s]+\")) {\n"
-            + "            throw new IllegalArgumentException(key + \" contains invalid characters\");\n"
+            + "            throw new BizException(key + \" contains invalid characters\");\n"
             + "        }\n"
             + "        conditionMap.put(key, trimmed.replaceAll(\"\\\\s+\", \" \"));\n"
             + "    }\n\n"

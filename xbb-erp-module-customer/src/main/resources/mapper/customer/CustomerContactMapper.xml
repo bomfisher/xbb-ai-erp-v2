@@ -18,6 +18,12 @@
         <if test="conditionMap.customerId != null">
             and customer_id = #{conditionMap.customerId}
         </if>
+        <if test="conditionMap.customerIds != null and conditionMap.customerIds.size() > 0">
+            and customer_id in
+            <foreach collection="conditionMap.customerIds" item="customerId" open="(" separator="," close=")">
+                #{customerId}
+            </foreach>
+        </if>
         <if test="conditionMap.contactName != null and conditionMap.contactName != ''">
             and contact_name like concat('%', #{conditionMap.contactName}, '%')
         </if>

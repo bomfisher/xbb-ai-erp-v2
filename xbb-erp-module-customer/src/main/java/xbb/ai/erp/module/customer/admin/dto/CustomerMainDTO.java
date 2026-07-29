@@ -16,6 +16,8 @@ public class CustomerMainDTO {
     private String refStatus;
     private Long defaultContactId;
     private Long defaultAddressId;
+    private Long defaultBankAccountId;
+    private Long defaultInvoiceProfileId;
     private String remark;
     private Integer version;
 }

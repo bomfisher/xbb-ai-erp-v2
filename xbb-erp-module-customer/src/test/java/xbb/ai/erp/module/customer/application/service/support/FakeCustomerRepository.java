@@ -1,5 +1,7 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
+import xbb.ai.erp.base.common.exception.BizException;
+import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
 
@@ -49,27 +51,15 @@ public class FakeCustomerRepository implements CustomerRepository {
     @Override
     public List<Customer> findByCondition(Map<String, Object> conditionMap) {
         Object corpid = conditionMap.get("corpid");
-        String customerCode = asString(conditionMap.get("customerCode"));
-        String customerName = asString(conditionMap.get("customerName"));
-        String customerCategory = asString(conditionMap.get("customerCategory"));
-        String regionCode = asString(conditionMap.get("regionCode"));
-        String ownerSalesId = asString(conditionMap.get("ownerSalesId"));
-        String bizStatus = asString(conditionMap.get("bizStatus"));
-        String refStatus = asString(conditionMap.get("refStatus"));
         String keyword = asString(conditionMap.get("keyword"));
         Integer pageNum = asInteger(conditionMap.get("pageNum"));
         Integer pageSize = asInteger(conditionMap.get("pageSize"));
+        List<ListFilterCondition> conditions = castConditions(conditionMap.get("conditions"));
 
         List<Customer> filtered = data.stream()
             .filter(item -> corpid == null || corpid.equals(item.getCorpid()))
-            .filter(item -> customerCode == null || contains(item.getCustomerCode(), customerCode))
-            .filter(item -> customerName == null || contains(item.getCustomerName(), customerName))
-            .filter(item -> customerCategory == null || customerCategory.equals(item.getCustomerCategory()))
-            .filter(item -> regionCode == null || regionCode.equals(item.getRegionCode()))
-            .filter(item -> ownerSalesId == null || ownerSalesId.equals(item.getOwnerSalesId()))
-            .filter(item -> bizStatus == null || bizStatus.equals(item.getBizStatus()))
-            .filter(item -> refStatus == null || refStatus.equals(item.getRefStatus()))
             .filter(item -> keyword == null || contains(item.getCustomerCode(), keyword) || contains(item.getCustomerName(), keyword))
+            .filter(item -> matchConditions(item, conditions))
             .sorted(Comparator.comparing(Customer::getId))
             .toList();
 
@@ -83,6 +73,77 @@ public class FakeCustomerRepository implements CustomerRepository {
         }
         int toIndex = Math.min(fromIndex + pageSize, filtered.size());
         return filtered.subList(fromIndex, toIndex);
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<ListFilterCondition> castConditions(Object value) {
+        if (value == null) {
+            return List.of();
+        }
+        if (!(value instanceof List<?> list)) {
+            throw new BizException("筛选条件格式不合法");
+        }
+        for (Object item : list) {
+            if (!(item instanceof ListFilterCondition)) {
+                throw new BizException("筛选条件格式不合法");
+            }
+        }
+        return (List<ListFilterCondition>) list;
+    }
+
+    private static boolean matchConditions(Customer item, List<ListFilterCondition> conditions) {
+        for (ListFilterCondition condition : conditions) {
+            if (!matchCondition(item, condition)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean matchCondition(Customer item, ListFilterCondition condition) {
+        String value = condition.getValue() == null || condition.getValue().isEmpty() ? null : condition.getValue().get(0);
+        return switch (condition.getAttr()) {
+            case "customer_code" -> matchText(item.getCustomerCode(), condition.getSymbol(), value, condition.getValue());
+            case "customer_name" -> matchText(item.getCustomerName(), condition.getSymbol(), value, condition.getValue());
+            case "customer_category" -> matchText(item.getCustomerCategory(), condition.getSymbol(), value, condition.getValue());
+            case "owner_sales_id" -> matchText(item.getOwnerSalesId(), condition.getSymbol(), value, condition.getValue());
+            case "biz_status" -> matchText(item.getBizStatus(), condition.getSymbol(), value, condition.getValue());
+            case "region_code" -> matchText(item.getRegionCode(), condition.getSymbol(), value, condition.getValue());
+            case "add_time" -> matchNumber(item.getAddTime(), condition.getSymbol(), condition.getValue());
+            default -> throw new BizException("筛选字段不合法: " + condition.getAttr());
+        };
+    }
+
+    private static boolean matchText(String source, String symbol, String value, List<String> values) {
+        return switch (symbol) {
+            case "EQ" -> source != null && source.equals(value);
+            case "NE" -> source == null || !source.equals(value);
+            case "CONTAINS" -> contains(source, value);
+            case "NOT_CONTAINS" -> source == null || !source.contains(value);
+            case "IN" -> source != null && values != null && values.contains(source);
+            case "IS_EMPTY" -> source == null || source.isBlank();
+            case "IS_NOT_EMPTY" -> source != null && !source.isBlank();
+            default -> throw new BizException("筛选操作符不支持: " + symbol);
+        };
+    }
+
+    private static boolean matchNumber(Long source, String symbol, List<String> values) {
+        return switch (symbol) {
+            case "EQ" -> source != null && source.equals(parseLong(values, 0));
+            case "GE" -> source != null && source >= parseLong(values, 0);
+            case "LE" -> source != null && source <= parseLong(values, 0);
+            case "BETWEEN" -> source != null && source >= parseLong(values, 0) && source <= parseLong(values, 1);
+            case "IS_EMPTY" -> source == null;
+            case "IS_NOT_EMPTY" -> source != null;
+            default -> throw new BizException("筛选操作符不支持: " + symbol);
+        };
+    }
+
+    private static Long parseLong(List<String> values, int index) {
+        if (values == null || values.size() <= index) {
+            throw new IllegalArgumentException("Missing numeric filter value");
+        }
+        return Long.parseLong(values.get(index));
     }
 
     private static String asString(Object value) {

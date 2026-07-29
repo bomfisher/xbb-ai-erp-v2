@@ -2,16 +2,21 @@ package xbb.ai.erp.scene.meta;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.base.common.filed.FieldItem;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class SceneFieldAssemblerTest {
 
     @Test
     void should_build_field_entity_from_scene_field_meta() {
-        SceneFieldMeta meta = new SceneFieldMeta("main.customerName", "客户名称", 1, 1, 1);
+        FieldItem item = new FieldItem();
+        item.setValue("1");
+        item.setText("启用");
+        SceneFieldMeta meta = new SceneFieldMeta("main.customerName", "客户名称", 1, 1, 1, List.of(item));
 
         FieldEntity entity = SceneFieldAssembler.build(meta);
 
@@ -20,6 +25,8 @@ class SceneFieldAssemblerTest {
         assertEquals("1", entity.getFieldType());
         assertEquals(1, entity.getRequired());
         assertEquals(1, entity.getEditable());
+        assertEquals(1, entity.getItemList().size());
+        assertEquals("1", entity.getItemList().get(0).getValue());
     }
 
     @Test

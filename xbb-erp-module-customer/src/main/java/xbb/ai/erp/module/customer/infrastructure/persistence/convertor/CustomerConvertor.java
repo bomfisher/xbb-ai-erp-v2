@@ -26,6 +26,8 @@ public final class CustomerConvertor {
         po.setRefStatus(customer.getRefStatus());
         po.setDefaultContactId(customer.getDefaultContactId());
         po.setDefaultAddressId(customer.getDefaultAddressId());
+        po.setDefaultBankAccountId(customer.getDefaultBankAccountId());
+        po.setDefaultInvoiceProfileId(customer.getDefaultInvoiceProfileId());
         po.setRemark(customer.getRemark());
         po.setCreatorId(customer.getCreatorId());
         po.setModifyId(customer.getModifyId());
@@ -54,6 +56,8 @@ public final class CustomerConvertor {
         customer.setRefStatus(po.getRefStatus());
         customer.setDefaultContactId(po.getDefaultContactId());
         customer.setDefaultAddressId(po.getDefaultAddressId());
+        customer.setDefaultBankAccountId(po.getDefaultBankAccountId());
+        customer.setDefaultInvoiceProfileId(po.getDefaultInvoiceProfileId());
         customer.setRemark(po.getRemark());
         customer.setCreatorId(po.getCreatorId());
         customer.setModifyId(po.getModifyId());

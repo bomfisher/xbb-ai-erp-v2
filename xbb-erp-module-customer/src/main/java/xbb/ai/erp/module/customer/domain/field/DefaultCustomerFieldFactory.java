@@ -1,28 +1,17 @@
 package xbb.ai.erp.module.customer.domain.field;
 
+import xbb.ai.erp.module.customer.admin.CustomerBizStatusEnum;
 import xbb.ai.erp.module.customer.admin.CustomerFieldEnum;
+import xbb.ai.erp.module.customer.application.validator.CustomerSaveFieldRules;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class DefaultCustomerFieldFactory implements CustomerFieldFactory {
 
-    private static final List<String> REQUIRED_FIELDS = List.of(
-        CustomerFieldEnum.CUSTOMER_CODE.getAttr(),
-        CustomerFieldEnum.CUSTOMER_NAME.getAttr(),
-        CustomerFieldEnum.CUSTOMER_CATEGORY.getAttr(),
-        CustomerFieldEnum.BIZ_STATUS.getAttr(),
-        CustomerFieldEnum.CONTACT_NAME.getAttr(),
-        CustomerFieldEnum.ADDRESS_TYPE.getAttr(),
-        CustomerFieldEnum.DETAIL_ADDRESS.getAttr(),
-        CustomerFieldEnum.ACCOUNT_NAME.getAttr(),
-        CustomerFieldEnum.BANK_NAME.getAttr(),
-        CustomerFieldEnum.ACCOUNT_NO.getAttr(),
-        CustomerFieldEnum.INVOICE_TITLE.getAttr(),
-        CustomerFieldEnum.TAX_NO.getAttr()
-    );
 
     private final List<CustomerFieldRule> rules;
 
@@ -77,23 +66,30 @@ public class DefaultCustomerFieldFactory implements CustomerFieldFactory {
     }
 
     private CustomerFieldMeta formField(CustomerFieldEnum fieldEnum) {
-        return new CustomerFieldMeta(
+        return withOptions(new CustomerFieldMeta(
             fieldEnum.getAttr(),
             fieldEnum.getAttrName(),
             fieldEnum.getFieldType(),
-            REQUIRED_FIELDS.contains(fieldEnum.getAttr()) ? 1 : 0,
+            CustomerSaveFieldRules.formRequiredFields().contains(fieldEnum.getAttr()) ? 1 : 0,
             1
-        );
+        ), fieldEnum);
     }
 
     private CustomerFieldMeta listField(CustomerFieldEnum fieldEnum) {
-        return new CustomerFieldMeta(
+        return withOptions(new CustomerFieldMeta(
             fieldEnum.getAttr(),
             fieldEnum.getAttrName(),
             fieldEnum.getFieldType(),
             0,
             1
-        );
+        ), fieldEnum);
+    }
+
+    private CustomerFieldMeta withOptions(CustomerFieldMeta field, CustomerFieldEnum fieldEnum) {
+        if (Objects.equals(CustomerFieldEnum.BIZ_STATUS, fieldEnum)) {
+            return field.withItemList(CustomerBizStatusEnum.toFieldItems());
+        }
+        return field;
     }
 
     private List<CustomerFieldMeta> applyRules(List<CustomerFieldMeta> fields) {

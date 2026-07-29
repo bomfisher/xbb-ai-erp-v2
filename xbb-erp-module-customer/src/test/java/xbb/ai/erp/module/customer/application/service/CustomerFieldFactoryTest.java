@@ -10,7 +10,11 @@ import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 
 import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -22,6 +26,8 @@ class CustomerFieldFactoryTest {
 
         List<SceneFieldMeta> addItemFields = factory.buildAddItemFields();
         List<SceneFieldMeta> listFields = factory.buildListFields();
+        Map<String, SceneFieldMeta> addItemFieldMap = addItemFields.stream().collect(Collectors.toMap(SceneFieldMeta::getAttr, Function.identity()));
+        Map<String, SceneFieldMeta> listFieldMap = listFields.stream().collect(Collectors.toMap(SceneFieldMeta::getAttr, Function.identity()));
 
         assertTrue(addItemFields.stream().anyMatch(field -> "main.customerShortName".equals(field.getAttr())));
         assertTrue(addItemFields.stream().anyMatch(field -> "contacts.contactName".equals(field.getAttr())
@@ -29,11 +35,20 @@ class CustomerFieldFactoryTest {
             && Integer.valueOf(1).equals(field.getRequired())));
         assertTrue(addItemFields.stream().anyMatch(field -> "main.customerCode".equals(field.getAttr())
             && Integer.valueOf(1).equals(field.getRequired())));
+        assertTrue(addItemFields.stream().anyMatch(field -> "main.customerCategory".equals(field.getAttr())
+            && Integer.valueOf(1).equals(field.getRequired())));
+        assertEquals(Integer.valueOf(0), addItemFieldMap.get("main.bizStatus").getRequired());
+        assertEquals(2, addItemFieldMap.get("main.bizStatus").getItemList().size());
+        assertEquals("1", String.valueOf(addItemFieldMap.get("main.bizStatus").getItemList().get(0).getValue()));
+        assertEquals("启用", addItemFieldMap.get("main.bizStatus").getItemList().get(0).getText());
         assertTrue(listFields.stream().anyMatch(field -> "contacts.contactName".equals(field.getAttr())
             && "默认联系人".equals(field.getAttrName())
             && Integer.valueOf(0).equals(field.getRequired())));
         assertTrue(listFields.stream().anyMatch(field -> "main.customerCode".equals(field.getAttr())
             && Integer.valueOf(0).equals(field.getRequired())));
+        assertEquals(2, listFieldMap.get("main.bizStatus").getItemList().size());
+        assertEquals("0", String.valueOf(listFieldMap.get("main.bizStatus").getItemList().get(1).getValue()));
+        assertEquals("停用", listFieldMap.get("main.bizStatus").getItemList().get(1).getText());
         assertFalse(listFields.stream().anyMatch(field -> "main.customerShortName".equals(field.getAttr())));
     }
 

@@ -179,6 +179,6 @@ class CodeGeneratorTest {
 
         assertTrue(conditionMapHelper.contains("static Map<String, Object> prepare(Map<String, Object> source)"));
         assertTrue(conditionMapHelper.contains("conditionMap.put(\"offset\", (pageNum - 1) * pageSize);"));
-        assertTrue(conditionMapHelper.contains("throw new IllegalArgumentException(key + \" contains invalid characters\");"));
+        assertTrue(conditionMapHelper.contains("throw new BizException(key + \" contains invalid characters\");"));
     }
 }

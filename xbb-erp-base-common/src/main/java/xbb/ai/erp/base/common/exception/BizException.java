@@ -8,8 +8,20 @@ public class BizException extends RuntimeException {
 
     private final Integer code;
 
+    private final String message;
+
     public BizException(CommonErrorCodeEnum errorCodeEnum) {
-        super(errorCodeEnum.getMessage());
         this.code = errorCodeEnum.getCode();
+        this.message = errorCodeEnum.getMessage();
+    }
+
+    public BizException(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
+
+    public BizException(String message) {
+        this.code = CommonErrorCodeEnum.BIZ_ERROR.getCode();
+        this.message = message;
     }
 }

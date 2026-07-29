@@ -1,10 +1,13 @@
 package xbb.ai.erp.module.common.application.service;
 
 import org.junit.jupiter.api.Test;
+import xbb.ai.erp.base.common.exception.BizException;
+import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo;
-import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
 import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
@@ -37,7 +40,10 @@ class ListCommonServiceTest {
         ListTopButtonVO topButtonVO = service.topButton(dto);
         ListBottomButtonVO bottomButtonVO = service.bottomButton(dto);
 
-        assertEquals("main.customerCode", filterVO.getList().get(0).getAttr());
+        assertEquals("customerCode", filterVO.getList().get(0).getAttr());
+        assertEquals("TEXT", filterVO.getList().get(0).getFieldType());
+        assertEquals(List.of("EQ", "NE", "CONTAINS"), filterVO.getList().get(0).getSupportedSymbols());
+        assertEquals("客户编码", filterVO.getList().get(0).getAttrName());
         assertEquals("main.customerCode", headerVO.getList().get(0).getAttr());
         assertEquals("新增", topButtonVO.getList().get(0).getButtonName());
         assertEquals("导出", bottomButtonVO.getList().get(0).getButtonName());
@@ -61,7 +67,22 @@ class ListCommonServiceTest {
         ListCommonQueryDTO dto = new ListCommonQueryDTO();
         dto.setBusinessCode("UNKNOWN");
 
-        assertThrows(IllegalArgumentException.class, () -> service.filter(dto));
+        BizException exception = assertThrows(BizException.class, () -> service.filter(dto));
+        assertEquals("未找到业务编码对应的列表元数据提供者: UNKNOWN", exception.getMessage());
+    }
+
+    @Test
+    void should_define_list_filter_condition_contract() {
+        ListFilterCondition condition = new ListFilterCondition();
+        condition.setAttr("createTime");
+        condition.setFieldType("DATE");
+        condition.setSymbol("BETWEEN");
+        condition.setValue(List.of("2026-01-01 00:00:00", "2026-01-31 23:59:59"));
+
+        assertEquals("createTime", condition.getAttr());
+        assertEquals("DATE", condition.getFieldType());
+        assertEquals("BETWEEN", condition.getSymbol());
+        assertEquals(List.of("2026-01-01 00:00:00", "2026-01-31 23:59:59"), condition.getValue());
     }
 
     private static final class StubListMetaProvider implements ListMetaProvider {
@@ -74,9 +95,14 @@ class ListCommonServiceTest {
         @Override
         public List<FilterField> buildFilterMeta(ListCommonQueryDTO dto) {
             FilterField filterField = new FilterField();
-            filterField.setAttr("main.customerCode");
+            filterField.setAttr("customerCode");
             filterField.setAttrName("客户编码");
-            filterField.setFieldType(1);
+            filterField.setFieldType("TEXT");
+            filterField.setSupportedSymbols(List.of("EQ", "NE", "CONTAINS"));
+            FieldItem item = new FieldItem();
+            item.setValue("enabled");
+            item.setText("启用");
+            filterField.setItemList(List.of(item));
             return List.of(filterField);
         }
 

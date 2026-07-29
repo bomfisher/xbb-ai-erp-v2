@@ -1,5 +1,6 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
+import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
 
@@ -59,6 +60,41 @@ public class InMemoryCustomerRepository implements CustomerRepository {
     @Override
     public List<Customer> findByCondition(Map<String, Object> conditionMap) {
         Object corpid = conditionMap.get("corpid");
-        return data.stream().filter(item -> corpid == null || corpid.equals(item.getCorpid())).toList();
+        List<ListFilterCondition> conditions = castConditions(conditionMap.get("conditions"));
+        return data.stream()
+            .filter(item -> corpid == null || corpid.equals(item.getCorpid()))
+            .filter(item -> matchConditions(item, conditions))
+            .toList();
+    }
+
+    @SuppressWarnings("unchecked")
+    private static List<ListFilterCondition> castConditions(Object value) {
+        if (value instanceof List<?> list) {
+            return (List<ListFilterCondition>) list;
+        }
+        return List.of();
+    }
+
+    private static boolean matchConditions(Customer item, List<ListFilterCondition> conditions) {
+        for (ListFilterCondition condition : conditions) {
+            if (!matchCondition(item, condition)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean matchCondition(Customer item, ListFilterCondition condition) {
+        if (!"customer_code".equals(condition.getAttr())) {
+            throw new IllegalArgumentException("Unsupported filter attr: " + condition.getAttr());
+        }
+        if (!"EQ".equals(condition.getSymbol())) {
+            throw new IllegalArgumentException("Unsupported filter symbol: " + condition.getSymbol());
+        }
+        List<String> values = condition.getValue();
+        if (values == null || values.size() != 1) {
+            throw new IllegalArgumentException("Missing customer code filter value");
+        }
+        return values.get(0).equals(item.getCustomerCode());
     }
 }

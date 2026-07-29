@@ -28,7 +28,9 @@
     {
       "attr": "customerName",
       "attrName": "客户名称",
-      "fieldType": 1
+      "fieldType": "TEXT",
+      "supportedSymbols": ["EQ", "CONTAINS", "IS_EMPTY"],
+      "itemList": []
     }
   ]
 }
@@ -45,7 +47,9 @@
 - `list`：筛选字段列表
 - `list[].attr`：字段属性名
 - `list[].attrName`：字段显示名称
-- `list[].fieldType`：字段类型
+- `list[].fieldType`：字段类型，当前返回 `TEXT`、`ENUM`、`ID`、`DATE`
+- `list[].supportedSymbols`：当前字段支持的运算符列表
+- `list[].itemList`：候选项列表；文本/日期字段通常为空数组
 
 ### 公共列表表头字段
 

@@ -30,7 +30,19 @@
     {
       "attr": "customerName",
       "attrName": "客户名称",
-      "fieldType": 1
+      "fieldType": "TEXT",
+      "supportedSymbols": ["EQ", "CONTAINS", "IS_EMPTY"],
+      "itemList": []
+    },
+    {
+      "attr": "bizStatus",
+      "attrName": "业务状态",
+      "fieldType": "ENUM",
+      "supportedSymbols": ["EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY"],
+      "itemList": [
+        { "value": "1", "text": "启用" },
+        { "value": "0", "text": "停用" }
+      ]
     }
   ]
 }
@@ -43,7 +55,9 @@
 | `list` | 是 | 筛选字段列表 |
 | `list[].attr` | 是 | 字段属性名 |
 | `list[].attrName` | 是 | 字段显示名称 |
-| `list[].fieldType` | 是 | 字段类型 |
+| `list[].fieldType` | 是 | 字段类型，当前返回 `TEXT`、`ENUM`、`ID`、`DATE` |
+| `list[].supportedSymbols` | 是 | 当前字段支持的筛选运算符列表 |
+| `list[].itemList` | 是 | 当前字段的候选项；无选项字段返回空数组 |
 
 ### 规则说明
 

@@ -5,7 +5,7 @@
 - 所属业务：`公共列表元数据`
 - 请求方式：`POST`
 - 用途：按业务编码返回筛选字段元数据
-- 差异点：只返回 `FilterField` 列表，不返回表头或按钮信息
+- 差异点：只返回 `FilterField` 列表，不返回表头或按钮信息；当前字段同时包含 `supportedSymbols` 与 `itemList`
 - 主文档定位：`docs/kn/common-m.md`
 - API 文档定位：`docs/api/common-list.md`
 

@@ -9,7 +9,8 @@ import lombok.Getter;
 public enum BusinessCodeEnum {
     CUSTOMER("CUSTOMER")
     ;
-    private String code;
+
+    private final String code;
 
     BusinessCodeEnum(String code) {
         this.code = code;

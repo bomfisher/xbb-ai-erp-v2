@@ -2,7 +2,6 @@ package xbb.ai.erp.base.web.handler;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import xbb.ai.erp.base.common.enums.CommonErrorCodeEnum;
@@ -13,17 +12,16 @@ import xbb.ai.erp.base.common.vo.ResultVO;
 public class GlobalExceptionHandler {
 
     private static final Logger log = LoggerFactory.getLogger(GlobalExceptionHandler.class);
+    private static final String UNEXPECTED_MESSAGE = "接口未按预定格式返回，请联系客服";
 
     @ExceptionHandler(BizException.class)
-    public ResponseEntity<ResultVO<Void>> handleBizException(BizException exception) {
-        return ResponseEntity.badRequest().body(ResultVO.failure(exception.getCode(), exception.getMessage()));
+    public ResultVO<Void> handleBizException(BizException exception) {
+        return ResultVO.failure(exception.getCode(), exception.getMessage());
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResultVO<Void>> handleException(Exception exception) {
+    public ResultVO<Void> handleException(Exception exception) {
         log.error("Unhandled exception", exception);
-        return ResponseEntity.internalServerError().body(
-            ResultVO.failure(CommonErrorCodeEnum.SYSTEM_ERROR.getCode(), CommonErrorCodeEnum.SYSTEM_ERROR.getMessage())
-        );
+        return ResultVO.failure(CommonErrorCodeEnum.SYSTEM_ERROR.getCode(), UNEXPECTED_MESSAGE);
     }
 }

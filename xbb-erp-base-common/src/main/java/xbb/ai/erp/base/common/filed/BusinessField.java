@@ -5,8 +5,11 @@ import java.util.List;
 
 public interface BusinessField {
 
-    default List<String> getRequiredList(){ return new ArrayList<>();}
+    default List<String> getRequiredList() {
+        return new ArrayList<>();
+    }
 
-    default List<String> getEditableList(){ return new ArrayList<>();}
-
+    default List<String> getEditableList() {
+        return new ArrayList<>();
+    }
 }

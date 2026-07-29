@@ -19,7 +19,9 @@ public class CustomerRepositoryImpl implements CustomerRepository {
 
     @Override
     public void insert(Customer customer) {
-        customerMapper.insert(CustomerConvertor.toPO(customer));
+        CustomerPO po = CustomerConvertor.toPO(customer);
+        customerMapper.insert(po);
+        customer.setId(po.getId());
     }
 
     @Override

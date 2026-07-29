@@ -2,12 +2,15 @@ package xbb.ai.erp.module.customer.application.service;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.module.customer.admin.dto.CustomerContactItemDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerDraftSaveDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerMainDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerSaveDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerSubmitSaveDTO;
 import xbb.ai.erp.module.customer.application.service.impl.CustomerAdminAppServiceImpl;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerAddressRepository;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerBankAccountRepository;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerContactRepository;
+import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerDraftRepository;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerInvoiceProfileRepository;
 import xbb.ai.erp.module.customer.application.service.support.InMemoryCustomerRepository;
 import xbb.ai.erp.module.customer.domain.model.Customer;
@@ -15,6 +18,7 @@ import xbb.ai.erp.module.customer.domain.model.CustomerContact;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -36,7 +40,7 @@ class CustomerSaveServiceTest {
         main.setCustomerCode("CUST-001");
         main.setCustomerName("杭州客户");
         main.setCustomerCategory("A");
-        main.setBizStatus("ENABLED");
+        main.setBizStatus("1");
 
         CustomerContactItemDTO contact = new CustomerContactItemDTO();
         contact.setContactName("张三");
@@ -50,8 +54,17 @@ class CustomerSaveServiceTest {
         Long customerId = service.save(dto);
 
         assertEquals(1, customerRepository.all().size());
+        Customer saved = customerRepository.all().get(0);
         assertEquals(1, contactRepository.all().size());
         assertEquals(customerId, contactRepository.all().get(0).getCustomerId());
+        assertNotNull(saved.getId());
+        assertEquals("1", saved.getBizStatus());
+        assertEquals("0", saved.getRefStatus());
+        assertEquals("A", saved.getCustomerCategory());
+        assertEquals(0, saved.getVersion());
+        assertEquals(0, saved.getDel());
+        assertNotNull(saved.getAddTime());
+        assertNotNull(saved.getUpdateTime());
     }
 
     @Test
@@ -78,7 +91,7 @@ class CustomerSaveServiceTest {
         main.setCustomerCode("CUST-001");
         main.setCustomerName("杭州客户");
         main.setCustomerCategory("A");
-        main.setBizStatus("ENABLED");
+        main.setBizStatus("1");
 
         CustomerContactItemDTO keptContact = new CustomerContactItemDTO();
         keptContact.setId(10L);
@@ -102,5 +115,52 @@ class CustomerSaveServiceTest {
 
         assertEquals(1, contactRepository.all().size());
         assertEquals("新联系人名", contactRepository.all().get(0).getContactName());
+    }
+
+    @Test
+    void should_remove_draft_after_submit_success() {
+        InMemoryCustomerRepository customerRepository = new InMemoryCustomerRepository();
+        InMemoryCustomerContactRepository contactRepository = new InMemoryCustomerContactRepository();
+        InMemoryCustomerDraftRepository draftRepository = new InMemoryCustomerDraftRepository();
+        CustomerAdminAppServiceImpl service = CustomerAdminAppServiceImpl.forTesting(
+            customerRepository,
+            contactRepository,
+            new InMemoryCustomerAddressRepository(),
+            new InMemoryCustomerBankAccountRepository(),
+            new InMemoryCustomerInvoiceProfileRepository(),
+            draftRepository
+        );
+
+        CustomerMainDTO main = new CustomerMainDTO();
+        main.setCustomerCode("CUST-001");
+        main.setCustomerName("杭州客户");
+        main.setCustomerCategory("A");
+        main.setBizStatus("1");
+
+        CustomerContactItemDTO contact = new CustomerContactItemDTO();
+        contact.setContactName("张三");
+        contact.setDefaultFlag(1);
+
+        CustomerDraftSaveDTO draftDTO = new CustomerDraftSaveDTO();
+        draftDTO.setCorpid("corp-001");
+        draftDTO.setMain(main);
+        draftDTO.getExt().setContacts(List.of(contact));
+        draftDTO.getDraftMeta().setDraftTitle("草稿客户");
+        draftDTO.getDraftMeta().setUpdatedTime(100L);
+        service.saveDraft(draftDTO);
+
+        String draftCode = draftRepository.listDrafts("corp-001", 10).get(0).getDraftCode();
+
+        CustomerSubmitSaveDTO submitDTO = new CustomerSubmitSaveDTO();
+        submitDTO.setCorpid("corp-001");
+        submitDTO.setMain(main);
+        submitDTO.getExt().setContacts(List.of(contact));
+        submitDTO.getDraftMeta().setDraftCode(draftCode);
+
+        service.saveAndSubmit(submitDTO);
+
+        assertEquals(1, customerRepository.all().size());
+        assertEquals(1, contactRepository.all().size());
+        assertTrue(draftRepository.listDrafts("corp-001", 10).isEmpty());
     }
 }

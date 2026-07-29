@@ -15,11 +15,16 @@
   - 缓存：`Redis 7`
   - 日志：`Logback`
   - 测试：`JUnit 5 + Testcontainers`
+- xbb-erp-codegen 作为逆向工具工程，不纳入打包范围
 
 ## agent约束
 - 对话永远在中文语境下，注释使用中文
 - 主动询问我，代码修改是否要创建worktree
 - 每个claude任务确认完成后，都执行技能`.claude/commands/gen-api-md/SKILL.md`
+
+
+## 代码规范
+- 所有主动捕获的报错、业务的主动抛错，都使用BizException
 
 
 ## 业务约束
@@ -31,3 +36,7 @@
 - getter setter用Lombok管理
 - 如果接口业务代码没有需要返回的，用BaseVO返回
 - 所有接口的参数返回，都使用ResultVO.success()包装返回
+- 尽可能避免循环中查询数据库
+- 
+## 文档导航
+- 项目模块说明文档 `docs/base/项目业务module导航.md`

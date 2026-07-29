@@ -21,6 +21,8 @@ public class CustomerPO extends BaseEntity {
     private String refStatus;
     private Long defaultContactId;
     private Long defaultAddressId;
+    private Long defaultBankAccountId;
+    private Long defaultInvoiceProfileId;
     private String remark;
     private String creatorId;
     private String modifyId;

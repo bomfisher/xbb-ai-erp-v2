@@ -1,6 +1,9 @@
 package xbb.ai.erp.scene.meta;
 
 import lombok.Getter;
+import xbb.ai.erp.base.common.filed.FieldItem;
+
+import java.util.List;
 
 @Getter
 public class SceneFieldMeta {
@@ -10,12 +13,18 @@ public class SceneFieldMeta {
     private final Integer fieldType;
     private final Integer required;
     private final Integer editable;
+    private final List<FieldItem> itemList;
 
     public SceneFieldMeta(String attr, String attrName, Integer fieldType, Integer required, Integer editable) {
+        this(attr, attrName, fieldType, required, editable, List.of());
+    }
+
+    public SceneFieldMeta(String attr, String attrName, Integer fieldType, Integer required, Integer editable, List<FieldItem> itemList) {
         this.attr = attr;
         this.attrName = attrName;
         this.fieldType = fieldType;
         this.required = required;
         this.editable = editable;
+        this.itemList = itemList == null ? List.of() : List.copyOf(itemList);
     }
 }

@@ -7,7 +7,7 @@
     <sql id="BaseColumns">
         id, corpid, customer_code, customer_name, customer_short_name, customer_category,
         region_code, owner_sales_id, owner_sales_name_snapshot, biz_status, ref_status,
-        default_contact_id, default_address_id, remark, creator_id, modify_id, version,
+        default_contact_id, default_address_id, default_bank_account_id, default_invoice_profile_id, remark, creator_id, modify_id, version,
         del, add_time, update_time
     </sql>
 
@@ -22,27 +22,6 @@
                 customer_code like concat('%', #{conditionMap.keyword}, '%')
                 or customer_name like concat('%', #{conditionMap.keyword}, '%')
             )
-        </if>
-        <if test="conditionMap.customerCode != null and conditionMap.customerCode != ''">
-            and customer_code like concat('%', #{conditionMap.customerCode}, '%')
-        </if>
-        <if test="conditionMap.customerName != null and conditionMap.customerName != ''">
-            and customer_name like concat('%', #{conditionMap.customerName}, '%')
-        </if>
-        <if test="conditionMap.customerCategory != null and conditionMap.customerCategory != ''">
-            and customer_category = #{conditionMap.customerCategory}
-        </if>
-        <if test="conditionMap.regionCode != null and conditionMap.regionCode != ''">
-            and region_code = #{conditionMap.regionCode}
-        </if>
-        <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
-            and biz_status = #{conditionMap.bizStatus}
-        </if>
-        <if test="conditionMap.refStatus != null and conditionMap.refStatus != ''">
-            and ref_status = #{conditionMap.refStatus}
-        </if>
-        <if test="conditionMap.ownerSalesId != null and conditionMap.ownerSalesId != ''">
-            and owner_sales_id = #{conditionMap.ownerSalesId}
         </if>
     </sql>
 
@@ -61,20 +40,35 @@
         </if>
     </sql>
 
+    <insert id="insert" parameterType="xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerPO" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
+        insert into customer (
+            corpid, customer_code, customer_name, customer_short_name, customer_category,
+            region_code, owner_sales_id, owner_sales_name_snapshot, biz_status, ref_status,
+            default_contact_id, default_address_id, default_bank_account_id, default_invoice_profile_id, remark,
+            creator_id, modify_id, version, del, add_time, update_time
+        )
+        values (
+            #{corpid}, #{customerCode}, #{customerName}, #{customerShortName}, #{customerCategory},
+            #{regionCode}, #{ownerSalesId}, #{ownerSalesNameSnapshot}, #{bizStatus}, #{refStatus},
+            #{defaultContactId}, #{defaultAddressId}, #{defaultBankAccountId}, #{defaultInvoiceProfileId}, #{remark},
+            #{creatorId}, #{modifyId}, #{version}, #{del}, #{addTime}, #{updateTime}
+        )
+    </insert>
+
     <insert id="insertBatch">
         insert into customer (
             id, corpid, customer_code, customer_name, customer_short_name, customer_category,
             region_code, owner_sales_id, owner_sales_name_snapshot, biz_status, ref_status,
-            default_contact_id, default_address_id, remark, creator_id, modify_id, version,
-            del, add_time, update_time
+            default_contact_id, default_address_id, default_bank_account_id, default_invoice_profile_id, remark,
+            creator_id, modify_id, version, del, add_time, update_time
         )
         values
         <foreach collection="list" item="item" separator=",">
             (
                 #{item.id}, #{item.corpid}, #{item.customerCode}, #{item.customerName}, #{item.customerShortName}, #{item.customerCategory},
                 #{item.regionCode}, #{item.ownerSalesId}, #{item.ownerSalesNameSnapshot}, #{item.bizStatus}, #{item.refStatus},
-                #{item.defaultContactId}, #{item.defaultAddressId}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.version},
-                #{item.del}, #{item.addTime}, #{item.updateTime}
+                #{item.defaultContactId}, #{item.defaultAddressId}, #{item.defaultBankAccountId}, #{item.defaultInvoiceProfileId}, #{item.remark},
+                #{item.creatorId}, #{item.modifyId}, #{item.version}, #{item.del}, #{item.addTime}, #{item.updateTime}
             )
         </foreach>
     </insert>
@@ -112,6 +106,8 @@
             <if test="refStatus != null">ref_status = #{refStatus},</if>
             <if test="defaultContactId != null">default_contact_id = #{defaultContactId},</if>
             <if test="defaultAddressId != null">default_address_id = #{defaultAddressId},</if>
+            <if test="defaultBankAccountId != null">default_bank_account_id = #{defaultBankAccountId},</if>
+            <if test="defaultInvoiceProfileId != null">default_invoice_profile_id = #{defaultInvoiceProfileId},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="creatorId != null">creator_id = #{creatorId},</if>
             <if test="modifyId != null">modify_id = #{modifyId},</if>
@@ -135,6 +131,11 @@
         select <include refid="BaseColumns"/>
         from customer
         where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
         <include refid="QueryTail"/>
     </select>
 </mapper>

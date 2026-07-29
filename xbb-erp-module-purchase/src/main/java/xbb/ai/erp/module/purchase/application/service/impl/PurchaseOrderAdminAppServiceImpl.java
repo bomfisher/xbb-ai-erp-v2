@@ -84,11 +84,37 @@ public class PurchaseOrderAdminAppServiceImpl implements PurchaseOrderAdminAppSe
     public Long save(PurchaseOrderSaveDTO dto) {
         PurchaseOrder purchaseOrder = PurchaseOrderAdminAssembler.toPurchaseOrder(dto);
         if (purchaseOrder.getId() == null) {
+            applyInsertDefaults(purchaseOrder, dto.getUserId());
             purchaseOrderRepository.insert(purchaseOrder);
         } else {
             purchaseOrderRepository.update(purchaseOrder);
         }
         return purchaseOrder.getId();
+    }
+
+    private void applyInsertDefaults(PurchaseOrder purchaseOrder, String userId) {
+        long now = System.currentTimeMillis();
+        if (purchaseOrder.getBizStatus() == null || purchaseOrder.getBizStatus().isBlank()) {
+            purchaseOrder.setBizStatus("1");
+        }
+        if (purchaseOrder.getVersion() == null) {
+            purchaseOrder.setVersion(0);
+        }
+        if (purchaseOrder.getDeleted() == null) {
+            purchaseOrder.setDeleted(0);
+        }
+        if (purchaseOrder.getAddTime() == null) {
+            purchaseOrder.setAddTime(now);
+        }
+        if (purchaseOrder.getUpdateTime() == null) {
+            purchaseOrder.setUpdateTime(now);
+        }
+        if (purchaseOrder.getCreatorId() == null || purchaseOrder.getCreatorId().isBlank()) {
+            purchaseOrder.setCreatorId(userId);
+        }
+        if (purchaseOrder.getModifyId() == null || purchaseOrder.getModifyId().isBlank()) {
+            purchaseOrder.setModifyId(userId);
+        }
     }
 
     @Override

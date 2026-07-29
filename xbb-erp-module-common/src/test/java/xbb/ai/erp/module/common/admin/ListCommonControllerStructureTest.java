@@ -39,4 +39,10 @@ class ListCommonControllerStructureTest {
         assertEquals(List.class, bottomList.getType());
         assertNotNull(buttonItemClass);
     }
+
+    @Test
+    void should_define_row_action_endpoint_on_common_controller() throws Exception {
+        Method rowAction = ListCommonController.class.getMethod("rowAction", Class.forName("xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO"));
+        assertNotNull(rowAction);
+    }
 }

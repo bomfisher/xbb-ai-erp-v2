@@ -230,9 +230,14 @@
 
 ### 说明
 
-- 返回结构与 `addItem` 一致
+- `updateItem` 是客户列表编辑抽屉的初始化接口
+- 入参 `id` 来自客户列表行数据主键 `data.list[].id`
+- 返回结构与 `addItem` 一致，前端据此加载编辑表单
+- `data.main`、`data.contacts`、`data.addresses`、`data.bankAccounts`、`data.invoiceProfiles` 返回当前客户已有数据，而不是空模板
+- `sectionState` 按四类子档是否已有数据自动回填：有数据返回 `1`，无数据返回 `0`
 - `headList` 同样包含组合框字段的 `itemList`
 - 当前 `bizStatus` 选项仍为：`1=启用`、`0=停用`
+- 当前客户列表页的编辑入口由公共 `/erp/v1/common/list/rowAction` 下发 `EDIT` 动作后触发
 
 ## 3. 保存草稿
 

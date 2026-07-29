@@ -7,6 +7,7 @@ import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo;
+import xbb.ai.erp.module.common.admin.pojo.ListRowActionItemPojo;
 import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
@@ -96,6 +97,13 @@ public class CustomerListMetaProvider implements ListMetaProvider {
         return bundle;
     }
 
+    @Override
+    public ListMetaBundlePojo buildRowActionMeta(ListCommonQueryDTO dto) {
+        ListMetaBundlePojo bundle = new ListMetaBundlePojo();
+        bundle.setRowActionList(List.of(buildRowAction("EDIT", "编辑", 10, "PRIMARY", "NONE")));
+        return bundle;
+    }
+
     private static FilterField buildFilterField(CustomerListFilterDefinition definition) {
         FilterField field = new FilterField();
         field.setAttr(definition.attr());
@@ -112,6 +120,16 @@ public class CustomerListMetaProvider implements ListMetaProvider {
         item.setButtonName(buttonName);
         item.setSort(sort);
         item.setActionCode(actionCode);
+        return item;
+    }
+
+    private ListRowActionItemPojo buildRowAction(String actionCode, String actionName, Integer sort, String showMode, String confirmType) {
+        ListRowActionItemPojo item = new ListRowActionItemPojo();
+        item.setActionCode(actionCode);
+        item.setActionName(actionName);
+        item.setSort(sort);
+        item.setShowMode(showMode);
+        item.setConfirmType(confirmType);
         return item;
     }
 

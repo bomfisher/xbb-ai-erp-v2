@@ -8,9 +8,11 @@ import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo;
 import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
+import xbb.ai.erp.module.common.admin.pojo.ListRowActionItemPojo;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
 import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
+import xbb.ai.erp.module.common.admin.vo.ListRowActionVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
@@ -56,9 +58,27 @@ class ListCommonServiceTest {
             ListMetaProvider.class.getMethod("buildHeaderMeta", ListCommonQueryDTO.class);
             ListMetaProvider.class.getMethod("buildTopButtonMeta", ListCommonQueryDTO.class);
             ListMetaProvider.class.getMethod("buildBottomButtonMeta", ListCommonQueryDTO.class);
+            ListMetaProvider.class.getMethod("buildRowActionMeta", ListCommonQueryDTO.class);
         } catch (NoSuchMethodException exception) {
             fail(exception);
         }
+    }
+
+    @Test
+    void should_dispatch_row_action_meta_by_business_code() {
+        ListMetaProvider provider = new StubListMetaProvider();
+        ListMetaRegistry registry = new ListMetaRegistry(List.of(provider));
+        ListCommonServiceImpl service = new ListCommonServiceImpl(registry);
+        ListCommonQueryDTO dto = new ListCommonQueryDTO();
+        dto.setBusinessCode("CUSTOMER");
+        dto.setCorpid("corp-001");
+        dto.setUserId("user-001");
+
+        ListRowActionVO rowActionVO = service.rowAction(dto);
+
+        assertEquals("EDIT", rowActionVO.getList().get(0).getActionCode());
+        assertEquals("编辑", rowActionVO.getList().get(0).getActionName());
+        assertEquals("PRIMARY", rowActionVO.getList().get(0).getShowMode());
     }
 
     @Test
@@ -138,6 +158,19 @@ class ListCommonServiceTest {
 
             ListMetaBundlePojo bundle = new ListMetaBundlePojo();
             bundle.setBottomButtonList(List.of(bottomButton));
+            return bundle;
+        }
+
+        @Override
+        public ListMetaBundlePojo buildRowActionMeta(ListCommonQueryDTO dto) {
+            ListRowActionItemPojo rowAction = new ListRowActionItemPojo();
+            rowAction.setActionCode("EDIT");
+            rowAction.setActionName("编辑");
+            rowAction.setSort(10);
+            rowAction.setShowMode("PRIMARY");
+
+            ListMetaBundlePojo bundle = new ListMetaBundlePojo();
+            bundle.setRowActionList(List.of(rowAction));
             return bundle;
         }
     }

@@ -26,25 +26,30 @@
 
 ```json
 {
-  "list": [
-    {
-      "attr": "customerName",
-      "attrName": "客户名称",
-      "fieldType": "TEXT",
-      "supportedSymbols": ["EQ", "CONTAINS", "IS_EMPTY"],
-      "itemList": []
-    },
-    {
-      "attr": "bizStatus",
-      "attrName": "业务状态",
-      "fieldType": "ENUM",
-      "supportedSymbols": ["EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY"],
-      "itemList": [
-        { "value": "1", "text": "启用" },
-        { "value": "0", "text": "停用" }
-      ]
-    }
-  ]
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "list": [
+      {
+        "attr": "customerName",
+        "attrName": "客户名称",
+        "fieldType": "TEXT",
+        "supportedSymbols": ["EQ", "CONTAINS", "IS_EMPTY"],
+        "itemList": []
+      },
+      {
+        "attr": "bizStatus",
+        "attrName": "业务状态",
+        "fieldType": "ENUM",
+        "supportedSymbols": ["EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY"],
+        "itemList": [
+          { "value": "1", "text": "启用" },
+          { "value": "0", "text": "停用" }
+        ]
+      }
+    ]
+  }
 }
 ```
 
@@ -91,16 +96,21 @@
 
 ```json
 {
-  "list": [
-    {
-      "attr": "customerName",
-      "attrName": "客户名称",
-      "fieldType": "INPUT",
-      "required": 0,
-      "editable": 1,
-      "itemList": []
-    }
-  ]
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "list": [
+      {
+        "attr": "customerName",
+        "attrName": "客户名称",
+        "fieldType": "INPUT",
+        "required": 0,
+        "editable": 1,
+        "itemList": []
+      }
+    ]
+  }
 }
 ```
 
@@ -148,14 +158,19 @@
 
 ```json
 {
-  "list": [
-    {
-      "buttonCode": "add",
-      "buttonName": "新增",
-      "sort": 1,
-      "actionCode": "create"
-    }
-  ]
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "list": [
+      {
+        "buttonCode": "ADD",
+        "buttonName": "新增",
+        "sort": 10,
+        "actionCode": "ADD"
+      }
+    ]
+  }
 }
 ```
 
@@ -201,14 +216,19 @@
 
 ```json
 {
-  "list": [
-    {
-      "buttonCode": "confirm",
-      "buttonName": "确认",
-      "sort": 1,
-      "actionCode": "submit"
-    }
-  ]
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "list": [
+      {
+        "buttonCode": "EXPORT",
+        "buttonName": "导出",
+        "sort": 20,
+        "actionCode": "EXPORT"
+      }
+    ]
+  }
 }
 ```
 
@@ -227,3 +247,65 @@
 - 入参使用 `ListCommonQueryDTO`
 - 响应使用 `ListBottomButtonVO`
 - 结果仅包含底部按钮元数据
+
+## 公共列表行内动作
+
+`POST /erp/v1/common/list/rowAction`
+
+### 请求示例
+
+```json
+{
+  "corpid": "corp-001",
+  "userId": "u-001",
+  "businessCode": "CUSTOMER"
+}
+```
+
+### 参数说明
+
+| 字段 | 是否必填 | 备注 |
+| --- | --- | --- |
+| `corpid` | 是 | 企业 ID |
+| `userId` | 是 | 员工 ID |
+| `businessCode` | 是 | 业务编码 |
+
+### 响应示例
+
+```json
+{
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "list": [
+      {
+        "actionCode": "EDIT",
+        "actionName": "编辑",
+        "sort": 10,
+        "showMode": "PRIMARY",
+        "confirmType": "NONE"
+      }
+    ]
+  }
+}
+```
+
+### 响应参数说明
+
+| 字段 | 是否必返 | 备注 |
+| --- | --- | --- |
+| `list` | 是 | 行内动作列表 |
+| `list[].actionCode` | 是 | 动作编码 |
+| `list[].actionName` | 是 | 动作名称 |
+| `list[].sort` | 是 | 排序值 |
+| `list[].showMode` | 是 | 展示模式，当前客户列表首版返回 `PRIMARY` |
+| `list[].confirmType` | 是 | 二次确认类型；当前客户列表首版固定返回 `NONE` |
+
+### 规则说明
+
+- 请求 URL：`POST /erp/v1/common/list/rowAction`
+- 入参使用 `ListCommonQueryDTO`
+- 出参使用 `ResultVO<ListRowActionVO>`
+- 结果仅包含行内动作元数据
+- 本次仅落地客户列表 `EDIT` 动作，不提前暴露其他动作

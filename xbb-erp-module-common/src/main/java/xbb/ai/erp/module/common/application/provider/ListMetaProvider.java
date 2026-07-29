@@ -20,6 +20,8 @@ public interface ListMetaProvider {
 
     ListMetaBundlePojo buildBottomButtonMeta(ListCommonQueryDTO dto);
 
+    ListMetaBundlePojo buildRowActionMeta(ListCommonQueryDTO dto);
+
     default void applyPackageExtension(ListMetaBundlePojo bundle, ListMetaContextPojo context) {
     }
 

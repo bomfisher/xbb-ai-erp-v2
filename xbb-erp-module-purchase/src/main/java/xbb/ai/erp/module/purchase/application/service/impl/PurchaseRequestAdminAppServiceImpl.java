@@ -73,11 +73,37 @@ public class PurchaseRequestAdminAppServiceImpl implements PurchaseRequestAdminA
     public Long save(PurchaseRequestSaveDTO dto) {
         PurchaseRequest purchaseRequest = PurchaseRequestAdminAssembler.toPurchaseRequest(dto);
         if (purchaseRequest.getId() == null) {
+            applyInsertDefaults(purchaseRequest, dto.getUserId());
             purchaseRequestRepository.insert(purchaseRequest);
         } else {
             purchaseRequestRepository.update(purchaseRequest);
         }
         return purchaseRequest.getId();
+    }
+
+    private void applyInsertDefaults(PurchaseRequest purchaseRequest, String userId) {
+        long now = System.currentTimeMillis();
+        if (purchaseRequest.getBizStatus() == null || purchaseRequest.getBizStatus().isBlank()) {
+            purchaseRequest.setBizStatus("1");
+        }
+        if (purchaseRequest.getVersion() == null) {
+            purchaseRequest.setVersion(0);
+        }
+        if (purchaseRequest.getDeleted() == null) {
+            purchaseRequest.setDeleted(0);
+        }
+        if (purchaseRequest.getAddTime() == null) {
+            purchaseRequest.setAddTime(now);
+        }
+        if (purchaseRequest.getUpdateTime() == null) {
+            purchaseRequest.setUpdateTime(now);
+        }
+        if (purchaseRequest.getCreatorId() == null || purchaseRequest.getCreatorId().isBlank()) {
+            purchaseRequest.setCreatorId(userId);
+        }
+        if (purchaseRequest.getModifyId() == null || purchaseRequest.getModifyId().isBlank()) {
+            purchaseRequest.setModifyId(userId);
+        }
     }
 
     @Override

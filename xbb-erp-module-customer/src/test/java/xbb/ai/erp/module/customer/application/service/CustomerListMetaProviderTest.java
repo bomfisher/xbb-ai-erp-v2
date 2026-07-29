@@ -20,7 +20,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class CustomerListMetaProviderTest {
 
@@ -58,6 +57,23 @@ class CustomerListMetaProviderTest {
         assertEquals("停用", filterMap.get("bizStatus").getItemList().get(1).getText());
         assertEquals("新增", topBundle.getTopButtonList().get(0).getButtonName());
         assertEquals("导出", bottomBundle.getBottomButtonList().get(0).getButtonName());
+    }
+
+    @Test
+    void should_build_customer_row_action_meta() {
+        CustomerListMetaProvider provider = new CustomerListMetaProvider(new DefaultCustomerFieldFactory(List.of()));
+        ListCommonQueryDTO dto = new ListCommonQueryDTO();
+        dto.setCorpid("corp-001");
+        dto.setUserId("user-001");
+        dto.setBusinessCode(BusinessCodeEnum.CUSTOMER.getCode());
+
+        ListMetaBundlePojo rowActionBundle = provider.buildRowActionMeta(dto);
+
+        assertEquals(1, rowActionBundle.getRowActionList().size());
+        assertEquals("EDIT", rowActionBundle.getRowActionList().get(0).getActionCode());
+        assertEquals("编辑", rowActionBundle.getRowActionList().get(0).getActionName());
+        assertEquals("PRIMARY", rowActionBundle.getRowActionList().get(0).getShowMode());
+        assertEquals("NONE", rowActionBundle.getRowActionList().get(0).getConfirmType());
     }
 
     @Test

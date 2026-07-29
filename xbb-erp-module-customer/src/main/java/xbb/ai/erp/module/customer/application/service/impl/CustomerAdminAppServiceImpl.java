@@ -217,7 +217,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
     public SaveItemVO<CustomerSaveItemVO> updateItem(IdBaseDTO dto) {
         SaveItemVO<CustomerSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(CustomerFieldAssembler.buildHeadList(customerFieldFactory.getFields(SceneTypeEnum.UPDATE)));
-        vo.setData(CustomerAdminAssembler.buildEmptySaveItemVO());
+        vo.setData(loadSaveItem(dto));
         return vo;
     }
 
@@ -296,22 +296,25 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }
 
         Long customerId = customer.getId();
-        syncContacts(dto.getCorpid(), customerId, dto.getContacts());
-        syncAddresses(dto.getCorpid(), customerId, dto.getAddresses());
-        syncBankAccounts(dto.getCorpid(), customerId, dto.getBankAccounts());
-        syncInvoiceProfiles(dto.getCorpid(), customerId, dto.getInvoiceProfiles());
+        syncContacts(dto.getCorpid(), customerId, dto.getUserId(), dto.getContacts());
+        syncAddresses(dto.getCorpid(), customerId, dto.getUserId(), dto.getAddresses());
+        syncBankAccounts(dto.getCorpid(), customerId, dto.getUserId(), dto.getBankAccounts());
+        syncInvoiceProfiles(dto.getCorpid(), customerId, dto.getUserId(), dto.getInvoiceProfiles());
         return customerId;
     }
 
     @Override
     public CustomerDetailVO detail(IdBaseDTO dto) {
+        return CustomerAdminAssembler.toDetailVO(loadSaveItem(dto));
+    }
+
+    private CustomerSaveItemVO loadSaveItem(IdBaseDTO dto) {
         Customer customer = customerRepository == null ? null : customerRepository.findById(dto.getCorpid(), dto.getId());
         List<CustomerContact> contacts = customerContactRepository == null ? List.of() : customerContactRepository.findByCondition(Map.of("corpid", dto.getCorpid(), "customerId", dto.getId()));
         List<CustomerAddress> addresses = customerAddressRepository == null ? List.of() : customerAddressRepository.findByCondition(Map.of("corpid", dto.getCorpid(), "customerId", dto.getId()));
         List<CustomerBankAccount> bankAccounts = customerBankAccountRepository == null ? List.of() : customerBankAccountRepository.findByCondition(Map.of("corpid", dto.getCorpid(), "customerId", dto.getId()));
         List<CustomerInvoiceProfile> invoiceProfiles = customerInvoiceProfileRepository == null ? List.of() : customerInvoiceProfileRepository.findByCondition(Map.of("corpid", dto.getCorpid(), "customerId", dto.getId()));
-        CustomerSaveItemVO saveItemVO = CustomerAdminAssembler.toSaveItemVO(customer, contacts, addresses, bankAccounts, invoiceProfiles);
-        return CustomerAdminAssembler.toDetailVO(saveItemVO);
+        return CustomerAdminAssembler.toSaveItemVO(customer, contacts, addresses, bankAccounts, invoiceProfiles);
     }
 
     @Override
@@ -382,6 +385,106 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }
     }
 
+    private void applyContactDefaults(CustomerContact contact, String userId) {
+        long now = System.currentTimeMillis();
+        if (contact.getBizStatus() == null || contact.getBizStatus().isBlank()) {
+            contact.setBizStatus("1");
+        }
+        if (contact.getVersion() == null) {
+            contact.setVersion(0);
+        }
+        if (contact.getDel() == null) {
+            contact.setDel(0);
+        }
+        if (contact.getAddTime() == null) {
+            contact.setAddTime(now);
+        }
+        if (contact.getUpdateTime() == null) {
+            contact.setUpdateTime(now);
+        }
+        if (contact.getCreatorId() == null || contact.getCreatorId().isBlank()) {
+            contact.setCreatorId(userId);
+        }
+        if (contact.getModifyId() == null || contact.getModifyId().isBlank()) {
+            contact.setModifyId(userId);
+        }
+    }
+
+    private void applyAddressDefaults(CustomerAddress address, String userId) {
+        long now = System.currentTimeMillis();
+        if (address.getBizStatus() == null || address.getBizStatus().isBlank()) {
+            address.setBizStatus("1");
+        }
+        if (address.getVersion() == null) {
+            address.setVersion(0);
+        }
+        if (address.getDel() == null) {
+            address.setDel(0);
+        }
+        if (address.getAddTime() == null) {
+            address.setAddTime(now);
+        }
+        if (address.getUpdateTime() == null) {
+            address.setUpdateTime(now);
+        }
+        if (address.getCreatorId() == null || address.getCreatorId().isBlank()) {
+            address.setCreatorId(userId);
+        }
+        if (address.getModifyId() == null || address.getModifyId().isBlank()) {
+            address.setModifyId(userId);
+        }
+    }
+
+    private void applyBankAccountDefaults(CustomerBankAccount bankAccount, String userId) {
+        long now = System.currentTimeMillis();
+        if (bankAccount.getBizStatus() == null || bankAccount.getBizStatus().isBlank()) {
+            bankAccount.setBizStatus("1");
+        }
+        if (bankAccount.getVersion() == null) {
+            bankAccount.setVersion(0);
+        }
+        if (bankAccount.getDel() == null) {
+            bankAccount.setDel(0);
+        }
+        if (bankAccount.getAddTime() == null) {
+            bankAccount.setAddTime(now);
+        }
+        if (bankAccount.getUpdateTime() == null) {
+            bankAccount.setUpdateTime(now);
+        }
+        if (bankAccount.getCreatorId() == null || bankAccount.getCreatorId().isBlank()) {
+            bankAccount.setCreatorId(userId);
+        }
+        if (bankAccount.getModifyId() == null || bankAccount.getModifyId().isBlank()) {
+            bankAccount.setModifyId(userId);
+        }
+    }
+
+    private void applyInvoiceProfileDefaults(CustomerInvoiceProfile invoiceProfile, String userId) {
+        long now = System.currentTimeMillis();
+        if (invoiceProfile.getBizStatus() == null || invoiceProfile.getBizStatus().isBlank()) {
+            invoiceProfile.setBizStatus("1");
+        }
+        if (invoiceProfile.getVersion() == null) {
+            invoiceProfile.setVersion(0);
+        }
+        if (invoiceProfile.getDel() == null) {
+            invoiceProfile.setDel(0);
+        }
+        if (invoiceProfile.getAddTime() == null) {
+            invoiceProfile.setAddTime(now);
+        }
+        if (invoiceProfile.getUpdateTime() == null) {
+            invoiceProfile.setUpdateTime(now);
+        }
+        if (invoiceProfile.getCreatorId() == null || invoiceProfile.getCreatorId().isBlank()) {
+            invoiceProfile.setCreatorId(userId);
+        }
+        if (invoiceProfile.getModifyId() == null || invoiceProfile.getModifyId().isBlank()) {
+            invoiceProfile.setModifyId(userId);
+        }
+    }
+
     private <T> void validateDefaultUniqueness(List<T> list, Function<T, Integer> getter, String message) {
         long count = list == null ? 0 : list.stream().filter(item -> Integer.valueOf(1).equals(getter.apply(item))).count();
         if (count > 1) {
@@ -389,7 +492,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }
     }
 
-    private void syncContacts(String corpid, Long customerId, List<CustomerContactItemDTO> items) {
+    private void syncContacts(String corpid, Long customerId, String userId, List<CustomerContactItemDTO> items) {
         if (items == null) {
             return;
         }
@@ -409,6 +512,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         for (CustomerContactItemDTO item : items) {
             CustomerContact contact = CustomerAdminAssembler.toCustomerContact(corpid, customerId, item);
             if (contact.getId() == null) {
+                applyContactDefaults(contact, userId);
                 customerContactRepository.insert(contact);
             } else {
                 customerContactRepository.update(contact);
@@ -416,7 +520,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }
     }
 
-    private void syncAddresses(String corpid, Long customerId, List<CustomerAddressItemDTO> items) {
+    private void syncAddresses(String corpid, Long customerId, String userId, List<CustomerAddressItemDTO> items) {
         if (items == null) {
             return;
         }
@@ -436,6 +540,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         for (CustomerAddressItemDTO item : items) {
             CustomerAddress address = CustomerAdminAssembler.toCustomerAddress(corpid, customerId, item);
             if (address.getId() == null) {
+                applyAddressDefaults(address, userId);
                 customerAddressRepository.insert(address);
             } else {
                 customerAddressRepository.update(address);
@@ -443,7 +548,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }
     }
 
-    private void syncBankAccounts(String corpid, Long customerId, List<CustomerBankAccountItemDTO> items) {
+    private void syncBankAccounts(String corpid, Long customerId, String userId, List<CustomerBankAccountItemDTO> items) {
         if (items == null) {
             return;
         }
@@ -463,6 +568,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         for (CustomerBankAccountItemDTO item : items) {
             CustomerBankAccount bankAccount = CustomerAdminAssembler.toCustomerBankAccount(corpid, customerId, item);
             if (bankAccount.getId() == null) {
+                applyBankAccountDefaults(bankAccount, userId);
                 customerBankAccountRepository.insert(bankAccount);
             } else {
                 customerBankAccountRepository.update(bankAccount);
@@ -470,7 +576,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         }
     }
 
-    private void syncInvoiceProfiles(String corpid, Long customerId, List<CustomerInvoiceProfileItemDTO> items) {
+    private void syncInvoiceProfiles(String corpid, Long customerId, String userId, List<CustomerInvoiceProfileItemDTO> items) {
         if (items == null) {
             return;
         }
@@ -490,6 +596,7 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
         for (CustomerInvoiceProfileItemDTO item : items) {
             CustomerInvoiceProfile profile = CustomerAdminAssembler.toCustomerInvoiceProfile(corpid, customerId, item);
             if (profile.getId() == null) {
+                applyInvoiceProfileDefaults(profile, userId);
                 customerInvoiceProfileRepository.insert(profile);
             } else {
                 customerInvoiceProfileRepository.update(profile);

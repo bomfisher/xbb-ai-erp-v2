@@ -70,11 +70,34 @@ public class PurchaseSourceRelationAdminAppServiceImpl implements PurchaseSource
     public Long save(PurchaseSourceRelationSaveDTO dto) {
         PurchaseSourceRelation purchaseSourceRelation = PurchaseSourceRelationAdminAssembler.toPurchaseSourceRelation(dto);
         if (purchaseSourceRelation.getId() == null) {
+            applyInsertDefaults(purchaseSourceRelation, dto.getUserId());
             purchaseSourceRelationRepository.insert(purchaseSourceRelation);
         } else {
             purchaseSourceRelationRepository.update(purchaseSourceRelation);
         }
         return purchaseSourceRelation.getId();
+    }
+
+    private void applyInsertDefaults(PurchaseSourceRelation purchaseSourceRelation, String userId) {
+        long now = System.currentTimeMillis();
+        if (purchaseSourceRelation.getVersion() == null) {
+            purchaseSourceRelation.setVersion(0);
+        }
+        if (purchaseSourceRelation.getDeleted() == null) {
+            purchaseSourceRelation.setDeleted(0);
+        }
+        if (purchaseSourceRelation.getAddTime() == null) {
+            purchaseSourceRelation.setAddTime(now);
+        }
+        if (purchaseSourceRelation.getUpdateTime() == null) {
+            purchaseSourceRelation.setUpdateTime(now);
+        }
+        if (purchaseSourceRelation.getCreatorId() == null || purchaseSourceRelation.getCreatorId().isBlank()) {
+            purchaseSourceRelation.setCreatorId(userId);
+        }
+        if (purchaseSourceRelation.getModifyId() == null || purchaseSourceRelation.getModifyId().isBlank()) {
+            purchaseSourceRelation.setModifyId(userId);
+        }
     }
 
     @Override

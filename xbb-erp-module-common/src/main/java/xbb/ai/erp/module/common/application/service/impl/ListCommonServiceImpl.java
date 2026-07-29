@@ -6,6 +6,7 @@ import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
 import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
+import xbb.ai.erp.module.common.admin.vo.ListRowActionVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
@@ -49,6 +50,15 @@ public class ListCommonServiceImpl implements ListCommonService {
         ListMetaBundlePojo bundle = provider.buildBottomButtonMeta(dto);
         ListBottomButtonVO vo = new ListBottomButtonVO();
         vo.setList(bundle.getBottomButtonList());
+        return vo;
+    }
+
+    @Override
+    public ListRowActionVO rowAction(ListCommonQueryDTO dto) {
+        ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
+        ListMetaBundlePojo bundle = provider.buildRowActionMeta(dto);
+        ListRowActionVO vo = new ListRowActionVO();
+        vo.setList(bundle.getRowActionList());
         return vo;
     }
 }

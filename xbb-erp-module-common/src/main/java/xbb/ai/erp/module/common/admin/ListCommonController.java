@@ -10,6 +10,7 @@ import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
 import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
+import xbb.ai.erp.module.common.admin.vo.ListRowActionVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
 import xbb.ai.erp.module.common.application.service.ListCommonService;
 
@@ -38,5 +39,10 @@ public class ListCommonController {
     @PostMapping("/bottomButton")
     public ResultVO<ListBottomButtonVO> bottomButton(@RequestBody ListCommonQueryDTO dto) {
         return ResultVO.success(listCommonService.bottomButton(dto));
+    }
+
+    @PostMapping("/rowAction")
+    public ResultVO<ListRowActionVO> rowAction(@RequestBody ListCommonQueryDTO dto) {
+        return ResultVO.success(listCommonService.rowAction(dto));
     }
 }

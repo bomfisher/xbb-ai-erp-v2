@@ -77,11 +77,34 @@ public class PurchasePendingTaskAdminAppServiceImpl implements PurchasePendingTa
     public Long save(PurchasePendingTaskSaveDTO dto) {
         PurchasePendingTask purchasePendingTask = PurchasePendingTaskAdminAssembler.toPurchasePendingTask(dto);
         if (purchasePendingTask.getId() == null) {
+            applyInsertDefaults(purchasePendingTask, dto.getUserId());
             purchasePendingTaskRepository.insert(purchasePendingTask);
         } else {
             purchasePendingTaskRepository.update(purchasePendingTask);
         }
         return purchasePendingTask.getId();
+    }
+
+    private void applyInsertDefaults(PurchasePendingTask purchasePendingTask, String userId) {
+        long now = System.currentTimeMillis();
+        if (purchasePendingTask.getVersion() == null) {
+            purchasePendingTask.setVersion(0);
+        }
+        if (purchasePendingTask.getDeleted() == null) {
+            purchasePendingTask.setDeleted(0);
+        }
+        if (purchasePendingTask.getAddTime() == null) {
+            purchasePendingTask.setAddTime(now);
+        }
+        if (purchasePendingTask.getUpdateTime() == null) {
+            purchasePendingTask.setUpdateTime(now);
+        }
+        if (purchasePendingTask.getCreatorId() == null || purchasePendingTask.getCreatorId().isBlank()) {
+            purchasePendingTask.setCreatorId(userId);
+        }
+        if (purchasePendingTask.getModifyId() == null || purchasePendingTask.getModifyId().isBlank()) {
+            purchasePendingTask.setModifyId(userId);
+        }
     }
 
     @Override

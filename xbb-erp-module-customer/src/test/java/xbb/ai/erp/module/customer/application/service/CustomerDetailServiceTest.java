@@ -2,6 +2,7 @@ package xbb.ai.erp.module.customer.application.service;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.module.customer.admin.vo.CustomerDetailVO;
 import xbb.ai.erp.module.customer.application.service.impl.CustomerAdminAppServiceImpl;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerRepository;
@@ -11,9 +12,21 @@ import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CustomerDetailServiceTest {
+
+    @Test
+    void should_reject_null_id_for_detail() {
+        CustomerAdminAppServiceImpl service = CustomerAdminAppServiceImpl.forTesting(null, null, null, null, null);
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.detail(dto));
+
+        org.junit.jupiter.api.Assertions.assertEquals("id不能为空", exception.getMessage());
+    }
 
     @Test
     void should_return_nested_data_and_empty_todo_sections() {

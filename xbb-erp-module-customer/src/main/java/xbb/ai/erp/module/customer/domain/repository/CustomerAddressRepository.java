@@ -1,9 +1,9 @@
 package xbb.ai.erp.module.customer.domain.repository;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerAddress;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerAddressQueryPojo;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CustomerAddressRepository {
     void insert(CustomerAddress customerAddress);
@@ -12,5 +12,5 @@ public interface CustomerAddressRepository {
     void removeBatchByIds(String corpid, List<Long> ids);
     void update(CustomerAddress customerAddress);
     CustomerAddress findById(String corpid, Long id);
-    List<CustomerAddress> findByCondition(Map<String, Object> conditionMap);
+    List<CustomerAddress> findByCondition(CustomerAddressQueryPojo queryPojo);
 }

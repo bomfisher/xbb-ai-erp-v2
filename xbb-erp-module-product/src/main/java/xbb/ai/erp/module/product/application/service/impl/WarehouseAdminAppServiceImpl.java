@@ -4,6 +4,8 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.support.AdminParamValidator;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.product.admin.dto.WarehouseListDTO;
@@ -17,7 +19,6 @@ import xbb.ai.erp.module.product.application.support.WarehouseFieldEnum;
 import xbb.ai.erp.module.product.domain.model.Warehouse;
 import xbb.ai.erp.module.product.domain.repository.WarehouseRepository;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -37,22 +38,23 @@ public class WarehouseAdminAppServiceImpl implements WarehouseAdminAppService {
 
     @Override
     public ListBaseVO<WarehouseListItemVO> list(WarehouseListDTO dto) {
-        Map<String, Object> conditionMap = new HashMap<>();
-        conditionMap.put("id", dto.getId());
-        conditionMap.put("corpid", dto.getCorpid());
-        conditionMap.put("bizOrgId", dto.getBizOrgId());
-        conditionMap.put("warehouseCode", dto.getWarehouseCode());
-        conditionMap.put("warehouseName", dto.getWarehouseName());
-        conditionMap.put("warehouseType", dto.getWarehouseType());
-        conditionMap.put("enableStatus", dto.getEnableStatus());
-        conditionMap.put("address", dto.getAddress());
-        conditionMap.put("managerId", dto.getManagerId());
-        conditionMap.put("bizStatus", dto.getBizStatus());
-        conditionMap.put("pageNum", dto.getPageNum());
-        conditionMap.put("pageSize", dto.getPageSize());
-        conditionMap.put("offset", dto.getOffset());
-        conditionMap.put("groupByStr", dto.getGroupByStr());
-        conditionMap.put("orderByStr", dto.getOrderByStr());
+        AdminParamValidator.requireCorpid(dto);
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", dto.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", dto.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizOrgId", dto.getBizOrgId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "warehouseCode", dto.getWarehouseCode());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "warehouseName", dto.getWarehouseName());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "warehouseType", dto.getWarehouseType());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "enableStatus", dto.getEnableStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "address", dto.getAddress());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "managerId", dto.getManagerId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", dto.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", dto.getPageNum());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", dto.getPageSize());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", dto.getOffset());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", dto.getGroupByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", dto.getOrderByStr());
         List<Warehouse> list = warehouseRepository == null ? List.of() : warehouseRepository.findByCondition(conditionMap);
         Long total = warehouseRepository == null ? 0L : warehouseRepository.count(conditionMap);
         ListBaseVO<WarehouseListItemVO> vo = new ListBaseVO<>();
@@ -136,13 +138,15 @@ public class WarehouseAdminAppServiceImpl implements WarehouseAdminAppService {
 
     @Override
     public void delete(BatchBaseDTO dto) {
-        if (dto.getIdList() == null || dto.getIdList().isEmpty() || warehouseRepository == null) {
+        AdminParamValidator.validateBatchDelete(dto);
+        if (warehouseRepository == null) {
             return;
         }
         warehouseRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
     }
 
     private WarehouseSaveItemVO toSaveItem(IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
         if (warehouseRepository == null) {
             return WarehouseAdminAssembler.buildEmptySaveItemVO();
         }

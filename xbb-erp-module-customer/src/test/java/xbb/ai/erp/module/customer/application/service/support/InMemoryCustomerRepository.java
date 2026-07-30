@@ -2,11 +2,11 @@ package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
 import xbb.ai.erp.module.customer.domain.model.Customer;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryCustomerRepository implements CustomerRepository {
@@ -58,9 +58,17 @@ public class InMemoryCustomerRepository implements CustomerRepository {
     }
 
     @Override
-    public List<Customer> findByCondition(Map<String, Object> conditionMap) {
-        Object corpid = conditionMap.get("corpid");
-        List<ListFilterCondition> conditions = castConditions(conditionMap.get("conditions"));
+    public boolean existsByCustomerCode(String corpid, String customerCode, Long excludeId) {
+        return data.stream()
+            .filter(item -> corpid.equals(item.getCorpid()))
+            .filter(item -> customerCode.equals(item.getCustomerCode()))
+            .anyMatch(item -> excludeId == null || !excludeId.equals(item.getId()));
+    }
+
+    @Override
+    public List<Customer> findByCondition(CustomerQueryPojo queryPojo) {
+        String corpid = queryPojo == null ? null : queryPojo.getCorpid();
+        List<ListFilterCondition> conditions = castConditions(queryPojo == null ? null : queryPojo.getConditions());
         return data.stream()
             .filter(item -> corpid == null || corpid.equals(item.getCorpid()))
             .filter(item -> matchConditions(item, conditions))

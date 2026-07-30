@@ -1,11 +1,11 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerInvoiceProfile;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerInvoiceProfileQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerInvoiceProfileRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryCustomerInvoiceProfileRepository implements CustomerInvoiceProfileRepository {
@@ -57,9 +57,9 @@ public class InMemoryCustomerInvoiceProfileRepository implements CustomerInvoice
     }
 
     @Override
-    public List<CustomerInvoiceProfile> findByCondition(Map<String, Object> conditionMap) {
-        Object corpid = conditionMap.get("corpid");
-        Object customerId = conditionMap.get("customerId");
+    public List<CustomerInvoiceProfile> findByCondition(CustomerInvoiceProfileQueryPojo queryPojo) {
+        String corpid = queryPojo == null ? null : queryPojo.getCorpid();
+        Long customerId = queryPojo == null ? null : queryPojo.getCustomerId();
         return data.stream().filter(item ->
             (corpid == null || corpid.equals(item.getCorpid()))
                 && (customerId == null || customerId.equals(item.getCustomerId()))

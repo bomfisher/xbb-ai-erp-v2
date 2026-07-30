@@ -2,7 +2,9 @@ package xbb.ai.erp.module.customer.infrastructure.persistence.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.module.customer.domain.model.CustomerBankAccount;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerBankAccountQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerBankAccountRepository;
 import xbb.ai.erp.module.customer.infrastructure.persistence.convertor.CustomerBankAccountConvertor;
 import xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerBankAccountMapper;
@@ -49,11 +51,28 @@ public class CustomerBankAccountRepositoryImpl implements CustomerBankAccountRep
     }
 
     @Override
-    public List<CustomerBankAccount> findByCondition(Map<String, Object> conditionMap) {
-        Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
+    public List<CustomerBankAccount> findByCondition(CustomerBankAccountQueryPojo queryPojo) {
+        Map<String, Object> preparedConditionMap = QueryConditionMapHelper.prepare(toConditionMap(queryPojo));
         return customerBankAccountMapper.findByCondition(preparedConditionMap)
             .stream()
             .map(CustomerBankAccountConvertor::toDomain)
             .toList();
+    }
+
+    private Map<String, Object> toConditionMap(CustomerBankAccountQueryPojo queryPojo) {
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        if (queryPojo == null) {
+            return conditionMap;
+        }
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", queryPojo.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", queryPojo.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerId", queryPojo.getCustomerId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerIds", queryPojo.getCustomerIds());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "accountName", queryPojo.getAccountName());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bankName", queryPojo.getBankName());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "accountNo", queryPojo.getAccountNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", queryPojo.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "defaultFlag", queryPojo.getDefaultFlag());
+        return conditionMap;
     }
 }

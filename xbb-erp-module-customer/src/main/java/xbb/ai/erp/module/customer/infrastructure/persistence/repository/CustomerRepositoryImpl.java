@@ -2,7 +2,9 @@ package xbb.ai.erp.module.customer.infrastructure.persistence.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.module.customer.domain.model.Customer;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
 import xbb.ai.erp.module.customer.infrastructure.persistence.convertor.CustomerConvertor;
 import xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerMapper;
@@ -51,11 +53,44 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
-    public List<Customer> findByCondition(Map<String, Object> conditionMap) {
-        Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
+    public boolean existsByCustomerCode(String corpid, String customerCode, Long excludeId) {
+        CustomerQueryPojo queryPojo = new CustomerQueryPojo();
+        queryPojo.setCorpid(corpid);
+        queryPojo.setCustomerCode(customerCode);
+        queryPojo.setExcludeId(excludeId);
+        return customerMapper.findByCondition(QueryConditionMapHelper.prepare(toConditionMap(queryPojo))).stream().anyMatch(po -> po != null && po.getId() != null);
+    }
+
+    @Override
+    public List<Customer> findByCondition(CustomerQueryPojo queryPojo) {
+        Map<String, Object> preparedConditionMap = QueryConditionMapHelper.prepare(toConditionMap(queryPojo));
         return customerMapper.findByCondition(preparedConditionMap)
             .stream()
             .map(CustomerConvertor::toDomain)
             .toList();
+    }
+
+    private Map<String, Object> toConditionMap(CustomerQueryPojo queryPojo) {
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        if (queryPojo == null) {
+            return conditionMap;
+        }
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", queryPojo.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", queryPojo.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "keyword", queryPojo.getKeyword());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerCode", queryPojo.getCustomerCode());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerName", queryPojo.getCustomerName());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerCategory", queryPojo.getCustomerCategory());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", queryPojo.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "refStatus", queryPojo.getRefStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "ownerSalesId", queryPojo.getOwnerSalesId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "excludeId", queryPojo.getExcludeId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", queryPojo.getPageNum());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", queryPojo.getPageSize());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", queryPojo.getOffset());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", queryPojo.getGroupByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", queryPojo.getOrderByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "conditions", queryPojo.getConditions());
+        return conditionMap;
     }
 }

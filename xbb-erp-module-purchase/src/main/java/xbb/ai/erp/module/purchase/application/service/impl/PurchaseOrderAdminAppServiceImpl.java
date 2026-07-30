@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.support.AdminParamValidator;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderListDTO;
@@ -29,35 +31,36 @@ public class PurchaseOrderAdminAppServiceImpl implements PurchaseOrderAdminAppSe
 
     @Override
     public ListBaseVO<PurchaseOrderListItemVO> list(PurchaseOrderListDTO dto) {
-        Map<String, Object> conditionMap = new HashMap<>();
-        conditionMap.put("id", dto.getId());
-        conditionMap.put("corpid", dto.getCorpid());
-        conditionMap.put("purchaseOrgId", dto.getPurchaseOrgId());
-        conditionMap.put("orderNo", dto.getOrderNo());
-        conditionMap.put("vendorId", dto.getVendorId());
-        conditionMap.put("vendorNameSnapshot", dto.getVendorNameSnapshot());
-        conditionMap.put("purchaserId", dto.getPurchaserId());
-        conditionMap.put("warehouseId", dto.getWarehouseId());
-        conditionMap.put("settlementMethodId", dto.getSettlementMethodId());
-        conditionMap.put("currencyCode", dto.getCurrencyCode());
-        conditionMap.put("deliveryDate", dto.getDeliveryDate());
-        conditionMap.put("sourceType", dto.getSourceType());
-        conditionMap.put("sourceNo", dto.getSourceNo());
-        conditionMap.put("salesLinkedFlag", dto.getSalesLinkedFlag());
-        conditionMap.put("bizStatus", dto.getBizStatus());
-        conditionMap.put("approvalStatus", dto.getApprovalStatus());
-        conditionMap.put("executionStatus", dto.getExecutionStatus());
-        conditionMap.put("receiptStatus", dto.getReceiptStatus());
-        conditionMap.put("inboundStatus", dto.getInboundStatus());
-        conditionMap.put("payableStatus", dto.getPayableStatus());
-        conditionMap.put("invoiceStatus", dto.getInvoiceStatus());
-        conditionMap.put("paymentStatus", dto.getPaymentStatus());
-        conditionMap.put("periodLockedFlag", dto.getPeriodLockedFlag());
-        conditionMap.put("pageNum", dto.getPageNum());
-        conditionMap.put("offset", dto.getOffset());
-        conditionMap.put("pageSize", dto.getPageSize());
-        conditionMap.put("groupByStr", dto.getGroupByStr());
-        conditionMap.put("orderByStr", dto.getOrderByStr());
+        AdminParamValidator.requireCorpid(dto);
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", dto.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", dto.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "purchaseOrgId", dto.getPurchaseOrgId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderNo", dto.getOrderNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "vendorId", dto.getVendorId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "vendorNameSnapshot", dto.getVendorNameSnapshot());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "purchaserId", dto.getPurchaserId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "warehouseId", dto.getWarehouseId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "settlementMethodId", dto.getSettlementMethodId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "currencyCode", dto.getCurrencyCode());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "deliveryDate", dto.getDeliveryDate());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceType", dto.getSourceType());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceNo", dto.getSourceNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "salesLinkedFlag", dto.getSalesLinkedFlag());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", dto.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "approvalStatus", dto.getApprovalStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "executionStatus", dto.getExecutionStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "receiptStatus", dto.getReceiptStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "inboundStatus", dto.getInboundStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "payableStatus", dto.getPayableStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "invoiceStatus", dto.getInvoiceStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "paymentStatus", dto.getPaymentStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "periodLockedFlag", dto.getPeriodLockedFlag());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", dto.getPageNum());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", dto.getOffset());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", dto.getPageSize());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", dto.getGroupByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", dto.getOrderByStr());
         List<PurchaseOrder> list = purchaseOrderRepository.findByCondition(conditionMap);
         Long total = purchaseOrderRepository.count(conditionMap);
         ListBaseVO<PurchaseOrderListItemVO> vo = new ListBaseVO<>();
@@ -124,13 +127,12 @@ public class PurchaseOrderAdminAppServiceImpl implements PurchaseOrderAdminAppSe
 
     @Override
     public void delete(BatchBaseDTO dto) {
-        if (dto.getIdList() == null || dto.getIdList().isEmpty()) {
-            return;
-        }
+        AdminParamValidator.validateBatchDelete(dto);
         purchaseOrderRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
     }
 
     private PurchaseOrderSaveItemVO toSaveItem(IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
         return PurchaseOrderAdminAssembler.toSaveItemVO(purchaseOrderRepository.findById(dto.getCorpid(), dto.getId()));
     }
 }

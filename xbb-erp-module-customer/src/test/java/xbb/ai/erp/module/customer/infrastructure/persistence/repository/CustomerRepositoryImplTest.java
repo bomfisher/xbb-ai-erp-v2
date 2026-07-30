@@ -2,13 +2,20 @@ package xbb.ai.erp.module.customer.infrastructure.persistence.repository;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.module.customer.domain.model.Customer;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerQueryPojo;
 import xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerMapper;
 import xbb.ai.erp.module.customer.infrastructure.persistence.po.CustomerPO;
 
+import java.util.Map;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyMap;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 class CustomerRepositoryImplTest {
 
@@ -37,5 +44,28 @@ class CustomerRepositoryImplTest {
         repository.insert(customer);
 
         assertEquals(101L, customer.getId());
+    }
+
+    @Test
+    void should_prepare_typed_query_into_condition_map() {
+        CustomerMapper customerMapper = mock(CustomerMapper.class);
+        when(customerMapper.findByCondition(anyMap())).thenReturn(java.util.List.of());
+
+        CustomerRepositoryImpl repository = new CustomerRepositoryImpl(customerMapper);
+        CustomerQueryPojo queryPojo = new CustomerQueryPojo();
+        queryPojo.setCorpid("corp-001");
+        queryPojo.setKeyword("杭州");
+        queryPojo.setPageNum(2);
+        queryPojo.setPageSize(10);
+
+        repository.findByCondition(queryPojo);
+
+        verify(customerMapper).findByCondition(Map.of(
+            "corpid", "corp-001",
+            "keyword", "杭州",
+            "pageNum", 2,
+            "pageSize", 10,
+            "offset", 10
+        ));
     }
 }

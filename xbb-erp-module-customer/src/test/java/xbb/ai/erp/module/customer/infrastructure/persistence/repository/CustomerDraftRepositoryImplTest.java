@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.data.redis.core.ZSetOperations;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.module.customer.admin.dto.CustomerMainDTO;
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveDraftPojo;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyDouble;
@@ -134,6 +136,15 @@ class CustomerDraftRepositoryImplTest {
         CustomerSaveDraftPojo loaded = repository.loadDraft("corp-040", "not-found");
 
         assertNull(loaded);
+    }
+
+    @Test
+    void should_throw_biz_exception_when_draft_deserialize_failed() {
+        when(valueOperations.get(CustomerDraftRepositoryImpl.DRAFT_KEY_PREFIX + "corp-050:bad-json")).thenReturn("{bad json}");
+
+        BizException ex = assertThrows(BizException.class, () -> repository.loadDraft("corp-050", "bad-json"));
+
+        assertEquals("客户草稿反序列化失败", ex.getMessage());
     }
 
     private CustomerSaveDraftPojo draft(

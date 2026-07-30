@@ -1,9 +1,9 @@
 package xbb.ai.erp.module.customer.domain.repository;
 
 import org.junit.jupiter.api.Test;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerInvoiceProfileQueryPojo;
 
 import java.lang.reflect.Method;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -16,7 +16,7 @@ class CustomerInvoiceProfileRepositorySignatureTest {
             xbb.ai.erp.module.customer.domain.model.CustomerInvoiceProfile.class
         );
         Method findById = CustomerInvoiceProfileRepository.class.getMethod("findById", String.class, Long.class);
-        Method findByCondition = CustomerInvoiceProfileRepository.class.getMethod("findByCondition", Map.class);
+        Method findByCondition = CustomerInvoiceProfileRepository.class.getMethod("findByCondition", CustomerInvoiceProfileQueryPojo.class);
 
         assertNotNull(insert);
         assertNotNull(findById);

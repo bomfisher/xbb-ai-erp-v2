@@ -1,10 +1,9 @@
-package xbb.ai.erp.module.customer.domain.repository;
+package xbb.ai.erp.module.customer.application.port;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveDraftPojo;
 
 import java.lang.reflect.Method;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 

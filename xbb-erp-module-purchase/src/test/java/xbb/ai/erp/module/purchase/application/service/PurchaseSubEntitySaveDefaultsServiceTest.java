@@ -1,12 +1,19 @@
 package xbb.ai.erp.module.purchase.application.service;
 
 import org.junit.jupiter.api.Test;
+import xbb.ai.erp.base.common.dto.BatchBaseDTO;
+import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.exception.BizException;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderItemListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderItemMainDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderItemSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchasePendingTaskListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchasePendingTaskMainDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchasePendingTaskSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestItemListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestItemMainDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestItemSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseSourceRelationListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseSourceRelationMainDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseSourceRelationSaveDTO;
 import xbb.ai.erp.module.purchase.application.service.impl.PurchaseOrderItemAdminAppServiceImpl;
@@ -26,8 +33,137 @@ import java.math.BigDecimal;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class PurchaseSubEntitySaveDefaultsServiceTest {
+
+    @Test
+    void should_reject_blank_corpid_for_purchase_request_item_list() {
+        PurchaseRequestItemAdminAppServiceImpl service = new PurchaseRequestItemAdminAppServiceImpl(new InMemoryPurchaseRequestItemRepository());
+        PurchaseRequestItemListDTO dto = new PurchaseRequestItemListDTO();
+
+        BizException exception = assertThrows(BizException.class, () -> service.list(dto));
+
+        assertEquals("公司不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_null_id_for_purchase_request_item_update_item() {
+        PurchaseRequestItemAdminAppServiceImpl service = new PurchaseRequestItemAdminAppServiceImpl(new InMemoryPurchaseRequestItemRepository());
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
+
+        assertEquals("id不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_empty_id_list_for_purchase_request_item_delete() {
+        PurchaseRequestItemAdminAppServiceImpl service = new PurchaseRequestItemAdminAppServiceImpl(new InMemoryPurchaseRequestItemRepository());
+        BatchBaseDTO dto = new BatchBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.delete(dto));
+
+        assertEquals("idList不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_blank_corpid_for_purchase_order_item_list() {
+        PurchaseOrderItemAdminAppServiceImpl service = new PurchaseOrderItemAdminAppServiceImpl(new InMemoryPurchaseOrderItemRepository());
+        PurchaseOrderItemListDTO dto = new PurchaseOrderItemListDTO();
+
+        BizException exception = assertThrows(BizException.class, () -> service.list(dto));
+
+        assertEquals("公司不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_null_id_for_purchase_order_item_update_item() {
+        PurchaseOrderItemAdminAppServiceImpl service = new PurchaseOrderItemAdminAppServiceImpl(new InMemoryPurchaseOrderItemRepository());
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
+
+        assertEquals("id不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_empty_id_list_for_purchase_order_item_delete() {
+        PurchaseOrderItemAdminAppServiceImpl service = new PurchaseOrderItemAdminAppServiceImpl(new InMemoryPurchaseOrderItemRepository());
+        BatchBaseDTO dto = new BatchBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.delete(dto));
+
+        assertEquals("idList不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_blank_corpid_for_purchase_pending_task_list() {
+        PurchasePendingTaskAdminAppServiceImpl service = new PurchasePendingTaskAdminAppServiceImpl(new InMemoryPurchasePendingTaskRepository());
+        PurchasePendingTaskListDTO dto = new PurchasePendingTaskListDTO();
+
+        BizException exception = assertThrows(BizException.class, () -> service.list(dto));
+
+        assertEquals("公司不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_null_id_for_purchase_pending_task_update_item() {
+        PurchasePendingTaskAdminAppServiceImpl service = new PurchasePendingTaskAdminAppServiceImpl(new InMemoryPurchasePendingTaskRepository());
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
+
+        assertEquals("id不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_empty_id_list_for_purchase_pending_task_delete() {
+        PurchasePendingTaskAdminAppServiceImpl service = new PurchasePendingTaskAdminAppServiceImpl(new InMemoryPurchasePendingTaskRepository());
+        BatchBaseDTO dto = new BatchBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.delete(dto));
+
+        assertEquals("idList不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_blank_corpid_for_purchase_source_relation_list() {
+        PurchaseSourceRelationAdminAppServiceImpl service = new PurchaseSourceRelationAdminAppServiceImpl(new InMemoryPurchaseSourceRelationRepository());
+        PurchaseSourceRelationListDTO dto = new PurchaseSourceRelationListDTO();
+
+        BizException exception = assertThrows(BizException.class, () -> service.list(dto));
+
+        assertEquals("公司不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_null_id_for_purchase_source_relation_update_item() {
+        PurchaseSourceRelationAdminAppServiceImpl service = new PurchaseSourceRelationAdminAppServiceImpl(new InMemoryPurchaseSourceRelationRepository());
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
+
+        assertEquals("id不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_empty_id_list_for_purchase_source_relation_delete() {
+        PurchaseSourceRelationAdminAppServiceImpl service = new PurchaseSourceRelationAdminAppServiceImpl(new InMemoryPurchaseSourceRelationRepository());
+        BatchBaseDTO dto = new BatchBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.delete(dto));
+
+        assertEquals("idList不能为空", exception.getMessage());
+    }
 
     @Test
     void should_apply_insert_defaults_for_purchase_request_item() {

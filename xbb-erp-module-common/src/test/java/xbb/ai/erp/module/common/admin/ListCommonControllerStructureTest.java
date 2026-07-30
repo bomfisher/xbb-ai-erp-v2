@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class ListCommonControllerStructureTest {
 
     @Test
-    void should_use_list_common_query_dto_for_all_three_endpoints() throws Exception {
+    void should_use_list_common_query_dto_for_all_four_metadata_endpoints() throws Exception {
         Class<?> dtoClass = Class.forName("xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO");
 
         Method filter = ListCommonController.class.getMethod("filter", dtoClass);
@@ -24,6 +24,13 @@ class ListCommonControllerStructureTest {
         assertNotNull(header);
         assertNotNull(topButton);
         assertNotNull(bottomButton);
+    }
+
+    @Test
+    void should_define_unified_list_protocol_types() throws Exception {
+        assertNotNull(Class.forName("xbb.ai.erp.module.common.admin.dto.ListQueryDTO"));
+        assertNotNull(Class.forName("xbb.ai.erp.module.common.admin.vo.ListPageVO"));
+        assertNotNull(Class.forName("xbb.ai.erp.module.common.admin.vo.ListSchemaVO"));
     }
 
     @Test

@@ -5,8 +5,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Repository;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveDraftPojo;
-import xbb.ai.erp.module.customer.domain.repository.CustomerDraftRepository;
+import xbb.ai.erp.module.customer.application.port.CustomerDraftRepository;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -116,7 +117,7 @@ public class CustomerDraftRepositoryImpl implements CustomerDraftRepository {
         try {
             return objectMapper.writeValueAsString(draft);
         } catch (JsonProcessingException ex) {
-            throw new IllegalStateException("客户草稿序列化失败", ex);
+            throw new BizException("客户草稿序列化失败");
         }
     }
 
@@ -124,7 +125,7 @@ public class CustomerDraftRepositoryImpl implements CustomerDraftRepository {
         try {
             return objectMapper.readValue(payload, CustomerSaveDraftPojo.class);
         } catch (JsonProcessingException ex) {
-            throw new IllegalStateException("客户草稿反序列化失败", ex);
+            throw new BizException("客户草稿反序列化失败");
         }
     }
 }

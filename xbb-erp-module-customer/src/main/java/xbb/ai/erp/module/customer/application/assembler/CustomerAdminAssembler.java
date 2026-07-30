@@ -4,18 +4,26 @@ import xbb.ai.erp.module.customer.admin.dto.CustomerAddressItemDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerBankAccountItemDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerContactItemDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerInvoiceProfileItemDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerDraftMetaDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerDraftSaveDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerMainDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerSaveDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerSaveExtDTO;
+import xbb.ai.erp.module.customer.admin.dto.CustomerSectionStateDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerSubmitSaveDTO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerDetailVO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerDraftDetailVO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerDraftListItemVO;
+import xbb.ai.erp.module.customer.admin.vo.CustomerDraftMetaVO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerListItemVO;
+import xbb.ai.erp.module.customer.admin.vo.CustomerSaveExtVO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerSaveItemVO;
-import xbb.ai.erp.module.customer.application.pojo.CustomerSectionStatePojo;
+import xbb.ai.erp.module.customer.admin.vo.CustomerSectionStateVO;
+import xbb.ai.erp.module.customer.application.pojo.CustomerDraftMetaPojo;
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveContextPojo;
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveDraftPojo;
+import xbb.ai.erp.module.customer.application.pojo.CustomerSaveExtPojo;
+import xbb.ai.erp.module.customer.application.pojo.CustomerSectionStatePojo;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.model.CustomerAddress;
 import xbb.ai.erp.module.customer.domain.model.CustomerBankAccount;
@@ -39,9 +47,9 @@ public final class CustomerAdminAssembler {
         CustomerSaveContextPojo context = new CustomerSaveContextPojo();
         context.setCorpid(dto.getCorpid());
         context.setMain(dto.getMain());
-        context.setExt(dto.getExt());
-        context.setSectionState(dto.getSectionState());
-        context.setDraftMeta(dto.getDraftMeta());
+        context.setExt(toSaveExtPojo(dto.getExt()));
+        context.setSectionState(toSectionStatePojo(dto.getSectionState()));
+        context.setDraftMeta(toDraftMetaPojo(dto.getDraftMeta()));
         context.setSubmitMode(0);
         return context;
     }
@@ -50,9 +58,9 @@ public final class CustomerAdminAssembler {
         CustomerSaveContextPojo context = new CustomerSaveContextPojo();
         context.setCorpid(dto.getCorpid());
         context.setMain(dto.getMain());
-        context.setExt(dto.getExt());
-        context.setSectionState(dto.getSectionState());
-        context.setDraftMeta(dto.getDraftMeta());
+        context.setExt(toSaveExtPojo(dto.getExt()));
+        context.setSectionState(toSectionStatePojo(dto.getSectionState()));
+        context.setDraftMeta(toDraftMetaPojo(dto.getDraftMeta()));
         context.setSubmitMode(1);
         return context;
     }
@@ -64,8 +72,8 @@ public final class CustomerAdminAssembler {
         draft.setDraftTitle(dto.getDraftMeta() == null ? null : dto.getDraftMeta().getDraftTitle());
         draft.setUpdatedTime(dto.getDraftMeta() == null ? null : dto.getDraftMeta().getUpdatedTime());
         draft.setMain(dto.getMain());
-        draft.setExt(dto.getExt());
-        draft.setSectionState(dto.getSectionState());
+        draft.setExt(toSaveExtPojo(dto.getExt()));
+        draft.setSectionState(toSectionStatePojo(dto.getSectionState()));
         return draft;
     }
 
@@ -90,14 +98,12 @@ public final class CustomerAdminAssembler {
             vo.setMain(pojo.getMain());
         }
         if (pojo.getExt() != null) {
-            vo.setExt(pojo.getExt());
+            vo.setExt(toSaveExtVO(pojo.getExt()));
         }
         if (pojo.getSectionState() != null) {
-            vo.setSectionState(pojo.getSectionState());
+            vo.setSectionState(toSectionStateVO(pojo.getSectionState()));
         }
-        vo.getDraftMeta().setDraftCode(pojo.getDraftCode());
-        vo.getDraftMeta().setDraftTitle(pojo.getDraftTitle());
-        vo.getDraftMeta().setUpdatedTime(pojo.getUpdatedTime());
+        vo.setDraftMeta(toDraftMetaVO(pojo));
         return vo;
     }
 
@@ -325,8 +331,8 @@ public final class CustomerAdminAssembler {
         return vo;
     }
 
-    private static CustomerSectionStatePojo buildSectionState(CustomerSaveItemVO vo) {
-        CustomerSectionStatePojo sectionState = defaultSectionState();
+    private static CustomerSectionStateVO buildSectionState(CustomerSaveItemVO vo) {
+        CustomerSectionStateVO sectionState = defaultSectionState();
         sectionState.setContacts(vo.getContacts().isEmpty() ? 0 : 1);
         sectionState.setAddresses(vo.getAddresses().isEmpty() ? 0 : 1);
         sectionState.setBankAccounts(vo.getBankAccounts().isEmpty() ? 0 : 1);
@@ -334,12 +340,82 @@ public final class CustomerAdminAssembler {
         return sectionState;
     }
 
-    private static CustomerSectionStatePojo defaultSectionState() {
-        CustomerSectionStatePojo sectionState = new CustomerSectionStatePojo();
+    private static CustomerSectionStateVO defaultSectionState() {
+        CustomerSectionStateVO sectionState = new CustomerSectionStateVO();
         sectionState.setContacts(0);
         sectionState.setAddresses(0);
         sectionState.setBankAccounts(0);
         sectionState.setInvoiceProfiles(0);
         return sectionState;
+    }
+
+    private static CustomerSaveExtPojo toSaveExtPojo(CustomerSaveExtDTO dto) {
+        CustomerSaveExtPojo pojo = new CustomerSaveExtPojo();
+        if (dto == null) {
+            return pojo;
+        }
+        pojo.setContacts(dto.getContacts());
+        pojo.setAddresses(dto.getAddresses());
+        pojo.setBankAccounts(dto.getBankAccounts());
+        pojo.setInvoiceProfiles(dto.getInvoiceProfiles());
+        return pojo;
+    }
+
+    private static CustomerSectionStatePojo toSectionStatePojo(CustomerSectionStateDTO dto) {
+        CustomerSectionStatePojo pojo = new CustomerSectionStatePojo();
+        if (dto == null) {
+            return pojo;
+        }
+        pojo.setContacts(dto.getContacts());
+        pojo.setAddresses(dto.getAddresses());
+        pojo.setBankAccounts(dto.getBankAccounts());
+        pojo.setInvoiceProfiles(dto.getInvoiceProfiles());
+        return pojo;
+    }
+
+    private static CustomerDraftMetaPojo toDraftMetaPojo(CustomerDraftMetaDTO dto) {
+        CustomerDraftMetaPojo pojo = new CustomerDraftMetaPojo();
+        if (dto == null) {
+            return pojo;
+        }
+        pojo.setDraftCode(dto.getDraftCode());
+        pojo.setDraftTitle(dto.getDraftTitle());
+        pojo.setUpdatedTime(dto.getUpdatedTime());
+        return pojo;
+    }
+
+    private static CustomerSaveExtVO toSaveExtVO(CustomerSaveExtPojo pojo) {
+        CustomerSaveExtVO vo = new CustomerSaveExtVO();
+        if (pojo == null) {
+            return vo;
+        }
+        vo.setContacts(pojo.getContacts());
+        vo.setAddresses(pojo.getAddresses());
+        vo.setBankAccounts(pojo.getBankAccounts());
+        vo.setInvoiceProfiles(pojo.getInvoiceProfiles());
+        return vo;
+    }
+
+    private static CustomerSectionStateVO toSectionStateVO(CustomerSectionStatePojo pojo) {
+        CustomerSectionStateVO vo = new CustomerSectionStateVO();
+        if (pojo == null) {
+            return vo;
+        }
+        vo.setContacts(pojo.getContacts());
+        vo.setAddresses(pojo.getAddresses());
+        vo.setBankAccounts(pojo.getBankAccounts());
+        vo.setInvoiceProfiles(pojo.getInvoiceProfiles());
+        return vo;
+    }
+
+    private static CustomerDraftMetaVO toDraftMetaVO(CustomerSaveDraftPojo pojo) {
+        CustomerDraftMetaVO vo = new CustomerDraftMetaVO();
+        if (pojo == null) {
+            return vo;
+        }
+        vo.setDraftCode(pojo.getDraftCode());
+        vo.setDraftTitle(pojo.getDraftTitle());
+        vo.setUpdatedTime(pojo.getUpdatedTime());
+        return vo;
     }
 }

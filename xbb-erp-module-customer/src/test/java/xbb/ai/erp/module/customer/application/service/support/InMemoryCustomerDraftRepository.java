@@ -1,7 +1,7 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveDraftPojo;
-import xbb.ai.erp.module.customer.domain.repository.CustomerDraftRepository;
+import xbb.ai.erp.module.customer.application.port.CustomerDraftRepository;
 
 import java.util.ArrayList;
 import java.util.Comparator;

@@ -1,10 +1,10 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerBankAccount;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerBankAccountQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerBankAccountRepository;
 
 import java.util.List;
-import java.util.Map;
 
 public class FakeCustomerBankAccountRepository implements CustomerBankAccountRepository {
 
@@ -39,7 +39,7 @@ public class FakeCustomerBankAccountRepository implements CustomerBankAccountRep
     }
 
     @Override
-    public List<CustomerBankAccount> findByCondition(Map<String, Object> conditionMap) {
+    public List<CustomerBankAccount> findByCondition(CustomerBankAccountQueryPojo queryPojo) {
         return List.of();
     }
 }

@@ -1,10 +1,10 @@
-package xbb.ai.erp.module.customer.domain.config;
+package xbb.ai.erp.module.customer.application.config;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldRule;
-import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldRule;
+import xbb.ai.erp.module.customer.application.field.DefaultCustomerFieldFactory;
 
 import java.util.List;
 

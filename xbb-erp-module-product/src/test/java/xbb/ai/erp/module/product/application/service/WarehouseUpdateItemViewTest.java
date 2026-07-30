@@ -2,6 +2,7 @@ package xbb.ai.erp.module.product.application.service;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.product.admin.vo.WarehouseSaveItemVO;
 import xbb.ai.erp.module.product.application.service.impl.WarehouseAdminAppServiceImpl;
@@ -12,8 +13,20 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WarehouseUpdateItemViewTest {
+
+    @Test
+    void should_reject_null_id_for_update_item() {
+        WarehouseAdminAppServiceImpl service = WarehouseAdminAppServiceImpl.forTesting(null);
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
+
+        assertEquals("id不能为空", exception.getMessage());
+    }
 
     @Test
     void should_return_existing_data_for_update_item() {

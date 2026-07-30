@@ -2,6 +2,7 @@ package xbb.ai.erp.module.product.application.service;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.module.product.admin.dto.WarehouseListDTO;
 import xbb.ai.erp.module.product.admin.vo.WarehouseDetailVO;
@@ -15,6 +16,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WarehouseQueryServiceTest {
 
@@ -39,6 +41,27 @@ class WarehouseQueryServiceTest {
         assertFalse(result.getList().isEmpty());
         assertEquals("WH-001", result.getList().get(0).getWarehouseCode());
         assertNotNull(result.getHeadList());
+    }
+
+    @Test
+    void should_reject_blank_corpid_for_list() {
+        WarehouseAdminAppServiceImpl service = WarehouseAdminAppServiceImpl.forTesting(null);
+        WarehouseListDTO dto = new WarehouseListDTO();
+
+        BizException exception = assertThrows(BizException.class, () -> service.list(dto));
+
+        assertEquals("公司不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_reject_null_id_for_detail() {
+        WarehouseAdminAppServiceImpl service = WarehouseAdminAppServiceImpl.forTesting(null);
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.detail(dto));
+
+        assertEquals("id不能为空", exception.getMessage());
     }
 
     @Test

@@ -13,13 +13,18 @@ import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
 import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
 import xbb.ai.erp.module.common.admin.vo.ListRowActionVO;
+import xbb.ai.erp.module.common.admin.vo.ListSchemaVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
+import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.common.application.provider.ListMetaRegistry;
 import xbb.ai.erp.module.common.application.service.impl.ListCommonServiceImpl;
 
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,6 +46,7 @@ class ListCommonServiceTest {
         ListHeaderVO headerVO = service.header(dto);
         ListTopButtonVO topButtonVO = service.topButton(dto);
         ListBottomButtonVO bottomButtonVO = service.bottomButton(dto);
+        ListSchemaVO schemaVO = service.schema(dto);
 
         assertEquals("customerCode", filterVO.getList().get(0).getAttr());
         assertEquals("TEXT", filterVO.getList().get(0).getFieldType());
@@ -49,16 +55,23 @@ class ListCommonServiceTest {
         assertEquals("main.customerCode", headerVO.getList().get(0).getAttr());
         assertEquals("新增", topButtonVO.getList().get(0).getButtonName());
         assertEquals("导出", bottomButtonVO.getList().get(0).getButtonName());
+        assertEquals("customerCode", schemaVO.getFilter().getList().get(0).getAttr());
+        assertEquals("main.customerCode", schemaVO.getHeader().getList().get(0).getAttr());
+        assertEquals("新增", schemaVO.getTopButton().getList().get(0).getButtonName());
+        assertEquals("导出", schemaVO.getBottomButton().getList().get(0).getButtonName());
+        assertEquals("EDIT", schemaVO.getRowAction().getList().get(0).getActionCode());
     }
 
     @Test
-    void should_define_independent_provider_methods_for_three_endpoints() {
+    void should_define_independent_provider_methods_for_list_protocol() {
         try {
             ListMetaProvider.class.getMethod("buildFilterMeta", ListCommonQueryDTO.class);
             ListMetaProvider.class.getMethod("buildHeaderMeta", ListCommonQueryDTO.class);
             ListMetaProvider.class.getMethod("buildTopButtonMeta", ListCommonQueryDTO.class);
             ListMetaProvider.class.getMethod("buildBottomButtonMeta", ListCommonQueryDTO.class);
             ListMetaProvider.class.getMethod("buildRowActionMeta", ListCommonQueryDTO.class);
+            ListMetaProvider.class.getMethod("buildFilterConditionMeta", ListCommonQueryDTO.class);
+            ListCommonService.class.getMethod("schema", ListCommonQueryDTO.class);
         } catch (NoSuchMethodException exception) {
             fail(exception);
         }
@@ -105,6 +118,20 @@ class ListCommonServiceTest {
         assertEquals(List.of("2026-01-01 00:00:00", "2026-01-31 23:59:59"), condition.getValue());
     }
 
+    @Test
+    void should_define_filter_condition_meta_contract_on_provider() {
+        ListMetaProvider provider = new StubListMetaProvider();
+        ListCommonQueryDTO dto = new ListCommonQueryDTO();
+        dto.setBusinessCode("CUSTOMER");
+
+        Map<String, ListFilterMetaPojo> metaMap = provider.buildFilterConditionMeta(dto);
+
+        assertEquals(Set.of("customerCode"), metaMap.keySet());
+        assertEquals("customer_code", metaMap.get("customerCode").getColumn());
+        assertEquals("TEXT", metaMap.get("customerCode").getFieldType());
+        assertEquals(Set.of("EQ", "NE", "CONTAINS"), metaMap.get("customerCode").getSupportedSymbols());
+    }
+
     private static final class StubListMetaProvider implements ListMetaProvider {
 
         @Override
@@ -124,6 +151,18 @@ class ListCommonServiceTest {
             item.setText("启用");
             filterField.setItemList(List.of(item));
             return List.of(filterField);
+        }
+
+        @Override
+        public Map<String, ListFilterMetaPojo> buildFilterConditionMeta(ListCommonQueryDTO dto) {
+            Map<String, ListFilterMetaPojo> metaMap = new LinkedHashMap<>();
+            metaMap.put("customerCode", new ListFilterMetaPojo(
+                "customerCode",
+                "customer_code",
+                "TEXT",
+                Set.of("EQ", "NE", "CONTAINS")
+            ));
+            return metaMap;
         }
 
         @Override

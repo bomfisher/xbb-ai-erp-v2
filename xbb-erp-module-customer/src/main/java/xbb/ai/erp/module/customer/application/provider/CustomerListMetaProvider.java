@@ -13,7 +13,7 @@ import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.customer.admin.CustomerBizStatusEnum;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldFactory;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 import java.util.Collections;
@@ -62,6 +62,11 @@ public class CustomerListMetaProvider implements ListMetaProvider {
     }
 
     public static Map<String, ListFilterMetaPojo> buildConditionMetaMap() {
+        return conditionMetaMap();
+    }
+
+    @Override
+    public Map<String, ListFilterMetaPojo> buildFilterConditionMeta(ListCommonQueryDTO dto) {
         return conditionMetaMap();
     }
 

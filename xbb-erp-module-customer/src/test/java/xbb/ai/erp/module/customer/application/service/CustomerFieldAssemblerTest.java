@@ -3,8 +3,8 @@ package xbb.ai.erp.module.customer.application.service;
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
-import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.DefaultCustomerFieldFactory;
 
 import java.util.List;
 

@@ -2,6 +2,7 @@ package xbb.ai.erp.module.product.application.service;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.module.product.admin.dto.WarehouseMainDTO;
 import xbb.ai.erp.module.product.admin.dto.WarehouseSaveDTO;
 import xbb.ai.erp.module.product.application.service.impl.WarehouseAdminAppServiceImpl;
@@ -11,8 +12,21 @@ import xbb.ai.erp.module.product.domain.model.Warehouse;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 class WarehouseSaveDeleteServiceTest {
+
+    @Test
+    void should_reject_empty_id_list_for_delete() {
+        InMemoryWarehouseRepository repository = new InMemoryWarehouseRepository();
+        WarehouseAdminAppServiceImpl service = WarehouseAdminAppServiceImpl.forTesting(repository);
+        BatchBaseDTO dto = new BatchBaseDTO();
+        dto.setCorpid("corp-001");
+
+        BizException exception = assertThrows(BizException.class, () -> service.delete(dto));
+
+        assertEquals("idList不能为空", exception.getMessage());
+    }
 
     @Test
     void should_insert_new_warehouse_on_save() {

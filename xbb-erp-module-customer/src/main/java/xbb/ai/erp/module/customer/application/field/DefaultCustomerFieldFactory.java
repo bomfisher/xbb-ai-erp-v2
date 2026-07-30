@@ -1,4 +1,4 @@
-package xbb.ai.erp.module.customer.domain.field;
+package xbb.ai.erp.module.customer.application.field;
 
 import xbb.ai.erp.module.customer.admin.CustomerBizStatusEnum;
 import xbb.ai.erp.module.customer.admin.CustomerFieldEnum;
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Objects;
 
 public class DefaultCustomerFieldFactory implements CustomerFieldFactory {
-
 
     private final List<CustomerFieldRule> rules;
 

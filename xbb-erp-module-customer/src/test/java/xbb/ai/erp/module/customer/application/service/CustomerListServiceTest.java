@@ -6,16 +6,18 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
 import xbb.ai.erp.module.customer.admin.dto.CustomerListDTO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerListItemVO;
+import xbb.ai.erp.module.customer.application.schema.CustomerListQueryAdapter;
 import xbb.ai.erp.module.customer.application.service.impl.CustomerAdminAppServiceImpl;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerAddressRepository;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerContactRepository;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerInvoiceProfileRepository;
 import xbb.ai.erp.module.customer.application.service.support.FakeCustomerRepository;
-import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.DefaultCustomerFieldFactory;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.model.CustomerAddress;
 import xbb.ai.erp.module.customer.domain.model.CustomerContact;
 import xbb.ai.erp.module.customer.domain.model.CustomerInvoiceProfile;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerContactRepository;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;
 
@@ -29,6 +31,28 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CustomerListServiceTest {
+
+    @Test
+    void should_build_condition_map_via_query_adapter() {
+        CustomerListDTO dto = new CustomerListDTO();
+        dto.setCorpid("corp-001");
+        dto.setUserId("user-001");
+        dto.setKeyword("杭州");
+        dto.setConditions(List.of(buildCondition("regionCode", "ENUM", "EQ", "330100")));
+
+        CustomerListQueryAdapter adapter = new CustomerListQueryAdapter(new xbb.ai.erp.module.customer.application.schema.CustomerListSchemaProvider());
+        Map<String, Object> conditionMap = adapter.toConditionMap(dto);
+
+        assertEquals("corp-001", conditionMap.get("corpid"));
+        assertEquals("杭州", conditionMap.get("keyword"));
+        List<?> conditions = (List<?>) conditionMap.get("conditions");
+        assertEquals(1, conditions.size());
+        ListFilterCondition mappedCondition = (ListFilterCondition) conditions.get(0);
+        assertEquals("region_code", mappedCondition.getAttr());
+        assertEquals("ENUM", mappedCondition.getFieldType());
+        assertEquals("EQ", mappedCondition.getSymbol());
+        assertEquals(List.of("330100"), mappedCondition.getValue());
+    }
 
     @Test
     void should_aggregate_default_contact_into_list_item() {
@@ -213,10 +237,11 @@ class CustomerListServiceTest {
             buildCustomer(1L, "corp-001", "CUST-001", "杭州客户一", "330100")
         ));
 
-        assertThrows(BizException.class, () -> repository.findByCondition(Map.of(
-            "corpid", "corp-001",
-            "conditions", "bad-payload"
-        )));
+        CustomerQueryPojo queryPojo = new CustomerQueryPojo();
+        queryPojo.setCorpid("corp-001");
+        queryPojo.setConditions((List<ListFilterCondition>) (Object) List.of("bad-payload"));
+
+        assertThrows(BizException.class, () -> repository.findByCondition(queryPojo));
     }
 
     @Test
@@ -225,10 +250,11 @@ class CustomerListServiceTest {
             buildCustomer(1L, "corp-001", "CUST-001", "杭州客户一", "330100")
         ));
 
-        assertThrows(BizException.class, () -> repository.findByCondition(Map.of(
-            "corpid", "corp-001",
-            "conditions", List.of(buildCondition("unknown_attr", "TEXT", "EQ", "杭州"))
-        )));
+        CustomerQueryPojo queryPojo = new CustomerQueryPojo();
+        queryPojo.setCorpid("corp-001");
+        queryPojo.setConditions(List.of(buildCondition("unknown_attr", "TEXT", "EQ", "杭州")));
+
+        assertThrows(BizException.class, () -> repository.findByCondition(queryPojo));
     }
 
     @Test
@@ -237,10 +263,11 @@ class CustomerListServiceTest {
             buildCustomer(1L, "corp-001", "CUST-001", "杭州客户一", "330100")
         ));
 
-        assertThrows(BizException.class, () -> repository.findByCondition(Map.of(
-            "corpid", "corp-001",
-            "conditions", List.of(buildCondition("customer_name", "TEXT", "UNKNOWN", "杭州"))
-        )));
+        CustomerQueryPojo queryPojo = new CustomerQueryPojo();
+        queryPojo.setCorpid("corp-001");
+        queryPojo.setConditions(List.of(buildCondition("customer_name", "TEXT", "UNKNOWN", "杭州")));
+
+        assertThrows(BizException.class, () -> repository.findByCondition(queryPojo));
     }
 
     private static Customer buildCustomer(Long id, String corpid, String customerCode, String customerName, String regionCode) {

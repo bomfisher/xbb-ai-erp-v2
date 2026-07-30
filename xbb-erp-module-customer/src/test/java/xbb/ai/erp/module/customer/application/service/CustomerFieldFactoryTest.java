@@ -4,9 +4,10 @@ import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
 import xbb.ai.erp.module.customer.application.assembler.CustomerFieldAssembler;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldFactory;
-import xbb.ai.erp.module.customer.domain.field.CustomerFieldRule;
-import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldMeta;
+import xbb.ai.erp.module.customer.application.field.CustomerFieldRule;
+import xbb.ai.erp.module.customer.application.field.DefaultCustomerFieldFactory;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 
 import java.util.List;
@@ -55,7 +56,7 @@ class CustomerFieldFactoryTest {
     @Test
     void should_merge_extension_rule_into_head_list() {
         CustomerFieldRule extensionRule = fields -> {
-            fields.add(new xbb.ai.erp.module.customer.domain.field.CustomerFieldMeta("main.customLevel", "客户等级", FieldTypeEnum.TEXT.getType(), 0, 1));
+            fields.add(new CustomerFieldMeta("main.customLevel", "客户等级", FieldTypeEnum.TEXT.getType(), 0, 1));
             return fields;
         };
         CustomerFieldFactory factory = new DefaultCustomerFieldFactory(List.of(extensionRule));

@@ -1,11 +1,11 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerBankAccount;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerBankAccountQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerBankAccountRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class InMemoryCustomerBankAccountRepository implements CustomerBankAccountRepository {
@@ -57,9 +57,9 @@ public class InMemoryCustomerBankAccountRepository implements CustomerBankAccoun
     }
 
     @Override
-    public List<CustomerBankAccount> findByCondition(Map<String, Object> conditionMap) {
-        Object corpid = conditionMap.get("corpid");
-        Object customerId = conditionMap.get("customerId");
+    public List<CustomerBankAccount> findByCondition(CustomerBankAccountQueryPojo queryPojo) {
+        String corpid = queryPojo == null ? null : queryPojo.getCorpid();
+        Long customerId = queryPojo == null ? null : queryPojo.getCustomerId();
         return data.stream().filter(item ->
             (corpid == null || corpid.equals(item.getCorpid()))
                 && (customerId == null || customerId.equals(item.getCustomerId()))

@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.support.AdminParamValidator;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchasePendingTaskListDTO;
@@ -29,28 +31,29 @@ public class PurchasePendingTaskAdminAppServiceImpl implements PurchasePendingTa
 
     @Override
     public ListBaseVO<PurchasePendingTaskListItemVO> list(PurchasePendingTaskListDTO dto) {
-        Map<String, Object> conditionMap = new HashMap<>();
-        conditionMap.put("id", dto.getId());
-        conditionMap.put("corpid", dto.getCorpid());
-        conditionMap.put("purchaseOrgId", dto.getPurchaseOrgId());
-        conditionMap.put("taskNo", dto.getTaskNo());
-        conditionMap.put("sourceType", dto.getSourceType());
-        conditionMap.put("sourceDocId", dto.getSourceDocId());
-        conditionMap.put("sourceLineId", dto.getSourceLineId());
-        conditionMap.put("sourceDocNo", dto.getSourceDocNo());
-        conditionMap.put("skuId", dto.getSkuId());
-        conditionMap.put("skuCodeSnapshot", dto.getSkuCodeSnapshot());
-        conditionMap.put("skuNameSnapshot", dto.getSkuNameSnapshot());
-        conditionMap.put("suggestedVendorId", dto.getSuggestedVendorId());
-        conditionMap.put("suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
-        conditionMap.put("priorityLevel", dto.getPriorityLevel());
-        conditionMap.put("taskStatus", dto.getTaskStatus());
-        conditionMap.put("salesLinkedFlag", dto.getSalesLinkedFlag());
-        conditionMap.put("pageNum", dto.getPageNum());
-        conditionMap.put("offset", dto.getOffset());
-        conditionMap.put("pageSize", dto.getPageSize());
-        conditionMap.put("groupByStr", dto.getGroupByStr());
-        conditionMap.put("orderByStr", dto.getOrderByStr());
+        AdminParamValidator.requireCorpid(dto);
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", dto.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", dto.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "purchaseOrgId", dto.getPurchaseOrgId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "taskNo", dto.getTaskNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceType", dto.getSourceType());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceDocId", dto.getSourceDocId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceLineId", dto.getSourceLineId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceDocNo", dto.getSourceDocNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "skuId", dto.getSkuId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "skuCodeSnapshot", dto.getSkuCodeSnapshot());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "skuNameSnapshot", dto.getSkuNameSnapshot());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedVendorId", dto.getSuggestedVendorId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "priorityLevel", dto.getPriorityLevel());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "taskStatus", dto.getTaskStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "salesLinkedFlag", dto.getSalesLinkedFlag());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", dto.getPageNum());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", dto.getOffset());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", dto.getPageSize());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", dto.getGroupByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", dto.getOrderByStr());
         List<PurchasePendingTask> list = purchasePendingTaskRepository.findByCondition(conditionMap);
         Long total = purchasePendingTaskRepository.count(conditionMap);
         ListBaseVO<PurchasePendingTaskListItemVO> vo = new ListBaseVO<>();
@@ -114,13 +117,12 @@ public class PurchasePendingTaskAdminAppServiceImpl implements PurchasePendingTa
 
     @Override
     public void delete(BatchBaseDTO dto) {
-        if (dto.getIdList() == null || dto.getIdList().isEmpty()) {
-            return;
-        }
+        AdminParamValidator.validateBatchDelete(dto);
         purchasePendingTaskRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
     }
 
     private PurchasePendingTaskSaveItemVO toSaveItem(IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
         return PurchasePendingTaskAdminAssembler.toSaveItemVO(purchasePendingTaskRepository.findById(dto.getCorpid(), dto.getId()));
     }
 }

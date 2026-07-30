@@ -7,8 +7,6 @@ import xbb.ai.erp.module.customer.admin.dto.CustomerContactItemDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerInvoiceProfileItemDTO;
 import xbb.ai.erp.module.customer.admin.dto.CustomerMainDTO;
 
-import xbb.ai.erp.module.customer.application.pojo.CustomerSectionStatePojo;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -19,5 +17,5 @@ public class CustomerSaveItemVO {
     private List<CustomerAddressItemDTO> addresses = new ArrayList<>();
     private List<CustomerBankAccountItemDTO> bankAccounts = new ArrayList<>();
     private List<CustomerInvoiceProfileItemDTO> invoiceProfiles = new ArrayList<>();
-    private CustomerSectionStatePojo sectionState = new CustomerSectionStatePojo();
+    private CustomerSectionStateVO sectionState = new CustomerSectionStateVO();
 }

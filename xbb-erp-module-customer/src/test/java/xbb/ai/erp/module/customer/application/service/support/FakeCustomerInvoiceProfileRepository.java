@@ -1,11 +1,11 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerInvoiceProfile;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerInvoiceProfileQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerInvoiceProfileRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class FakeCustomerInvoiceProfileRepository implements CustomerInvoiceProfileRepository {
 
@@ -47,12 +47,12 @@ public class FakeCustomerInvoiceProfileRepository implements CustomerInvoiceProf
     }
 
     @Override
-    public List<CustomerInvoiceProfile> findByCondition(Map<String, Object> conditionMap) {
+    public List<CustomerInvoiceProfile> findByCondition(CustomerInvoiceProfileQueryPojo queryPojo) {
         findByConditionCallCount++;
-        Object corpid = conditionMap.get("corpid");
-        Object customerId = conditionMap.get("customerId");
-        Object customerIds = conditionMap.get("customerIds");
-        Object defaultFlag = conditionMap.get("defaultFlag");
+        String corpid = queryPojo == null ? null : queryPojo.getCorpid();
+        Long customerId = queryPojo == null ? null : queryPojo.getCustomerId();
+        List<Long> customerIds = queryPojo == null ? null : queryPojo.getCustomerIds();
+        Integer defaultFlag = queryPojo == null ? null : queryPojo.getDefaultFlag();
         return data.stream().filter(item ->
             (corpid == null || corpid.equals(item.getCorpid()))
                 && (customerId == null || customerId.equals(item.getCustomerId()))

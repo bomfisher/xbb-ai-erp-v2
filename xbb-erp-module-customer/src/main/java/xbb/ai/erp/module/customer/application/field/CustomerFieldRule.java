@@ -1,4 +1,4 @@
-package xbb.ai.erp.module.customer.domain.field;
+package xbb.ai.erp.module.customer.application.field;
 
 import java.util.List;
 

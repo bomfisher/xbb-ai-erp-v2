@@ -8,7 +8,7 @@ import xbb.ai.erp.module.common.admin.pojo.FilterField;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.customer.application.provider.CustomerListMetaProvider;
-import xbb.ai.erp.module.customer.domain.field.DefaultCustomerFieldFactory;
+import xbb.ai.erp.module.customer.application.field.DefaultCustomerFieldFactory;
 
 import java.util.List;
 import java.util.Map;
@@ -37,6 +37,7 @@ class CustomerListMetaProviderTest {
         ListMetaBundlePojo bottomBundle = provider.buildBottomButtonMeta(dto);
         Map<String, FilterField> filterMap = filterList.stream()
             .collect(Collectors.toMap(FilterField::getAttr, Function.identity()));
+        Map<String, xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo> conditionMetaMap = provider.buildFilterConditionMeta(dto);
 
         assertEquals(BusinessCodeEnum.CUSTOMER.getCode(), provider.businessCode());
         assertFalse(filterList.isEmpty());
@@ -57,6 +58,8 @@ class CustomerListMetaProviderTest {
         assertEquals("停用", filterMap.get("bizStatus").getItemList().get(1).getText());
         assertEquals("新增", topBundle.getTopButtonList().get(0).getButtonName());
         assertEquals("导出", bottomBundle.getBottomButtonList().get(0).getButtonName());
+        assertEquals("customer_code", conditionMetaMap.get("customerCode").getColumn());
+        assertEquals("TEXT", conditionMetaMap.get("customerCode").getFieldType());
     }
 
     @Test

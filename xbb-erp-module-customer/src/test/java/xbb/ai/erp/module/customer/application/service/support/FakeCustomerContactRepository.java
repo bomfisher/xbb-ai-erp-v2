@@ -1,11 +1,11 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerContact;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerContactQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerContactRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class FakeCustomerContactRepository implements CustomerContactRepository {
 
@@ -47,12 +47,12 @@ public class FakeCustomerContactRepository implements CustomerContactRepository 
     }
 
     @Override
-    public List<CustomerContact> findByCondition(Map<String, Object> conditionMap) {
+    public List<CustomerContact> findByCondition(CustomerContactQueryPojo queryPojo) {
         findByConditionCallCount++;
-        Object corpid = conditionMap.get("corpid");
-        Object customerId = conditionMap.get("customerId");
-        Object customerIds = conditionMap.get("customerIds");
-        Object defaultFlag = conditionMap.get("defaultFlag");
+        String corpid = queryPojo == null ? null : queryPojo.getCorpid();
+        Long customerId = queryPojo == null ? null : queryPojo.getCustomerId();
+        List<Long> customerIds = queryPojo == null ? null : queryPojo.getCustomerIds();
+        Integer defaultFlag = queryPojo == null ? null : queryPojo.getDefaultFlag();
         return data.stream().filter(item ->
             (corpid == null || corpid.equals(item.getCorpid()))
                 && (customerId == null || customerId.equals(item.getCustomerId()))

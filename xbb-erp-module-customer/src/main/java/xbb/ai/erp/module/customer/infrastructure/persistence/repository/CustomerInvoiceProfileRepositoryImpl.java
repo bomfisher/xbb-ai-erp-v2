@@ -2,7 +2,9 @@ package xbb.ai.erp.module.customer.infrastructure.persistence.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.module.customer.domain.model.CustomerInvoiceProfile;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerInvoiceProfileQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerInvoiceProfileRepository;
 import xbb.ai.erp.module.customer.infrastructure.persistence.convertor.CustomerInvoiceProfileConvertor;
 import xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerInvoiceProfileMapper;
@@ -49,11 +51,27 @@ public class CustomerInvoiceProfileRepositoryImpl implements CustomerInvoiceProf
     }
 
     @Override
-    public List<CustomerInvoiceProfile> findByCondition(Map<String, Object> conditionMap) {
-        Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
+    public List<CustomerInvoiceProfile> findByCondition(CustomerInvoiceProfileQueryPojo queryPojo) {
+        Map<String, Object> preparedConditionMap = QueryConditionMapHelper.prepare(toConditionMap(queryPojo));
         return customerInvoiceProfileMapper.findByCondition(preparedConditionMap)
             .stream()
             .map(CustomerInvoiceProfileConvertor::toDomain)
             .toList();
+    }
+
+    private Map<String, Object> toConditionMap(CustomerInvoiceProfileQueryPojo queryPojo) {
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        if (queryPojo == null) {
+            return conditionMap;
+        }
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", queryPojo.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", queryPojo.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerId", queryPojo.getCustomerId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerIds", queryPojo.getCustomerIds());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "invoiceTitle", queryPojo.getInvoiceTitle());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "taxNo", queryPojo.getTaxNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", queryPojo.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "defaultFlag", queryPojo.getDefaultFlag());
+        return conditionMap;
     }
 }

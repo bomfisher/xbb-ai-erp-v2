@@ -5,6 +5,7 @@ import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
 import xbb.ai.erp.module.common.admin.vo.ListHeaderVO;
 import xbb.ai.erp.module.common.admin.vo.ListRowActionVO;
+import xbb.ai.erp.module.common.admin.vo.ListSchemaVO;
 import xbb.ai.erp.module.common.admin.vo.ListTopButtonVO;
 
 public interface ListCommonService {
@@ -18,4 +19,6 @@ public interface ListCommonService {
     ListBottomButtonVO bottomButton(ListCommonQueryDTO dto);
 
     ListRowActionVO rowAction(ListCommonQueryDTO dto);
+
+    ListSchemaVO schema(ListCommonQueryDTO dto);
 }

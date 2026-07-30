@@ -2,7 +2,9 @@ package xbb.ai.erp.module.customer.infrastructure.persistence.repository;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.module.customer.domain.model.CustomerContact;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerContactQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerContactRepository;
 import xbb.ai.erp.module.customer.infrastructure.persistence.convertor.CustomerContactConvertor;
 import xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerContactMapper;
@@ -49,11 +51,27 @@ public class CustomerContactRepositoryImpl implements CustomerContactRepository 
     }
 
     @Override
-    public List<CustomerContact> findByCondition(Map<String, Object> conditionMap) {
-        Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
+    public List<CustomerContact> findByCondition(CustomerContactQueryPojo queryPojo) {
+        Map<String, Object> preparedConditionMap = QueryConditionMapHelper.prepare(toConditionMap(queryPojo));
         return customerContactMapper.findByCondition(preparedConditionMap)
             .stream()
             .map(CustomerContactConvertor::toDomain)
             .toList();
+    }
+
+    private Map<String, Object> toConditionMap(CustomerContactQueryPojo queryPojo) {
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        if (queryPojo == null) {
+            return conditionMap;
+        }
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", queryPojo.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", queryPojo.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerId", queryPojo.getCustomerId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "customerIds", queryPojo.getCustomerIds());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "contactName", queryPojo.getContactName());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "mobile", queryPojo.getMobile());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", queryPojo.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "defaultFlag", queryPojo.getDefaultFlag());
+        return conditionMap;
     }
 }

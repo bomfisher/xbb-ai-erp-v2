@@ -1,4 +1,4 @@
-package xbb.ai.erp.module.customer.domain.repository;
+package xbb.ai.erp.module.customer.application.port;
 
 import xbb.ai.erp.module.customer.application.pojo.CustomerSaveDraftPojo;
 

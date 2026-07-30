@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.support.AdminParamValidator;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestListDTO;
@@ -29,24 +31,25 @@ public class PurchaseRequestAdminAppServiceImpl implements PurchaseRequestAdminA
 
     @Override
     public ListBaseVO<PurchaseRequestListItemVO> list(PurchaseRequestListDTO dto) {
-        Map<String, Object> conditionMap = new HashMap<>();
-        conditionMap.put("id", dto.getId());
-        conditionMap.put("corpid", dto.getCorpid());
-        conditionMap.put("purchaseOrgId", dto.getPurchaseOrgId());
-        conditionMap.put("requestNo", dto.getRequestNo());
-        conditionMap.put("requestDeptId", dto.getRequestDeptId());
-        conditionMap.put("applicantId", dto.getApplicantId());
-        conditionMap.put("sourceType", dto.getSourceType());
-        conditionMap.put("sourceNo", dto.getSourceNo());
-        conditionMap.put("suggestedVendorId", dto.getSuggestedVendorId());
-        conditionMap.put("suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
-        conditionMap.put("bizStatus", dto.getBizStatus());
-        conditionMap.put("approvalStatus", dto.getApprovalStatus());
-        conditionMap.put("pageNum", dto.getPageNum());
-        conditionMap.put("offset", dto.getOffset());
-        conditionMap.put("pageSize", dto.getPageSize());
-        conditionMap.put("groupByStr", dto.getGroupByStr());
-        conditionMap.put("orderByStr", dto.getOrderByStr());
+        AdminParamValidator.requireCorpid(dto);
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", dto.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", dto.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "purchaseOrgId", dto.getPurchaseOrgId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "requestNo", dto.getRequestNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "requestDeptId", dto.getRequestDeptId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "applicantId", dto.getApplicantId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceType", dto.getSourceType());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceNo", dto.getSourceNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedVendorId", dto.getSuggestedVendorId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", dto.getBizStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "approvalStatus", dto.getApprovalStatus());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", dto.getPageNum());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", dto.getOffset());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", dto.getPageSize());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", dto.getGroupByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", dto.getOrderByStr());
         List<PurchaseRequest> list = purchaseRequestRepository.findByCondition(conditionMap);
         Long total = purchaseRequestRepository.count(conditionMap);
         ListBaseVO<PurchaseRequestListItemVO> vo = new ListBaseVO<>();
@@ -113,13 +116,12 @@ public class PurchaseRequestAdminAppServiceImpl implements PurchaseRequestAdminA
 
     @Override
     public void delete(BatchBaseDTO dto) {
-        if (dto.getIdList() == null || dto.getIdList().isEmpty()) {
-            return;
-        }
+        AdminParamValidator.validateBatchDelete(dto);
         purchaseRequestRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
     }
 
     private PurchaseRequestSaveItemVO toSaveItem(IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
         return PurchaseRequestAdminAssembler.toSaveItemVO(purchaseRequestRepository.findById(dto.getCorpid(), dto.getId()));
     }
 }

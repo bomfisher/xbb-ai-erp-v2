@@ -1,9 +1,9 @@
 package xbb.ai.erp.module.customer.domain.repository;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerBankAccount;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerBankAccountQueryPojo;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CustomerBankAccountRepository {
     void insert(CustomerBankAccount bankAccount);
@@ -18,5 +18,5 @@ public interface CustomerBankAccountRepository {
 
     CustomerBankAccount findById(String corpid, Long id);
 
-    List<CustomerBankAccount> findByCondition(Map<String, Object> conditionMap);
+    List<CustomerBankAccount> findByCondition(CustomerBankAccountQueryPojo queryPojo);
 }

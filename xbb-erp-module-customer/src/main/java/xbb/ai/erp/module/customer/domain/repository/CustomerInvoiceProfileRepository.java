@@ -1,9 +1,9 @@
 package xbb.ai.erp.module.customer.domain.repository;
 
 import xbb.ai.erp.module.customer.domain.model.CustomerInvoiceProfile;
+import xbb.ai.erp.module.customer.domain.pojo.CustomerInvoiceProfileQueryPojo;
 
 import java.util.List;
-import java.util.Map;
 
 public interface CustomerInvoiceProfileRepository {
     void insert(CustomerInvoiceProfile invoiceProfile);
@@ -18,5 +18,5 @@ public interface CustomerInvoiceProfileRepository {
 
     CustomerInvoiceProfile findById(String corpid, Long id);
 
-    List<CustomerInvoiceProfile> findByCondition(Map<String, Object> conditionMap);
+    List<CustomerInvoiceProfile> findByCondition(CustomerInvoiceProfileQueryPojo queryPojo);
 }

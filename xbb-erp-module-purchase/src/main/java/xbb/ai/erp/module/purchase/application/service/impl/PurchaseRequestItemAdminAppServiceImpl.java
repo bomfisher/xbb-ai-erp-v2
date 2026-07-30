@@ -5,6 +5,8 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.support.AdminParamValidator;
+import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestItemListDTO;
@@ -29,22 +31,23 @@ public class PurchaseRequestItemAdminAppServiceImpl implements PurchaseRequestIt
 
     @Override
     public ListBaseVO<PurchaseRequestItemListItemVO> list(PurchaseRequestItemListDTO dto) {
-        Map<String, Object> conditionMap = new HashMap<>();
-        conditionMap.put("id", dto.getId());
-        conditionMap.put("corpid", dto.getCorpid());
-        conditionMap.put("requestId", dto.getRequestId());
-        conditionMap.put("lineNo", dto.getLineNo());
-        conditionMap.put("skuId", dto.getSkuId());
-        conditionMap.put("skuCodeSnapshot", dto.getSkuCodeSnapshot());
-        conditionMap.put("skuNameSnapshot", dto.getSkuNameSnapshot());
-        conditionMap.put("purchaseUnitId", dto.getPurchaseUnitId());
-        conditionMap.put("suggestedVendorId", dto.getSuggestedVendorId());
-        conditionMap.put("suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
-        conditionMap.put("pageNum", dto.getPageNum());
-        conditionMap.put("offset", dto.getOffset());
-        conditionMap.put("pageSize", dto.getPageSize());
-        conditionMap.put("groupByStr", dto.getGroupByStr());
-        conditionMap.put("orderByStr", dto.getOrderByStr());
+        AdminParamValidator.requireCorpid(dto);
+        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", dto.getId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", dto.getCorpid());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "requestId", dto.getRequestId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "lineNo", dto.getLineNo());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "skuId", dto.getSkuId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "skuCodeSnapshot", dto.getSkuCodeSnapshot());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "skuNameSnapshot", dto.getSkuNameSnapshot());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "purchaseUnitId", dto.getPurchaseUnitId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedVendorId", dto.getSuggestedVendorId());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", dto.getPageNum());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", dto.getOffset());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", dto.getPageSize());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", dto.getGroupByStr());
+        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", dto.getOrderByStr());
         List<PurchaseRequestItem> list = purchaseRequestItemRepository.findByCondition(conditionMap);
         Long total = purchaseRequestItemRepository.count(conditionMap);
         ListBaseVO<PurchaseRequestItemListItemVO> vo = new ListBaseVO<>();
@@ -108,13 +111,12 @@ public class PurchaseRequestItemAdminAppServiceImpl implements PurchaseRequestIt
 
     @Override
     public void delete(BatchBaseDTO dto) {
-        if (dto.getIdList() == null || dto.getIdList().isEmpty()) {
-            return;
-        }
+        AdminParamValidator.validateBatchDelete(dto);
         purchaseRequestItemRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
     }
 
     private PurchaseRequestItemSaveItemVO toSaveItem(IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
         return PurchaseRequestItemAdminAssembler.toSaveItemVO(purchaseRequestItemRepository.findById(dto.getCorpid(), dto.getId()));
     }
 }

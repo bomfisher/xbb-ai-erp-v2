@@ -1,8 +1,8 @@
-package xbb.ai.erp.module.customer.domain.field;
+package xbb.ai.erp.module.customer.application.field;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.context.annotation.Bean;
-import xbb.ai.erp.module.customer.domain.config.CustomerFieldConfiguration;
+import xbb.ai.erp.module.customer.application.config.CustomerFieldConfiguration;
 
 import java.lang.reflect.Method;
 import java.util.List;

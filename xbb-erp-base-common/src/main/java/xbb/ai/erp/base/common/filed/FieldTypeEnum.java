@@ -44,7 +44,10 @@ public enum FieldTypeEnum {
     FILE(17),
     //图片
     IMAGE(18),
-
+    ADDRESS(19),
+    //子档
+    SUB_ITEM(49),
+    //产品
     PRODUCT(50),
     ;
 

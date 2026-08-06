@@ -20,6 +20,8 @@ class MapperRegistrationStructureTest {
         assertHasMapperAnnotation("xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseOrderItemMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchasePendingTaskMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseSourceRelationMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInboundMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInboundItemMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductBrandMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductCategoryMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductSpuMapper");

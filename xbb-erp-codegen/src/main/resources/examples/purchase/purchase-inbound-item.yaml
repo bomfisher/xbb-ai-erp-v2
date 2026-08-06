@@ -1,0 +1,42 @@
+moduleCode: purchase
+moduleName: 采购入库单明细
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregate:
+  aggregateName: PurchaseInboundItem
+  tableName: purchase_inbound_item
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: inboundId, column: inbound_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: lineNo, column: line_no, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: sourceLineId, column: source_line_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: skuId, column: sku_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: warehouseId, column: warehouse_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: batchNo, column: batch_no, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: serialNo, column: serial_no, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: produceDate, column: produce_date, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: expireDate, column: expire_date, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: qty, column: qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: qualifiedQty, column: qualified_qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: unqualifiedQty, column: unqualified_qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: grossPrice, column: gross_price, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: netPrice, column: net_price, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: taxRate, column: tax_rate, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: grossAmount, column: gross_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: netAmount, column: net_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: taxAmount, column: tax_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: inventoryCostAmount, column: inventory_cost_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: version, column: version, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: deleted, column: del, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: addTime, column: add_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: updateTime, column: update_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate:
+  admin: false
+  application: false
+  domain: true
+  persistence: true
+  xml: true

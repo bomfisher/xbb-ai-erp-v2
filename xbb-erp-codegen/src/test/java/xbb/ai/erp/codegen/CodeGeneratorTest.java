@@ -51,11 +51,27 @@ class CodeGeneratorTest {
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/query/CustomerQueryAppServiceImpl.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/save/CustomerSaveAppServiceImpl.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/draft/CustomerDraftAppService.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/provider/CustomerListMetaProvider.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/assembler/CustomerAdminAssembler.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/domain/model/Customer.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/po/CustomerPO.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/repository/CustomerRepositoryImpl.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/resources/mapper/customer/CustomerMapper.xml")));
+        String controllerContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java"));
+        String mapperContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/mapper/CustomerMapper.java"));
+        String xmlContent = Files.readString(moduleRootDir.resolve("src/main/resources/mapper/customer/CustomerMapper.xml"));
+        String providerContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/provider/CustomerListMetaProvider.java"));
+        assertTrue(mapperContent.contains("import org.apache.ibatis.annotations.Mapper;"));
+        assertTrue(mapperContent.contains("@Mapper\npublic interface CustomerMapper"));
+        assertTrue(controllerContent.contains("@PostMapping(\"/saveDraft\")"));
+        assertTrue(controllerContent.contains("@PostMapping(\"/saveAndSubmit\")"));
+        assertTrue(controllerContent.contains("@PostMapping(\"/draftList\")"));
+        assertTrue(controllerContent.contains("@PostMapping(\"/loadDraft\")"));
+        assertTrue(controllerContent.contains("ResultVO.success"));
+        assertFalse(controllerContent.contains("@PostMapping(\"/save\")"));
+        assertTrue(xmlContent.contains("xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"));
+        assertTrue(providerContent.contains("implements ListMetaProvider"));
     }
 
     @Test
@@ -68,12 +84,11 @@ class CodeGeneratorTest {
 
         String poContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/supplier/infrastructure/persistence/po/VendorPO.java"));
         String xmlContent = Files.readString(moduleRootDir.resolve("src/main/resources/mapper/supplier/VendorMapper.xml"));
-        assertFalse(poContent.contains("extends BaseEntity"));
-        assertTrue(poContent.contains("private Long updateTime;"));
-        assertTrue(poContent.contains("private Long id;"));
-        assertTrue(poContent.contains("private Integer deleted;"));
-        assertTrue(poContent.contains("private Long addTime;"));
-        assertTrue(poContent.contains("private Long updateTime;"));
+        assertTrue(poContent.contains("extends BaseEntity"));
+        assertFalse(poContent.contains("private Long id;"));
+        assertFalse(poContent.contains("private Integer deleted;"));
+        assertFalse(poContent.contains("private Long addTime;"));
+        assertFalse(poContent.contains("private Long updateTime;"));
         assertTrue(xmlContent.contains("and del = 0"));
     }
 
@@ -105,6 +120,23 @@ class CodeGeneratorTest {
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/po/PurchaseRequestPO.java")));
         assertTrue(Files.exists(moduleRootDir.resolve("src/main/resources/mapper/purchase/PurchaseRequestMapper.xml")));
+    }
+
+    @Test
+    void should_generate_child_aggregate_without_admin_files() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-inbound-item.yaml"));
+        Path moduleRootDir = prepareModuleRoot("purchase");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        new CodeGenerator().generate(context, plans);
+
+        assertFalse(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseInboundItemAdminController.java")));
+        assertFalse(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/application/service/PurchaseInboundItemAdminAppService.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseInboundItem.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/po/PurchaseInboundItemPO.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/resources/mapper/purchase/PurchaseInboundItemMapper.xml")));
+        String mapperContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/mapper/PurchaseInboundItemMapper.java"));
+        assertTrue(mapperContent.contains("@Mapper\npublic interface PurchaseInboundItemMapper"));
     }
 
     @Test

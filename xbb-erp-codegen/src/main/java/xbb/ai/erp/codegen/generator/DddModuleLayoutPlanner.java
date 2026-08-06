@@ -1,6 +1,7 @@
 package xbb.ai.erp.codegen.generator;
 
 import xbb.ai.erp.codegen.template.TemplateType;
+import xbb.ai.erp.codegen.spec.AggregateRoleEnum;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -13,20 +14,32 @@ public class DddModuleLayoutPlanner {
         String aggregateName = context.aggregateName();
         List<DddFilePlan> plans = new ArrayList<>();
 
-        plans.add(planJava(context, basePackagePath, "admin", aggregateName + "AdminController.java", TemplateType.ADMIN_CONTROLLER));
-        plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "ListDTO.java", TemplateType.ADMIN_LIST_DTO));
-        plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "MainDTO.java", TemplateType.ADMIN_MAIN_DTO));
-        plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "SaveDTO.java", TemplateType.ADMIN_SAVE_DTO));
-        plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "ListItemVO.java", TemplateType.ADMIN_LIST_ITEM_VO));
-        plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "SaveItemVO.java", TemplateType.ADMIN_SAVE_ITEM_VO));
-        plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "DetailVO.java", TemplateType.ADMIN_DETAIL_VO));
-        plans.add(planJava(context, basePackagePath, "application/service", aggregateName + "AdminAppService.java", TemplateType.APP_SERVICE));
-        plans.add(planJava(context, basePackagePath, "application/service/impl", aggregateName + "AdminAppServiceImpl.java", TemplateType.APP_SERVICE_IMPL));
-        plans.add(planJava(context, basePackagePath, "application/service/query", aggregateName + "QueryAppServiceImpl.java", TemplateType.APP_QUERY_SERVICE_IMPL));
-        plans.add(planJava(context, basePackagePath, "application/service/save", aggregateName + "SaveAppServiceImpl.java", TemplateType.APP_SAVE_SERVICE_IMPL));
-        plans.add(planJava(context, basePackagePath, "application/assembler", aggregateName + "AdminAssembler.java", TemplateType.APP_ASSEMBLER));
-        plans.add(planJava(context, basePackagePath, "application/validator", aggregateName + "Validator.java", TemplateType.APP_VALIDATOR));
-        plans.add(planJava(context, basePackagePath, "application/pojo", aggregateName + "QueryPojo.java", TemplateType.APP_QUERY_POJO));
+        if (context.moduleSpec().getAggregateRole() == AggregateRoleEnum.ROOT) {
+            plans.add(planJava(context, basePackagePath, "admin", aggregateName + "AdminController.java", TemplateType.ADMIN_CONTROLLER));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "ListDTO.java", TemplateType.ADMIN_LIST_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "MainDTO.java", TemplateType.ADMIN_MAIN_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "SaveDTO.java", TemplateType.ADMIN_SAVE_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "SubmitSaveDTO.java", TemplateType.ADMIN_SUBMIT_SAVE_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "DraftSaveDTO.java", TemplateType.ADMIN_DRAFT_SAVE_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "DraftListDTO.java", TemplateType.ADMIN_DRAFT_LIST_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/dto", aggregateName + "DraftLoadDTO.java", TemplateType.ADMIN_DRAFT_LOAD_DTO));
+            plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "ListItemVO.java", TemplateType.ADMIN_LIST_ITEM_VO));
+            plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "SaveItemVO.java", TemplateType.ADMIN_SAVE_ITEM_VO));
+            plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "DetailVO.java", TemplateType.ADMIN_DETAIL_VO));
+            plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "DraftSaveVO.java", TemplateType.ADMIN_DRAFT_SAVE_VO));
+            plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "DraftListItemVO.java", TemplateType.ADMIN_DRAFT_LIST_ITEM_VO));
+            plans.add(planJava(context, basePackagePath, "admin/vo", aggregateName + "DraftDetailVO.java", TemplateType.ADMIN_DRAFT_DETAIL_VO));
+            plans.add(planJava(context, basePackagePath, "application/service", aggregateName + "AdminAppService.java", TemplateType.APP_SERVICE));
+            plans.add(planJava(context, basePackagePath, "application/service/impl", aggregateName + "AdminAppServiceImpl.java", TemplateType.APP_SERVICE_IMPL));
+            plans.add(planJava(context, basePackagePath, "application/service/query", aggregateName + "QueryAppServiceImpl.java", TemplateType.APP_QUERY_SERVICE_IMPL));
+            plans.add(planJava(context, basePackagePath, "application/service/save", aggregateName + "SaveAppServiceImpl.java", TemplateType.APP_SAVE_SERVICE_IMPL));
+            plans.add(planJava(context, basePackagePath, "application/service/draft", aggregateName + "DraftAppService.java", TemplateType.APP_DRAFT_SERVICE));
+            plans.add(planJava(context, basePackagePath, "application/service/draft", aggregateName + "DraftAppServiceImpl.java", TemplateType.APP_DRAFT_SERVICE_IMPL));
+            plans.add(planJava(context, basePackagePath, "application/assembler", aggregateName + "AdminAssembler.java", TemplateType.APP_ASSEMBLER));
+            plans.add(planJava(context, basePackagePath, "application/validator", aggregateName + "Validator.java", TemplateType.APP_VALIDATOR));
+            plans.add(planJava(context, basePackagePath, "application/pojo", aggregateName + "QueryPojo.java", TemplateType.APP_QUERY_POJO));
+            plans.add(planJava(context, basePackagePath, "application/provider", aggregateName + "ListMetaProvider.java", TemplateType.APP_LIST_META_PROVIDER));
+        }
         plans.add(planJava(context, basePackagePath, "domain/model", aggregateName + ".java", TemplateType.DOMAIN_MODEL));
         plans.add(planJava(context, basePackagePath, "domain/repository", aggregateName + "Repository.java", TemplateType.DOMAIN_REPOSITORY));
         plans.add(planJava(context, basePackagePath, "domain/pojo", aggregateName + "QueryPojo.java", TemplateType.DOMAIN_QUERY_POJO));

@@ -63,4 +63,6 @@
 - `headList` 由 `PurchaseRequestQueryAppServiceImpl` 直接构造并返回
 - 新建接口当前至少返回采购组织、申请单号、申请部门、申请人、来源信息、金额信息与明细字段定义
 - 字段类型使用 `FieldTypeEnum` 的数值字符串，例如文本=`1`、整数=`2`、金额=`4`、日期=`6`
+- 产品明细由一个 `attr="items"`、`fieldType="50"` 的外层字段描述；外层 `attr` 与 `data.items` 动态对齐，明细行字段位于 `subField`。
+- `subField.skuId` 使用 `fieldType="12"` 和 `businessSelectConfig` 下发产品 SKU 选择配置；`subField` 中其他字段的 `attr` 是明细行对象属性，不带 `items.` 前缀。
 - `data` 部分由 `PurchaseRequestAdminAssembler.buildEmptySaveItemVO()` 初始化，主档为空对象、明细默认为空数组

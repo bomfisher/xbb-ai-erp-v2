@@ -1,0 +1,4 @@
+interface:
+  display_name: "业务模块标准交付"
+  short_description: "交付通用列表、表单、草稿和提交保存七接口"
+  default_prompt: "使用 $business-module-delivery 为目标业务模块实现 list、addItem、updateItem、saveDraft、saveAndSubmit、draftList、loadDraft，并按主从表角色与 DDD 目录规范校验。"

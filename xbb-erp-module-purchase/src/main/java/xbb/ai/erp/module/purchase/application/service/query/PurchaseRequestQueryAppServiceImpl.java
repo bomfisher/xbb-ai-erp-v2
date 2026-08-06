@@ -108,24 +108,32 @@ public class PurchaseRequestQueryAppServiceImpl implements PurchaseRequestQueryA
             field("main.netAmount", "估算未税金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
             field("main.taxAmount", "估算税额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
             field("main.remark", "备注", FieldTypeEnum.TEXT.getType(), 0, 1),
-            field("items.lineNo", "行号", FieldTypeEnum.NUM_INT.getType(), 1, 1),
-            productField("items.skuId", "产品", 1, corpid),
-            field("items.skuCodeSnapshot", "SKU编码快照", FieldTypeEnum.TEXT.getType(), 1, 1),
-            field("items.skuNameSnapshot", "SKU名称快照", FieldTypeEnum.TEXT.getType(), 1, 1),
-            field("items.specSnapshot", "规格快照", FieldTypeEnum.TEXT.getType(), 0, 1),
-            field("items.purchaseUnitId", "采购单位ID", FieldTypeEnum.TEXT.getType(), 1, 1),
-            field("items.requestQty", "申请数量", FieldTypeEnum.AMOUNT.getType(), 1, 1),
-            field("items.reservedQty", "已占用下推量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.executedQty", "已正式下推量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.closedQty", "已关闭量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.suggestedVendorId", "建议供应商", FieldTypeEnum.TEXT.getType(), 0, 1),
-            field("items.suggestedDeliveryDate", "建议交期", FieldTypeEnum.DATE.getType(), 0, 1)
+            itemContainer("items", "产品明细", corpid)
         );
     }
 
-    private FieldEntity productField(String attr, String attrName, Integer required, String corpid) {
-        FieldEntity entity = field(attr, attrName, FieldTypeEnum.PRODUCT.getType(), required, 1);
-        entity.setProductSelectConfig(ProductAdminAssembler.buildProductSelectConfig(corpid, "PURCHASE_REQUEST"));
+    private FieldEntity itemContainer(String attr, String attrName, String corpid) {
+        FieldEntity entity = field(attr, attrName, FieldTypeEnum.PRODUCT.getType(), 1, 1);
+        entity.setSubField(List.of(
+            field("lineNo", "行号", FieldTypeEnum.NUM_INT.getType(), 1, 1),
+            productSelectField("skuId", "产品", 1, corpid),
+            field("skuCodeSnapshot", "SKU编码快照", FieldTypeEnum.TEXT.getType(), 1, 1),
+            field("skuNameSnapshot", "SKU名称快照", FieldTypeEnum.TEXT.getType(), 1, 1),
+            field("specSnapshot", "规格快照", FieldTypeEnum.TEXT.getType(), 0, 1),
+            field("purchaseUnitId", "采购单位ID", FieldTypeEnum.TEXT.getType(), 1, 1),
+            field("requestQty", "申请数量", FieldTypeEnum.AMOUNT.getType(), 1, 1),
+            field("reservedQty", "已占用下推量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("executedQty", "已正式下推量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("closedQty", "已关闭量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("suggestedVendorId", "建议供应商", FieldTypeEnum.TEXT.getType(), 0, 1),
+            field("suggestedDeliveryDate", "建议交期", FieldTypeEnum.DATE.getType(), 0, 1)
+        ));
+        return entity;
+    }
+
+    private FieldEntity productSelectField(String attr, String attrName, Integer required, String corpid) {
+        FieldEntity entity = field(attr, attrName, FieldTypeEnum.USER.getType(), required, 1);
+        entity.setBusinessSelectConfig(ProductAdminAssembler.buildProductBusinessSelectConfig(corpid, "PURCHASE_REQUEST"));
         return entity;
     }
 

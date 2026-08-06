@@ -136,35 +136,43 @@ public class PurchaseOrderQueryAppServiceImpl implements PurchaseOrderQueryAppSe
             field("main.netAmount", "未税金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
             field("main.taxAmount", "税额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
             field("main.remark", "备注", FieldTypeEnum.TEXT.getType(), 0, 1),
-            field("items.lineNo", "行号", FieldTypeEnum.NUM_INT.getType(), 1, 1),
-            productField("items.skuId", "产品", 1, corpid),
-            field("items.skuCodeSnapshot", "SKU编码快照", FieldTypeEnum.TEXT.getType(), 1, 1),
-            field("items.skuNameSnapshot", "SKU名称快照", FieldTypeEnum.TEXT.getType(), 1, 1),
-            field("items.specSnapshot", "规格快照", FieldTypeEnum.TEXT.getType(), 0, 1),
-            field("items.purchaseUnitId", "采购单位ID", FieldTypeEnum.TEXT.getType(), 1, 1),
-            field("items.warehouseId", "行级收货仓库ID", FieldTypeEnum.TEXT.getType(), 0, 1),
-            field("items.orderQty", "订单数量", FieldTypeEnum.AMOUNT.getType(), 1, 1),
-            field("items.receivedQty", "已收料数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.inboundedQty", "已入库数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.closedQty", "已关闭数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.returnedQty", "已退料数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.grossPrice", "含税单价", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.netPrice", "未税单价", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.taxRate", "税率", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.taxAmount", "税额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.grossAmount", "含税金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.netAmount", "未税金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.payableAmount", "已确认应付金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.paidAmount", "已付金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.invoicedAmount", "已收票金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
-            field("items.isGift", "是否赠品", FieldTypeEnum.NUM_INT.getType(), 0, 1),
-            field("items.deliveryPlanSnapshot", "交货计划快照", FieldTypeEnum.TEXT.getType(), 0, 1)
+            itemContainer("items", "产品明细", corpid)
         );
     }
 
-    private FieldEntity productField(String attr, String attrName, Integer required, String corpid) {
-        FieldEntity entity = field(attr, attrName, FieldTypeEnum.PRODUCT.getType(), required, 1);
-        entity.setProductSelectConfig(ProductAdminAssembler.buildProductSelectConfig(corpid, "PURCHASE_ORDER"));
+    private FieldEntity itemContainer(String attr, String attrName, String corpid) {
+        FieldEntity entity = field(attr, attrName, FieldTypeEnum.PRODUCT.getType(), 1, 1);
+        entity.setSubField(List.of(
+            field("lineNo", "行号", FieldTypeEnum.NUM_INT.getType(), 1, 1),
+            productSelectField("skuId", "产品", 1, corpid),
+            field("skuCodeSnapshot", "SKU编码快照", FieldTypeEnum.TEXT.getType(), 1, 1),
+            field("skuNameSnapshot", "SKU名称快照", FieldTypeEnum.TEXT.getType(), 1, 1),
+            field("specSnapshot", "规格快照", FieldTypeEnum.TEXT.getType(), 0, 1),
+            field("purchaseUnitId", "采购单位ID", FieldTypeEnum.TEXT.getType(), 1, 1),
+            field("warehouseId", "行级收货仓库ID", FieldTypeEnum.TEXT.getType(), 0, 1),
+            field("orderQty", "订单数量", FieldTypeEnum.AMOUNT.getType(), 1, 1),
+            field("receivedQty", "已收料数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("inboundedQty", "已入库数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("closedQty", "已关闭数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("returnedQty", "已退料数量", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("grossPrice", "含税单价", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("netPrice", "未税单价", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("taxRate", "税率", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("taxAmount", "税额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("grossAmount", "含税金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("netAmount", "未税金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("payableAmount", "已确认应付金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("paidAmount", "已付金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("invoicedAmount", "已收票金额", FieldTypeEnum.AMOUNT.getType(), 0, 1),
+            field("isGift", "是否赠品", FieldTypeEnum.NUM_INT.getType(), 0, 1),
+            field("deliveryPlanSnapshot", "交货计划快照", FieldTypeEnum.TEXT.getType(), 0, 1)
+        ));
+        return entity;
+    }
+
+    private FieldEntity productSelectField(String attr, String attrName, Integer required, String corpid) {
+        FieldEntity entity = field(attr, attrName, FieldTypeEnum.USER.getType(), required, 1);
+        entity.setBusinessSelectConfig(ProductAdminAssembler.buildProductBusinessSelectConfig(corpid, "PURCHASE_ORDER"));
         return entity;
     }
 

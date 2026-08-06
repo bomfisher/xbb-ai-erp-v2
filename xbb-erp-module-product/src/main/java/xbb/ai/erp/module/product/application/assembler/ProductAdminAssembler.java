@@ -152,6 +152,18 @@ public final class ProductAdminAssembler {
         return config;
     }
 
+    public static FieldEntity.BusinessSelectConfig buildProductBusinessSelectConfig(String corpid, String businessCode) {
+        FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
+        config.setBusinessType("product-sku");
+        config.setProductType("product-sku");
+        config.setBusinessCode(businessCode);
+        config.setRequestPayload(Map.of("corpid", corpid, "businessCode", businessCode));
+        config.setPlaceholder("请选择产品");
+        config.setDialogTitle("选择产品");
+        config.setMultiple(Boolean.TRUE);
+        return config;
+    }
+
     public static ProductSaveContextPojo toSaveContext(ProductSaveDTO dto) {
         ProductSaveContextPojo context = new ProductSaveContextPojo();
         if (dto == null) {

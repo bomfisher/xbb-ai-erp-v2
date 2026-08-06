@@ -1,10 +1,12 @@
-# BUSINESS 业务单选字段设计与后端渲染实现
+# BUSINESS 业务选择字段设计与后端渲染实现
 
 ## 1. 适用范围
 
 本文说明 `xbb.ai.erp.base.common.filed.FieldTypeEnum#BUSINESS`（数值 `16`）的设计原则、字段元数据协议以及后端如何提供业务选择所需的渲染配置。
 
 `BUSINESS` 表示“从某个业务对象中选择一条或多条数据”，不是普通下拉框。选项来自业务查询接口，前端不能仅依赖 `itemList` 静态渲染。
+
+`PRODUCT` 与 `USER` 属于有专用选择协议的字段类型，统一 Harness 实现指导见 [`docs/kn/field-product-user-m.md`](field-product-user-m.md)。本文继续作为通用 `BUSINESS`/`BUSINESS_MULTI` 选择字段的设计与接口参考。主子档表单中的 `fieldType=50` 已调整为子档容器；SKU 选择改用 `fieldType=12 + businessSelectConfig`。
 
 > 选择产品 Product 时禁止使用 `BUSINESS`。产品字段必须使用 `xbb.ai.erp.base.common.filed.FieldTypeEnum#PRODUCT`（数值 `50`），由产品专用选择器和产品字段协议负责渲染。`BUSINESS` 仅用于可通过通用业务选择协议接入的其他业务对象。
 

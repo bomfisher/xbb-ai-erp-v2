@@ -67,4 +67,6 @@
 
 - 返回结构与 `addItem` 一致，但 `data` 部分通过 `loadSaveItem` 按 `id` 回填
 - `headList` 与新增接口共用同一套字段定义，不因编辑态切换字段集合
+- 产品明细由一个 `attr="items"`、`fieldType="50"` 的外层字段描述；外层 `attr` 与 `data.items` 动态对齐，明细行字段位于 `subField`。
+- `subField.skuId` 使用 `fieldType="12"` 和 `businessSelectConfig` 下发产品 SKU 选择配置；`subField` 中其他字段的 `attr` 是明细行对象属性，不带 `items.` 前缀。
 - 当使用仅传主仓储的旧构造方式时，明细仓储为空会按空列表处理，不再抛出空指针

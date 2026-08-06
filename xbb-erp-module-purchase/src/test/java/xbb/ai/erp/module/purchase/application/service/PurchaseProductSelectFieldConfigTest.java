@@ -61,13 +61,19 @@ class PurchaseProductSelectFieldConfigTest {
 
     private void assertProductField(List<FieldEntity> headList) {
         FieldEntity field = headList.stream()
-            .filter(item -> "items.skuId".equals(item.getAttr()))
+            .filter(item -> "items".equals(item.getAttr()))
             .findFirst()
             .orElseThrow();
-        assertEquals("产品", field.getAttrName());
+        assertEquals("产品明细", field.getAttrName());
         assertEquals("50", field.getFieldType());
-        assertNotNull(field.getProductSelectConfig());
-        assertEquals("product-sku", field.getProductSelectConfig().getProductType());
-        assertEquals(Boolean.TRUE, field.getProductSelectConfig().getMultiple());
+        assertNotNull(field.getSubField());
+        FieldEntity skuField = field.getSubField().stream()
+            .filter(item -> "skuId".equals(item.getAttr()))
+            .findFirst()
+            .orElseThrow();
+        assertEquals("12", skuField.getFieldType());
+        assertNotNull(skuField.getBusinessSelectConfig());
+        assertEquals("product-sku", skuField.getBusinessSelectConfig().getProductType());
+        assertEquals(Boolean.TRUE, skuField.getBusinessSelectConfig().getMultiple());
     }
 }

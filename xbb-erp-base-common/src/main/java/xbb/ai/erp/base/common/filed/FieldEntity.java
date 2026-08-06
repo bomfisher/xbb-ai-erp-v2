@@ -13,12 +13,15 @@ public class FieldEntity {
     private Integer required;
     private Integer editable;
     private List<FieldItem> itemList;
+    private List<FieldEntity> subField;
     private BusinessSelectConfig businessSelectConfig;
     private ProductSelectConfig productSelectConfig;
 
     @Data
     public static class BusinessSelectConfig {
         private String businessType;
+        private String productType;
+        private String businessCode;
         private String quickSearchUrl;
         private String dialogSearchUrl;
         private String getByIdUrl;

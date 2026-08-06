@@ -1,0 +1,43 @@
+moduleCode: purchase
+moduleName: 采购入库单
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregate:
+  aggregateName: PurchaseInbound
+  tableName: purchase_inbound
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: purchaseOrgId, column: purchase_org_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: inboundNo, column: inbound_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: sourceDocType, column: source_doc_type, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: sourceDocId, column: source_doc_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: vendorId, column: vendor_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: warehouseId, column: warehouse_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: actualInboundTime, column: actual_inbound_time, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: bizStatus, column: biz_status, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: approvalStatus, column: approval_status, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: executionStatus, column: execution_status, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: grossAmount, column: gross_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: netAmount, column: net_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: taxAmount, column: tax_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: inventoryCostAmount, column: inventory_cost_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: inventoryFlowNo, column: inventory_flow_no, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: payableTriggerStatus, column: payable_trigger_status, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: payableNo, column: payable_no, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: invoiceSourceStatus, column: invoice_source_status, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: periodLockedFlag, column: period_locked_flag, javaType: Integer, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: version, column: version, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: deleted, column: del, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: addTime, column: add_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: updateTime, column: update_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

@@ -1,7 +1,7 @@
 # Agent 项目规则
 
 ## 必读上下文
-- 开始任务前阅读 `docs/harness/工程规则唯一事实源.md`、`docs/harness/README.md`、目标模块代码和相关 API 文档。
+- 开始任务前阅读 `docs/harness/工程规则唯一事实源.md`、`docs/harness/README.md`、`docs/harness/文档地图.md`，再按地图加载目标模块代码和相关 API 文档；文档分类、事实源与新增文档落位遵循 `docs/harness/后端文档规范.md`。
 - 项目结构导航：`docs/base/项目业务module导航.md`；接口导航：`docs/kn/总目录.md`；前端仓库：`/Users/bomfish/xbb-ai-erp-v2-front`。
 - 技术栈：JDK 21、Spring Boot 3.3.2、Maven、MyBatis-Plus、MySQL、Redis、JUnit 5；模块开发遵循 DDD。
 - 所有 `infrastructure.persistence.po` 下的 `*PO` 必须继承 `xbb.ai.erp.base.persistence.entity.BaseEntity`，不得重复声明 `id`、`del/deleted`、`addTime`、`updateTime` 基础字段。

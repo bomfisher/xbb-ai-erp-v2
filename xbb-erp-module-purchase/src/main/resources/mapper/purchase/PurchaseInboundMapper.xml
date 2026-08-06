@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInboundMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, purchase_org_id, inbound_no, source_doc_type, source_doc_id, vendor_id, warehouse_id, actual_inbound_time, biz_status, approval_status, execution_status, gross_amount, net_amount, tax_amount, inventory_cost_amount, inventory_flow_no, payable_trigger_status, payable_no, invoice_source_status, period_locked_flag, version, remark, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.purchaseOrgId != null">
+            and purchase_org_id = #{conditionMap.purchaseOrgId}
+        </if>
+        <if test="conditionMap.inboundNo != null and conditionMap.inboundNo != ''">
+            and inbound_no = #{conditionMap.inboundNo}
+        </if>
+        <if test="conditionMap.sourceDocType != null and conditionMap.sourceDocType != ''">
+            and source_doc_type = #{conditionMap.sourceDocType}
+        </if>
+        <if test="conditionMap.sourceDocId != null">
+            and source_doc_id = #{conditionMap.sourceDocId}
+        </if>
+        <if test="conditionMap.vendorId != null">
+            and vendor_id = #{conditionMap.vendorId}
+        </if>
+        <if test="conditionMap.warehouseId != null">
+            and warehouse_id = #{conditionMap.warehouseId}
+        </if>
+        <if test="conditionMap.actualInboundTime != null">
+            and actual_inbound_time = #{conditionMap.actualInboundTime}
+        </if>
+        <if test="conditionMap.bizStatus != null and conditionMap.bizStatus != ''">
+            and biz_status = #{conditionMap.bizStatus}
+        </if>
+        <if test="conditionMap.approvalStatus != null and conditionMap.approvalStatus != ''">
+            and approval_status = #{conditionMap.approvalStatus}
+        </if>
+        <if test="conditionMap.executionStatus != null and conditionMap.executionStatus != ''">
+            and execution_status = #{conditionMap.executionStatus}
+        </if>
+        <if test="conditionMap.inventoryFlowNo != null and conditionMap.inventoryFlowNo != ''">
+            and inventory_flow_no = #{conditionMap.inventoryFlowNo}
+        </if>
+        <if test="conditionMap.payableTriggerStatus != null and conditionMap.payableTriggerStatus != ''">
+            and payable_trigger_status = #{conditionMap.payableTriggerStatus}
+        </if>
+        <if test="conditionMap.payableNo != null and conditionMap.payableNo != ''">
+            and payable_no = #{conditionMap.payableNo}
+        </if>
+        <if test="conditionMap.invoiceSourceStatus != null and conditionMap.invoiceSourceStatus != ''">
+            and invoice_source_status = #{conditionMap.invoiceSourceStatus}
+        </if>
+        <if test="conditionMap.periodLockedFlag != null">
+            and period_locked_flag = #{conditionMap.periodLockedFlag}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into purchase_inbound (
+            id, corpid, purchase_org_id, inbound_no, source_doc_type, source_doc_id, vendor_id, warehouse_id, actual_inbound_time, biz_status, approval_status, execution_status, gross_amount, net_amount, tax_amount, inventory_cost_amount, inventory_flow_no, payable_trigger_status, payable_no, invoice_source_status, period_locked_flag, version, remark, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.corpid}, #{item.purchaseOrgId}, #{item.inboundNo}, #{item.sourceDocType}, #{item.sourceDocId}, #{item.vendorId}, #{item.warehouseId}, #{item.actualInboundTime}, #{item.bizStatus}, #{item.approvalStatus}, #{item.executionStatus}, #{item.grossAmount}, #{item.netAmount}, #{item.taxAmount}, #{item.inventoryCostAmount}, #{item.inventoryFlowNo}, #{item.payableTriggerStatus}, #{item.payableNo}, #{item.invoiceSourceStatus}, #{item.periodLockedFlag}, #{item.version}, #{item.remark}, #{item.deleted}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update purchase_inbound
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update purchase_inbound
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        update purchase_inbound
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="purchaseOrgId != null">purchase_org_id = #{purchaseOrgId},</if>
+            <if test="inboundNo != null">inbound_no = #{inboundNo},</if>
+            <if test="sourceDocType != null">source_doc_type = #{sourceDocType},</if>
+            <if test="sourceDocId != null">source_doc_id = #{sourceDocId},</if>
+            <if test="vendorId != null">vendor_id = #{vendorId},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="actualInboundTime != null">actual_inbound_time = #{actualInboundTime},</if>
+            <if test="bizStatus != null">biz_status = #{bizStatus},</if>
+            <if test="approvalStatus != null">approval_status = #{approvalStatus},</if>
+            <if test="executionStatus != null">execution_status = #{executionStatus},</if>
+            <if test="grossAmount != null">gross_amount = #{grossAmount},</if>
+            <if test="netAmount != null">net_amount = #{netAmount},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="inventoryCostAmount != null">inventory_cost_amount = #{inventoryCostAmount},</if>
+            <if test="inventoryFlowNo != null">inventory_flow_no = #{inventoryFlowNo},</if>
+            <if test="payableTriggerStatus != null">payable_trigger_status = #{payableTriggerStatus},</if>
+            <if test="payableNo != null">payable_no = #{payableNo},</if>
+            <if test="invoiceSourceStatus != null">invoice_source_status = #{invoiceSourceStatus},</if>
+            <if test="periodLockedFlag != null">period_locked_flag = #{periodLockedFlag},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="deleted != null">del = #{deleted},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        select <include refid="BaseColumns"/>
+        from purchase_inbound
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        select <include refid="BaseColumns"/>
+        from purchase_inbound
+        where <include refid="BaseCondition"/>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from purchase_inbound
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

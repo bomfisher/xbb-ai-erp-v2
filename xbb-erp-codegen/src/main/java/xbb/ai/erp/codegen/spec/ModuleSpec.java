@@ -8,6 +8,7 @@ public class ModuleSpec {
     private String moduleName;
     private String packageBase;
     private String pathStrategy = "ddd-mybatis-plus";
+    private AggregateRoleEnum aggregateRole = AggregateRoleEnum.ROOT;
     private AggregateSpec aggregate = new AggregateSpec();
     private GenerateSpec generate = new GenerateSpec();
 }

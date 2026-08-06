@@ -2,11 +2,13 @@ package xbb.ai.erp.module.purchase.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import xbb.ai.erp.base.persistence.entity.BaseEntity;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("purchase_pending_task")
-public class PurchasePendingTaskPO {
-    private Long id;
+public class PurchasePendingTaskPO extends BaseEntity {
     private String corpid;
     private Long purchaseOrgId;
     private String taskNo;
@@ -28,9 +30,6 @@ public class PurchasePendingTaskPO {
     private String taskStatus;
     private Integer salesLinkedFlag;
     private Integer version;
-    private Integer deleted;
-    private Long addTime;
-    private Long updateTime;
     private String creatorId;
     private String modifyId;
 }

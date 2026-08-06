@@ -1,0 +1,838 @@
+diff --git a/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/customerCreate.ts b/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/customerCreate.ts
+new file mode 100644
+index 0000000..c78d94c
+--- /dev/null
++++ b/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/customerCreate.ts
+@@ -0,0 +1,130 @@
++import type { ApiEnvelope, SaveItemExtData, SaveItemFormData, SaveItemPayload, SaveItemSectionState } from '../../../components/list/types'
++import { normalizeFormData } from '../../../components/form/formSchema'
++
++export const customerBusinessContext = {
++  corpid: 'demo-corp',
++  userId: '115014265324309213',
++} as const
++
++type CustomerDraftMeta = {
++  draftCode?: string
++  draftTitle?: string
++  updatedTime?: number
++}
++
++type CustomerDraftListItem = {
++  draftCode: string
++  draftTitle?: string
++  customerName?: string
++  customerCode?: string
++  updatedTime?: number
++}
++
++type CustomerDraftDetail = {
++  main?: Record<string, unknown>
++  ext?: SaveItemExtData
++  sectionState?: Partial<SaveItemSectionState>
++  draftMeta?: CustomerDraftMeta
++}
++
++type CustomerDraftSaveResult = {
++  draftCode: string
++}
++
++export type CustomerDrawerMode = 'create' | 'edit'
++
++export async function fetchCustomerCreatePayload(): Promise<SaveItemPayload> {
++  return postCustomerJson<SaveItemPayload>('/erp/v1/customer/addItem', customerBusinessContext)
++}
++
++export async function fetchCustomerUpdatePayload(id: number | string): Promise<SaveItemPayload> {
++  return postCustomerJson<SaveItemPayload>('/erp/v1/customer/updateItem', {
++    ...customerBusinessContext,
++    id,
++  })
++}
++
++export async function saveCustomerDraft(formData: SaveItemFormData, draftMeta: CustomerDraftMeta) {
++  return postCustomerJson<CustomerDraftSaveResult>('/erp/v1/customer/saveDraft', toCustomerSubmitPayload(formData, draftMeta))
++}
++
++export async function saveCustomerAndSubmit(formData: SaveItemFormData, draftMeta: CustomerDraftMeta) {
++  return postCustomerJson('/erp/v1/customer/saveAndSubmit', toCustomerSubmitPayload(formData, draftMeta))
++}
++
++export async function fetchCustomerDraftList() {
++  return postCustomerJson<CustomerDraftListItem[]>('/erp/v1/customer/draftList', customerBusinessContext)
++}
++
++export async function loadCustomerDraft(draftCode: string) {
++  return postCustomerJson<CustomerDraftDetail>('/erp/v1/customer/loadDraft', {
++    ...customerBusinessContext,
++    draftCode,
++  })
++}
++
++export function toCustomerSubmitPayload(formData: SaveItemFormData, draftMeta: CustomerDraftMeta) {
++  return {
++    ...customerBusinessContext,
++    main: { ...formData.main },
++    ext: {
++      contacts: formData.sectionState.contacts === 1 ? compactSectionRows(formData.contacts) : [],
++      addresses: formData.sectionState.addresses === 1 ? compactSectionRows(formData.addresses) : [],
++      bankAccounts: formData.sectionState.bankAccounts === 1 ? compactSectionRows(formData.bankAccounts) : [],
++      invoiceProfiles: formData.sectionState.invoiceProfiles === 1 ? compactSectionRows(formData.invoiceProfiles) : [],
++    },
++    sectionState: {
++      contacts: formData.sectionState.contacts,
++      addresses: formData.sectionState.addresses,
++      bankAccounts: formData.sectionState.bankAccounts,
++      invoiceProfiles: formData.sectionState.invoiceProfiles,
++    },
++    draftMeta: {
++      draftCode: draftMeta.draftCode,
++      draftTitle: draftMeta.draftTitle,
++      updatedTime: draftMeta.updatedTime,
++    },
++  }
++}
++
++export function fromDraftDetail(detail: CustomerDraftDetail): { formData: SaveItemFormData; draftMeta: CustomerDraftMeta } {
++  return {
++    formData: normalizeFormData({
++      main: { ...(detail.main ?? {}) },
++      contacts: detail.ext?.contacts ?? [],
++      addresses: detail.ext?.addresses ?? [],
++      bankAccounts: detail.ext?.bankAccounts ?? [],
++      invoiceProfiles: detail.ext?.invoiceProfiles ?? [],
++      sectionState: detail.sectionState,
++    }),
++    draftMeta: {
++      draftCode: detail.draftMeta?.draftCode,
++      draftTitle: detail.draftMeta?.draftTitle,
++      updatedTime: detail.draftMeta?.updatedTime,
++    },
++  }
++}
++
++export function compactSectionRows(rows: Record<string, unknown>[]) {
++  return rows.filter(row => Object.values(row).some(value => value !== null && value !== undefined && value !== ''))
++}
++
++async function postCustomerJson<T>(url: string, payload: unknown) {
++  const response = await fetch(url, {
++    method: 'POST',
++    headers: {
++      'Content-Type': 'application/json',
++    },
++    body: JSON.stringify(payload),
++  })
++
++  if (!response.ok) {
++    throw new Error(`请求失败：${response.status}`)
++  }
++
++  const result = await response.json() as ApiEnvelope<T>
++  if (result.success === false) {
++    throw new Error(result.message)
++  }
++  return result.data
++}
+
+===== DRAWER =====
+<script setup lang="ts">
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import FormDrawerShell from '../../../components/form/FormDrawerShell.vue'
+import DynamicFormSection from '../../../components/form/DynamicFormSection.vue'
+import { createDefaultSectionState, normalizeFormData } from '../../../components/form/formSchema'
+import type { SaveItemFormData, SaveItemPayload } from '../../../components/list/types'
+import {
+  fetchCustomerCreatePayload,
+  fetchCustomerDraftList,
+  fetchCustomerUpdatePayload,
+  fromDraftDetail,
+  loadCustomerDraft,
+  saveCustomerAndSubmit,
+  saveCustomerDraft,
+} from './customerCreate'
+import type { CustomerDrawerMode } from './customerCreate'
+
+const props = withDefaults(defineProps<{
+  open: boolean
+  mode?: CustomerDrawerMode
+  customerId?: number | string
+}>(), {
+  mode: 'create',
+  customerId: undefined,
+})
+
+const emit = defineEmits<{
+  close: []
+  saved: []
+}>()
+
+const loading = ref(false)
+const loadErrorMessage = ref('')
+const actionErrorMessage = ref('')
+const payload = ref<SaveItemPayload | null>(null)
+const actionLoading = ref(false)
+const draftListVisible = ref(false)
+const draftListLoading = ref(false)
+const draftItems = ref<Array<{ draftCode: string; draftTitle?: string; customerName?: string; customerCode?: string; updatedTime?: number }>>([])
+const draftMeta = ref<{ draftCode?: string; draftTitle?: string; updatedTime?: number }>({})
+const formData = ref<SaveItemFormData>({
+  main: {},
+  contacts: [],
+  addresses: [],
+  bankAccounts: [],
+  invoiceProfiles: [],
+  sectionState: createDefaultSectionState(),
+})
+
+const footerDisabled = computed(() => loading.value || actionLoading.value)
+const drawerTitle = computed(() => props.mode === 'edit' ? '客户编辑' : '客户新建')
+const drawerDescription = computed(() => props.mode === 'edit' ? '侧开抽屉承载客户编辑表单。' : '侧开抽屉承载客户新建表单。')
+const toastTimer = ref<number | null>(null)
+
+function clearToastTimer() {
+  if (toastTimer.value !== null) {
+    window.clearTimeout(toastTimer.value)
+    toastTimer.value = null
+  }
+}
+
+function hideActionToast() {
+  clearToastTimer()
+  actionErrorMessage.value = ''
+}
+
+function showActionToast(message: string) {
+  clearToastTimer()
+  actionErrorMessage.value = message
+  toastTimer.value = window.setTimeout(() => {
+    actionErrorMessage.value = ''
+    toastTimer.value = null
+  }, 3000)
+}
+
+async function loadPayload() {
+  loading.value = true
+  loadErrorMessage.value = ''
+  hideActionToast()
+  payload.value = null
+  draftMeta.value = {}
+
+  try {
+    payload.value = props.mode === 'edit'
+      ? await fetchCustomerUpdatePayload(String(props.customerId ?? ''))
+      : await fetchCustomerCreatePayload()
+    formData.value = normalizeFormData(payload.value.data)
+  } catch (error) {
+    loadErrorMessage.value = error instanceof Error ? error.message : (props.mode === 'edit' ? '客户编辑页加载失败' : '客户新建页加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+
+async function handleSaveDraft() {
+  actionLoading.value = true
+  hideActionToast()
+  try {
+    const result = await saveCustomerDraft(formData.value, draftMeta.value)
+    draftMeta.value = { ...draftMeta.value, draftCode: result.draftCode }
+  } catch (error) {
+    showActionToast(error instanceof Error ? error.message : '保存草稿失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleSaveAndSubmit() {
+  actionLoading.value = true
+  hideActionToast()
+  try {
+    await saveCustomerAndSubmit(formData.value, draftMeta.value)
+    emit('saved')
+    emit('close')
+  } catch (error) {
+    showActionToast(error instanceof Error ? error.message : '正式保存失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+async function handleViewDrafts() {
+  draftListLoading.value = true
+  draftListVisible.value = true
+  hideActionToast()
+  try {
+    draftItems.value = await fetchCustomerDraftList()
+  } catch (error) {
+    showActionToast(error instanceof Error ? error.message : '草稿列表加载失败')
+  } finally {
+    draftListLoading.value = false
+  }
+}
+
+async function handleLoadDraft(draftCode: string) {
+  actionLoading.value = true
+  hideActionToast()
+  try {
+    const detail = await loadCustomerDraft(draftCode)
+    const loaded = fromDraftDetail(detail)
+    formData.value = loaded.formData
+    draftMeta.value = loaded.draftMeta
+    draftListVisible.value = false
+  } catch (error) {
+    showActionToast(error instanceof Error ? error.message : '载入草稿失败')
+  } finally {
+    actionLoading.value = false
+  }
+}
+
+watch(
+  () => props.open,
+  open => {
+    if (open) {
+      void loadPayload()
+    } else {
+      hideActionToast()
+      draftListVisible.value = false
+    }
+  },
+)
+
+onMounted(() => {
+  if (props.open) {
+    void loadPayload()
+  }
+})
+
+onBeforeUnmount(() => {
+  clearToastTimer()
+})
+</script>
+
+<template>
+  <FormDrawerShell
+    :open="open"
+    :title="drawerTitle"
+    :description="drawerDescription"
+    :loading="loading"
+    :error-message="loadErrorMessage"
+    @close="emit('close')"
+  >
+    <DynamicFormSection
+      v-if="payload"
+      :head-list="payload.headList"
+      :form-data="formData"
+    />
+
+    <template #header-actions>
+      <div class="customer-create-drawer__actions">
+        <button class="ghost-btn" data-action="view-drafts" :disabled="footerDisabled" type="button" @click="handleViewDrafts">查看草稿</button>
+        <button class="ghost-btn" data-action="save-draft" :disabled="footerDisabled" type="button" @click="handleSaveDraft">保存草稿</button>
+        <button class="brand-btn" data-action="save-submit" :disabled="footerDisabled" type="button" @click="handleSaveAndSubmit">正式保存</button>
+
+        <div v-if="actionErrorMessage" class="customer-create-drawer__toast" role="alert">
+          <span class="customer-create-drawer__toast-message">{{ actionErrorMessage }}</span>
+          <button class="customer-create-drawer__toast-close" data-toast-close type="button" @click="hideActionToast">关闭</button>
+        </div>
+        <div v-if="draftListVisible" class="customer-draft-list">
+          <div v-if="draftListLoading" class="customer-draft-list__state">草稿加载中</div>
+          <div v-else-if="draftItems.length === 0" class="customer-draft-list__state">暂无草稿</div>
+          <ul v-else class="customer-draft-list__items">
+            <li v-for="item in draftItems" :key="item.draftCode">
+              <button class="customer-draft-list__item" :data-draft-code="item.draftCode" type="button" @click="handleLoadDraft(item.draftCode)">
+                <span class="customer-draft-list__title">{{ item.draftTitle ?? item.customerName ?? item.customerCode ?? '未命名草稿' }}</span>
+                <span class="customer-draft-list__meta">{{ item.customerCode ?? '未填写编码' }}</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </div>
+    </template>
+  </FormDrawerShell>
+</template>
+
+===== SPEC =====
+import { flushPromises, mount } from '@vue/test-utils'
+import { afterEach, describe, expect, it, vi } from 'vitest'
+import CustomerCreateDrawer from './CustomerCreateDrawer.vue'
+import CustomerListPage from './CustomerListPage.vue'
+
+const fetchMock = vi.fn()
+const confirmMock = vi.fn(() => true)
+
+vi.stubGlobal('fetch', fetchMock)
+vi.stubGlobal('confirm', confirmMock)
+
+describe('CustomerListPage', () => {
+  afterEach(() => {
+    fetchMock.mockReset()
+    confirmMock.mockReset()
+    confirmMock.mockReturnValue(true)
+    vi.useRealTimers()
+  })
+
+  it('loads common meta and customer list data', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/common/list/filter')) {
+        return ok({ code: '1', message: '', success: true, data: { list: [{ attr: 'customerCode', attrName: '客户编码', fieldType: 'TEXT', supportedSymbols: ['EQ', 'CONTAINS'], itemList: [] }] } })
+      }
+      if (url.endsWith('/erp/v1/common/list/header')) {
+        return ok({ code: '1', message: '', success: true, data: { list: [{ attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 0, editable: 1, itemList: [] }] } })
+      }
+      if (url.endsWith('/erp/v1/common/list/topButton')) {
+        return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'ADD', buttonName: '新增', sort: 10, actionCode: 'ADD' }] } })
+      }
+      if (url.endsWith('/erp/v1/common/list/bottomButton')) {
+        return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'EXPORT', buttonName: '导出', sort: 20, actionCode: 'EXPORT' }] } })
+      }
+      if (url.endsWith('/erp/v1/customer/list')) {
+        return ok({
+          code: '1',
+          message: '',
+          success: true,
+          data: {
+            headList: null,
+            list: [{ id: 1, customerCode: 'CUST-001', customerName: '杭州客户' }],
+            pageHelper: { page: 1, count: 1, hasLeft: false, hasRight: false },
+          },
+        })
+      }
+      throw new Error(`unexpected url: ${url}`)
+    })
+
+    const wrapper = mount(CustomerListPage)
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('客户编码')
+    expect(wrapper.text()).toContain('新增')
+    expect(wrapper.text()).toContain('导出')
+    expect(wrapper.text()).toContain('CUST-001')
+    expect(wrapper.find('.customer-list-page__hero').exists()).toBe(true)
+    expect(wrapper.findAll('[data-testid="persistent-filter-row"]').length).toBeGreaterThan(0)
+    expect(wrapper.find('.customer-list-page__table-card').exists()).toBe(true)
+    expect(wrapper.find('.customer-list-page__pagination').exists()).toBe(true)
+    expect(wrapper.find('.customer-list-page__toolbar .brand-btn').text()).toBe('新增')
+    expect(wrapper.find('.customer-list-page__hero .ghost-btn').text()).toBe('导出')
+    expect(fetchMock).toHaveBeenCalledTimes(5)
+  })
+
+  it('opens create drawer and requests addItem after clicking ADD', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/common/list/filter')) return ok({ code: '1', message: '', success: true, data: { list: [{ attr: 'customerCode', attrName: '客户编码', fieldType: 'TEXT', supportedSymbols: ['EQ', 'CONTAINS'], itemList: [] }] } })
+      if (url.endsWith('/erp/v1/common/list/header')) return ok({ code: '1', message: '', success: true, data: { list: [{ attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 0, editable: 1, itemList: [] }] } })
+      if (url.endsWith('/erp/v1/common/list/topButton')) return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'ADD', buttonName: '新增', sort: 10, actionCode: 'ADD' }] } })
+      if (url.endsWith('/erp/v1/common/list/bottomButton')) return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'EXPORT', buttonName: '导出', sort: 20, actionCode: 'EXPORT' }] } })
+      if (url.endsWith('/erp/v1/customer/list')) {
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: null,
+          list: [{ id: 1, customerCode: 'CUST-001', customerName: '杭州客户' }],
+          pageHelper: { page: 1, count: 1, hasLeft: false, hasRight: false },
+        } })
+      }
+      if (url.endsWith('/erp/v1/customer/addItem')) {
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: [
+            { attr: 'main.customerName', attrName: '客户名称', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'contacts.contactName', attrName: '联系人', fieldType: '1', required: 0, editable: 1, itemList: [] },
+          ],
+          data: {
+            main: { customerName: '默认客户' },
+            contacts: [{ contactName: '默认联系人' }],
+            addresses: [],
+            bankAccounts: [],
+            invoiceProfiles: [],
+          },
+        } })
+      }
+      throw new Error(`unexpected url: ${url}`)
+    })
+
+    const wrapper = mount(CustomerListPage)
+    await flushPromises()
+
+    await wrapper.get('.customer-list-page__toolbar .brand-btn').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('客户新建')
+    expect(wrapper.get('input[data-field="main.customerName"]').element).toHaveProperty('value', '默认客户')
+    expect(wrapper.get('input[data-field="contacts.contactName"]').element).toHaveProperty('value', '默认联系人')
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/erp/v1/customer/addItem',
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('loads edit payload when drawer opens in edit mode', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/customer/updateItem')) {
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: [{ attr: 'main.customerName', attrName: '客户名称', fieldType: '1', required: 1, editable: 1, itemList: [] }],
+          data: {
+            main: { id: 1, customerName: '杭州客户' },
+            contacts: [],
+            addresses: [],
+            bankAccounts: [],
+            invoiceProfiles: [],
+            sectionState: { contacts: 0, addresses: 0, bankAccounts: 0, invoiceProfiles: 0 },
+          },
+        } })
+      }
+      throw new Error(`unexpected url: ${url}`)
+    })
+
+    const wrapper = mount(CustomerCreateDrawer, {
+      props: {
+        open: true,
+        mode: 'edit',
+        customerId: 1,
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('客户编辑')
+    expect(wrapper.get('input[data-field="main.customerName"]').element).toHaveProperty('value', '杭州客户')
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/erp/v1/customer/updateItem',
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('loads create payload when drawer opens in create mode', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/customer/addItem')) {
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: [{ attr: 'main.customerName', attrName: '客户名称', fieldType: '1', required: 1, editable: 1, itemList: [] }],
+          data: {
+            main: { customerName: '默认客户' },
+            contacts: [],
+            addresses: [],
+            bankAccounts: [],
+            invoiceProfiles: [],
+            sectionState: { contacts: 0, addresses: 0, bankAccounts: 0, invoiceProfiles: 0 },
+          },
+        } })
+      }
+      throw new Error(`unexpected url: ${url}`)
+    })
+
+    const wrapper = mount(CustomerCreateDrawer, {
+      props: {
+        open: true,
+        mode: 'create',
+      },
+    })
+    await flushPromises()
+
+    expect(wrapper.text()).toContain('客户新建')
+    expect(wrapper.get('input[data-field="main.customerName"]').element).toHaveProperty('value', '默认客户')
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/erp/v1/customer/addItem',
+      expect.objectContaining({ method: 'POST' }),
+    )
+  })
+
+  it('shows drawer error state and retries after reopening', async () => {
+    let addItemCalls = 0
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/customer/addItem')) {
+        addItemCalls += 1
+        if (addItemCalls === 1) {
+          return { ok: false, status: 500, json: async () => ({}) }
+        }
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: [],
+          data: { main: {}, contacts: [], addresses: [], bankAccounts: [], invoiceProfiles: [] },
+        } })
+      }
+      if (url.endsWith('/erp/v1/common/list/filter')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/common/list/header')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/common/list/topButton')) return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'ADD', buttonName: '新增', sort: 10, actionCode: 'ADD' }] } })
+      if (url.endsWith('/erp/v1/common/list/bottomButton')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/customer/list')) return ok({ code: '1', message: '', success: true, data: { headList: null, list: [], pageHelper: { page: 1, count: 1, hasLeft: false, hasRight: false } } })
+      throw new Error(`unexpected url: ${url}`)
+    })
+
+    const wrapper = mount(CustomerListPage)
+    await flushPromises()
+
+    await wrapper.get('.customer-list-page__toolbar .brand-btn').trigger('click')
+    await flushPromises()
+    expect(wrapper.text()).toContain('请求失败：500')
+
+    const cancelButtons = wrapper.findAll('.form-drawer__cancel')
+    await cancelButtons[0].trigger('click')
+    await wrapper.get('.customer-list-page__toolbar .brand-btn').trigger('click')
+    await flushPromises()
+
+    expect(addItemCalls).toBe(2)
+  })
+
+  it('renders editable inputs for main fields and add buttons for advanced sections', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/common/list/filter')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/common/list/header')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/common/list/topButton')) return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'ADD', buttonName: '新增', sort: 10, actionCode: 'ADD' }] } })
+      if (url.endsWith('/erp/v1/common/list/bottomButton')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/customer/list')) return ok({ code: '1', message: '', success: true, data: { headList: null, list: [], pageHelper: { page: 1, count: 1, hasLeft: false, hasRight: false } } })
+      if (url.endsWith('/erp/v1/customer/addItem')) {
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: [
+            { attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'main.ownerSalesId', attrName: '归属销售', fieldType: '12', required: 0, editable: 1, itemList: [] },
+            { attr: 'main.bizStatus', attrName: '业务状态', fieldType: '8', required: 1, editable: 1, itemList: [{ itemCode: '1', itemName: '启用' }] },
+            { attr: 'contacts.contactName', attrName: '联系人姓名', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'contacts.defaultFlag', attrName: '是否默认', fieldType: '11', required: 0, editable: 1, itemList: [] },
+            { attr: 'addresses.detailAddress', attrName: '详细地址', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'addresses.defaultFlag', attrName: '是否默认', fieldType: '11', required: 0, editable: 1, itemList: [] },
+            { attr: 'bankAccounts.accountName', attrName: '账户名称', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'bankAccounts.defaultFlag', attrName: '是否默认', fieldType: '11', required: 0, editable: 1, itemList: [] },
+            { attr: 'invoiceProfiles.invoiceTitle', attrName: '开票抬头', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'invoiceProfiles.defaultFlag', attrName: '是否默认', fieldType: '11', required: 0, editable: 1, itemList: [] },
+          ],
+          data: {
+            main: { customerCode: null, ownerSalesId: null, bizStatus: null },
+            contacts: [],
+            addresses: [],
+            bankAccounts: [],
+            invoiceProfiles: [],
+          },
+        } })
+      }
+      throw new Error(`unexpected url: ${url}`)
+    })
+
+    const wrapper = mount(CustomerListPage)
+    await flushPromises()
+
+    await wrapper.get('.customer-list-page__toolbar .brand-btn').trigger('click')
+    await flushPromises()
+
+    expect(wrapper.find('input[data-field="main.customerCode"]').exists()).toBe(true)
+    expect(wrapper.find('input[data-field="main.ownerSalesId"]').exists()).toBe(true)
+    expect(wrapper.find('select[data-field="main.bizStatus"]').exists()).toBe(true)
+    expect(wrapper.find('input[data-field="contacts.contactName"]').exists()).toBe(false)
+    expect(wrapper.find('input[data-field="addresses.detailAddress"]').exists()).toBe(false)
+    expect(wrapper.find('input[data-field="bankAccounts.accountName"]').exists()).toBe(false)
+    expect(wrapper.find('input[data-field="invoiceProfiles.invoiceTitle"]').exists()).toBe(false)
+    expect(wrapper.get('[data-action="add-section-row"][data-section-key="contacts"]').text()).toContain('添加联系人')
+    expect(wrapper.get('[data-action="add-section-row"][data-section-key="addresses"]').text()).toContain('添加地址')
+    expect(wrapper.get('[data-action="add-section-row"][data-section-key="bankAccounts"]').text()).toContain('添加银行账户')
+    expect(wrapper.get('[data-action="add-section-row"][data-section-key="invoiceProfiles"]').text()).toContain('添加开票信息')
+  })
+
+  it('shows draft actions and submits draft and final payloads', async () => {
+    fetchMock.mockImplementation(async (input: RequestInfo | URL, init?: RequestInit) => {
+      const url = String(input)
+      if (url.endsWith('/erp/v1/common/list/filter')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/common/list/header')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/common/list/topButton')) return ok({ code: '1', message: '', success: true, data: { list: [{ buttonCode: 'ADD', buttonName: '新增', sort: 10, actionCode: 'ADD' }] } })
+      if (url.endsWith('/erp/v1/common/list/bottomButton')) return ok({ code: '1', message: '', success: true, data: { list: [] } })
+      if (url.endsWith('/erp/v1/customer/list')) return ok({ code: '1', message: '', success: true, data: { headList: null, list: [], pageHelper: { page: 1, count: 1, hasLeft: false, hasRight: false } } })
+      if (url.endsWith('/erp/v1/customer/addItem')) {
+        return ok({ code: '1', message: '', success: true, data: {
+          headList: [
+            { attr: 'main.customerName', attrName: '客户名称', fieldType: '1', required: 1, editable: 1, itemList: [] },
+            { attr: 'contacts.contactName', attrName: '联系人姓名', fieldType: '1', required: 0, editable: 1, itemList: [] },
+          ],
+          data: {
+            main: { customerName: null },
+            contacts: [],
+            addresses: [],
+            bankAccounts: [],
+            invoiceProfiles: [],
+          },
+        } })
+      }
+      if (url.endsWith('/erp/v1/customer/saveDraft')) {
+        expect(JSON.parse(String(init?.body))).toEqual(expect.objectContaining({
+          corpid: 'demo-corp',
+          userId: '115014265324309213',
+          main: expect.objectContaining({ customerName: '草稿客户' }),
+          ext: {
+            contacts: [{ contactName: '张三' }],
+            addresses: [],
+            bankAccounts: [],
+            invoiceProfiles: [],
+          },
+          draftMeta: expect.any(Object),
+        }))
+        return ok({ code: '1', message: '', success: true, data: { draftCode: 'draft-001' } })
+      }
+      if (url.endsWith('/erp/v1/customer/saveAndSubmit')) {
+        expect(JSON.parse(String(init?.body))).toEqual(expect.objectContaining({
+          corpid: 'demo-corp',
+          userId: '115014265324309213',
+          main: expect.objectContaining({ customerName: '草稿客户' }),
+          ext: {
+            contacts: [{ contactName: '张三' }],
+            addresses: [],
+
+===== BRIEF =====
+# Task 5 Brief
+
+## 任务定位
+把 `CustomerCreateDrawer` 从纯 `create` 模式演进为 `create / edit` 双模式，并在 `customerCreate.ts` 增加编辑初始化请求能力，为后续 Task 6 的列表页行内编辑编排做准备。
+
+## Global Constraints
+- 项目架构按 DDD 领域驱动设计落位。
+- 对话永远在中文语境下，注释使用中文。
+- 用户已明确：不创建worktree，不允许提交，使用子代理模式。
+- 客户编辑复用现有新建侧开抽屉，统一演进为 `create / edit` 双模式。
+- 本任务只做抽屉与请求层，不接 `/rowAction` 页面编排；那是 Task 6 的范围。
+- 只允许修改本任务列出的三个文件。
+- 完成开发任务并通过验证后，执行 `gen-api-md` 规则；若没有接口变更，在报告中明确说明无需更新 `docs/api`。
+
+## Ambiguity Resolution
+- 原计划示例测试里出现“点击行内 EDIT 打开编辑抽屉”，但这依赖 Task 6 的 `CustomerListPage.vue` 页面编排。
+- 本 Task 5 不允许修改 `CustomerListPage.vue`，所以这里明确：Task 5 只要求把抽屉本身做成双模式，并在测试里验证 `mode='edit'` + `customerId` 会走 `/erp/v1/customer/updateItem` 且显示“客户编辑”。
+- 不要因为追求 page-level click path 而越界修改 `CustomerListPage.vue`。
+
+## Files
+- Modify: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/customerCreate.ts`
+- Modify: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/CustomerCreateDrawer.vue`
+- Modify: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/CustomerListPage.spec.ts`
+
+## Existing Context
+- `customerCreate.ts` 当前只有 `fetchCustomerCreatePayload()`，调用 `/erp/v1/customer/addItem`。
+- `CustomerCreateDrawer.vue` 当前 props 只有 `{ open: boolean }`，内部只会调用 `loadCreatePayload()`。
+- `CustomerListPage.vue` 当前仍只接 `ADD` 打开抽屉，Task 6 才会接 `rowAction` 和 `EDIT` 编排。
+
+## Interfaces
+- Consumes: `POST /erp/v1/customer/addItem` and `POST /erp/v1/customer/updateItem`.
+- Produces:
+  - `type CustomerDrawerMode = 'create' | 'edit'`
+  - `fetchCustomerUpdatePayload(id: number | string): Promise<SaveItemPayload>`
+  - `CustomerCreateDrawer` props `{ open: boolean; mode: CustomerDrawerMode; customerId?: number | string }`
+
+## Required Test Additions
+在 `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/CustomerListPage.spec.ts` 新增或补充一个聚焦双模式的测试。允许直接 `mount(CustomerCreateDrawer, ...)`，不要为此去改页面编排。
+
+```ts
+it('loads edit payload when drawer opens in edit mode', async () => {
+  fetchMock.mockImplementation(async (input: RequestInfo | URL) => {
+    const url = String(input)
+    if (url.endsWith('/erp/v1/customer/updateItem')) {
+      return ok({ code: '1', message: '', success: true, data: {
+        headList: [{ attr: 'main.customerName', attrName: '客户名称', fieldType: '1', required: 1, editable: 1, itemList: [] }],
+        data: {
+          main: { id: 1, customerName: '杭州客户' },
+          contacts: [],
+          addresses: [],
+          bankAccounts: [],
+          invoiceProfiles: [],
+          sectionState: { contacts: 0, addresses: 0, bankAccounts: 0, invoiceProfiles: 0 },
+        },
+      } })
+    }
+    throw new Error(`unexpected url: ${url}`)
+  })
+
+  const wrapper = mount(CustomerCreateDrawer, {
+    props: {
+      open: true,
+      mode: 'edit',
+      customerId: 1,
+    },
+  })
+  await flushPromises()
+
+  expect(wrapper.text()).toContain('客户编辑')
+  expect(wrapper.get('input[data-field="main.customerName"]').element).toHaveProperty('value', '杭州客户')
+  expect(fetchMock).toHaveBeenCalledWith(
+    '/erp/v1/customer/updateItem',
+    expect.objectContaining({ method: 'POST' }),
+  )
+})
+```
+
+可再补一个 create 模式回归断言，确保 `mode='create'` 仍走 `/erp/v1/customer/addItem`。
+
+## Required Commands
+- Failing test: `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/modules/customer/list/CustomerListPage.spec.ts`
+- Passing test: `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/modules/customer/list/CustomerListPage.spec.ts`
+
+## Required Implementation Snippet
+```ts
+export type CustomerDrawerMode = 'create' | 'edit'
+
+export async function fetchCustomerCreatePayload(): Promise<SaveItemPayload> {
+  return postCustomerJson<SaveItemPayload>('/erp/v1/customer/addItem', customerBusinessContext)
+}
+
+export async function fetchCustomerUpdatePayload(id: number | string): Promise<SaveItemPayload> {
+  return postCustomerJson<SaveItemPayload>('/erp/v1/customer/updateItem', {
+    ...customerBusinessContext,
+    id,
+  })
+}
+```
+
+```ts
+const props = defineProps<{
+  open: boolean
+  mode: CustomerDrawerMode
+  customerId?: number | string
+}>()
+
+const drawerTitle = computed(() => props.mode === 'edit' ? '客户编辑' : '客户新建')
+const drawerDescription = computed(() => props.mode === 'edit' ? '侧开抽屉承载客户编辑表单。' : '侧开抽屉承载客户新建表单。')
+
+async function loadPayload() {
+  loading.value = true
+  loadErrorMessage.value = ''
+  hideActionToast()
+  payload.value = null
+  draftMeta.value = {}
+
+  try {
+    payload.value = props.mode === 'edit'
+      ? await fetchCustomerUpdatePayload(String(props.customerId ?? ''))
+      : await fetchCustomerCreatePayload()
+    formData.value = normalizeFormData(payload.value.data)
+  } catch (error) {
+    loadErrorMessage.value = error instanceof Error ? error.message : (props.mode === 'edit' ? '客户编辑页加载失败' : '客户新建页加载失败')
+  } finally {
+    loading.value = false
+  }
+}
+```
+
+并把模板中的标题/描述改为使用 `drawerTitle` / `drawerDescription`。
+
+## Additional Execution Rules
+- 必须先写失败测试，再实现最小代码，再回归目标测试。
+- 不要修改 `CustomerListPage.vue`；Task 6 才处理页面 `rowAction` 与 `EDIT` 编排。
+- 保持草稿、正式保存、草稿列表、toast 等现有行为不回归。
+- 不要创建 git commit。
+- 完成后把完整结果写入：`/Users/bomfish/xbb-ai-erp-v2/docs/superpowers/plans/2026-07-29-customer-list-row-edit-task-5-report.md`。
+- 报告必须包含：状态（DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED）、修改文件列表、运行过的命令、关键测试输出摘要、自检结论、任何 concerns。
+
+===== REPORT =====
+# Task 5 Report
+
+- 状态：DONE
+- 修改文件列表：
+  - `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/customerCreate.ts`
+  - `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/CustomerCreateDrawer.vue`
+  - `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/modules/customer/list/CustomerListPage.spec.ts`
+  - `/Users/bomfish/xbb-ai-erp-v2/docs/superpowers/plans/2026-07-29-customer-list-row-edit-task-5-report.md`
+- 运行过的命令：
+  - `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/modules/customer/list/CustomerListPage.spec.ts`（首次因测试插入位置错误导致语法失败，修正后重新执行）
+  - `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/modules/customer/list/CustomerListPage.spec.ts`（红灯：edit 模式仍请求 `/erp/v1/customer/addItem`，标题仍为“客户新建”）
+  - `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/modules/customer/list/CustomerListPage.spec.ts`（绿灯：11/11 通过，但出现缺少 `mode` prop 的 Vue warn）
+  - `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/modules/customer/list/CustomerListPage.spec.ts`（最终验证：11/11 通过，输出干净）
+- 关键测试输出摘要：
+  - 红灯阶段：`loads edit payload when drawer opens in edit mode` 失败，断言文本未出现“客户编辑”，并暴露实际仍请求 `/erp/v1/customer/addItem`。
+  - 绿灯阶段：`src/modules/customer/list/CustomerListPage.spec.ts` 共 11 个测试全部通过，覆盖 create/edit 双模式与既有草稿、保存、toast 行为回归。
+- 自检结论：
+  - 已严格按 brief 仅修改请求层、抽屉组件与指定 spec，并未修改 `CustomerListPage.vue`。
+  - 已按 TDD 执行：先新增失败测试并观察红灯，再补最小实现，再回归目标测试至最终绿灯。
+  - `customerCreate.ts` 已新增 `CustomerDrawerMode` 与 `fetchCustomerUpdatePayload()`；`CustomerCreateDrawer.vue` 已支持 `create / edit` 双模式，根据 `mode` 切换标题、描述与初始化请求，同时保留草稿、正式保存、toast、草稿列表既有行为。
+  - 本次没有新增接口，也没有修改接口 URL/出入参契约文档范围，`docs/api` 无需更新。
+- concerns：none

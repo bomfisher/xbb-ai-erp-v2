@@ -1,0 +1,271 @@
+diff --git a/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.spec.ts b/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.spec.ts
+new file mode 100644
+index 0000000..1eeb229
+--- /dev/null
++++ b/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.spec.ts
+@@ -0,0 +1,37 @@
++import { mount } from '@vue/test-utils'
++import { describe, expect, it } from 'vitest'
++import ListDataTable from './ListDataTable.vue'
++
++describe('ListDataTable', () => {
++  it('renders fixed operation column when rowActions exist', () => {
++    const wrapper = mount(ListDataTable, {
++      props: {
++        title: '客户数据',
++        description: '测试表格',
++        headers: [{ attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 0, editable: 1, itemList: [] }],
++        rows: [{ id: 1, customerCode: 'CUST-001' }],
++        renderCell: (row, attr) => attr === 'main.customerCode' ? String(row.customerCode ?? '') : '—',
++        rowActions: [{ actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' }],
++      },
++    })
++
++    expect(wrapper.text()).toContain('操作')
++    expect(wrapper.get('th[data-column="row-actions"]').classes()).toContain('data-table__cell--sticky-right')
++  })
++
++  it('re-emits row action event from row actions component', async () => {
++    const wrapper = mount(ListDataTable, {
++      props: {
++        title: '客户数据',
++        description: '测试表格',
++        headers: [{ attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 0, editable: 1, itemList: [] }],
++        rows: [{ id: 1, customerCode: 'CUST-001' }],
++        renderCell: (row, attr) => attr === 'main.customerCode' ? String(row.customerCode ?? '') : '—',
++        rowActions: [{ actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' }],
++      },
++    })
++
++    await wrapper.get('[data-row-action="EDIT"]').trigger('click')
++    expect(wrapper.emitted('row-action')).toEqual([[{ actionCode: 'EDIT', row: { id: 1, customerCode: 'CUST-001' } }]])
++  })
++})
+
+===== TABLE =====
+<script setup lang="ts">
+import { computed } from 'vue'
+import ListRowActions from './ListRowActions.vue'
+import type { HeaderField, ListRowActionItem } from './types'
+
+type ListRow = {
+  id: number | string
+  [key: string]: unknown
+}
+
+const props = defineProps<{
+  title: string
+  description: string
+  headers: HeaderField[]
+  rows: ListRow[]
+  renderCell: (row: ListRow, attr: string) => string
+  rowActions?: ListRowActionItem[]
+}>()
+
+const emit = defineEmits<{
+  'row-action': [{ actionCode: string; row: ListRow }]
+}>()
+
+const visibleHeaders = computed(() => props.headers)
+const hasRowActions = computed(() => (props.rowActions ?? []).length > 0)
+
+function handleRowAction(payload: { actionCode: string; row: ListRow }) {
+  emit('row-action', payload)
+}
+</script>
+
+<template>
+  <section class="customer-list-page__table-card table-card">
+    <div class="toolbar-row customer-list-page__toolbar">
+      <div class="section-head customer-list-page__section-head">
+        <h3>{{ title }}</h3>
+        <p>{{ description }}</p>
+      </div>
+      <slot name="header-actions" />
+    </div>
+
+    <div class="customer-list-page__table-wrap">
+      <table class="customer-list-page__table data-table">
+        <thead>
+          <tr>
+            <th v-for="header in visibleHeaders" :key="header.attr">{{ header.attrName }}</th>
+            <th v-if="hasRowActions" data-column="row-actions" class="data-table__cell--sticky-right">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-if="rows.length === 0">
+            <td :colspan="Math.max(visibleHeaders.length + (hasRowActions ? 1 : 0), 1)" class="customer-list-page__empty-cell">暂无数据</td>
+          </tr>
+          <tr v-for="row in rows" :key="row.id">
+            <td v-for="header in visibleHeaders" :key="`${row.id}-${header.attr}`">{{ renderCell(row, header.attr) }}</td>
+            <td v-if="hasRowActions" class="data-table__cell--sticky-right">
+              <ListRowActions :row="row" :actions="rowActions ?? []" @action="handleRowAction" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</template>
+
+<style scoped>
+.data-table__cell--sticky-right {
+  position: sticky;
+  right: 0;
+  z-index: 1;
+  background: #fff;
+}
+</style>
+
+===== BRIEF =====
+# Task 4 Brief
+
+## 任务定位
+为 `ListDataTable` 增加右侧固定行内操作列能力，承接 Task 3 已完成的 `ListRowActions` 组件，但本任务仍只做通用表格层，不接客户业务编排。
+
+## Global Constraints
+- 项目架构按 DDD 领域驱动设计落位。
+- 对话永远在中文语境下，注释使用中文。
+- 用户已明确：不创建worktree，不允许提交，使用子代理模式。
+- 行内操作列放在表格最后一列，并固定在右侧。
+- 行内动作统一采用“主动作直出，其余进入更多”的形态。
+- 本任务只做通用表格层，不提前接客户编辑抽屉、`CustomerListPage.vue`、`CustomerCreateDrawer.vue`。
+- 只允许修改本任务列出的前端文件。
+- 完成开发任务并通过验证后，执行技能 `gen-api-md`；若没有接口变更，在报告中明确说明无需更新 `docs/api`。
+
+## Files
+- Modify: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.vue`
+- Create: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.spec.ts`
+
+## Existing Context
+- `ListRowActions.vue` 已存在，props 为 `{ row, actions }`，emit `action` 载荷为 `{ actionCode, row }`。
+- `types.ts` 已有 `ListRowActionItem` 类型。
+- `ListDataTable.vue` 当前只渲染普通表头/单元格，没有 `rowActions` prop，也没有 `row-action` 事件。
+
+## Interfaces
+- Consumes: `ListRowActions` props `{ row, actions }` and emits `action`.
+- Produces:
+  - `ListDataTable` new optional prop `rowActions?: ListRowActionItem[]`
+  - `ListDataTable` emits `row-action` with payload `{ actionCode: string; row: ListRow }`
+  - right-fixed operation column with header text `操作`
+
+## Required Test Additions
+```ts
+it('renders fixed operation column when rowActions exist', () => {
+  const wrapper = mount(ListDataTable, {
+    props: {
+      title: '客户数据',
+      description: '测试表格',
+      headers: [{ attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 0, editable: 1, itemList: [] }],
+      rows: [{ id: 1, customerCode: 'CUST-001' }],
+      renderCell: (row, attr) => attr === 'main.customerCode' ? String(row.customerCode ?? '') : '—',
+      rowActions: [{ actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' }],
+    },
+  })
+
+  expect(wrapper.text()).toContain('操作')
+  expect(wrapper.get('th[data-column="row-actions"]').classes()).toContain('data-table__cell--sticky-right')
+})
+
+it('re-emits row action event from row actions component', async () => {
+  const wrapper = mount(ListDataTable, {
+    props: {
+      title: '客户数据',
+      description: '测试表格',
+      headers: [{ attr: 'main.customerCode', attrName: '客户编码', fieldType: '1', required: 0, editable: 1, itemList: [] }],
+      rows: [{ id: 1, customerCode: 'CUST-001' }],
+      renderCell: (row, attr) => attr === 'main.customerCode' ? String(row.customerCode ?? '') : '—',
+      rowActions: [{ actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' }],
+    },
+  })
+
+  await wrapper.get('[data-row-action="EDIT"]').trigger('click')
+  expect(wrapper.emitted('row-action')).toEqual([[{ actionCode: 'EDIT', row: { id: 1, customerCode: 'CUST-001' } }]])
+})
+```
+
+## Required Commands
+- Failing test: `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListDataTable.spec.ts`
+- Passing test: `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListRowActions.spec.ts src/components/list/ListDataTable.spec.ts`
+
+## Required Implementation Snippet
+```vue
+<script setup lang="ts">
+import { computed } from 'vue'
+import ListRowActions from './ListRowActions.vue'
+import type { HeaderField, ListRowActionItem } from './types'
+
+type ListRow = {
+  id: number | string
+  [key: string]: unknown
+}
+
+const props = defineProps<{
+  title: string
+  description: string
+  headers: HeaderField[]
+  rows: ListRow[]
+  renderCell: (row: ListRow, attr: string) => string
+  rowActions?: ListRowActionItem[]
+}>()
+
+const emit = defineEmits<{
+  'row-action': [{ actionCode: string; row: ListRow }]
+}>()
+
+const visibleHeaders = computed(() => props.headers)
+const hasRowActions = computed(() => (props.rowActions ?? []).length > 0)
+
+function handleRowAction(payload: { actionCode: string; row: ListRow }) {
+  emit('row-action', payload)
+}
+</script>
+```
+
+```vue
+<thead>
+  <tr>
+    <th v-for="header in visibleHeaders" :key="header.attr">{{ header.attrName }}</th>
+    <th v-if="hasRowActions" data-column="row-actions" class="data-table__cell--sticky-right">操作</th>
+  </tr>
+</thead>
+<tbody>
+  <tr v-if="rows.length === 0">
+    <td :colspan="Math.max(visibleHeaders.length + (hasRowActions ? 1 : 0), 1)" class="customer-list-page__empty-cell">暂无数据</td>
+  </tr>
+  <tr v-for="row in rows" :key="row.id">
+    <td v-for="header in visibleHeaders" :key="`${row.id}-${header.attr}`">{{ renderCell(row, header.attr) }}</td>
+    <td v-if="hasRowActions" class="data-table__cell--sticky-right">
+      <ListRowActions :row="row" :actions="rowActions ?? []" @action="handleRowAction" />
+    </td>
+  </tr>
+</tbody>
+```
+
+## Additional Execution Rules
+- 必须先写失败测试，再实现最小代码，再回归目标测试。
+- 不要修改 `CustomerListPage.vue`、`CustomerCreateDrawer.vue`、`customerCreate.ts`。
+- 样式只在 `ListDataTable.vue` 内做最小补充，够支撑 sticky right 即可，不要做无关视觉重构。
+- 不要创建 git commit。
+- 完成后把完整结果写入同目录报告文件 `/Users/bomfish/xbb-ai-erp-v2/docs/superpowers/plans/2026-07-29-customer-list-row-edit-task-4-report.md`。
+- 报告必须包含：状态（DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED）、修改文件列表、运行过的命令、关键测试输出摘要、自检结论、任何 concerns。
+
+===== REPORT =====
+# Task 4 Report
+
+- 状态：DONE
+- 修改文件列表：
+  - `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.vue`
+  - `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListDataTable.spec.ts`
+- 运行过的命令：
+  - `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListDataTable.spec.ts`（先失败，后通过）
+  - `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListRowActions.spec.ts src/components/list/ListDataTable.spec.ts`
+- 关键测试输出摘要：
+  - 红灯阶段：`ListDataTable.spec.ts` 2 个测试失败，缺少“操作”列和 `row-action` 透传。
+  - 绿灯阶段：`ListDataTable.spec.ts` 2/2 通过；与 `ListRowActions.spec.ts` 联跑共 4/4 通过。
+- 自检结论：
+  - 已按 brief 仅修改允许的两个文件。
+  - 已按 TDD 执行：先新增失败测试，再补最小实现，再运行目标与回归测试。
+  - 已为表格新增可选 `rowActions`、右侧固定操作列、`row-action` 事件透传，并处理空表格 `colspan`。
+  - 无接口变更，`docs/api` 无需更新。
+- concerns：none

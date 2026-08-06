@@ -12,6 +12,7 @@ public class BizException extends RuntimeException {
 
     public BizException(CommonErrorCodeEnum errorCodeEnum) {
         this.code = errorCodeEnum.getCode();
+
         this.message = errorCodeEnum.getMessage();
     }
 

@@ -16,6 +16,7 @@ import xbb.ai.erp.module.purchase.admin.vo.PurchaseSourceRelationListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseSourceRelationSaveItemVO;
 import xbb.ai.erp.module.purchase.application.assembler.PurchaseSourceRelationAdminAssembler;
 import xbb.ai.erp.module.purchase.application.service.PurchaseSourceRelationAdminAppService;
+import xbb.ai.erp.module.purchase.application.support.PurchaseInsertDefaults;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseSourceRelation;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseSourceRelationRepository;
 
@@ -82,25 +83,7 @@ public class PurchaseSourceRelationAdminAppServiceImpl implements PurchaseSource
     }
 
     private void applyInsertDefaults(PurchaseSourceRelation purchaseSourceRelation, String userId) {
-        long now = System.currentTimeMillis();
-        if (purchaseSourceRelation.getVersion() == null) {
-            purchaseSourceRelation.setVersion(0);
-        }
-        if (purchaseSourceRelation.getDeleted() == null) {
-            purchaseSourceRelation.setDeleted(0);
-        }
-        if (purchaseSourceRelation.getAddTime() == null) {
-            purchaseSourceRelation.setAddTime(now);
-        }
-        if (purchaseSourceRelation.getUpdateTime() == null) {
-            purchaseSourceRelation.setUpdateTime(now);
-        }
-        if (purchaseSourceRelation.getCreatorId() == null || purchaseSourceRelation.getCreatorId().isBlank()) {
-            purchaseSourceRelation.setCreatorId(userId);
-        }
-        if (purchaseSourceRelation.getModifyId() == null || purchaseSourceRelation.getModifyId().isBlank()) {
-            purchaseSourceRelation.setModifyId(userId);
-        }
+        PurchaseInsertDefaults.apply(purchaseSourceRelation, userId, System.currentTimeMillis());
     }
 
     @Override

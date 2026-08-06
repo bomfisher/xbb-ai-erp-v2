@@ -87,6 +87,12 @@ public class FieldValueValidator {
             }
             return;
         }
+        if (Objects.equals(FieldTypeEnum.SWITCH.getType(), fieldType)) {
+            if (!(value instanceof Number number) || !(number.intValue() == 0 || number.intValue() == 1)) {
+                throw new BizException(fieldRule.getAttrName() + "格式不合法");
+            }
+            return;
+        }
         if (Objects.equals(FieldTypeEnum.CHECKBOX.getType(), fieldType)) {
             if (!(value instanceof Number number) || !(number.intValue() == 0 || number.intValue() == 1)) {
                 throw new BizException(fieldRule.getAttrName() + "格式不合法");
@@ -136,7 +142,8 @@ public class FieldValueValidator {
             return;
         }
         if (Objects.equals(FieldTypeEnum.RADIO_BTN.getType(), fieldType)
-            || Objects.equals(FieldTypeEnum.CHECKBOX.getType(), fieldType)) {
+            || Objects.equals(FieldTypeEnum.CHECKBOX.getType(), fieldType)
+            || Objects.equals(FieldTypeEnum.SWITCH.getType(), fieldType)) {
             if (!RADIO_BTN_PATTERN.matcher(text).matches()) {
                 throw new BizException(fieldRule.getAttrName() + "格式不合法");
             }
@@ -170,7 +177,8 @@ public class FieldValueValidator {
         if (Objects.equals(FieldTypeEnum.NUM_INT.getType(), fieldType)
             || Objects.equals(FieldTypeEnum.STOCK.getType(), fieldType)
             || Objects.equals(FieldTypeEnum.RADIO_BTN.getType(), fieldType)
-            || Objects.equals(FieldTypeEnum.CHECKBOX.getType(), fieldType)) {
+            || Objects.equals(FieldTypeEnum.CHECKBOX.getType(), fieldType)
+            || Objects.equals(FieldTypeEnum.SWITCH.getType(), fieldType)) {
             return 32;
         }
         if (Objects.equals(FieldTypeEnum.NUM_DOUBLE.getType(), fieldType)

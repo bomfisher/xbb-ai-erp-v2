@@ -8,15 +8,25 @@ import org.springframework.web.bind.annotation.RestController;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestDraftListDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestDraftLoadDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestSubmitSaveDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDetailVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDraftDetailVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDraftListItemVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDraftSaveVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestSaveItemVO;
 import xbb.ai.erp.module.purchase.application.service.PurchaseRequestAdminAppService;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/erp/v1/purchase/request")
@@ -38,6 +48,26 @@ public class PurchaseRequestAdminController {
     @PostMapping("/updateItem")
     public ResultVO<SaveItemVO<PurchaseRequestSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
         return ResultVO.success(purchaseRequestAdminAppService.updateItem(dto));
+    }
+
+    @PostMapping("/saveDraft")
+    public ResultVO<PurchaseRequestDraftSaveVO> saveDraft(@RequestBody PurchaseRequestDraftSaveDTO dto) {
+        return ResultVO.success(purchaseRequestAdminAppService.saveDraft(dto));
+    }
+
+    @PostMapping("/saveAndSubmit")
+    public ResultVO<BaseVO> saveAndSubmit(@RequestBody PurchaseRequestSubmitSaveDTO dto) {
+        return ResultVO.success(purchaseRequestAdminAppService.saveAndSubmit(dto));
+    }
+
+    @PostMapping("/draftList")
+    public ResultVO<List<PurchaseRequestDraftListItemVO>> draftList(@RequestBody PurchaseRequestDraftListDTO dto) {
+        return ResultVO.success(purchaseRequestAdminAppService.draftList(dto));
+    }
+
+    @PostMapping("/loadDraft")
+    public ResultVO<PurchaseRequestDraftDetailVO> loadDraft(@RequestBody PurchaseRequestDraftLoadDTO dto) {
+        return ResultVO.success(purchaseRequestAdminAppService.loadDraft(dto));
     }
 
     @PostMapping("/save")

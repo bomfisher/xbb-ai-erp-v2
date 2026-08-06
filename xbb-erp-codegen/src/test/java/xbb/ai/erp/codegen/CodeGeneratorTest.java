@@ -3,10 +3,12 @@ package xbb.ai.erp.codegen;
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.codegen.cli.DbTableCodegenCli;
 import xbb.ai.erp.codegen.generator.CodeGenerator;
+import xbb.ai.erp.codegen.generator.DddFilePlan;
+import xbb.ai.erp.codegen.generator.DddGenerationContext;
+import xbb.ai.erp.codegen.generator.DddGenerationReport;
+import xbb.ai.erp.codegen.generator.DddModuleLayoutPlanner;
 import xbb.ai.erp.codegen.spec.ModuleSpec;
 import xbb.ai.erp.codegen.spec.ModuleSpecLoader;
-import xbb.ai.erp.codegen.spec.PathStrategyLoader;
-import xbb.ai.erp.codegen.spec.PathStrategySpec;
 import xbb.ai.erp.codegen.spec.SpecValidator;
 
 import java.io.ByteArrayOutputStream;
@@ -24,41 +26,48 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class CodeGeneratorTest {
 
     @Test
-    void should_resolve_paths_without_hard_coding_customer_directory() throws Exception {
+    void should_resolve_paths_with_module_root() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/customer-module.yaml"));
         new SpecValidator().validate(moduleSpec);
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Map<String, String> pathMap = new CodeGenerator().dryRun(moduleSpec, pathStrategySpec);
-        assertEquals("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java", pathMap.get("ADMIN_CONTROLLER"));
-        assertEquals("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/application/service/CustomerAdminAppService.java", pathMap.get("APP_SERVICE"));
-        assertEquals("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/domain/model/Customer.java", pathMap.get("DOMAIN_MODEL"));
-        assertEquals("xbb-erp-module-customer/src/main/resources/mapper/customer/CustomerMapper.xml", pathMap.get("MAPPER_XML"));
+        Path moduleRootDir = prepareModuleRoot("customer");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        Map<String, String> pathMap = new CodeGenerator().dryRun(plans);
+
+        assertEquals(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java").toString(), pathMap.get("ADMIN_CONTROLLER"));
+        assertEquals(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/query/CustomerQueryAppServiceImpl.java").toString(), pathMap.get("APP_QUERY_SERVICE_IMPL"));
+        assertEquals(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/save/CustomerSaveAppServiceImpl.java").toString(), pathMap.get("APP_SAVE_SERVICE_IMPL"));
+        assertEquals(moduleRootDir.resolve("src/main/resources/mapper/customer/CustomerMapper.xml").toString(), pathMap.get("MAPPER_XML"));
     }
 
     @Test
     void should_generate_core_files() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/customer-module.yaml"));
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Path outputRoot = Files.createTempDirectory("xbb-codegen-");
-        new CodeGenerator().generate(outputRoot, moduleSpec, pathStrategySpec);
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/application/service/CustomerAdminAppService.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/application/service/impl/CustomerAdminAppServiceImpl.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/application/assembler/CustomerAdminAssembler.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/domain/model/Customer.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/po/CustomerPO.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/repository/CustomerRepositoryImpl.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-customer/src/main/resources/mapper/customer/CustomerMapper.xml")));
+        Path moduleRootDir = prepareModuleRoot("customer");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        new CodeGenerator().generate(context, plans);
+
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/query/CustomerQueryAppServiceImpl.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/service/save/CustomerSaveAppServiceImpl.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/assembler/CustomerAdminAssembler.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/domain/model/Customer.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/po/CustomerPO.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/repository/CustomerRepositoryImpl.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/resources/mapper/customer/CustomerMapper.xml")));
     }
 
     @Test
     void should_not_duplicate_base_entity_fields_in_po() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/supplier-vendor.yaml"));
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Path outputRoot = Files.createTempDirectory("xbb-codegen-supplier-");
-        new CodeGenerator().generate(outputRoot, moduleSpec, pathStrategySpec);
-        String poContent = Files.readString(outputRoot.resolve("xbb-erp-module-supplier/src/main/java/xbb/ai/erp/module/supplier/infrastructure/persistence/po/VendorPO.java"));
-        String xmlContent = Files.readString(outputRoot.resolve("xbb-erp-module-supplier/src/main/resources/mapper/supplier/VendorMapper.xml"));
+        Path moduleRootDir = prepareModuleRoot("supplier");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        new CodeGenerator().generate(context, plans);
+
+        String poContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/supplier/infrastructure/persistence/po/VendorPO.java"));
+        String xmlContent = Files.readString(moduleRootDir.resolve("src/main/resources/mapper/supplier/VendorMapper.xml"));
         assertFalse(poContent.contains("extends BaseEntity"));
         assertTrue(poContent.contains("private Long updateTime;"));
         assertTrue(poContent.contains("private Long id;"));
@@ -69,28 +78,33 @@ class CodeGeneratorTest {
     }
 
     @Test
-    void should_resolve_purchase_paths_without_hard_coding_supplier_directory() throws Exception {
+    void should_resolve_purchase_paths_with_module_root() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
         new SpecValidator().validate(moduleSpec);
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Map<String, String> pathMap = new CodeGenerator().dryRun(moduleSpec, pathStrategySpec);
-        assertEquals("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java", pathMap.get("ADMIN_CONTROLLER"));
-        assertEquals("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/application/service/PurchaseRequestAdminAppService.java", pathMap.get("APP_SERVICE"));
-        assertEquals("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java", pathMap.get("DOMAIN_MODEL"));
-        assertEquals("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml", pathMap.get("MAPPER_XML"));
+        Path moduleRootDir = prepareModuleRoot("purchase");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        Map<String, String> pathMap = new CodeGenerator().dryRun(plans);
+
+        assertEquals(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java").toString(), pathMap.get("ADMIN_CONTROLLER"));
+        assertEquals(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/application/service/query/PurchaseRequestQueryAppServiceImpl.java").toString(), pathMap.get("APP_QUERY_SERVICE_IMPL"));
+        assertEquals(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java").toString(), pathMap.get("DOMAIN_MODEL"));
+        assertEquals(moduleRootDir.resolve("src/main/resources/mapper/purchase/PurchaseRequestMapper.xml").toString(), pathMap.get("MAPPER_XML"));
     }
 
     @Test
     void should_generate_purchase_request_core_files() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Path outputRoot = Files.createTempDirectory("xbb-codegen-purchase-");
-        new CodeGenerator().generate(outputRoot, moduleSpec, pathStrategySpec);
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/application/service/PurchaseRequestAdminAppService.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/po/PurchaseRequestPO.java")));
-        assertTrue(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml")));
+        Path moduleRootDir = prepareModuleRoot("purchase");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        new CodeGenerator().generate(context, plans);
+
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/application/service/PurchaseRequestAdminAppService.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/domain/model/PurchaseRequest.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/po/PurchaseRequestPO.java")));
+        assertTrue(Files.exists(moduleRootDir.resolve("src/main/resources/mapper/purchase/PurchaseRequestMapper.xml")));
     }
 
     @Test
@@ -129,41 +143,42 @@ class CodeGeneratorTest {
     }
 
     @Test
-    void should_skip_codegen_when_mapper_xml_exists() throws Exception {
+    void should_skip_existing_files_and_record_report() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Path outputRoot = Files.createTempDirectory("xbb-codegen-skip-");
-        Path mapperXmlPath = outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml");
-        Files.createDirectories(mapperXmlPath.getParent());
-        Files.writeString(mapperXmlPath, "existing", StandardCharsets.UTF_8);
+        Path moduleRootDir = prepareModuleRoot("purchase");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        Path existingFile = moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java");
+        Files.createDirectories(existingFile.getParent());
+        Files.writeString(existingFile, "existing", StandardCharsets.UTF_8);
 
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         PrintStream originalOut = System.out;
+        DddGenerationReport report;
         try {
             System.setOut(new PrintStream(byteArrayOutputStream, true, StandardCharsets.UTF_8));
-            boolean generated = DbTableCodegenCli.generateIfMapperXmlMissing(outputRoot, moduleSpec, pathStrategySpec, new CodeGenerator());
-            assertFalse(generated);
+            report = new CodeGenerator().generate(context, plans);
         } finally {
             System.setOut(originalOut);
         }
 
-        String console = byteArrayOutputStream.toString(StandardCharsets.UTF_8);
-        assertTrue(console.contains("skip codegen, mapper xml exists"));
-        assertFalse(Files.exists(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/admin/PurchaseRequestAdminController.java")));
-        assertEquals("existing", Files.readString(mapperXmlPath));
+        assertTrue(report.skippedFiles().contains(existingFile));
+        assertTrue(report.generatedFiles().size() > 0);
+        assertEquals("existing", Files.readString(existingFile));
     }
 
     @Test
     void should_generate_purchase_request_crud_details() throws Exception {
         ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/purchase/purchase-request.yaml"));
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset(moduleSpec.getPathStrategy());
-        Path outputRoot = Files.createTempDirectory("xbb-codegen-purchase-crud-");
-        new CodeGenerator().generate(outputRoot, moduleSpec, pathStrategySpec);
+        Path moduleRootDir = prepareModuleRoot("purchase");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        new CodeGenerator().generate(context, plans);
 
-        String appServiceImpl = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/application/service/impl/PurchaseRequestAdminAppServiceImpl.java"));
-        String repositoryImpl = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/PurchaseRequestRepositoryImpl.java"));
-        String mapperXml = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/resources/mapper/purchase/PurchaseRequestMapper.xml"));
-        String conditionMapHelper = Files.readString(outputRoot.resolve("xbb-erp-module-purchase/src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/ConditionMapHelper.java"));
+        String appServiceImpl = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/application/service/impl/PurchaseRequestAdminAppServiceImpl.java"));
+        String repositoryImpl = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/PurchaseRequestRepositoryImpl.java"));
+        String mapperXml = Files.readString(moduleRootDir.resolve("src/main/resources/mapper/purchase/PurchaseRequestMapper.xml"));
+        String conditionMapHelper = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/ConditionMapHelper.java"));
 
         assertTrue(appServiceImpl.contains("conditionMap.put(\"pageNum\", dto.getPageNum());"));
         assertTrue(appServiceImpl.contains("purchaseRequestRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());"));
@@ -180,5 +195,12 @@ class CodeGeneratorTest {
         assertTrue(conditionMapHelper.contains("static Map<String, Object> prepare(Map<String, Object> source)"));
         assertTrue(conditionMapHelper.contains("conditionMap.put(\"offset\", (pageNum - 1) * pageSize);"));
         assertTrue(conditionMapHelper.contains("throw new BizException(key + \" contains invalid characters\");"));
+    }
+
+    private Path prepareModuleRoot(String moduleCode) throws Exception {
+        Path moduleRootDir = Files.createTempDirectory("xbb-codegen-" + moduleCode + "-");
+        Files.createDirectories(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/" + moduleCode));
+        Files.createDirectories(moduleRootDir.resolve("src/main/resources"));
+        return moduleRootDir;
     }
 }

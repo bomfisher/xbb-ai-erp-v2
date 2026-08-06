@@ -49,8 +49,19 @@
             <if test="skuCode != null and skuCode != ''">
                 AND sku_code = #{skuCode}
             </if>
-            <if test="skuName != null and skuName != ''">
-                AND sku_name LIKE CONCAT('%', #{skuName}, '%')
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    sku_code LIKE CONCAT('%', #{keyword}, '%')
+                    OR sku_name LIKE CONCAT('%', #{keyword}, '%')
+                    OR mnemonic_code LIKE CONCAT('%', #{keyword}, '%')
+                    OR main_barcode LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
+            <if test="canPurchase != null">
+                AND can_purchase = #{canPurchase}
+            </if>
+            <if test="enableStatus != null">
+                AND enable_status = #{enableStatus}
             </if>
         </where>
     </sql>
@@ -137,7 +148,6 @@
         FROM product_sku
         WHERE corpid = #{corpid} AND spu_id = #{spuId} AND del = 0
         ORDER BY id DESC
-        LIMIT 1
     </select>
 
     <select id="findByCondition" resultMap="ProductSkuResultMap">
@@ -155,47 +165,6 @@
                 ORDER BY id DESC
             </otherwise>
         </choose>
-        <if test="offset != null and pageSize != null">
-            LIMIT #{offset}, #{pageSize}
-        </if>
-        <if test="offset == null and pageSize != null">
-            LIMIT #{pageSize}
-        </if>
-    </select>
-
-    <select id="findSpuSkuList" resultType="xbb.ai.erp.module.product.admin.vo.ProductSpuSkuListVO">
-        SELECT spu.id AS spuId,
-               spu.spu_code AS spuCode,
-               spu.spu_name AS spuName,
-               sku.id AS skuId,
-               sku.sku_code AS skuCode,
-               sku.sku_name AS skuName,
-               sku.main_barcode AS mainBarcode,
-               spu.product_type AS productType
-        FROM product_sku sku
-        INNER JOIN product_spu spu
-            ON spu.corpid = sku.corpid
-           AND spu.id = sku.spu_id
-           AND spu.del = 0
-        <where>
-            sku.del = 0
-            <if test="corpid != null and corpid != ''">
-                AND sku.corpid = #{corpid}
-            </if>
-            <if test="spuCode != null and spuCode != ''">
-                AND spu.spu_code = #{spuCode}
-            </if>
-            <if test="spuName != null and spuName != ''">
-                AND spu.spu_name LIKE CONCAT('%', #{spuName}, '%')
-            </if>
-            <if test="skuCode != null and skuCode != ''">
-                AND sku.sku_code = #{skuCode}
-            </if>
-            <if test="skuName != null and skuName != ''">
-                AND sku.sku_name LIKE CONCAT('%', #{skuName}, '%')
-            </if>
-        </where>
-        ORDER BY sku.id DESC
         <if test="offset != null and pageSize != null">
             LIMIT #{offset}, #{pageSize}
         </if>

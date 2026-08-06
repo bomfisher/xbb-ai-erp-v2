@@ -1,0 +1,4 @@
+interface:
+  display_name: "DDD 业务模块开发"
+  short_description: "按客户模块规范完成 ERP 领域业务开发"
+  default_prompt: "Use $ddd-business-module-development to implement or extend a DDD business module in this repository."

@@ -1,13 +1,13 @@
 -- 供应商模块初始化 SQL
 -- 生成日期：2026-07-22
 
-CREATE TABLE IF NOT EXISTS `vendor` (
+CREATE TABLE IF NOT EXISTS `supplier` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_code` varchar(64) NOT NULL COMMENT '供应商编码',
-  `vendor_name` varchar(128) NOT NULL COMMENT '供应商名称',
-  `vendor_short_name` varchar(128) DEFAULT NULL COMMENT '供应商简称',
-  `vendor_category` varchar(32) NOT NULL COMMENT '供应商分类',
+  `supplier_code` varchar(64) NOT NULL COMMENT '供应商编码',
+  `supplier_name` varchar(128) NOT NULL COMMENT '供应商名称',
+  `supplier_short_name` varchar(128) DEFAULT NULL COMMENT '供应商简称',
+  `supplier_category` varchar(32) NOT NULL COMMENT '供应商分类',
   `main_business_category` varchar(64) DEFAULT NULL COMMENT '主营品类',
   `owner_purchaser_id` varchar(50) DEFAULT NULL COMMENT '归属采购ID',
   `owner_purchaser_name_snapshot` varchar(50) DEFAULT NULL COMMENT '归属采购名称快照',
@@ -25,17 +25,17 @@ CREATE TABLE IF NOT EXISTS `vendor` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_corpid_vendor_code` (`corpid`, `vendor_code`),
-  UNIQUE KEY `uk_corpid_vendor_name` (`corpid`, `vendor_name`),
+  UNIQUE KEY `uk_corpid_supplier_code` (`corpid`, `supplier_code`),
+  UNIQUE KEY `uk_corpid_supplier_name` (`corpid`, `supplier_name`),
   KEY `idx_corpid_biz_status_update_time` (`corpid`, `biz_status`, `update_time`),
   KEY `idx_corpid_ref_status_update_time` (`corpid`, `ref_status`, `update_time`),
   KEY `idx_corpid_owner_purchaser` (`corpid`, `owner_purchaser_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商主档表';
 
-CREATE TABLE IF NOT EXISTS `vendor_contact` (
+CREATE TABLE IF NOT EXISTS `supplier_contact` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `contact_name` varchar(64) NOT NULL COMMENT '联系人姓名',
   `mobile` varchar(32) DEFAULT NULL COMMENT '手机号',
   `phone` varchar(32) DEFAULT NULL COMMENT '电话',
@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS `vendor_contact` (
   `position_name` varchar(64) DEFAULT NULL COMMENT '职位',
   `default_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '默认标记',
   `biz_status` varchar(32) NOT NULL COMMENT '业务状态',
+  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
   `del` tinyint(4) NOT NULL DEFAULT '0' COMMENT '逻辑删除标记',
   `add_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
@@ -50,15 +51,15 @@ CREATE TABLE IF NOT EXISTS `vendor_contact` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  KEY `idx_corpid_vendor_id` (`corpid`, `vendor_id`),
-  KEY `idx_corpid_vendor_default_flag` (`corpid`, `vendor_id`, `default_flag`),
+  KEY `idx_corpid_supplier_id` (`corpid`, `supplier_id`),
+  KEY `idx_corpid_supplier_default_flag` (`corpid`, `supplier_id`, `default_flag`),
   KEY `idx_corpid_mobile` (`corpid`, `mobile`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商联系人表';
 
-CREATE TABLE IF NOT EXISTS `vendor_address` (
+CREATE TABLE IF NOT EXISTS `supplier_address` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `address_type` varchar(32) NOT NULL COMMENT '地址类型',
   `receiver_name` varchar(64) DEFAULT NULL COMMENT '收件人',
   `receiver_mobile` varchar(32) DEFAULT NULL COMMENT '联系电话',
@@ -76,21 +77,22 @@ CREATE TABLE IF NOT EXISTS `vendor_address` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  KEY `idx_corpid_vendor_id` (`corpid`, `vendor_id`),
-  KEY `idx_corpid_vendor_default_flag` (`corpid`, `vendor_id`, `default_flag`),
+  KEY `idx_corpid_supplier_id` (`corpid`, `supplier_id`),
+  KEY `idx_corpid_supplier_default_flag` (`corpid`, `supplier_id`, `default_flag`),
   KEY `idx_corpid_address_type` (`corpid`, `address_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商地址表';
 
-CREATE TABLE IF NOT EXISTS `vendor_bank_account` (
+CREATE TABLE IF NOT EXISTS `supplier_bank_account` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `account_name` varchar(128) NOT NULL COMMENT '账户名称',
   `bank_name` varchar(128) NOT NULL COMMENT '开户行',
   `bank_account_no` varchar(64) NOT NULL COMMENT '银行账号',
   `account_usage` varchar(32) DEFAULT NULL COMMENT '账户用途',
   `default_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '默认标记',
   `biz_status` varchar(32) NOT NULL COMMENT '业务状态',
+  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
   `del` tinyint(4) NOT NULL DEFAULT '0' COMMENT '逻辑删除标记',
   `add_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
@@ -98,23 +100,23 @@ CREATE TABLE IF NOT EXISTS `vendor_bank_account` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  KEY `idx_corpid_vendor_id` (`corpid`, `vendor_id`),
-  KEY `idx_corpid_vendor_default_flag` (`corpid`, `vendor_id`, `default_flag`),
+  KEY `idx_corpid_supplier_id` (`corpid`, `supplier_id`),
+  KEY `idx_corpid_supplier_default_flag` (`corpid`, `supplier_id`, `default_flag`),
   KEY `idx_corpid_bank_account_no` (`corpid`, `bank_account_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商银行账户表';
 
-CREATE TABLE IF NOT EXISTS `vendor_invoice_profile` (
+CREATE TABLE IF NOT EXISTS `supplier_invoice_profile` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `invoice_title` varchar(128) NOT NULL COMMENT '开票抬头',
   `tax_no` varchar(64) NOT NULL COMMENT '税号',
-  `registered_address` varchar(255) DEFAULT NULL COMMENT '注册地址',
-  `registered_phone` varchar(32) DEFAULT NULL COMMENT '注册电话',
+  `address_phone` varchar(64) DEFAULT NULL COMMENT '地址电话',
   `bank_name` varchar(128) DEFAULT NULL COMMENT '开户行',
   `bank_account_no` varchar(64) DEFAULT NULL COMMENT '银行账号',
   `default_flag` tinyint(4) NOT NULL DEFAULT '0' COMMENT '默认标记',
   `biz_status` varchar(32) NOT NULL COMMENT '业务状态',
+  `remark` varchar(500) DEFAULT NULL COMMENT '备注',
   `del` tinyint(4) NOT NULL DEFAULT '0' COMMENT '逻辑删除标记',
   `add_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '创建时间',
   `update_time` bigint(20) NOT NULL DEFAULT '0' COMMENT '更新时间',
@@ -122,15 +124,15 @@ CREATE TABLE IF NOT EXISTS `vendor_invoice_profile` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  KEY `idx_corpid_vendor_id` (`corpid`, `vendor_id`),
-  KEY `idx_corpid_vendor_default_flag` (`corpid`, `vendor_id`, `default_flag`),
+  KEY `idx_corpid_supplier_id` (`corpid`, `supplier_id`),
+  KEY `idx_corpid_supplier_default_flag` (`corpid`, `supplier_id`, `default_flag`),
   KEY `idx_corpid_tax_no` (`corpid`, `tax_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商开票信息表';
 
-CREATE TABLE IF NOT EXISTS `vendor_attachment_relation` (
+CREATE TABLE IF NOT EXISTS `supplier_attachment_relation` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `file_id` bigint(20) NOT NULL COMMENT '附件ID',
   `attachment_type` varchar(32) NOT NULL COMMENT '附件类型',
   `attachment_name_snapshot` varchar(128) DEFAULT NULL COMMENT '附件名称快照',
@@ -143,15 +145,15 @@ CREATE TABLE IF NOT EXISTS `vendor_attachment_relation` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  KEY `idx_corpid_vendor_id` (`corpid`, `vendor_id`),
+  KEY `idx_corpid_supplier_id` (`corpid`, `supplier_id`),
   KEY `idx_corpid_file_id` (`corpid`, `file_id`),
   KEY `idx_corpid_attachment_type` (`corpid`, `attachment_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商附件关联表';
 
-CREATE TABLE IF NOT EXISTS `vendor_reference_summary` (
+CREATE TABLE IF NOT EXISTS `supplier_reference_summary` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `purchase_ref_count` bigint(20) NOT NULL DEFAULT '0' COMMENT '采购引用次数',
   `payable_ref_count` bigint(20) NOT NULL DEFAULT '0' COMMENT '应付引用次数',
   `payment_ref_count` bigint(20) NOT NULL DEFAULT '0' COMMENT '付款引用次数',
@@ -166,14 +168,14 @@ CREATE TABLE IF NOT EXISTS `vendor_reference_summary` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uk_corpid_vendor_id` (`corpid`, `vendor_id`),
+  UNIQUE KEY `uk_corpid_supplier_id` (`corpid`, `supplier_id`),
   KEY `idx_corpid_active_flow_flag` (`corpid`, `active_flow_flag`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商引用摘要表';
 
-CREATE TABLE IF NOT EXISTS `vendor_operate_log` (
+CREATE TABLE IF NOT EXISTS `supplier_operate_log` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
-  `vendor_id` bigint(20) NOT NULL COMMENT '供应商ID',
+  `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
   `operate_type` varchar(32) NOT NULL COMMENT '操作类型',
   `target_type` varchar(32) NOT NULL COMMENT '目标类型',
   `target_id` bigint(20) DEFAULT NULL COMMENT '目标ID',
@@ -189,12 +191,12 @@ CREATE TABLE IF NOT EXISTS `vendor_operate_log` (
   `modify_id` varchar(50) NOT NULL DEFAULT '' COMMENT '修改人ID',
   `version` int(11) NOT NULL DEFAULT '0' COMMENT '乐观锁版本号',
   PRIMARY KEY (`id`),
-  KEY `idx_corpid_vendor_id` (`corpid`, `vendor_id`),
+  KEY `idx_corpid_supplier_id` (`corpid`, `supplier_id`),
   KEY `idx_corpid_operate_time` (`corpid`, `operate_time`),
   KEY `idx_corpid_operate_type` (`corpid`, `operate_type`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='供应商操作流水表';
 
-CREATE TABLE IF NOT EXISTS `vendor_idempotent_record` (
+CREATE TABLE IF NOT EXISTS `supplier_idempotent_record` (
   `id` bigint(20) NOT NULL COMMENT '主键ID',
   `corpid` varchar(50) NOT NULL COMMENT '租户ID',
   `idempotent_no` varchar(64) NOT NULL COMMENT '幂等号',

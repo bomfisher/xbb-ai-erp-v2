@@ -1,37 +1,41 @@
 # common-list-s.md
 
-## `/erp/v1/common/list/filter`
+## 公共列表元数据
 
-- 所属业务：`公共列表元数据`
-- 请求方式：`POST`
+- 接口：`POST /erp/v1/common/list/filter`
 - 用途：按业务编码返回筛选字段元数据
-- 差异点：只返回 `FilterField` 列表，不返回表头或按钮信息；当前字段同时包含 `supportedSymbols` 与 `itemList`
-- 主文档定位：`docs/kn/common-m.md`
-- API 文档定位：`docs/api/common-list.md`
+- 差异点：仅返回筛选字段定义，不返回表头和按钮；字段可按需附带 `businessSelectConfig`
+- 业务文档：`docs/kn/common-m.md`
+- API 文档：`docs/api/endpoints/common-filter.md`
 
-## `/erp/v1/common/list/header`
+## 公共列表元数据
 
-- 所属业务：`公共列表元数据`
-- 请求方式：`POST`
+- 接口：`POST /erp/v1/common/list/header`
 - 用途：按业务编码返回表头字段元数据
-- 差异点：只返回 `FieldEntity` 列表，字段包含 `required`、`editable`、`itemList`
-- 主文档定位：`docs/kn/common-m.md`
-- API 文档定位：`docs/api/common-list.md`
+- 差异点：仅返回表头字段定义，字段包含 `required`、`editable`，并可附带 `itemList` 与 `businessSelectConfig`
+- 业务文档：`docs/kn/common-m.md`
+- API 文档：`docs/api/endpoints/common-header.md`
 
-## `/erp/v1/common/list/topButton`
+## 公共列表元数据
 
-- 所属业务：`公共列表元数据`
-- 请求方式：`POST`
+- 接口：`POST /erp/v1/common/list/topButton`
 - 用途：按业务编码返回顶部按钮元数据
-- 差异点：只返回 `ListButtonItemPojo` 列表，用于页面头部操作区
-- 主文档定位：`docs/kn/common-m.md`
-- API 文档定位：`docs/api/common-list.md`
+- 差异点：仅返回页面顶部操作区按钮定义
+- 业务文档：`docs/kn/common-m.md`
+- API 文档：`docs/api/endpoints/common-top-button.md`
 
-## `/erp/v1/common/list/bottomButton`
+## 公共列表元数据
 
-- 所属业务：`公共列表元数据`
-- 请求方式：`POST`
+- 接口：`POST /erp/v1/common/list/bottomButton`
 - 用途：按业务编码返回底部按钮元数据
-- 差异点：只返回 `ListButtonItemPojo` 列表，用于页面底部操作区
-- 主文档定位：`docs/kn/common-m.md`
-- API 文档定位：`docs/api/common-list.md`
+- 差异点：仅返回页面底部操作区按钮定义
+- 业务文档：`docs/kn/common-m.md`
+- API 文档：`docs/api/endpoints/common-bottom-button.md`
+
+## 公共列表元数据
+
+- 接口：`POST /erp/v1/common/list/rowAction`
+- 用途：按业务编码返回行内动作元数据
+- 差异点：当前客户列表仅落地 `EDIT` 行动作，不提前暴露其他动作
+- 业务文档：`docs/kn/common-m.md`
+- API 文档：`docs/api/endpoints/common-row-action.md`

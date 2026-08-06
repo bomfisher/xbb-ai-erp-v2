@@ -1,127 +1,129 @@
 package xbb.ai.erp.module.purchase.application.service.impl;
 
-import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
-import xbb.ai.erp.base.common.support.AdminParamValidator;
-import xbb.ai.erp.base.common.support.QueryConditionMapHelper;
+import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestDraftListDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestDraftLoadDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseRequestSubmitSaveDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDetailVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDraftDetailVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDraftListItemVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestDraftSaveVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseRequestSaveItemVO;
-import xbb.ai.erp.module.purchase.application.assembler.PurchaseRequestAdminAssembler;
+import xbb.ai.erp.module.purchase.application.port.PurchaseRequestDraftRepository;
 import xbb.ai.erp.module.purchase.application.service.PurchaseRequestAdminAppService;
-import xbb.ai.erp.module.purchase.domain.model.PurchaseRequest;
+import xbb.ai.erp.module.purchase.application.service.delete.PurchaseRequestDeleteAppService;
+import xbb.ai.erp.module.purchase.application.service.delete.PurchaseRequestDeleteAppServiceImpl;
+import xbb.ai.erp.module.purchase.application.service.draft.PurchaseRequestDraftAppService;
+import xbb.ai.erp.module.purchase.application.service.draft.PurchaseRequestDraftAppServiceImpl;
+import xbb.ai.erp.module.purchase.application.service.query.PurchaseRequestQueryAppService;
+import xbb.ai.erp.module.purchase.application.service.query.PurchaseRequestQueryAppServiceImpl;
+import xbb.ai.erp.module.purchase.application.service.save.PurchaseRequestSaveAppService;
+import xbb.ai.erp.module.purchase.application.service.save.PurchaseRequestSaveAppServiceImpl;
+import xbb.ai.erp.module.purchase.domain.repository.PurchaseRequestItemRepository;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseRequestRepository;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @Service
-@RequiredArgsConstructor
 public class PurchaseRequestAdminAppServiceImpl implements PurchaseRequestAdminAppService {
 
-    private final PurchaseRequestRepository purchaseRequestRepository;
+    private final PurchaseRequestQueryAppService queryAppService;
+    private final PurchaseRequestDraftAppService draftAppService;
+    private final PurchaseRequestSaveAppService saveAppService;
+    private final PurchaseRequestDeleteAppService deleteAppService;
+
+    @Autowired
+    public PurchaseRequestAdminAppServiceImpl(
+        PurchaseRequestRepository purchaseRequestRepository,
+        PurchaseRequestItemRepository purchaseRequestItemRepository,
+        PurchaseRequestDraftRepository purchaseRequestDraftRepository
+    ) {
+        this.queryAppService = new PurchaseRequestQueryAppServiceImpl(purchaseRequestRepository, purchaseRequestItemRepository);
+        this.draftAppService = new PurchaseRequestDraftAppServiceImpl(purchaseRequestDraftRepository);
+        this.saveAppService = new PurchaseRequestSaveAppServiceImpl(
+            purchaseRequestRepository,
+            purchaseRequestItemRepository,
+            purchaseRequestDraftRepository
+        );
+        this.deleteAppService = new PurchaseRequestDeleteAppServiceImpl(
+            purchaseRequestRepository,
+            purchaseRequestItemRepository
+        );
+    }
+
+    public PurchaseRequestAdminAppServiceImpl(
+        PurchaseRequestRepository purchaseRequestRepository,
+        PurchaseRequestItemRepository purchaseRequestItemRepository
+    ) {
+        this(purchaseRequestRepository, purchaseRequestItemRepository, null);
+    }
+
+    public PurchaseRequestAdminAppServiceImpl(PurchaseRequestRepository purchaseRequestRepository) {
+        this(purchaseRequestRepository, null, null);
+    }
 
     @Override
     public ListBaseVO<PurchaseRequestListItemVO> list(PurchaseRequestListDTO dto) {
-        AdminParamValidator.requireCorpid(dto);
-        Map<String, Object> conditionMap = QueryConditionMapHelper.newConditionMap();
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "id", dto.getId());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "corpid", dto.getCorpid());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "purchaseOrgId", dto.getPurchaseOrgId());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "requestNo", dto.getRequestNo());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "requestDeptId", dto.getRequestDeptId());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "applicantId", dto.getApplicantId());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceType", dto.getSourceType());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "sourceNo", dto.getSourceNo());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedVendorId", dto.getSuggestedVendorId());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "suggestedDeliveryDate", dto.getSuggestedDeliveryDate());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "bizStatus", dto.getBizStatus());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "approvalStatus", dto.getApprovalStatus());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageNum", dto.getPageNum());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "offset", dto.getOffset());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "pageSize", dto.getPageSize());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "groupByStr", dto.getGroupByStr());
-        QueryConditionMapHelper.putIfNotNull(conditionMap, "orderByStr", dto.getOrderByStr());
-        List<PurchaseRequest> list = purchaseRequestRepository.findByCondition(conditionMap);
-        Long total = purchaseRequestRepository.count(conditionMap);
-        ListBaseVO<PurchaseRequestListItemVO> vo = new ListBaseVO<>();
-        vo.setList(list.stream().map(PurchaseRequestAdminAssembler::toListItemVO).toList());
-        vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum() == null ? 1 : dto.getPageNum(), total == null ? 0 : total.intValue()));
-        return vo;
+        return queryAppService.list(dto);
     }
 
     @Override
     public SaveItemVO<PurchaseRequestSaveItemVO> addItem(BaseDTO dto) {
-        SaveItemVO<PurchaseRequestSaveItemVO> vo = new SaveItemVO<>();
-        vo.setData(PurchaseRequestAdminAssembler.buildEmptySaveItemVO());
-        return vo;
+        return queryAppService.addItem(dto);
     }
 
     @Override
     public SaveItemVO<PurchaseRequestSaveItemVO> updateItem(IdBaseDTO dto) {
-        SaveItemVO<PurchaseRequestSaveItemVO> vo = new SaveItemVO<>();
-        vo.setData(toSaveItem(dto));
-        return vo;
+        return queryAppService.updateItem(dto);
     }
 
     @Override
-    public Long save(PurchaseRequestSaveDTO dto) {
-        PurchaseRequest purchaseRequest = PurchaseRequestAdminAssembler.toPurchaseRequest(dto);
-        if (purchaseRequest.getId() == null) {
-            applyInsertDefaults(purchaseRequest, dto.getUserId());
-            purchaseRequestRepository.insert(purchaseRequest);
-        } else {
-            purchaseRequestRepository.update(purchaseRequest);
-        }
-        return purchaseRequest.getId();
+    public PurchaseRequestDraftSaveVO saveDraft(PurchaseRequestDraftSaveDTO dto) {
+        return draftAppService.saveDraft(dto);
     }
 
-    private void applyInsertDefaults(PurchaseRequest purchaseRequest, String userId) {
-        long now = System.currentTimeMillis();
-        if (purchaseRequest.getBizStatus() == null || purchaseRequest.getBizStatus().isBlank()) {
-            purchaseRequest.setBizStatus("1");
-        }
-        if (purchaseRequest.getVersion() == null) {
-            purchaseRequest.setVersion(0);
-        }
-        if (purchaseRequest.getDeleted() == null) {
-            purchaseRequest.setDeleted(0);
-        }
-        if (purchaseRequest.getAddTime() == null) {
-            purchaseRequest.setAddTime(now);
-        }
-        if (purchaseRequest.getUpdateTime() == null) {
-            purchaseRequest.setUpdateTime(now);
-        }
-        if (purchaseRequest.getCreatorId() == null || purchaseRequest.getCreatorId().isBlank()) {
-            purchaseRequest.setCreatorId(userId);
-        }
-        if (purchaseRequest.getModifyId() == null || purchaseRequest.getModifyId().isBlank()) {
-            purchaseRequest.setModifyId(userId);
-        }
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public BaseVO saveAndSubmit(PurchaseRequestSubmitSaveDTO dto) {
+        return saveAppService.saveAndSubmit(dto);
+    }
+
+    @Override
+    public List<PurchaseRequestDraftListItemVO> draftList(PurchaseRequestDraftListDTO dto) {
+        return draftAppService.draftList(dto);
+    }
+
+    @Override
+    public PurchaseRequestDraftDetailVO loadDraft(PurchaseRequestDraftLoadDTO dto) {
+        return draftAppService.loadDraft(dto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Long save(PurchaseRequestSaveDTO dto) {
+        return saveAppService.save(dto);
     }
 
     @Override
     public PurchaseRequestDetailVO detail(IdBaseDTO dto) {
-        return PurchaseRequestAdminAssembler.toDetailVO(toSaveItem(dto));
+        return queryAppService.detail(dto);
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
     public void delete(BatchBaseDTO dto) {
-        AdminParamValidator.validateBatchDelete(dto);
-        purchaseRequestRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
-    }
-
-    private PurchaseRequestSaveItemVO toSaveItem(IdBaseDTO dto) {
-        AdminParamValidator.validateIdQuery(dto);
-        return PurchaseRequestAdminAssembler.toSaveItemVO(purchaseRequestRepository.findById(dto.getCorpid(), dto.getId()));
+        deleteAppService.delete(dto);
     }
 }

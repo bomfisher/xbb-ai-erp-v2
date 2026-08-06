@@ -2,11 +2,13 @@ package xbb.ai.erp.module.purchase.infrastructure.persistence.po;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
+import xbb.ai.erp.base.persistence.entity.BaseEntity;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 @TableName("purchase_source_relation")
-public class PurchaseSourceRelationPO {
-    private Long id;
+public class PurchaseSourceRelationPO extends BaseEntity {
     private String corpid;
     private String sourceDocType;
     private Long sourceDocId;
@@ -21,9 +23,6 @@ public class PurchaseSourceRelationPO {
     private java.math.BigDecimal reversedQty;
     private String relationStatus;
     private Integer version;
-    private Integer deleted;
-    private Long addTime;
-    private Long updateTime;
     private String creatorId;
     private String modifyId;
 }

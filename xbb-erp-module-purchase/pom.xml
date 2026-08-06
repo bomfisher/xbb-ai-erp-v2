@@ -20,6 +20,11 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-base-cache</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-base-persistence</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -34,6 +39,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-product</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>
@@ -41,6 +56,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

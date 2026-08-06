@@ -16,6 +16,7 @@ import xbb.ai.erp.module.purchase.admin.vo.PurchasePendingTaskListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchasePendingTaskSaveItemVO;
 import xbb.ai.erp.module.purchase.application.assembler.PurchasePendingTaskAdminAssembler;
 import xbb.ai.erp.module.purchase.application.service.PurchasePendingTaskAdminAppService;
+import xbb.ai.erp.module.purchase.application.support.PurchaseInsertDefaults;
 import xbb.ai.erp.module.purchase.domain.model.PurchasePendingTask;
 import xbb.ai.erp.module.purchase.domain.repository.PurchasePendingTaskRepository;
 
@@ -89,25 +90,7 @@ public class PurchasePendingTaskAdminAppServiceImpl implements PurchasePendingTa
     }
 
     private void applyInsertDefaults(PurchasePendingTask purchasePendingTask, String userId) {
-        long now = System.currentTimeMillis();
-        if (purchasePendingTask.getVersion() == null) {
-            purchasePendingTask.setVersion(0);
-        }
-        if (purchasePendingTask.getDeleted() == null) {
-            purchasePendingTask.setDeleted(0);
-        }
-        if (purchasePendingTask.getAddTime() == null) {
-            purchasePendingTask.setAddTime(now);
-        }
-        if (purchasePendingTask.getUpdateTime() == null) {
-            purchasePendingTask.setUpdateTime(now);
-        }
-        if (purchasePendingTask.getCreatorId() == null || purchasePendingTask.getCreatorId().isBlank()) {
-            purchasePendingTask.setCreatorId(userId);
-        }
-        if (purchasePendingTask.getModifyId() == null || purchasePendingTask.getModifyId().isBlank()) {
-            purchasePendingTask.setModifyId(userId);
-        }
+        PurchaseInsertDefaults.apply(purchasePendingTask, userId, System.currentTimeMillis());
     }
 
     @Override

@@ -1,5 +1,16 @@
 # 公共列表接口
 
+## 迁移说明
+
+- 当前完整接口事实已迁移到 `docs/api/endpoints/*.md` 下的 API 原子文档
+- 本文档保留为旧入口索引页，避免已有引用立即失效
+- 新增或修改公共列表接口时，应优先维护以下文档：
+  - `docs/api/endpoints/common-filter.md`
+  - `docs/api/endpoints/common-header.md`
+  - `docs/api/endpoints/common-top-button.md`
+  - `docs/api/endpoints/common-bottom-button.md`
+  - `docs/api/endpoints/common-row-action.md`
+
 ## 公共列表筛选字段
 
 `POST /erp/v1/common/list/filter`
@@ -10,7 +21,7 @@
 {
   "corpid": "corp-001",
   "userId": "u-001",
-  "businessCode": "customer"
+  "businessCode": "SUPPLIER"
 }
 ```
 
@@ -80,7 +91,7 @@
 {
   "corpid": "corp-001",
   "userId": "u-001",
-  "businessCode": "customer"
+  "businessCode": "SUPPLIER"
 }
 ```
 
@@ -142,7 +153,7 @@
 {
   "corpid": "corp-001",
   "userId": "u-001",
-  "businessCode": "customer"
+  "businessCode": "SUPPLIER"
 }
 ```
 
@@ -200,7 +211,7 @@
 {
   "corpid": "corp-001",
   "userId": "u-001",
-  "businessCode": "customer"
+  "businessCode": "SUPPLIER"
 }
 ```
 
@@ -308,4 +319,11 @@
 - 入参使用 `ListCommonQueryDTO`
 - 出参使用 `ResultVO<ListRowActionVO>`
 - 结果仅包含行内动作元数据
-- 本次仅落地客户列表 `EDIT` 动作，不提前暴露其他动作
+- `businessCode` 当前已覆盖 `CUSTOMER`、`SUPPLIER` 等已注册业务编码；若业务未注册会抛出 `BizException`
+- 供应商列表首版返回如下元数据：
+  - `filter`：`supplierCode`、`supplierName`、`supplierCategory`、`ownerPurchaserId`、`bizStatus`、`refStatus`
+  - `header`：`main.supplierCode`、`main.supplierName`、`main.supplierShortName`、`main.supplierCategory`、`main.mainBusinessCategory`、`main.ownerPurchaserId`、`main.bizStatus`、`main.refStatus`、`main.addTime`、`main.updateTime`
+  - `topButton`：`ADD`
+  - `bottomButton`：`EXPORT`
+  - `rowAction`：`EDIT`
+- 客户列表当前仅落地 `EDIT` 行动作，不提前暴露其他动作

@@ -2,11 +2,11 @@ package xbb.ai.erp.module.purchase.admin.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import xbb.ai.erp.base.common.dto.BaseDTO;
+import xbb.ai.erp.base.common.dto.ListBaseDTO;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PurchaseOrderListDTO extends BaseDTO {
+public class PurchaseOrderListDTO extends ListBaseDTO {
     private Long id;
     private String corpid;
     private Long purchaseOrgId;
@@ -30,8 +30,6 @@ public class PurchaseOrderListDTO extends BaseDTO {
     private String invoiceStatus;
     private String paymentStatus;
     private Integer periodLockedFlag;
-    private Integer pageNum;
-    private Integer pageSize;
     private Integer offset;
     private String groupByStr;
     private String orderByStr;

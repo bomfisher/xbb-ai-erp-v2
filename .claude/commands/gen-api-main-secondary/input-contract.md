@@ -12,9 +12,9 @@
 
 推荐格式示例：
 
-- `subject=customer-archive`
+- `subject=customer`
 - `subjectLabel=客户`
-- `scope=list,detail`
+- `scope=save,draft`
 - `docMode=both`
 - `requirements=优先增量更新`
 
@@ -27,10 +27,10 @@
 
 ### 内部统一模型
 
-- `subject`：主题标识
-- `subjectLabel`：主题中文名
-- `scope`：`list/create/edit/detail/...`
-- `docMode`：`main/secondary/both`
+- `subject`：业务主题标识
+- `subjectLabel`：业务主题中文名
+- `scope`：`save/list/detail/draft/create/edit/...`
+- `docMode`：`business/function/both`
 - `requirements`：补充要求
 
 ### 缺失字段反问规则
@@ -43,6 +43,8 @@
 
 ### `scope` 支持值
 
+- `save`
+- `draft`
 - `list`
 - `create`
 - `edit`
@@ -50,13 +52,13 @@
 
 ### `docMode` 支持值
 
-- `main`
-- `secondary`
+- `business`
+- `function`
 - `both`
 
 ### 输出目录约束
 
-- 主文档输出到 `docs/kn`
-- 次文档输出到 `docs/kn`
-- `docs/api` 只作为 API 接口事实来源扫描
-- API 接口文档不在本 skill 中维护
+- 业务聚合文档输出到 `docs/kn/*-m.md`
+- 功能聚合文档输出到 `docs/kn/*-s.md`
+- `docs/api/endpoints` 只作为 API 接口事实来源扫描
+- API 原子文档不在本 skill 中维护

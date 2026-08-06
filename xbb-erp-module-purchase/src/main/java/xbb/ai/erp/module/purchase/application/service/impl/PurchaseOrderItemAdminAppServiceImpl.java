@@ -16,6 +16,7 @@ import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderItemListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderItemSaveItemVO;
 import xbb.ai.erp.module.purchase.application.assembler.PurchaseOrderItemAdminAssembler;
 import xbb.ai.erp.module.purchase.application.service.PurchaseOrderItemAdminAppService;
+import xbb.ai.erp.module.purchase.application.support.PurchaseInsertDefaults;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseOrderItem;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseOrderItemRepository;
 
@@ -83,25 +84,7 @@ public class PurchaseOrderItemAdminAppServiceImpl implements PurchaseOrderItemAd
     }
 
     private void applyInsertDefaults(PurchaseOrderItem purchaseOrderItem, String userId) {
-        long now = System.currentTimeMillis();
-        if (purchaseOrderItem.getVersion() == null) {
-            purchaseOrderItem.setVersion(0);
-        }
-        if (purchaseOrderItem.getDeleted() == null) {
-            purchaseOrderItem.setDeleted(0);
-        }
-        if (purchaseOrderItem.getAddTime() == null) {
-            purchaseOrderItem.setAddTime(now);
-        }
-        if (purchaseOrderItem.getUpdateTime() == null) {
-            purchaseOrderItem.setUpdateTime(now);
-        }
-        if (purchaseOrderItem.getCreatorId() == null || purchaseOrderItem.getCreatorId().isBlank()) {
-            purchaseOrderItem.setCreatorId(userId);
-        }
-        if (purchaseOrderItem.getModifyId() == null || purchaseOrderItem.getModifyId().isBlank()) {
-            purchaseOrderItem.setModifyId(userId);
-        }
+        PurchaseInsertDefaults.apply(purchaseOrderItem, userId, System.currentTimeMillis(), 1);
     }
 
     @Override

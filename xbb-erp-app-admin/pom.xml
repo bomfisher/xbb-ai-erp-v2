@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-org</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -36,6 +41,11 @@
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-purchase</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-supplier</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

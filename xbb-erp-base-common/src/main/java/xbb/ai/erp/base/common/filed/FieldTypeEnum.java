@@ -26,6 +26,8 @@ public enum FieldTypeEnum {
     CHECKBOX(10),
     //单选框
     RADIO_BTN(11),
+    //开关
+    SWITCH(19),
     //员工单选
     USER(12),
     //员工多选
@@ -42,6 +44,8 @@ public enum FieldTypeEnum {
     FILE(17),
     //图片
     IMAGE(18),
+
+    PRODUCT(50),
     ;
 
     private Integer type;

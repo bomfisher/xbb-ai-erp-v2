@@ -115,6 +115,49 @@ CREATE TABLE `product_sku` (
   KEY `idx_sku_mnemonic` (`corpid`, `mnemonic_code`, `del`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+CREATE TABLE `product_sku_supplier_rel` (
+  `id` bigint NOT NULL,
+  `corpid` varchar(50) NOT NULL,
+  `sku_id` bigint NOT NULL,
+  `supplier_id` bigint NOT NULL,
+  `purchase_price` decimal(18,6) DEFAULT NULL,
+  `delivery_cycle_day` int DEFAULT NULL,
+  `min_order_qty` decimal(18,6) DEFAULT NULL,
+  `supplier_sku_code` varchar(64) DEFAULT NULL,
+  `default_flag` tinyint NOT NULL DEFAULT '0',
+  `enable_status` tinyint NOT NULL DEFAULT '1',
+  `remark` varchar(500) DEFAULT NULL,
+  `version` int NOT NULL DEFAULT '0',
+  `del` tinyint NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(50) NOT NULL,
+  `modify_id` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_sku_supplier_rel_unique` (`corpid`, `sku_id`, `supplier_id`, `del`),
+  KEY `idx_sku_supplier_rel_sku` (`corpid`, `sku_id`, `enable_status`, `del`),
+  KEY `idx_sku_supplier_rel_supplier` (`corpid`, `supplier_id`, `enable_status`, `del`),
+  KEY `idx_sku_supplier_rel_default` (`corpid`, `sku_id`, `default_flag`, `del`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE `product_sku_supplier_rel_history` (
+  `id` bigint NOT NULL,
+  `corpid` varchar(50) NOT NULL,
+  `relation_id` bigint NOT NULL,
+  `operate_type` varchar(64) NOT NULL,
+  `operator_id` varchar(50) DEFAULT NULL,
+  `change_snapshot` text,
+  `remark` varchar(500) DEFAULT NULL,
+  `del` tinyint NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(50) NOT NULL,
+  `modify_id` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_sku_supplier_rel_history_relation` (`corpid`, `relation_id`, `del`),
+  KEY `idx_sku_supplier_rel_history_type` (`corpid`, `operate_type`, `del`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE `warehouse` (
   `id` bigint NOT NULL,
   `corpid` varchar(50) NOT NULL,

@@ -1,0 +1,386 @@
+diff --git a/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.vue b/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.vue
+new file mode 100644
+index 0000000..659d1da
+--- /dev/null
++++ b/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.vue
+@@ -0,0 +1,121 @@
++<script setup lang="ts">
++import { computed, ref } from 'vue'
++import type { ListRowActionItem } from './types'
++
++type ListRow = {
++  id: number | string
++  [key: string]: unknown
++}
++
++const props = defineProps<{
++  row: ListRow
++  actions: ListRowActionItem[]
++}>()
++
++const emit = defineEmits<{
++  action: [{ actionCode: string; row: ListRow }]
++}>()
++
++const isMoreOpen = ref(false)
++
++const sortedActions = computed(() => [...props.actions].sort((left, right) => left.sort - right.sort))
++const primaryActions = computed(() => sortedActions.value.filter(item => item.showMode === 'PRIMARY'))
++const moreActions = computed(() => sortedActions.value.filter(item => item.showMode !== 'PRIMARY'))
++
++function emitAction(actionCode: string) {
++  emit('action', { actionCode, row: props.row })
++  isMoreOpen.value = false
++}
++
++function toggleMore() {
++  isMoreOpen.value = !isMoreOpen.value
++}
++</script>
++
++<template>
++  <div class="list-row-actions">
++    <button
++      v-for="action in primaryActions"
++      :key="action.actionCode"
++      :data-row-action="action.actionCode"
++      class="list-row-actions__button list-row-actions__button--primary"
++      type="button"
++      @click="emitAction(action.actionCode)"
++    >
++      {{ action.actionName }}
++    </button>
++
++    <div v-if="moreActions.length > 0" class="list-row-actions__more">
++      <button
++        class="list-row-actions__button list-row-actions__button--more"
++        data-testid="row-actions-more"
++        type="button"
++        @click="toggleMore"
++      >
++        更多
++      </button>
++
++      <div v-if="isMoreOpen" class="list-row-actions__menu">
++        <button
++          v-for="action in moreActions"
++          :key="action.actionCode"
++          :data-row-action="action.actionCode"
++          class="list-row-actions__menu-item"
++          type="button"
++          @click="emitAction(action.actionCode)"
++        >
++          {{ action.actionName }}
++        </button>
++      </div>
++    </div>
++  </div>
++</template>
++
++<style scoped>
++.list-row-actions {
++  display: inline-flex;
++  align-items: center;
++  gap: 8px;
++}
++
++.list-row-actions__button,
++.list-row-actions__menu-item {
++  border: 1px solid #d9d9d9;
++  background: #fff;
++  color: #1f2329;
++  border-radius: 4px;
++  cursor: pointer;
++  font-size: 14px;
++  line-height: 20px;
++  padding: 4px 12px;
++}
++
++.list-row-actions__button--primary {
++  color: #1677ff;
++  border-color: #91caff;
++}
++
++.list-row-actions__more {
++  position: relative;
++}
++
++.list-row-actions__menu {
++  position: absolute;
++  top: calc(100% + 4px);
++  right: 0;
++  z-index: 1;
++  display: flex;
++  flex-direction: column;
++  min-width: 88px;
++  padding: 4px;
++  border: 1px solid #e5e6eb;
++  border-radius: 6px;
++  background: #fff;
++  box-shadow: 0 6px 16px rgb(31 35 41 / 12%);
++}
++
++.list-row-actions__menu-item {
++  border: 0;
++  text-align: left;
++}
++</style>
+
+===== SPEC =====
+# Task 3 Brief
+
+## 任务定位
+实现前端通用行内操作组件 `ListRowActions`，作为后续 `ListDataTable` 右侧固定操作列的基础渲染单元。这个任务只负责“主动作直出 + 更多菜单”的最小通用组件，不接客户业务编排。
+
+## Global Constraints
+- 项目架构按 DDD 领域驱动设计落位。
+- 对话永远在中文语境下，注释使用中文。
+- 不做前端本地硬编码权限判断；动作集合由后端元数据下发。
+- 行内操作列放在表格最后一列，并固定在右侧。
+- 行内动作统一采用“主动作直出，其余进入更多”的形态。
+- 客户编辑复用现有新建侧开抽屉，统一演进为 `create / edit` 双模式。
+- 本次只落地客户 `EDIT`，不提前接入删除、停用、提交等其他动作。
+- 用户明确不允许本次创建 git commit。
+
+## Files
+- Create: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.vue`
+- Create: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.spec.ts`
+- Modify: `/Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/types.ts`
+
+## Interfaces
+- Consumes: backend `/erp/v1/common/list/rowAction` response item fields `actionCode`, `actionName`, `sort`, `showMode`, `confirmType`.
+- Produces:
+  - `type ListRowActionShowMode = 'PRIMARY' | 'MORE'`
+  - `type ListRowActionItem = { actionCode: string; actionName: string; sort: number; showMode: 'PRIMARY' | 'MORE'; confirmType?: string }`
+  - `ListRowActions` props `{ row: ListRow; actions: ListRowActionItem[] }`
+  - `ListRowActions` emits `action` with payload `{ actionCode: string; row: ListRow }`
+
+## Required Test Additions
+```ts
+it('renders primary action and emits row payload', async () => {
+  const wrapper = mount(ListRowActions, {
+    props: {
+      row: { id: 1, customerCode: 'CUST-001' },
+      actions: [
+        { actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' },
+      ],
+    },
+  })
+
+  expect(wrapper.text()).toContain('编辑')
+  await wrapper.get('[data-row-action="EDIT"]').trigger('click')
+  expect(wrapper.emitted('action')).toEqual([[{ actionCode: 'EDIT', row: { id: 1, customerCode: 'CUST-001' } }]])
+})
+
+it('moves non-primary actions into more menu', async () => {
+  const wrapper = mount(ListRowActions, {
+    props: {
+      row: { id: 1 },
+      actions: [
+        { actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' },
+        { actionCode: 'DELETE', actionName: '删除', sort: 20, showMode: 'MORE' },
+      ],
+    },
+  })
+
+  expect(wrapper.text()).toContain('编辑')
+  expect(wrapper.text()).toContain('更多')
+})
+```
+
+## Required Commands
+- Failing test: `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListRowActions.spec.ts`
+- Passing test: `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListRowActions.spec.ts`
+
+## Required Implementation Snippet
+```ts
+export type ListRowActionShowMode = 'PRIMARY' | 'MORE'
+
+export type ListRowActionItem = {
+  actionCode: string
+  actionName: string
+  sort: number
+  showMode: ListRowActionShowMode
+  confirmType?: string
+}
+```
+
+```vue
+<script setup lang="ts">
+import { computed } from 'vue'
+import type { ListRowActionItem } from './types'
+
+type ListRow = {
+  id: number | string
+  [key: string]: unknown
+}
+
+const props = defineProps<{
+  row: ListRow
+  actions: ListRowActionItem[]
+}>()
+
+const emit = defineEmits<{
+  action: [{ actionCode: string; row: ListRow }]
+}>()
+
+const sortedActions = computed(() => [...props.actions].sort((left, right) => left.sort - right.sort))
+const primaryActions = computed(() => sortedActions.value.filter(item => item.showMode === 'PRIMARY'))
+const moreActions = computed(() => sortedActions.value.filter(item => item.showMode !== 'PRIMARY'))
+
+function emitAction(actionCode: string) {
+  emit('action', { actionCode, row: props.row })
+}
+</script>
+```
+
+## Additional Execution Rules
+- 必须先写失败测试，再实现最小代码，再回归目标测试。
+- 只修改列出的三个前端文件；不要提前修改 `ListDataTable.vue`、`CustomerListPage.vue`、`CustomerCreateDrawer.vue`。
+- 如果需要少量样式，放在组件内最小范围内，不要做全局样式清理。
+- 不要创建 git commit。
+- 完成后把完整结果写入同目录报告文件 `2026-07-29-customer-list-row-edit-task-3-report.md`。
+- 报告必须包含：状态（DONE / DONE_WITH_CONCERNS / NEEDS_CONTEXT / BLOCKED）、修改文件列表、运行过的命令、关键测试输出摘要、自检结论、任何 concerns。
+
+===== REPORT =====
+# Task 3 执行报告
+
+1. 状态：DONE
+2. 修改文件列表
+- /Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.vue
+- /Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/ListRowActions.spec.ts
+- /Users/bomfish/xbb-ai-erp-v2-front/apps/admin-web/src/components/list/types.ts
+
+3. 运行过的命令
+- `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListRowActions.spec.ts`
+- `pnpm --dir /Users/bomfish/xbb-ai-erp-v2-front --filter @xbb-erp/admin-web exec vitest run src/components/list/ListRowActions.spec.ts`
+
+4. 关键测试输出摘要
+- 红灯阶段：补完测试文件后运行目标命令，失败原因符合预期，提示无法解析 `./ListRowActions.vue`，说明组件尚未实现。
+- 绿灯阶段：实现最小组件与类型后重新运行目标命令，`src/components/list/ListRowActions.spec.ts` 共 2 个用例全部通过。
+
+5. 自检结论
+- 已严格按 brief 只修改 3 个前端文件，未改 `ListDataTable.vue`、`CustomerListPage.vue`、`CustomerCreateDrawer.vue` 或任何后端文件。
+- 已按 TDD 执行：先写测试、确认失败、再补最小实现、最后回归目标测试通过。
+- 组件能力控制在“主动作直出 + 更多菜单”的最小可用范围，未提前引入权限、确认框、客户语义或复杂菜单体系。
+
+6. concerns
+- 无
+
+===== TYPES =====
+export type FilterField = {
+  attr: string
+  attrName: string
+  fieldType: string
+  supportedSymbols: string[]
+  itemList: FieldOptionItem[]
+}
+
+export type ListFilterCondition = {
+  attr: string
+  fieldType: string
+  symbol: string
+  value: string[]
+}
+
+export type HeaderField = {
+  attr: string
+  attrName: string
+  fieldType: string
+  required: number
+  editable: number
+  itemList: FieldOptionItem[]
+}
+
+export type FieldOptionItem = {
+  itemCode?: string
+  itemName?: string
+  label?: string
+  value?: string
+  text?: string
+}
+
+export type ListButtonItem = {
+  buttonCode: string
+  buttonName: string
+  sort: number
+  actionCode: string
+}
+
+export type ListRowActionShowMode = 'PRIMARY' | 'MORE'
+
+export type ListRowActionItem = {
+  actionCode: string
+  actionName: string
+  sort: number
+  showMode: ListRowActionShowMode
+  confirmType?: string
+}
+
+export type ApiEnvelope<T> = {
+  code: string | number
+  message: string
+  success?: boolean
+  data: T
+}
+
+export type SaveItemSectionState = {
+  contacts: number
+  addresses: number
+  bankAccounts: number
+  invoiceProfiles: number
+}
+
+export type SaveItemExtData = {
+  contacts: Record<string, unknown>[]
+  addresses: Record<string, unknown>[]
+  bankAccounts: Record<string, unknown>[]
+  invoiceProfiles: Record<string, unknown>[]
+}
+
+export type SaveItemFormData = SaveItemExtData & {
+  main: Record<string, unknown>
+  sectionState: SaveItemSectionState
+}
+
+export type SaveItemPayload<T = SaveItemFormData> = {
+  headList: HeaderField[]
+  data: T
+}
+
+===== SPEC TEST =====
+import { mount } from '@vue/test-utils'
+import { describe, expect, it } from 'vitest'
+import ListRowActions from './ListRowActions.vue'
+
+describe('ListRowActions', () => {
+  it('renders primary action and emits row payload', async () => {
+    const wrapper = mount(ListRowActions, {
+      props: {
+        row: { id: 1, customerCode: 'CUST-001' },
+        actions: [
+          { actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' },
+        ],
+      },
+    })
+
+    expect(wrapper.text()).toContain('编辑')
+    await wrapper.get('[data-row-action="EDIT"]').trigger('click')
+    expect(wrapper.emitted('action')).toEqual([[{ actionCode: 'EDIT', row: { id: 1, customerCode: 'CUST-001' } }]])
+  })
+
+  it('moves non-primary actions into more menu', async () => {
+    const wrapper = mount(ListRowActions, {
+      props: {
+        row: { id: 1 },
+        actions: [
+          { actionCode: 'EDIT', actionName: '编辑', sort: 10, showMode: 'PRIMARY' },
+          { actionCode: 'DELETE', actionName: '删除', sort: 20, showMode: 'MORE' },
+        ],
+      },
+    })
+
+    expect(wrapper.text()).toContain('编辑')
+    expect(wrapper.text()).toContain('更多')
+  })
+})

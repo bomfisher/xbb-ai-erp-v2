@@ -17,7 +17,9 @@ import xbb.ai.erp.module.purchase.application.service.support.InMemoryPurchaseRe
 import xbb.ai.erp.module.purchase.domain.model.PurchaseOrder;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseRequest;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -34,6 +36,18 @@ class PurchaseMainSaveDefaultsServiceTest {
     }
 
     @Test
+    void should_return_head_list_for_purchase_request_add_item() {
+        PurchaseRequestAdminAppServiceImpl service = new PurchaseRequestAdminAppServiceImpl(new InMemoryPurchaseRequestRepository());
+
+        var result = service.addItem(new xbb.ai.erp.base.common.dto.BaseDTO());
+
+        assertNotNull(result.getHeadList());
+        assertFalse(result.getHeadList().isEmpty());
+        assertEquals("main.purchaseOrgId", result.getHeadList().get(0).getAttr());
+        assertNotNull(result.getData());
+    }
+
+    @Test
     void should_reject_null_id_for_purchase_request_update_item() {
         PurchaseRequestAdminAppServiceImpl service = new PurchaseRequestAdminAppServiceImpl(new InMemoryPurchaseRequestRepository());
         IdBaseDTO dto = new IdBaseDTO();
@@ -42,6 +56,35 @@ class PurchaseMainSaveDefaultsServiceTest {
         BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
 
         assertEquals("id不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_return_head_list_for_purchase_request_update_item() {
+        InMemoryPurchaseRequestRepository repository = new InMemoryPurchaseRequestRepository();
+        PurchaseRequestAdminAppServiceImpl service = new PurchaseRequestAdminAppServiceImpl(repository);
+
+        PurchaseRequestMainDTO main = new PurchaseRequestMainDTO();
+        main.setPurchaseOrgId(10L);
+        main.setRequestNo("PR-UPD-001");
+        main.setApplicantId("emp-001");
+
+        PurchaseRequestSaveDTO saveDTO = new PurchaseRequestSaveDTO();
+        saveDTO.setCorpid("corp-001");
+        saveDTO.setUserId("user-001");
+        saveDTO.setMain(main);
+        Long savedId = service.save(saveDTO);
+
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+        dto.setId(savedId);
+
+        var result = service.updateItem(dto);
+
+        assertNotNull(result.getHeadList());
+        assertFalse(result.getHeadList().isEmpty());
+        assertEquals("main.purchaseOrgId", result.getHeadList().get(0).getAttr());
+        assertNotNull(result.getData());
+        assertEquals("PR-UPD-001", result.getData().getMain().getRequestNo());
     }
 
     @Test
@@ -77,6 +120,18 @@ class PurchaseMainSaveDefaultsServiceTest {
     }
 
     @Test
+    void should_return_head_list_for_purchase_order_add_item() {
+        PurchaseOrderAdminAppServiceImpl service = new PurchaseOrderAdminAppServiceImpl(new InMemoryPurchaseOrderRepository());
+
+        var result = service.addItem(new xbb.ai.erp.base.common.dto.BaseDTO());
+
+        assertNotNull(result.getHeadList());
+        assertFalse(result.getHeadList().isEmpty());
+        assertEquals("main.purchaseOrgId", result.getHeadList().get(0).getAttr());
+        assertNotNull(result.getData());
+    }
+
+    @Test
     void should_reject_null_id_for_purchase_order_update_item() {
         PurchaseOrderAdminAppServiceImpl service = new PurchaseOrderAdminAppServiceImpl(new InMemoryPurchaseOrderRepository());
         IdBaseDTO dto = new IdBaseDTO();
@@ -85,6 +140,36 @@ class PurchaseMainSaveDefaultsServiceTest {
         BizException exception = assertThrows(BizException.class, () -> service.updateItem(dto));
 
         assertEquals("id不能为空", exception.getMessage());
+    }
+
+    @Test
+    void should_return_head_list_for_purchase_order_update_item() {
+        InMemoryPurchaseOrderRepository repository = new InMemoryPurchaseOrderRepository();
+        PurchaseOrderAdminAppServiceImpl service = new PurchaseOrderAdminAppServiceImpl(repository);
+
+        PurchaseOrderMainDTO main = new PurchaseOrderMainDTO();
+        main.setPurchaseOrgId(10L);
+        main.setOrderNo("PO-UPD-001");
+        main.setVendorId(20L);
+        main.setVendorNameSnapshot("杭州供应商");
+
+        PurchaseOrderSaveDTO saveDTO = new PurchaseOrderSaveDTO();
+        saveDTO.setCorpid("corp-001");
+        saveDTO.setUserId("user-001");
+        saveDTO.setMain(main);
+        Long savedId = service.save(saveDTO);
+
+        IdBaseDTO dto = new IdBaseDTO();
+        dto.setCorpid("corp-001");
+        dto.setId(savedId);
+
+        var result = service.updateItem(dto);
+
+        assertNotNull(result.getHeadList());
+        assertFalse(result.getHeadList().isEmpty());
+        assertEquals("main.purchaseOrgId", result.getHeadList().get(0).getAttr());
+        assertNotNull(result.getData());
+        assertEquals("PO-UPD-001", result.getData().getMain().getOrderNo());
     }
 
     @Test
@@ -110,6 +195,31 @@ class PurchaseMainSaveDefaultsServiceTest {
     }
 
     @Test
+    void should_not_throw_when_delete_purchase_request_with_legacy_constructor_and_null_item_repository() {
+        InMemoryPurchaseRequestRepository repository = new InMemoryPurchaseRequestRepository();
+        PurchaseRequestAdminAppServiceImpl service = new PurchaseRequestAdminAppServiceImpl(repository);
+
+        PurchaseRequestMainDTO main = new PurchaseRequestMainDTO();
+        main.setPurchaseOrgId(10L);
+        main.setRequestNo("PR-DELETE-001");
+        main.setApplicantId("emp-001");
+
+        PurchaseRequestSaveDTO saveDTO = new PurchaseRequestSaveDTO();
+        saveDTO.setCorpid("corp-001");
+        saveDTO.setUserId("user-001");
+        saveDTO.setMain(main);
+        Long savedId = service.save(saveDTO);
+
+        BatchBaseDTO deleteDTO = new BatchBaseDTO();
+        deleteDTO.setCorpid("corp-001");
+        deleteDTO.setUserId("user-001");
+        deleteDTO.setIdList(java.util.List.of(savedId));
+
+        assertDoesNotThrow(() -> service.delete(deleteDTO));
+        assertEquals(0, repository.all().size());
+    }
+
+    @Test
     void should_apply_insert_defaults_for_purchase_request() {
         InMemoryPurchaseRequestRepository repository = new InMemoryPurchaseRequestRepository();
         PurchaseRequestAdminAppServiceImpl service = new PurchaseRequestAdminAppServiceImpl(repository);
@@ -128,7 +238,12 @@ class PurchaseMainSaveDefaultsServiceTest {
         PurchaseRequest saved = repository.all().get(0);
 
         assertEquals(savedId, saved.getId());
+        assertEquals("manual", saved.getSourceType());
         assertEquals("1", saved.getBizStatus());
+        assertEquals("pending", saved.getApprovalStatus());
+        assertNotNull(saved.getGrossAmount());
+        assertNotNull(saved.getNetAmount());
+        assertNotNull(saved.getTaxAmount());
         assertEquals(0, saved.getVersion());
         assertEquals(0, saved.getDeleted());
         assertEquals("user-001", saved.getCreatorId());
@@ -171,6 +286,32 @@ class PurchaseMainSaveDefaultsServiceTest {
     }
 
     @Test
+    void should_not_throw_when_delete_purchase_order_with_legacy_constructor_and_null_item_repository() {
+        InMemoryPurchaseOrderRepository repository = new InMemoryPurchaseOrderRepository();
+        PurchaseOrderAdminAppServiceImpl service = new PurchaseOrderAdminAppServiceImpl(repository);
+
+        PurchaseOrderMainDTO main = new PurchaseOrderMainDTO();
+        main.setPurchaseOrgId(10L);
+        main.setOrderNo("PO-DELETE-001");
+        main.setVendorId(20L);
+        main.setVendorNameSnapshot("杭州供应商");
+
+        PurchaseOrderSaveDTO saveDTO = new PurchaseOrderSaveDTO();
+        saveDTO.setCorpid("corp-001");
+        saveDTO.setUserId("user-001");
+        saveDTO.setMain(main);
+        Long savedId = service.save(saveDTO);
+
+        BatchBaseDTO deleteDTO = new BatchBaseDTO();
+        deleteDTO.setCorpid("corp-001");
+        deleteDTO.setUserId("user-001");
+        deleteDTO.setIdList(java.util.List.of(savedId));
+
+        assertDoesNotThrow(() -> service.delete(deleteDTO));
+        assertEquals(0, repository.all().size());
+    }
+
+    @Test
     void should_apply_insert_defaults_for_purchase_order() {
         InMemoryPurchaseOrderRepository repository = new InMemoryPurchaseOrderRepository();
         PurchaseOrderAdminAppServiceImpl service = new PurchaseOrderAdminAppServiceImpl(repository);
@@ -190,7 +331,19 @@ class PurchaseMainSaveDefaultsServiceTest {
         PurchaseOrder saved = repository.all().get(0);
 
         assertEquals(savedId, saved.getId());
+        assertEquals("PO-001", saved.getOrderNo());
+        assertEquals("杭州供应商", saved.getVendorNameSnapshot());
+        assertEquals("CNY", saved.getCurrencyCode());
         assertEquals("1", saved.getBizStatus());
+        assertEquals("pending", saved.getApprovalStatus());
+        assertEquals("pending", saved.getExecutionStatus());
+        assertEquals("pending", saved.getReceiptStatus());
+        assertEquals("pending", saved.getInboundStatus());
+        assertEquals("pending", saved.getPayableStatus());
+        assertEquals("pending", saved.getInvoiceStatus());
+        assertEquals("pending", saved.getPaymentStatus());
+        assertNotNull(saved.getGrossAmount());
+        assertNotNull(saved.getInvoicedAmountSummary());
         assertEquals(0, saved.getVersion());
         assertEquals(0, saved.getDeleted());
         assertEquals("user-001", saved.getCreatorId());

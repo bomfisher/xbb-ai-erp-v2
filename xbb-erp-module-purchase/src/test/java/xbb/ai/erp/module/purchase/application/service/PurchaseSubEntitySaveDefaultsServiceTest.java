@@ -184,6 +184,10 @@ class PurchaseSubEntitySaveDefaultsServiceTest {
         service.save(dto);
         PurchaseRequestItem saved = repository.all().get(0);
 
+        assertEquals("MOCK", saved.getSkuCodeSnapshot());
+        assertEquals("MOCK", saved.getSkuNameSnapshot());
+        assertEquals(0L, saved.getPurchaseUnitId());
+        assertNotNull(saved.getRequestQty());
         assertEquals(0, saved.getVersion());
         assertEquals(0, saved.getDeleted());
         assertEquals("user-001", saved.getCreatorId());
@@ -211,6 +215,11 @@ class PurchaseSubEntitySaveDefaultsServiceTest {
         service.save(dto);
         PurchaseOrderItem saved = repository.all().get(0);
 
+        assertEquals("MOCK", saved.getSkuCodeSnapshot());
+        assertEquals("MOCK", saved.getSkuNameSnapshot());
+        assertEquals(0L, saved.getPurchaseUnitId());
+        assertNotNull(saved.getOrderQty());
+        assertNotNull(saved.getTaxRate());
         assertEquals(0, saved.getVersion());
         assertEquals(0, saved.getDeleted());
         assertEquals("user-001", saved.getCreatorId());
@@ -239,6 +248,9 @@ class PurchaseSubEntitySaveDefaultsServiceTest {
         service.save(dto);
         PurchasePendingTask saved = repository.all().get(0);
 
+        assertEquals("manual", saved.getSourceType());
+        assertEquals("MOCK", saved.getSkuCodeSnapshot());
+        assertEquals("MOCK", saved.getSkuNameSnapshot());
         assertEquals("OPEN", saved.getTaskStatus());
         assertEquals(0, saved.getVersion());
         assertEquals(0, saved.getDeleted());
@@ -269,6 +281,9 @@ class PurchaseSubEntitySaveDefaultsServiceTest {
         service.save(dto);
         PurchaseSourceRelation saved = repository.all().get(0);
 
+        assertEquals("REQUEST", saved.getSourceDocType());
+        assertEquals("ORDER", saved.getTargetDocType());
+        assertNotNull(saved.getReservedQty());
         assertEquals("LINKED", saved.getRelationStatus());
         assertEquals(0, saved.getVersion());
         assertEquals(0, saved.getDeleted());

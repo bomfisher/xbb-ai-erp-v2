@@ -2,11 +2,11 @@ package xbb.ai.erp.module.purchase.admin.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import xbb.ai.erp.base.common.dto.BaseDTO;
+import xbb.ai.erp.base.common.dto.ListBaseDTO;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
-public class PurchasePendingTaskListDTO extends BaseDTO {
+public class PurchasePendingTaskListDTO extends ListBaseDTO {
     private Long id;
     private String corpid;
     private Long purchaseOrgId;

@@ -1,50 +1,58 @@
 package xbb.ai.erp.module.product.admin;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import xbb.ai.erp.base.common.dto.BaseDTO;
+import xbb.ai.erp.base.common.dto.BatchBaseDTO;
+import xbb.ai.erp.base.common.dto.IdBaseDTO;
+import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.ResultVO;
-import xbb.ai.erp.module.product.admin.dto.ProductBrandCreateDTO;
+import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.product.admin.dto.ProductBrandListDTO;
-import xbb.ai.erp.module.product.admin.dto.ProductBrandUpdateDTO;
+import xbb.ai.erp.module.product.admin.dto.ProductBrandSaveDTO;
+import xbb.ai.erp.module.product.admin.vo.ProductBrandDetailVO;
+import xbb.ai.erp.module.product.admin.vo.ProductBrandSaveItemVO;
 import xbb.ai.erp.module.product.admin.vo.ProductBrandVO;
-import xbb.ai.erp.module.product.app.service.ProductBrandAppService;
-
-import java.util.List;
+import xbb.ai.erp.module.product.application.service.ProductBrandAdminAppService;
 
 @RestController
 @RequestMapping("/erp/v1/product/brand")
 @RequiredArgsConstructor
 public class ProductBrandAdminController {
 
-    private final ProductBrandAppService productBrandAppService;
+    private final ProductBrandAdminAppService productBrandAdminAppService;
 
-    @PostMapping("/create")
-    public ResultVO<Long> create(ProductBrandCreateDTO dto) {
-        return ResultVO.success(productBrandAppService.create(dto));
+    @PostMapping("/list")
+    public ResultVO<ListBaseVO<ProductBrandVO>> list(@RequestBody ProductBrandListDTO dto) {
+        return ResultVO.success(productBrandAdminAppService.list(dto));
     }
 
-    @PostMapping("/update")
-    public ResultVO<Boolean> update(ProductBrandUpdateDTO dto) {
-        productBrandAppService.update(dto);
-        return ResultVO.success(Boolean.TRUE);
+    @PostMapping("/addItem")
+    public ResultVO<SaveItemVO<ProductBrandSaveItemVO>> addItem(@RequestBody BaseDTO dto) {
+        return ResultVO.success(productBrandAdminAppService.addItem(dto));
     }
 
-    @PostMapping("/remove")
-    public ResultVO<Boolean> remove(ProductBrandUpdateDTO dto) {
-        productBrandAppService.remove(dto.getCorpid(), dto.getId(), dto.getUserId());
-        return ResultVO.success(Boolean.TRUE);
+    @PostMapping("/updateItem")
+    public ResultVO<SaveItemVO<ProductBrandSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(productBrandAdminAppService.updateItem(dto));
     }
 
-    @GetMapping("/detail")
-    public ResultVO<ProductBrandVO> detail(ProductBrandUpdateDTO dto) {
-        return ResultVO.success(productBrandAppService.detail(dto.getCorpid(), dto.getId()));
+    @PostMapping("/save")
+    public ResultVO<Long> save(@RequestBody ProductBrandSaveDTO dto) {
+        return ResultVO.success(productBrandAdminAppService.save(dto));
     }
 
-    @GetMapping("/list")
-    public ResultVO<List<ProductBrandVO>> list(ProductBrandListDTO dto) {
-        return ResultVO.success(productBrandAppService.list(dto));
+    @PostMapping("/detail")
+    public ResultVO<ProductBrandDetailVO> detail(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(productBrandAdminAppService.detail(dto));
+    }
+
+    @PostMapping("/delete")
+    public ResultVO<Void> delete(@RequestBody BatchBaseDTO dto) {
+        productBrandAdminAppService.delete(dto);
+        return ResultVO.success(null);
     }
 }

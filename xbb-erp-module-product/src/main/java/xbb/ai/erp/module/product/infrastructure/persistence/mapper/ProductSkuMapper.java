@@ -2,7 +2,6 @@ package xbb.ai.erp.module.product.infrastructure.persistence.mapper;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
-import xbb.ai.erp.module.product.admin.vo.ProductSpuSkuListVO;
 import xbb.ai.erp.module.product.infrastructure.persistence.po.ProductSkuPO;
 
 import java.util.List;
@@ -25,11 +24,9 @@ public interface ProductSkuMapper {
 
     ProductSkuPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
-    ProductSkuPO findBySpuId(@Param("corpid") String corpid, @Param("spuId") Long spuId);
+    List<ProductSkuPO> findBySpuId(@Param("corpid") String corpid, @Param("spuId") Long spuId);
 
     List<ProductSkuPO> findByCondition(Map<String, Object> condition);
-
-    List<ProductSpuSkuListVO> findSpuSkuList(Map<String, Object> condition);
 
     long count(Map<String, Object> condition);
 }

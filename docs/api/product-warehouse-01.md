@@ -3,7 +3,7 @@
 ## 文档说明
 - 模块：`xbb-erp-module-product`
 - 领域：`product-warehouse`
-- 统一返回：列表/表单接口直接返回 `ListBaseVO`、`SaveItemVO`、`WarehouseDetailVO` 或基础类型
+- 统一返回：所有接口均使用 `ResultVO.success(...)` 包装
 - 非脚本接口公共入参：`corpid`、`userId`
 - 文档中的 JSON 为示例报文，字段名与接口 DTO/VO 保持一致
 - 复杂字段、状态字段通过 `xxxComment` 字段补充说明
@@ -42,45 +42,50 @@
 - 响应 JSON
 ```json
 {
-  "headList": [
-    {
-      "attr": "bizOrgId",
-      "attrName": "业务组织",
-      "fieldType": "input-number",
-      "required": 1,
-      "editable": 1
-    },
-    {
-      "attr": "warehouseCode",
-      "attrName": "仓库编码",
-      "fieldType": "input",
-      "required": 1,
-      "editable": 1
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "headList": [
+      {
+        "attr": "bizOrgId",
+        "attrName": "业务组织",
+        "fieldType": "input-number",
+        "required": 1,
+        "editable": 1
+      },
+      {
+        "attr": "warehouseCode",
+        "attrName": "仓库编码",
+        "fieldType": "input",
+        "required": 1,
+        "editable": 1
+      }
+    ],
+    "list": [
+      {
+        "id": 1,
+        "bizOrgId": 10,
+        "warehouseCode": "WH-001",
+        "warehouseName": "杭州仓",
+        "warehouseType": "FINISHED",
+        "enableStatus": 1,
+        "address": "杭州市余杭区仓前街道XX路1号",
+        "managerId": "EMP0002",
+        "bizStatus": "ENABLED",
+        "addTime": 1721800000000,
+        "updateTime": 1721803600000,
+        "warehouseTypeComment": "FINISHED-成品仓",
+        "enableStatusComment": "1-启用",
+        "bizStatusComment": "ENABLED-正常"
+      }
+    ],
+    "pageHelper": {
+      "page": 1,
+      "count": 1,
+      "hasLeft": false,
+      "hasRight": false
     }
-  ],
-  "list": [
-    {
-      "id": 1,
-      "bizOrgId": 10,
-      "warehouseCode": "WH-001",
-      "warehouseName": "杭州仓",
-      "warehouseType": "FINISHED",
-      "enableStatus": 1,
-      "address": "杭州市余杭区仓前街道XX路1号",
-      "managerId": "EMP0002",
-      "bizStatus": "ENABLED",
-      "addTime": 1721800000000,
-      "updateTime": 1721803600000,
-      "warehouseTypeComment": "FINISHED-成品仓",
-      "enableStatusComment": "1-启用",
-      "bizStatusComment": "ENABLED-正常"
-    }
-  ],
-  "pageHelper": {
-    "page": 1,
-    "count": 1,
-    "hasLeft": false,
-    "hasRight": false
   }
 }
 ```
@@ -97,39 +102,44 @@
 - 响应 JSON
 ```json
 {
-  "headList": [
-    {
-      "attr": "bizOrgId",
-      "attrName": "业务组织",
-      "fieldType": "input-number",
-      "required": 1,
-      "editable": 1
-    },
-    {
-      "attr": "warehouseCode",
-      "attrName": "仓库编码",
-      "fieldType": "input",
-      "required": 1,
-      "editable": 1
-    }
-  ],
+  "code": 0,
+  "message": "success",
+  "success": true,
   "data": {
-    "main": {
-      "id": null,
-      "corpid": null,
-      "bizOrgId": null,
-      "warehouseCode": null,
-      "warehouseName": null,
-      "warehouseType": null,
-      "enableStatus": null,
-      "address": null,
-      "managerId": null,
-      "bizStatus": null,
-      "creatorId": null,
-      "modifyId": null,
-      "deleted": null,
-      "addTime": null,
-      "updateTime": null
+    "headList": [
+      {
+        "attr": "bizOrgId",
+        "attrName": "业务组织",
+        "fieldType": "input-number",
+        "required": 1,
+        "editable": 1
+      },
+      {
+        "attr": "warehouseCode",
+        "attrName": "仓库编码",
+        "fieldType": "input",
+        "required": 1,
+        "editable": 1
+      }
+    ],
+    "data": {
+      "main": {
+        "id": null,
+        "corpid": null,
+        "bizOrgId": null,
+        "warehouseCode": null,
+        "warehouseName": null,
+        "warehouseType": null,
+        "enableStatus": null,
+        "address": null,
+        "managerId": null,
+        "bizStatus": null,
+        "creatorId": null,
+        "modifyId": null,
+        "deleted": null,
+        "addTime": null,
+        "updateTime": null
+      }
     }
   }
 }
@@ -148,43 +158,48 @@
 - 响应 JSON
 ```json
 {
-  "headList": [
-    {
-      "attr": "bizOrgId",
-      "attrName": "业务组织",
-      "fieldType": "input-number",
-      "required": 1,
-      "editable": 1
-    },
-    {
-      "attr": "warehouseCode",
-      "attrName": "仓库编码",
-      "fieldType": "input",
-      "required": 1,
-      "editable": 1
-    }
-  ],
+  "code": 0,
+  "message": "success",
+  "success": true,
   "data": {
-    "main": {
-      "id": 1,
-      "corpid": "10001",
-      "bizOrgId": 10,
-      "warehouseCode": "WH-001",
-      "warehouseName": "杭州仓",
-      "warehouseType": "FINISHED",
-      "warehouseTypeComment": "FINISHED-成品仓",
-      "enableStatus": 1,
-      "enableStatusComment": "0-禁用，1-启用",
-      "address": "杭州市余杭区仓前街道XX路1号",
-      "managerId": "EMP0002",
-      "bizStatus": "ENABLED",
-      "bizStatusComment": "ENABLED-正常，DISABLED-停用",
-      "creatorId": "EMP0001",
-      "modifyId": "EMP0001",
-      "deleted": 0,
-      "deletedComment": "0-未删除，1-已删除",
-      "addTime": 1721800000000,
-      "updateTime": 1721803600000
+    "headList": [
+      {
+        "attr": "bizOrgId",
+        "attrName": "业务组织",
+        "fieldType": "input-number",
+        "required": 1,
+        "editable": 1
+      },
+      {
+        "attr": "warehouseCode",
+        "attrName": "仓库编码",
+        "fieldType": "input",
+        "required": 1,
+        "editable": 1
+      }
+    ],
+    "data": {
+      "main": {
+        "id": 1,
+        "corpid": "10001",
+        "bizOrgId": 10,
+        "warehouseCode": "WH-001",
+        "warehouseName": "杭州仓",
+        "warehouseType": "FINISHED",
+        "warehouseTypeComment": "FINISHED-成品仓",
+        "enableStatus": 1,
+        "enableStatusComment": "0-禁用，1-启用",
+        "address": "杭州市余杭区仓前街道XX路1号",
+        "managerId": "EMP0002",
+        "bizStatus": "ENABLED",
+        "bizStatusComment": "ENABLED-正常，DISABLED-停用",
+        "creatorId": "EMP0001",
+        "modifyId": "EMP0001",
+        "deleted": 0,
+        "deletedComment": "0-未删除，1-已删除",
+        "addTime": 1721800000000,
+        "updateTime": 1721803600000
+      }
     }
   }
 }
@@ -215,7 +230,12 @@
 ```
 - 响应 JSON
 ```json
-1
+{
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": 1
+}
 ```
 
 ## 5. 仓库详情
@@ -231,43 +251,48 @@
 - 响应 JSON
 ```json
 {
-  "headList": [
-    {
-      "attr": "bizOrgId",
-      "attrName": "业务组织",
-      "fieldType": "input-number",
-      "required": 1,
-      "editable": 1
-    },
-    {
-      "attr": "warehouseCode",
-      "attrName": "仓库编码",
-      "fieldType": "input",
-      "required": 1,
-      "editable": 1
-    }
-  ],
-  "mainData": {
-    "main": {
-      "id": 1,
-      "corpid": "10001",
-      "bizOrgId": 10,
-      "warehouseCode": "WH-001",
-      "warehouseName": "杭州总仓",
-      "warehouseType": "FINISHED",
-      "warehouseTypeComment": "FINISHED-成品仓",
-      "enableStatus": 1,
-      "enableStatusComment": "0-禁用，1-启用",
-      "address": "杭州市余杭区仓前街道XX路99号",
-      "managerId": "EMP0002",
-      "bizStatus": "ENABLED",
-      "bizStatusComment": "ENABLED-正常，DISABLED-停用",
-      "creatorId": "EMP0001",
-      "modifyId": "EMP0003",
-      "deleted": 0,
-      "deletedComment": "0-未删除，1-已删除",
-      "addTime": 1721800000000,
-      "updateTime": 1721807200000
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": {
+    "headList": [
+      {
+        "attr": "bizOrgId",
+        "attrName": "业务组织",
+        "fieldType": "input-number",
+        "required": 1,
+        "editable": 1
+      },
+      {
+        "attr": "warehouseCode",
+        "attrName": "仓库编码",
+        "fieldType": "input",
+        "required": 1,
+        "editable": 1
+      }
+    ],
+    "mainData": {
+      "main": {
+        "id": 1,
+        "corpid": "10001",
+        "bizOrgId": 10,
+        "warehouseCode": "WH-001",
+        "warehouseName": "杭州总仓",
+        "warehouseType": "FINISHED",
+        "warehouseTypeComment": "FINISHED-成品仓",
+        "enableStatus": 1,
+        "enableStatusComment": "0-禁用，1-启用",
+        "address": "杭州市余杭区仓前街道XX路99号",
+        "managerId": "EMP0002",
+        "bizStatus": "ENABLED",
+        "bizStatusComment": "ENABLED-正常，DISABLED-停用",
+        "creatorId": "EMP0001",
+        "modifyId": "EMP0003",
+        "deleted": 0,
+        "deletedComment": "0-未删除，1-已删除",
+        "addTime": 1721800000000,
+        "updateTime": 1721807200000
+      }
     }
   }
 }
@@ -289,5 +314,10 @@
 ```
 - 响应 JSON
 ```json
-null
+{
+  "code": 0,
+  "message": "success",
+  "success": true,
+  "data": null
+}
 ```

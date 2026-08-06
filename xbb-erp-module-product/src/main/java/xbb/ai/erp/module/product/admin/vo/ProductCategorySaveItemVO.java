@@ -1,0 +1,10 @@
+package xbb.ai.erp.module.product.admin.vo;
+
+import lombok.Data;
+import xbb.ai.erp.module.product.admin.dto.ProductCategoryMainDTO;
+
+@Data
+public class ProductCategorySaveItemVO {
+
+    private ProductCategoryMainDTO main;
+}

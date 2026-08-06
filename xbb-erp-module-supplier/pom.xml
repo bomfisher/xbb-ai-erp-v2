@@ -29,6 +29,16 @@
             <version>${project.version}</version>
         </dependency>
         <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-common</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-org</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
             <scope>provided</scope>

@@ -3,7 +3,6 @@ package xbb.ai.erp.module.product.infrastructure.persistence.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import xbb.ai.erp.base.idgen.IdGenerator;
-import xbb.ai.erp.module.product.admin.vo.ProductSpuSkuListVO;
 import xbb.ai.erp.module.product.domain.model.ProductSku;
 import xbb.ai.erp.module.product.domain.repository.ProductSkuRepository;
 import xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductSkuMapper;
@@ -58,18 +57,13 @@ public class ProductSkuRepositoryImpl implements ProductSkuRepository {
     }
 
     @Override
-    public ProductSku findBySpuId(String corpid, Long spuId) {
-        return toDomain(productSkuMapper.findBySpuId(corpid, spuId));
+    public List<ProductSku> findBySpuId(String corpid, Long spuId) {
+        return productSkuMapper.findBySpuId(corpid, spuId).stream().map(this::toDomain).collect(Collectors.toList());
     }
 
     @Override
     public List<ProductSku> findByCondition(Map<String, Object> condition) {
         return productSkuMapper.findByCondition(condition).stream().map(this::toDomain).collect(Collectors.toList());
-    }
-
-    @Override
-    public List<ProductSpuSkuListVO> findSpuSkuList(Map<String, Object> condition) {
-        return productSkuMapper.findSpuSkuList(condition);
     }
 
     @Override

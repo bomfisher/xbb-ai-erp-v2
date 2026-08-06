@@ -3,15 +3,15 @@ package xbb.ai.erp.codegen.cli;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import xbb.ai.erp.codegen.generator.CodeGenerator;
+import xbb.ai.erp.codegen.generator.DddFilePlan;
+import xbb.ai.erp.codegen.generator.DddGenerationContext;
+import xbb.ai.erp.codegen.generator.DddGenerationReport;
+import xbb.ai.erp.codegen.generator.DddModuleLayoutPlanner;
 import xbb.ai.erp.codegen.spec.AggregateSpec;
 import xbb.ai.erp.codegen.spec.FieldSpec;
-import xbb.ai.erp.codegen.spec.FileSlotEnum;
 import xbb.ai.erp.codegen.spec.GenerateSpec;
 import xbb.ai.erp.codegen.spec.ModuleSpec;
-import xbb.ai.erp.codegen.spec.PathStrategyLoader;
-import xbb.ai.erp.codegen.spec.PathStrategySpec;
 import xbb.ai.erp.codegen.spec.SpecValidator;
-import xbb.ai.erp.codegen.strategy.PathResolver;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -58,7 +58,6 @@ public class DbTableCodegenCli {
         System.out.println("moduleCode=" + MODULE_CODE);
         System.out.println("packageBase=" + PACKAGE_BASE);
 
-        PathStrategySpec pathStrategySpec = new PathStrategyLoader().loadPreset("ddd-mybatis-plus");
         CodeGenerator codeGenerator = new CodeGenerator();
         int yamlSuccess = 0;
         int codegenSuccess = 0;
@@ -74,7 +73,7 @@ public class DbTableCodegenCli {
                     System.out.println("generated yaml: " + yamlPath.toAbsolutePath());
 
                     ModuleSpec moduleSpec = new SpecValidatorAwareModuleSpecLoader().load(yamlPath);
-                    boolean generated = generateIfMapperXmlMissing(CODE_OUTPUT_ROOT, moduleSpec, pathStrategySpec, codeGenerator);
+                    boolean generated = generateToModuleRoot(CODE_OUTPUT_ROOT, moduleSpec, codeGenerator);
                     if (generated) {
                         codegenSuccess++;
                     } else {
@@ -103,17 +102,12 @@ public class DbTableCodegenCli {
         return yamlPath;
     }
 
-    public static boolean generateIfMapperXmlMissing(Path outputRoot, ModuleSpec moduleSpec, PathStrategySpec pathStrategySpec, CodeGenerator codeGenerator) throws IOException {
-        PathResolver pathResolver = new PathResolver();
-        Path mapperXmlPath = outputRoot.resolve(
-            pathResolver.resolveMapperXml(moduleSpec, pathStrategySpec, moduleSpec.getAggregate().getAggregateName() + "Mapper.xml").getRelativePath()
-        );
-        if (Files.exists(mapperXmlPath)) {
-            System.out.println("skip codegen, mapper xml exists: " + mapperXmlPath.toAbsolutePath());
-            return false;
-        }
-        codeGenerator.generate(outputRoot, moduleSpec, pathStrategySpec);
-        return true;
+    public static boolean generateToModuleRoot(Path moduleRootDir, ModuleSpec moduleSpec, CodeGenerator codeGenerator) throws Exception {
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        List<DddFilePlan> plans = new DddModuleLayoutPlanner().plan(context);
+        DddGenerationReport report = codeGenerator.generate(context, plans);
+        printReport(context, report);
+        return !report.generatedFiles().isEmpty();
     }
 
     static ModuleSpec toModuleSpec(TableMeta tableMeta, String moduleCode, String moduleName, String packageBase) {
@@ -246,6 +240,20 @@ public class DbTableCodegenCli {
             return "varchar";
         }
         return typeName.toLowerCase(Locale.ROOT);
+    }
+
+    private static void printReport(DddGenerationContext context, DddGenerationReport report) {
+        System.out.println("moduleRootDir=" + context.moduleRootDir().toAbsolutePath());
+        System.out.println("basePackage=" + context.basePackage());
+        System.out.println("aggregateName=" + context.aggregateName());
+        System.out.println("Created directories");
+        report.createdDirectories().forEach(path -> System.out.println("  + " + path.toAbsolutePath()));
+        System.out.println("Generated files");
+        report.generatedFiles().forEach(path -> System.out.println("  + " + path.toAbsolutePath()));
+        System.out.println("Skipped existing files");
+        report.skippedFiles().forEach(path -> System.out.println("  - " + path.toAbsolutePath()));
+        System.out.println("Failed files");
+        report.failedFiles().forEach(path -> System.out.println("  ! " + path.toAbsolutePath()));
     }
 
     private static final class SpecValidatorAwareModuleSpecLoader {

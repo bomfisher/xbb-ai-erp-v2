@@ -24,6 +24,7 @@
         <module>xbb-erp-module-customer</module>
         <module>xbb-erp-module-supplier</module>
         <module>xbb-erp-module-product</module>
+        <module>xbb-erp-module-org</module>
         <module>xbb-erp-module-purchase</module>
         <module>xbb-erp-app-admin</module>
         <module>xbb-erp-app-mobile</module>

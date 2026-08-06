@@ -1,52 +1,17 @@
-# customer-m.md
+# <主题标识>-m
 
-## 列表
+## <功能章节>
 
-### `/erp/v1/customer/list`
+### `<动作标识>`
 
-- 请求方式：`POST`
-- 入参：`CustomerListDTO`
-- 用途：返回客户列表数据与分页信息
+- 接口路径：`POST /erp/v1/...`
+- 用途：<一句话用途>
+- 差异点：<与同主题其他接口不同之处>
+- API 文档：`docs/api/endpoints/<domain>-<action>.md`
 
-#### 请求示例
+### `<动作标识>`
 
-```json
-{
-  "corpid": "corp-001",
-  "userId": "u-001",
-  "pageNum": 1,
-  "pageSize": 20
-}
-```
-
-#### 响应示例
-
-```json
-{
-  "list": [
-    {
-      "id": 1,
-      "customerCode": "CUST-001",
-      "customerName": "杭州客户"
-    }
-  ],
-  "pageHelper": {
-    "page": 1,
-    "count": 1,
-    "hasLeft": false,
-    "hasRight": false
-  }
-}
-```
-
-#### 参数说明
-
-- `corpid`：企业 ID
-- `userId`：员工 ID
-- `pageNum`：页码
-- `pageSize`：分页大小
-
-#### 规则说明
-
-- 仅在主文档维护完整请求与响应正文
-- 同类接口的横向归类交由次文档维护
+- 接口路径：`POST /erp/v1/...`
+- 用途：<一句话用途>
+- 差异点：<与同主题其他接口不同之处>
+- API 文档：`docs/api/endpoints/<domain>-<action>.md`

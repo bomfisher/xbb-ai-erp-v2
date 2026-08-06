@@ -8,7 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 class MapperRegistrationStructureTest {
 
     @Test
-    void should_mark_customer_purchase_and_product_mappers_with_mapper_annotation() throws Exception {
+    void should_mark_customer_purchase_product_and_supplier_mappers_with_mapper_annotation() throws Exception {
         assertHasMapperAnnotation("xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerContactMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.customer.infrastructure.persistence.mapper.CustomerAddressMapper");
@@ -26,6 +26,11 @@ class MapperRegistrationStructureTest {
         assertHasMapperAnnotation("xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductSkuMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.product.infrastructure.persistence.mapper.ProductUnitMapper");
         assertHasMapperAnnotation("xbb.ai.erp.module.product.infrastructure.persistence.mapper.WarehouseMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.supplier.infrastructure.persistence.mapper.SupplierMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.supplier.infrastructure.persistence.mapper.SupplierContactMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.supplier.infrastructure.persistence.mapper.SupplierAddressMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.supplier.infrastructure.persistence.mapper.SupplierBankAccountMapper");
+        assertHasMapperAnnotation("xbb.ai.erp.module.supplier.infrastructure.persistence.mapper.SupplierInvoiceProfileMapper");
     }
 
     private void assertHasMapperAnnotation(String className) throws Exception {

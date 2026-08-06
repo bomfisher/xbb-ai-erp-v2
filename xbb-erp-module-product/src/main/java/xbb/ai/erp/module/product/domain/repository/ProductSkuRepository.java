@@ -1,6 +1,5 @@
 package xbb.ai.erp.module.product.domain.repository;
 
-import xbb.ai.erp.module.product.admin.vo.ProductSpuSkuListVO;
 import xbb.ai.erp.module.product.domain.model.ProductSku;
 
 import java.util.List;
@@ -18,11 +17,9 @@ public interface ProductSkuRepository {
 
     ProductSku findById(String corpid, Long id);
 
-    ProductSku findBySpuId(String corpid, Long spuId);
+    List<ProductSku> findBySpuId(String corpid, Long spuId);
 
     List<ProductSku> findByCondition(Map<String, Object> condition);
-
-    List<ProductSpuSkuListVO> findSpuSkuList(Map<String, Object> condition);
 
     long count(Map<String, Object> condition);
 }

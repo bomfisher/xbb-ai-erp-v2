@@ -1,5 +1,6 @@
 package xbb.ai.erp.codegen.template;
 
+import xbb.ai.erp.codegen.generator.DddGenerationContext;
 import xbb.ai.erp.codegen.spec.FieldSpec;
 import xbb.ai.erp.codegen.spec.ModuleSpec;
 
@@ -8,6 +9,34 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TemplateRenderer {
+
+    public String render(TemplateType templateType, DddGenerationContext context) {
+        return switch (templateType) {
+            case ADMIN_CONTROLLER -> renderAdminController(context.moduleSpec());
+            case ADMIN_LIST_DTO -> renderListDTO(context.moduleSpec());
+            case ADMIN_MAIN_DTO -> renderMainDTO(context.moduleSpec());
+            case ADMIN_SAVE_DTO -> renderSaveDTO(context.moduleSpec());
+            case ADMIN_LIST_ITEM_VO -> renderListItemVO(context.moduleSpec());
+            case ADMIN_SAVE_ITEM_VO -> renderSaveItemVO(context.moduleSpec());
+            case ADMIN_DETAIL_VO -> renderDetailVO(context.moduleSpec());
+            case APP_SERVICE -> renderAppService(context.moduleSpec());
+            case APP_SERVICE_IMPL -> renderAppServiceImpl(context.moduleSpec());
+            case APP_QUERY_SERVICE_IMPL -> renderQueryAppServiceImpl(context.moduleSpec());
+            case APP_SAVE_SERVICE_IMPL -> renderSaveAppServiceImpl(context.moduleSpec());
+            case APP_ASSEMBLER -> renderAdminAssembler(context.moduleSpec());
+            case APP_VALIDATOR -> renderValidator(context.moduleSpec());
+            case APP_QUERY_POJO -> renderApplicationQueryPojo(context.moduleSpec());
+            case DOMAIN_MODEL -> renderDomainModel(context.moduleSpec());
+            case DOMAIN_REPOSITORY -> renderRepository(context.moduleSpec());
+            case DOMAIN_QUERY_POJO -> renderDomainQueryPojo(context.moduleSpec());
+            case PERSISTENCE_PO -> renderPO(context.moduleSpec());
+            case PERSISTENCE_MAPPER -> renderMapper(context.moduleSpec());
+            case PERSISTENCE_CONVERTOR -> renderConvertor(context.moduleSpec());
+            case PERSISTENCE_REPOSITORY_IMPL -> renderRepositoryImpl(context.moduleSpec());
+            case PERSISTENCE_CONDITION_MAP_HELPER -> renderConditionMapHelper(context.moduleSpec());
+            case MAPPER_XML -> renderMapperXml(context.moduleSpec());
+        };
+    }
 
     public String renderDomainModel(ModuleSpec moduleSpec) {
         String packageName = moduleSpec.getPackageBase() + ".domain.model";
@@ -247,6 +276,143 @@ public class TemplateRenderer {
             + "@Data\n"
             + "public class " + aggregateName + "DetailVO {\n"
             + "    private " + aggregateName + "SaveItemVO mainData;\n"
+            + "}\n";
+    }
+
+    public String renderQueryAppServiceImpl(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String variableName = lowerCamel(aggregateName);
+        String packageName = moduleSpec.getPackageBase() + ".application.service.query";
+        return "package " + packageName + ";\n\n"
+            + "import org.springframework.stereotype.Service;\n"
+            + "import xbb.ai.erp.base.common.dto.BaseDTO;\n"
+            + "import xbb.ai.erp.base.common.dto.IdBaseDTO;\n"
+            + "import xbb.ai.erp.base.common.support.AdminParamValidator;\n"
+            + "import xbb.ai.erp.base.common.vo.ListBaseVO;\n"
+            + "import xbb.ai.erp.base.common.vo.SaveItemVO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "ListDTO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DetailVO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "ListItemVO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "SaveItemVO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.assembler." + aggregateName + "AdminAssembler;\n"
+            + "import " + moduleSpec.getPackageBase() + ".domain.model." + aggregateName + ";\n"
+            + "import " + moduleSpec.getPackageBase() + ".domain.repository." + aggregateName + "Repository;\n\n"
+            + "import java.util.HashMap;\n"
+            + "import java.util.List;\n"
+            + "import java.util.Map;\n\n"
+            + "@Service\n"
+            + "public class " + aggregateName + "QueryAppServiceImpl {\n\n"
+            + "    private final " + aggregateName + "Repository " + variableName + "Repository;\n\n"
+            + "    public " + aggregateName + "QueryAppServiceImpl(" + aggregateName + "Repository " + variableName + "Repository) {\n"
+            + "        this." + variableName + "Repository = " + variableName + "Repository;\n"
+            + "    }\n\n"
+            + "    public ListBaseVO<" + aggregateName + "ListItemVO> list(" + aggregateName + "ListDTO dto) {\n"
+            + "        AdminParamValidator.requireCorpid(dto);\n"
+            + "        Map<String, Object> conditionMap = new HashMap<>();\n"
+            + "        conditionMap.put(\"corpid\", dto.getCorpid());\n"
+            + renderConditionMapLines(moduleSpec.getAggregate().getFields())
+            + "        conditionMap.put(\"pageNum\", dto.getPageNum());\n"
+            + "        conditionMap.put(\"pageSize\", dto.getPageSize());\n"
+            + "        conditionMap.put(\"offset\", dto.getOffset());\n"
+            + "        List<" + aggregateName + "> list = " + variableName + "Repository.findByCondition(conditionMap);\n"
+            + "        Long total = " + variableName + "Repository.count(conditionMap);\n"
+            + "        ListBaseVO<" + aggregateName + "ListItemVO> vo = new ListBaseVO<>();\n"
+            + "        vo.setList(list.stream().map(" + aggregateName + "AdminAssembler::toListItemVO).toList());\n"
+            + "        vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum() == null ? 1 : dto.getPageNum(), total == null ? 0 : total.intValue()));\n"
+            + "        return vo;\n"
+            + "    }\n\n"
+            + "    public SaveItemVO<" + aggregateName + "SaveItemVO> addItem(BaseDTO dto) {\n"
+            + "        SaveItemVO<" + aggregateName + "SaveItemVO> vo = new SaveItemVO<>();\n"
+            + "        vo.setData(" + aggregateName + "AdminAssembler.buildEmptySaveItemVO().getData());\n"
+            + "        return vo;\n"
+            + "    }\n\n"
+            + "    public SaveItemVO<" + aggregateName + "SaveItemVO> updateItem(IdBaseDTO dto) {\n"
+            + "        AdminParamValidator.validateIdQuery(dto);\n"
+            + "        " + aggregateName + " entity = " + variableName + "Repository.findById(dto.getCorpid(), dto.getId());\n"
+            + "        SaveItemVO<" + aggregateName + "SaveItemVO> vo = new SaveItemVO<>();\n"
+            + "        vo.setData(" + aggregateName + "AdminAssembler.toSaveItemVO(entity));\n"
+            + "        return vo;\n"
+            + "    }\n\n"
+            + "    public " + aggregateName + "DetailVO detail(IdBaseDTO dto) {\n"
+            + "        AdminParamValidator.validateIdQuery(dto);\n"
+            + "        " + aggregateName + " entity = " + variableName + "Repository.findById(dto.getCorpid(), dto.getId());\n"
+            + "        return " + aggregateName + "AdminAssembler.toDetailVO(" + aggregateName + "AdminAssembler.toSaveItemVO(entity));\n"
+            + "    }\n"
+            + "}\n";
+    }
+
+    public String renderSaveAppServiceImpl(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String variableName = lowerCamel(aggregateName);
+        String packageName = moduleSpec.getPackageBase() + ".application.service.save";
+        return "package " + packageName + ";\n\n"
+            + "import org.springframework.stereotype.Service;\n"
+            + "import xbb.ai.erp.base.common.support.AdminParamValidator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.assembler." + aggregateName + "AdminAssembler;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "Validator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".domain.model." + aggregateName + ";\n"
+            + "import " + moduleSpec.getPackageBase() + ".domain.repository." + aggregateName + "Repository;\n\n"
+            + "@Service\n"
+            + "public class " + aggregateName + "SaveAppServiceImpl {\n\n"
+            + "    private final " + aggregateName + "Repository " + variableName + "Repository;\n\n"
+            + "    public " + aggregateName + "SaveAppServiceImpl(" + aggregateName + "Repository " + variableName + "Repository) {\n"
+            + "        this." + variableName + "Repository = " + variableName + "Repository;\n"
+            + "    }\n\n"
+            + "    public Long save(" + aggregateName + "SaveDTO dto) {\n"
+            + "        AdminParamValidator.requireCorpid(dto);\n"
+            + "        " + aggregateName + "Validator.validateSave(dto);\n"
+            + "        " + aggregateName + " entity = " + aggregateName + "AdminAssembler.to" + aggregateName + "(dto);\n"
+            + "        if (entity.getId() == null) {\n"
+            + "            " + variableName + "Repository.insert(entity);\n"
+            + "        } else {\n"
+            + "            " + variableName + "Repository.update(entity);\n"
+            + "        }\n"
+            + "        return entity.getId();\n"
+            + "    }\n"
+            + "}\n";
+    }
+
+    public String renderValidator(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".application.validator";
+        return "package " + packageName + ";\n\n"
+            + "import xbb.ai.erp.base.common.exception.BizException;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n"
+            + "public final class " + aggregateName + "Validator {\n\n"
+            + "    private " + aggregateName + "Validator() {\n"
+            + "    }\n\n"
+            + "    public static void validateSave(" + aggregateName + "SaveDTO dto) {\n"
+            + "        if (dto == null) {\n"
+            + "            throw new BizException(\"save dto不能为空\");\n"
+            + "        }\n"
+            + "        if (dto.getMain() == null) {\n"
+            + "            throw new BizException(\"main不能为空\");\n"
+            + "        }\n"
+            + "    }\n"
+            + "}\n";
+    }
+
+    public String renderApplicationQueryPojo(ModuleSpec moduleSpec) {
+        return renderQueryPojo(moduleSpec, moduleSpec.getPackageBase() + ".application.pojo");
+    }
+
+    public String renderDomainQueryPojo(ModuleSpec moduleSpec) {
+        return renderQueryPojo(moduleSpec, moduleSpec.getPackageBase() + ".domain.pojo");
+    }
+
+    private String renderQueryPojo(ModuleSpec moduleSpec, String packageName) {
+        String aggregateName = aggregateName(moduleSpec);
+        return "package " + packageName + ";\n\n"
+            + "import lombok.Data;\n\n"
+            + "@Data\n"
+            + "public class " + aggregateName + "QueryPojo {\n"
+            + "    private String corpid;\n"
+            + "    private String keyword;\n"
+            + "    private Integer pageNum;\n"
+            + "    private Integer pageSize;\n"
+            + "    private Integer offset;\n"
+            + renderQueryableFields(moduleSpec.getAggregate().getFields())
             + "}\n";
     }
 

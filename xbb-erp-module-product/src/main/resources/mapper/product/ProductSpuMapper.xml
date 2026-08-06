@@ -41,6 +41,12 @@
             <if test="spuName != null and spuName != ''">
                 AND spu_name LIKE CONCAT('%', #{spuName}, '%')
             </if>
+            <if test="keyword != null and keyword != ''">
+                AND (
+                    spu_code LIKE CONCAT('%', #{keyword}, '%')
+                    OR spu_name LIKE CONCAT('%', #{keyword}, '%')
+                )
+            </if>
         </where>
     </sql>
 

@@ -4,8 +4,12 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PurchaseRequestSaveDTO extends BaseDTO {
     private PurchaseRequestMainDTO main;
+    private List<PurchaseRequestItemMainDTO> items = new ArrayList<>();
 }

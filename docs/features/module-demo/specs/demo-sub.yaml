@@ -1,0 +1,24 @@
+moduleCode: demo
+moduleName: DEMO下游
+packageBase: xbb.ai.erp.module.demo
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregate:
+  aggregateName: DemoSub
+  tableName: demo_sub
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: dataId, column: data_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: name, column: name, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: deleted, column: del, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: addTime, column: add_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: updateTime, column: update_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate:
+  admin: false
+  application: false
+  domain: true
+  persistence: true
+  xml: true

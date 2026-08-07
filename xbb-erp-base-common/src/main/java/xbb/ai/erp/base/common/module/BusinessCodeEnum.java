@@ -8,6 +8,8 @@ import lombok.Getter;
 @Getter
 public enum BusinessCodeEnum {
     CUSTOMER("CUSTOMER"),
+    DEMO("DEMO"),
+    DEMO_SUB("DEMO_SUB"),
     PRODUCT("PRODUCT"),
     SUPPLIER("SUPPLIER"),
     PURCHASE_REQUEST("PURCHASE_REQUEST"),

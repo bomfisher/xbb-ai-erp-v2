@@ -12,7 +12,7 @@ description: 按统一 DDD 结构交付任意 ERP 业务模块的列表、新建
 1. 阅读 `docs/harness/README.md`、`docs/harness/工程规则唯一事实源.md`、`docs/harness/文档地图.md`、`docs/guide/DDD业务模块开发指南.md`、`docs/guide/业务模块目录规范.md`，以及目标模块和相关 API 原子文档。
 2. 执行 `git status --short`，保护已有改动；先由用户决定是否创建 worktree。
 3. 以 `xbb-erp-module-customer/src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java` 的 HTTP 边界为唯一接口形态参考。
-4. 从开发设计、API 原子文档和已确认的字段设计整理字段元数据输入；缺少字段名称、字段类型、场景、筛选运算符、列表动作或业务编码时，先向开发者确认，禁止按列名、Java 类型或其他模块猜测。
+4. 从开发设计、API 原子文档和已确认的字段设计整理字段元数据输入；缺少字段名称、字段类型、场景、`filterName`、列表动作或业务编码时，先向开发者确认，禁止按列名、Java 类型或其他模块猜测。
 
 ## 字段元数据输入
 
@@ -28,11 +28,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
       "attrName": "订单编号",
       "fieldType": "TEXT",
       "scenes": ["LIST", "CREATE", "UPDATE"],
-      "filter": {
-        "column": "order_no",
-        "fieldType": "TEXT",
-        "symbols": ["EQ", "CONTAINS"]
-      }
+      "filterName": "order_no"
     }
   ],
   "listActions": {
@@ -44,8 +40,9 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 ```
 
 - `businessCode` 是 `BusinessCodeEnum` 的显式枚举值；若基础枚举不存在该值，先由开发者确认允许修改公共模块，不能自行发明。
-- 每个字段必须提供 `attr`、`attrName`、`fieldType` 和使用场景；需要动态筛选时必须显式提供数据库列、筛选字段类型和运算符白名单。
-- 没有 LIST、CREATE、UPDATE、筛选或按钮需求时，输入中必须显式写为空数组；“未提供”不等于“不需要”。
+- 每个字段必须提供 `attr`、`attrName`、`fieldType` 和使用场景；`filterName` 是服务端筛选白名单列名，填 `null` 表示不可筛选。
+- 筛选协议类型和 `symbols` 始终由 `fieldType` 的统一映射推导，设计文档和字段元数据不得重复维护；`FILE`、`IMAGE`、`ADDRESS`、`SUB_ITEM`、`PRODUCT` 必须使用 `filterName: null`。
+- 没有 LIST、CREATE、UPDATE、筛选或按钮需求时，输入中必须显式写为空数组或 `filterName: null`；“未提供”不等于“不需要”。
 
 ## 聚合与目录边界
 
@@ -86,6 +83,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 ## 脚本
 
 - `scripts/build_delivery_scope.py --module-code <domain> --root-spec <主表.yaml> --field-metadata <field-metadata.json> [--child-spec <从表.yaml> ...] --output <scope.json>`
+- `scripts/generate_field_metadata.rb <字段设计.yaml> <field-metadata.json>`
 - `scripts/validate_field_metadata.py <field-metadata.json>`
 - `scripts/validate_module_specs.py <主表.yaml> [从表.yaml ...]`
 - `scripts/run_codegen.py --project-root . <规格.yaml> [规格.yaml ...] [--apply]`

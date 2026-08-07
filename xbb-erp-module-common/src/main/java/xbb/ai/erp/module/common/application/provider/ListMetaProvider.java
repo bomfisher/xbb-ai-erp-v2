@@ -2,7 +2,7 @@ package xbb.ai.erp.module.common.application.provider;
 
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
-import xbb.ai.erp.module.common.admin.pojo.FilterField;
+import xbb.ai.erp.base.common.pojo.FilterField;
 import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;
 import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.pojo.ListMetaContextPojo;

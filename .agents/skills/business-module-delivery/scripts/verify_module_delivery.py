@@ -73,10 +73,10 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
         if "return List.of();" in provider_content or "return Map.of();" in provider_content:
             errors.append("ListMetaProvider 仍为空骨架，未生成明确字段元数据")
         for field in metadata["fields"]:
-            if "LIST" in field["scenes"] or field["filter"] is not None:
-                required_fragments = [field["attr"], field["attrName"]]
-                if field["filter"] is not None:
-                    required_fragments.extend((field["filter"]["column"], field["filter"]["fieldType"]))
+            if "LIST" in field["scenes"] or field["filterName"] is not None:
+                required_fragments = [field["attr"].split(".")[-1], field["attrName"]]
+                if field["filterName"] is not None:
+                    required_fragments.append(field["filterName"])
                 missing = [fragment for fragment in required_fragments if fragment not in provider_content]
                 if missing:
                     errors.append(f"ListMetaProvider 未覆盖 {field['name']}：{'、'.join(missing)}")

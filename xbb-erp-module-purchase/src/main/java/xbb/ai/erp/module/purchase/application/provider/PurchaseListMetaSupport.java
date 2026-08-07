@@ -3,9 +3,9 @@ package xbb.ai.erp.module.purchase.application.provider;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
-import xbb.ai.erp.module.common.admin.pojo.FilterField;
-import xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo;
-import xbb.ai.erp.module.common.admin.pojo.ListRowActionItemPojo;
+import xbb.ai.erp.base.common.pojo.FilterField;
+import xbb.ai.erp.base.common.pojo.ListButtonItemPojo;
+import xbb.ai.erp.base.common.pojo.ListRowActionItemPojo;
 import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;
 
 import java.util.Collections;

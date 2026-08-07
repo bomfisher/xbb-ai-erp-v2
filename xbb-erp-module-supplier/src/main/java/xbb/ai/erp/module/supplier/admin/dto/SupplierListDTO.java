@@ -3,7 +3,7 @@ package xbb.ai.erp.module.supplier.admin.dto;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import xbb.ai.erp.base.common.dto.BaseDTO;
-import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
+import xbb.ai.erp.base.common.pojo.ListFilterCondition;
 
 import java.util.List;
 

@@ -70,6 +70,13 @@
 
 ### xbb-erp-module-*
 
+#### xbb-erp-module-demo
+- 功能定位：DEMO 主从业务基础模块
+- 责任范围：`demo` 主表、`demo_item` 子档、`demo_sub` 下游关联的 DDD 领域与持久化骨架，主表提供列表、表单初始化、保存提交和草稿接口骨架
+- 当前表范围：`demo`、`demo_item`、`demo_sub`
+- 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/demo`
+- 不负责什么：不承载 OSS、地址高德、附件上传服务和下游业务完整流程
+
 #### xbb-erp-module-supplier
 - 功能定位：供应商管理业务模块
 - 责任范围：供应商主档、联系人、地址、银行账户、开票信息的 DDD 分层实现，包含后台管理端 query/save/delete/draft/submit 用例、仓储接口、持久层映射与数据库最终态 `supplier_*` 协议

@@ -9,6 +9,7 @@
 
 ## Agent 约束
 - 对话和代码注释使用中文；代码修改前主动询问是否创建 worktree。
+- 交付完整 ERP 功能或跨越需求规格、DDD 模块、代码生成、数据库迁移、接口文档和验证多个层次时，必须先使用 `.agents/skills/erp-feature-delivery/SKILL.md` 做总流程编排，再按需使用 `business-module-delivery` 与 `ddd-business-module-development`。
 - 完成开发后运行 `scripts/harness-verify.sh` 和相关测试；接口契约变化时执行 `.claude/commands/multi-player/SKILL.md`。
 - 不覆盖用户已有改动，不创建提交或分支，除非用户明确要求。
 - 禁用 SKILL `superpowers`。

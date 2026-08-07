@@ -22,6 +22,7 @@
         <module>xbb-erp-scene-meta</module>
         <module>xbb-erp-module-common</module>
         <module>xbb-erp-module-customer</module>
+        <module>xbb-erp-module-demo</module>
         <module>xbb-erp-module-supplier</module>
         <module>xbb-erp-module-product</module>
         <module>xbb-erp-module-org</module>

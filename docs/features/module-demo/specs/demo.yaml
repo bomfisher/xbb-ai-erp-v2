@@ -1,0 +1,35 @@
+moduleCode: demo
+moduleName: DEMO
+packageBase: xbb.ai.erp.module.demo
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregate:
+  aggregateName: Demo
+  tableName: demo
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: name, column: name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: userId, column: user_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: depId, column: dep_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: comb, column: comb, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: combMulti, column: comb_multi, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: numInt, column: num_int, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: numDouble, column: num_double, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: date, column: date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: time, column: time, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: file, column: file, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: image, column: image, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: address, column: address, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: deleted, column: del, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: addTime, column: add_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: updateTime, column: update_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+generate:
+  admin: true
+  application: true
+  domain: true
+  persistence: true
+  xml: true

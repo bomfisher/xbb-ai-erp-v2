@@ -37,7 +37,7 @@ class ListCommonControllerStructureTest {
     void should_define_button_vo_list_field() throws Exception {
         Class<?> topButtonVoClass = Class.forName("xbb.ai.erp.module.common.admin.vo.ListTopButtonVO");
         Class<?> bottomButtonVoClass = Class.forName("xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO");
-        Class<?> buttonItemClass = Class.forName("xbb.ai.erp.module.common.admin.pojo.ListButtonItemPojo");
+        Class<?> buttonItemClass = Class.forName("xbb.ai.erp.base.common.pojo.ListButtonItemPojo");
 
         Field topList = topButtonVoClass.getDeclaredField("list");
         Field bottomList = bottomButtonVoClass.getDeclaredField("list");

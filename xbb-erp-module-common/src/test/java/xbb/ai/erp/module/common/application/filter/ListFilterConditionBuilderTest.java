@@ -2,7 +2,7 @@ package xbb.ai.erp.module.common.application.filter;
 
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.exception.BizException;
-import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
+import xbb.ai.erp.base.common.pojo.ListFilterCondition;
 
 import java.util.List;
 import java.util.Map;

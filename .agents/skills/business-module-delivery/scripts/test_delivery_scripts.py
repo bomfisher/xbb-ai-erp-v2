@@ -40,11 +40,7 @@ def write_metadata(path: Path) -> None:
             "attrName": "订单编号",
             "fieldType": "TEXT",
             "scenes": ["LIST", "CREATE", "UPDATE"],
-            "filter": {
-                "column": "order_no",
-                "fieldType": "TEXT",
-                "symbols": ["EQ", "CONTAINS"],
-            },
+            "filterName": "order_no",
         }],
         "listActions": {
             "top": [{"actionCode": "ADD", "actionName": "新增"}],
@@ -82,6 +78,103 @@ class DeliveryScriptsTest(unittest.TestCase):
             )
             self.assertNotEqual(0, result.returncode)
             self.assertIn("请向开发者确认后补充", result.stderr)
+
+    def test_field_design_generator_derives_filter_rules_from_field_type(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            design = Path(temp_dir) / "field-design.yaml"
+            metadata = Path(temp_dir) / "field-metadata.json"
+            design.write_text(
+                """businessCode: SALES_ORDER
+fields:
+  - name: orderNo
+    attr: main.orderNo
+    attrName: 订单编号
+    fieldType: TEXT
+    scenes: [LIST, CREATE, UPDATE]
+    required: true
+    editable: true
+    defaultValue: null
+    filterName: order_no
+  - name: file
+    attr: main.file
+    attrName: 附件
+    fieldType: FILE
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+listActions:
+  top: []
+  bottom: []
+  row: []
+""",
+                encoding="utf-8",
+            )
+            subprocess.run(["ruby", str(SCRIPTS / "generate_field_metadata.rb"), str(design), str(metadata)], check=True)
+            generated = json.loads(metadata.read_text(encoding="utf-8"))
+            self.assertEqual("order_no", generated["fields"][0]["filterName"])
+            self.assertIsNone(generated["fields"][1]["filterName"])
+            subprocess.run(["python3", str(SCRIPTS / "validate_field_metadata.py"), str(metadata)], check=True)
+
+    def test_field_design_generator_preserves_type_specific_configuration(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            design = Path(temp_dir) / "field-design.yaml"
+            metadata = Path(temp_dir) / "field-metadata.json"
+            design.write_text(
+                """businessCode: SALES_ORDER
+fields:
+  - name: status
+    attr: main.status
+    attrName: 状态
+    fieldType: COMB
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: status
+    options: "0:禁用, 1:启用"
+  - name: productDataId
+    attr: main.productDataId
+    attrName: 产品
+    fieldType: BUSINESS
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+    businessCode: PRODUCT
+  - name: items
+    attr: items
+    attrName: 明细
+    fieldType: SUB_ITEM
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+    subFields:
+      - name: skuId
+        attr: skuId
+        attrName: 产品
+        fieldType: PRODUCT
+        scenes: [CREATE, UPDATE]
+        required: true
+        editable: true
+        defaultValue: null
+        filterName: null
+listActions:
+  top: []
+  bottom: []
+  row: []
+""",
+                encoding="utf-8",
+            )
+            subprocess.run(["ruby", str(SCRIPTS / "generate_field_metadata.rb"), str(design), str(metadata)], check=True)
+            generated = json.loads(metadata.read_text(encoding="utf-8"))
+            self.assertEqual("0:禁用, 1:启用", generated["fields"][0]["options"])
+            self.assertEqual("PRODUCT", generated["fields"][1]["businessCode"])
+            self.assertEqual("skuId", generated["fields"][2]["subFields"][0]["name"])
 
     def test_delivery_validator_accepts_complete_root_and_child(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

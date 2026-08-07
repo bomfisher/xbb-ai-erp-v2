@@ -12,6 +12,7 @@
         <option value="$PROJECT_DIR$/pom.xml" />
         <option value="$PROJECT_DIR$/xbb-erp-module-customer/pom.xml" />
         <option value="$PROJECT_DIR$/xbb-erp-module-common/pom.xml" />
+        <option value="$PROJECT_DIR$/../xbb-ai-erp-v2-front/pom.xml" />
       </list>
     </option>
   </component>

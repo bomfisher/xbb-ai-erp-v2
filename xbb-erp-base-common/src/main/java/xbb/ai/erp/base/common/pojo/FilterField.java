@@ -1,4 +1,4 @@
-package xbb.ai.erp.module.common.admin.pojo;
+package xbb.ai.erp.base.common.pojo;
 
 import lombok.Data;
 import xbb.ai.erp.base.common.filed.FieldEntity;

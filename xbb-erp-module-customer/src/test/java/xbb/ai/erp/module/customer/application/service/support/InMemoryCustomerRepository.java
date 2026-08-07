@@ -1,6 +1,6 @@
 package xbb.ai.erp.module.customer.application.service.support;
 
-import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
+import xbb.ai.erp.base.common.pojo.ListFilterCondition;
 import xbb.ai.erp.module.customer.domain.model.Customer;
 import xbb.ai.erp.module.customer.domain.pojo.CustomerQueryPojo;
 import xbb.ai.erp.module.customer.domain.repository.CustomerRepository;

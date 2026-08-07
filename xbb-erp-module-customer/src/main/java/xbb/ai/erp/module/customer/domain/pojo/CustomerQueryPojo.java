@@ -1,7 +1,7 @@
 package xbb.ai.erp.module.customer.domain.pojo;
 
 import lombok.Data;
-import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
+import xbb.ai.erp.base.common.pojo.ListFilterCondition;
 
 import java.util.List;
 

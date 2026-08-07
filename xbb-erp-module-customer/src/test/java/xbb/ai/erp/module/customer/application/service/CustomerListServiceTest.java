@@ -3,7 +3,7 @@ package xbb.ai.erp.module.customer.application.service;
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
-import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;
+import xbb.ai.erp.base.common.pojo.ListFilterCondition;
 import xbb.ai.erp.module.customer.admin.dto.CustomerListDTO;
 import xbb.ai.erp.module.customer.admin.vo.CustomerListItemVO;
 import xbb.ai.erp.module.customer.application.schema.CustomerListQueryAdapter;

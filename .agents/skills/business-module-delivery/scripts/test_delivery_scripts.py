@@ -142,7 +142,7 @@ fields:
     required: false
     editable: true
     defaultValue: null
-    filterName: null
+    filterName: data_id
     businessCode: PRODUCT
   - name: items
     attr: items
@@ -174,7 +174,9 @@ listActions:
             generated = json.loads(metadata.read_text(encoding="utf-8"))
             self.assertEqual("0:禁用, 1:启用", generated["fields"][0]["options"])
             self.assertEqual("PRODUCT", generated["fields"][1]["businessCode"])
+            self.assertEqual("data_id", generated["fields"][1]["filterName"])
             self.assertEqual("skuId", generated["fields"][2]["subFields"][0]["name"])
+            subprocess.run(["python3", str(SCRIPTS / "validate_field_metadata.py"), str(metadata)], check=True)
 
     def test_delivery_validator_accepts_complete_root_and_child(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -69,7 +69,7 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
     if not provider.is_file():
         errors.append(f"缺少列表元数据 Provider：{provider}")
     else:
-        provider_content = provider.read_text(encoding="utf-8")
+        provider_content = provider.read_text(encoding="utf-8") + "\n" + field_enum_content
         if "return List.of();" in provider_content or "return Map.of();" in provider_content:
             errors.append("ListMetaProvider 仍为空骨架，未生成明确字段元数据")
         for field in metadata["fields"]:
@@ -89,7 +89,7 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
 
 def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata: dict) -> list[str]:
     package_root = module_root / "src/main/java"
-    source_roots = list(package_root.glob("**/module/*"))
+    source_roots = list(package_root.glob("**/module/**"))
     matching_roots = [path for path in source_roots if (path / "admin").is_dir()]
     errors = []
     if len(matching_roots) != 1:
@@ -98,8 +98,8 @@ def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata:
     missing_directories = require_directories(source_root, ROOT_DIRECTORIES)
     if missing_directories:
         errors.append(f"ROOT 缺少职责目录：{'、'.join(missing_directories)}")
-    mapper_resources = module_root / "src/main/resources/mapper" / source_root.name
-    if not mapper_resources.is_dir() or not list(mapper_resources.glob("*Mapper.xml")):
+    mapper_root = module_root / "src/main/resources/mapper"
+    if not mapper_root.is_dir() or not list(mapper_root.glob("**/*Mapper.xml")):
         errors.append("ROOT 缺少 Mapper XML 资源目录或映射文件")
     controller = source_root / "admin" / f"{aggregate}AdminController.java"
     service = source_root / "application/service" / f"{aggregate}AdminAppService.java"
@@ -117,13 +117,16 @@ def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata:
             errors.append(f"Application Service 缺少七接口：{'、'.join(missing_methods)}")
     if not skip_tests and not (module_root / "src/test/java").is_dir():
         errors.append("缺少 src/test/java，未建立七接口相关测试目录")
+    repository_impl = source_root / "infrastructure/persistence/repository" / f"{aggregate}RepositoryImpl.java"
+    if not repository_impl.is_file() or "@Repository(\"" not in repository_impl.read_text(encoding="utf-8"):
+        errors.append("RepositoryImpl 必须声明模块级显式 Spring Bean 名，避免跨模块同名聚合冲突")
     errors.extend(validate_field_delivery(module_root, source_root, aggregate, metadata))
     return errors
 
 
 def validate_children(module_root: Path, children: list[str]) -> list[str]:
     package_root = module_root / "src/main/java"
-    source_roots = list(package_root.glob("**/module/*"))
+    source_roots = list(package_root.glob("**/module/**"))
     matching_roots = [path for path in source_roots if (path / "domain").is_dir()]
     if len(matching_roots) != 1:
         return [f"无法唯一定位从表模块 Java 根目录：{package_root}"]

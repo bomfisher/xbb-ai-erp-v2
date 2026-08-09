@@ -43,7 +43,7 @@ public class ProductBrandAdminAppServiceImpl implements ProductBrandAdminAppServ
         List<ProductBrandVO> list = productBrandRepository.findByCondition(condition).stream().map(ProductBrandAdminAssembler::toVO).toList();
         long total = productBrandRepository.count(condition);
         ListBaseVO<ProductBrandVO> vo = new ListBaseVO<>();
-        vo.setHeadList(ProductBrandFieldEnum.listHead());
+//        vo.setHeadList(ProductBrandFieldEnum.listHead());
         vo.setList(list);
         vo.setPageHelper(new ListBaseVO.PageHelper(resolvePage(dto.getOffset(), dto.getPageSize()), (int) total));
         return vo;

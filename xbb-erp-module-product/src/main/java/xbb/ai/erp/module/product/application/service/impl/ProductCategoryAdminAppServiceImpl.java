@@ -43,7 +43,7 @@ public class ProductCategoryAdminAppServiceImpl implements ProductCategoryAdminA
         List<ProductCategoryVO> list = productCategoryRepository.findByCondition(condition).stream().map(ProductCategoryAdminAssembler::toVO).toList();
         long total = productCategoryRepository.count(condition);
         ListBaseVO<ProductCategoryVO> vo = new ListBaseVO<>();
-        vo.setHeadList(ProductCategoryFieldEnum.listHead());
+//        vo.setHeadList(ProductCategoryFieldEnum.listHead());
         vo.setList(list);
         vo.setPageHelper(new ListBaseVO.PageHelper(resolvePage(dto.getOffset(), dto.getPageSize()), (int) total));
         return vo;

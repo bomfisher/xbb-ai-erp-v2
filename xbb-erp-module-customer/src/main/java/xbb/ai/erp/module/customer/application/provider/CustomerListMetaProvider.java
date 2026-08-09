@@ -77,7 +77,7 @@ public class CustomerListMetaProvider implements ListMetaProvider {
                 definition.attr(),
                 definition.column(),
                 definition.fieldType(),
-                Set.copyOf(definition.supportedSymbols())
+                    definition.supportedSymbols()
             ));
         }
         return Collections.unmodifiableMap(metaMap);

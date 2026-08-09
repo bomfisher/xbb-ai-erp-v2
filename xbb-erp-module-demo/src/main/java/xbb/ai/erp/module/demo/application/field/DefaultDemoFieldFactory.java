@@ -22,7 +22,7 @@ public class DefaultDemoFieldFactory implements DemoFieldFactory {
     }
 
     private DemoFieldMeta toMeta(DemoFieldEnum field) {
-        DemoFieldMeta meta = new DemoFieldMeta(field.getAttr(), field.getAttrName(), field.getFieldType(), 0, 1)
+        DemoFieldMeta meta = new DemoFieldMeta(field.getAttr(), field.getAttrName(), field.getFieldType(), field == DemoFieldEnum.NAME ? 1 : 0, 1)
             .withItemList(field.itemList());
         List<DemoFieldMeta> subFields = field.getSubFields().stream()
             .map(subField -> new DemoFieldMeta(

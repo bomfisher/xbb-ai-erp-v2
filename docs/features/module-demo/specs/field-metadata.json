@@ -11,7 +11,7 @@
         "CREATE",
         "UPDATE"
       ],
-      "required": false,
+      "required": true,
       "editable": true,
       "defaultValue": null,
       "filterName": "name"
@@ -60,7 +60,7 @@
       "editable": true,
       "defaultValue": null,
       "filterName": "comb",
-      "options": "1:信息1, 2:信息2"
+      "options": "0:禁用, 1:启用"
     },
     {
       "name": "comb_multi",
@@ -76,7 +76,7 @@
       "editable": true,
       "defaultValue": null,
       "filterName": null,
-      "options": "1:D信息1, 2:D信息2"
+      "options": "0:禁用1, 1:启用2"
     },
     {
       "name": "num_int",
@@ -227,44 +227,20 @@
       "editable": true,
       "defaultValue": null,
       "filterName": "modify_id"
-    },
-    {
-      "name": "demoItem",
-      "attr": "items",
-      "attrName": "明细",
-      "fieldType": "SUB_ITEM",
-      "scenes": [
-        "CREATE",
-        "UPDATE"
-      ],
-      "required": false,
-      "editable": true,
-      "defaultValue": null,
-      "filterName": null,
-      "subFields": [
-        {
-          "name": "name",
-          "attr": "name",
-          "attrName": "名称",
-          "fieldType": "TEXT",
-          "scenes": [
-            "CREATE",
-            "UPDATE"
-          ],
-          "required": true,
-          "editable": true,
-          "defaultValue": null,
-          "filterName": null
-        }
-      ]
     }
   ],
   "listActions": {
     "top": [
-
+      {
+        "actionCode": "ADD",
+        "actionName": "新建"
+      }
     ],
     "bottom": [
-
+      {
+        "actionCode": "DELETE",
+        "actionName": "删除"
+      }
     ],
     "row": [
 

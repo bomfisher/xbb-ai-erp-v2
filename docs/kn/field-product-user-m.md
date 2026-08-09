@@ -4,13 +4,14 @@
 
 ## 1. 适用范围
 
-本文用于在 ERP 业务模块新增或扩展动态表单、列表筛选和业务选择字段时，统一实现 `FieldTypeEnum.PRODUCT` 与 `FieldTypeEnum.USER`。
+本文用于在 ERP 业务模块新增或扩展动态表单、列表筛选和业务选择字段时，统一实现 `FieldTypeEnum.PRODUCT`、`FieldTypeEnum.USER` 与 `FieldTypeEnum.DEPT`。
 
 参考实现为 `FieldTypeEnum.BUSINESS_MULTI` 的业务选择交互，但两类字段不能只复制字段类型分支：
 
 | 字段类型 | 类型值 | 选择对象 | 前端渲染器 | 接口地址来源 |
 | --- | ---: | --- | --- | --- |
 | `USER` | `12` | 企业内启用且在职的员工 | `BusinessDataSelectField` | 后端 `businessSelectConfig` 或已注册 Provider |
+| `DEPT` | `14` | 企业内启用的部门 | `BusinessDataSelectField` | 后端 `businessSelectConfig` 或已注册 Provider |
 | `PRODUCT` | `50` | 产品/SPU/SKU，按业务上下文过滤 | `ProductDataSelectField` | 前端 `productSelectApi.ts` |
 | `BUSINESS_MULTI` | 当前枚举值为 `16` | 通用业务对象多选 | `BusinessDataSelectField` | 后端 `businessSelectConfig` |
 
@@ -95,6 +96,16 @@ field.setProductSelectConfig(config);
 | 快捷搜索 | `POST /erp/v1/org/memberSelect/quickSearch` | `data: BusinessSelectOption[]` |
 | 弹窗搜索 | `POST /erp/v1/org/memberSelect/dialogSearch` | `data: { list, pageHelper }` |
 | 按 ID 回显 | `POST /erp/v1/org/memberSelect/getById` | `data: BusinessSelectOption` 或 `null` |
+
+#### DEPT 接口
+
+| 能力 | 接口 | 返回值 |
+| --- | --- | --- |
+| 快捷搜索 | `POST /erp/v1/org/departmentSelect/quickSearch` | `data: BusinessSelectOption[]` |
+| 弹窗搜索 | `POST /erp/v1/org/departmentSelect/dialogSearch` | `data: { list, pageHelper }` |
+| 按 ID 回显 | `POST /erp/v1/org/departmentSelect/getById` | `data: BusinessSelectOption` 或 `null` |
+
+完整事实：`docs/api/endpoints/org-department-select-quick-search.md`、`docs/api/endpoints/org-department-select-dialog-search.md`、`docs/api/endpoints/org-department-select-get-by-id.md`。
 
 接口规则：
 

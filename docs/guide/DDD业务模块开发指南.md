@@ -83,7 +83,7 @@ infrastructure (PO、Mapper、Convertor、Repository 实现)
 
 ### 业务列表数据
 
-- `*ListDTO` 继承 `BaseDTO`，承载分页、关键词和动态 `conditions`；Controller 始终使用一个 DTO 接收请求。
+- 业务列表接口直接使用 `ListBaseDTO`，承载分页、关键词和动态 `conditions`；不得仅为这些公共字段重新生成 `*ListDTO`，Controller 始终使用一个 DTO 接收请求。
 - Query AppService 将 DTO 转成 `*QueryPojo`，Repository 返回领域模型，Assembler 再转换为 `*ListItemVO` 和 `ListBaseVO`。
 - 列表需要子档摘要时，先收集当前页主键，再按 `customerIds` 等批量条件一次查询并建 Map 回填；禁止在行循环中查询数据库。
 - 分页总数应通过 Repository 的 `count` 或数据库分页能力获得，不能因实现方便而把全量记录读入内存。

@@ -64,6 +64,8 @@ class CodeGeneratorTest {
         String providerContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/provider/CustomerListMetaProvider.java"));
         assertTrue(mapperContent.contains("import org.apache.ibatis.annotations.Mapper;"));
         assertTrue(mapperContent.contains("@Mapper\npublic interface CustomerMapper"));
+        String repositoryContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/repository/CustomerRepositoryImpl.java"));
+        assertTrue(repositoryContent.contains("@Repository(\"xbbAiErpModuleCustomerCustomerRepositoryImpl\")"));
         assertTrue(controllerContent.contains("@PostMapping(\"/saveDraft\")"));
         assertTrue(controllerContent.contains("@PostMapping(\"/saveAndSubmit\")"));
         assertTrue(controllerContent.contains("@PostMapping(\"/draftList\")"));

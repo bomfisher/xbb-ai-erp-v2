@@ -18,6 +18,7 @@ public class TemplateRenderer {
             case ADMIN_SAVE_DTO -> renderSaveDTO(context.moduleSpec());
             case ADMIN_SUBMIT_SAVE_DTO -> renderSubmitSaveDTO(context.moduleSpec());
             case ADMIN_DRAFT_SAVE_DTO -> renderDraftSaveDTO(context.moduleSpec());
+            case ADMIN_DRAFT_META_DTO -> renderDraftMetaDTO(context.moduleSpec());
             case ADMIN_DRAFT_LIST_DTO -> renderDraftListDTO(context.moduleSpec());
             case ADMIN_DRAFT_LOAD_DTO -> renderDraftLoadDTO(context.moduleSpec());
             case ADMIN_LIST_ITEM_VO -> renderListItemVO(context.moduleSpec());
@@ -32,6 +33,11 @@ public class TemplateRenderer {
             case APP_SAVE_SERVICE_IMPL -> renderSaveAppServiceImpl(context.moduleSpec());
             case APP_DRAFT_SERVICE -> renderDraftAppService(context.moduleSpec());
             case APP_DRAFT_SERVICE_IMPL -> renderDraftAppServiceImpl(context.moduleSpec());
+            case APP_DRAFT_REPOSITORY -> renderDraftRepository(context.moduleSpec());
+            case APP_DRAFT_POJO -> renderDraftPojo(context.moduleSpec());
+            case APP_SAVE_PROTOCOL_VALIDATOR -> renderSaveProtocolValidator(context.moduleSpec());
+            case APP_SAVE_COMMON_VALIDATOR -> renderSaveCommonValidator(context.moduleSpec());
+            case APP_SAVE_BUSINESS_VALIDATOR -> renderSaveBusinessValidator(context.moduleSpec());
             case APP_ASSEMBLER -> renderAdminAssembler(context.moduleSpec());
             case APP_VALIDATOR -> renderValidator(context.moduleSpec());
             case APP_QUERY_POJO -> renderApplicationQueryPojo(context.moduleSpec());
@@ -43,6 +49,7 @@ public class TemplateRenderer {
             case PERSISTENCE_MAPPER -> renderMapper(context.moduleSpec());
             case PERSISTENCE_CONVERTOR -> renderConvertor(context.moduleSpec());
             case PERSISTENCE_REPOSITORY_IMPL -> renderRepositoryImpl(context.moduleSpec());
+            case PERSISTENCE_DRAFT_REPOSITORY_IMPL -> renderDraftRepositoryImpl(context.moduleSpec());
             case PERSISTENCE_CONDITION_MAP_HELPER -> renderConditionMapHelper(context.moduleSpec());
             case MAPPER_XML -> renderMapperXml(context.moduleSpec());
         };
@@ -171,7 +178,7 @@ public class TemplateRenderer {
             + "import " + moduleSpec.getPackageBase() + ".infrastructure.persistence.po." + aggregateName + "PO;\n\n"
             + "import java.util.List;\n"
             + "import java.util.Map;\n\n"
-            + "@Repository\n"
+            + "@Repository(\"" + repositoryBeanName(moduleSpec, aggregateName) + "\")\n"
             + "@RequiredArgsConstructor\n"
             + "public class " + aggregateName + "RepositoryImpl implements " + aggregateName + "Repository {\n\n"
             + "    private final " + aggregateName + "Mapper " + variableName + "Mapper;\n\n"
@@ -269,6 +276,7 @@ public class TemplateRenderer {
             + "@Data\n"
             + "@EqualsAndHashCode(callSuper = true)\n"
             + "public class " + aggregateName + "SubmitSaveDTO extends " + aggregateName + "SaveDTO {\n"
+            + "    private " + aggregateName + "DraftMetaDTO draftMeta = new " + aggregateName + "DraftMetaDTO();\n"
             + "}\n";
     }
 
@@ -281,6 +289,17 @@ public class TemplateRenderer {
             + "@Data\n"
             + "@EqualsAndHashCode(callSuper = true)\n"
             + "public class " + aggregateName + "DraftSaveDTO extends " + aggregateName + "SaveDTO {\n"
+            + "    private " + aggregateName + "DraftMetaDTO draftMeta = new " + aggregateName + "DraftMetaDTO();\n"
+            + "}\n";
+    }
+
+    public String renderDraftMetaDTO(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".admin.dto";
+        return "package " + packageName + ";\n\n"
+            + "import lombok.Data;\n\n"
+            + "@Data\n"
+            + "public class " + aggregateName + "DraftMetaDTO {\n"
             + "    private String draftCode;\n"
             + "    private String draftTitle;\n"
             + "}\n";
@@ -379,7 +398,10 @@ public class TemplateRenderer {
         String variableName = lowerCamel(aggregateName);
         String packageName = moduleSpec.getPackageBase() + ".application.service.query";
         return "package " + packageName + ";\n\n"
+            + "import lombok.RequiredArgsConstructor;\n"
             + "import org.springframework.stereotype.Service;\n"
+            + "import org.springframework.transaction.annotation.Transactional;\n"
+            + "import xbb.ai.erp.base.common.vo.BaseVO;\n"
             + "import xbb.ai.erp.base.common.dto.BaseDTO;\n"
             + "import xbb.ai.erp.base.common.dto.IdBaseDTO;\n"
             + "import xbb.ai.erp.base.common.support.AdminParamValidator;\n"
@@ -445,15 +467,31 @@ public class TemplateRenderer {
             + "import org.springframework.stereotype.Service;\n"
             + "import xbb.ai.erp.base.common.support.AdminParamValidator;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SubmitSaveDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.assembler." + aggregateName + "AdminAssembler;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "Validator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.port." + aggregateName + "DraftRepository;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "SaveProtocolValidator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "SaveCommonValidator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "SaveBusinessValidator;\n"
             + "import " + moduleSpec.getPackageBase() + ".domain.model." + aggregateName + ";\n"
             + "import " + moduleSpec.getPackageBase() + ".domain.repository." + aggregateName + "Repository;\n\n"
             + "@Service\n"
+            + "@RequiredArgsConstructor\n"
             + "public class " + aggregateName + "SaveAppServiceImpl {\n\n"
             + "    private final " + aggregateName + "Repository " + variableName + "Repository;\n\n"
-            + "    public " + aggregateName + "SaveAppServiceImpl(" + aggregateName + "Repository " + variableName + "Repository) {\n"
-            + "        this." + variableName + "Repository = " + variableName + "Repository;\n"
+            + "    private final " + aggregateName + "DraftRepository draftRepository;\n"
+            + "    private final " + aggregateName + "SaveProtocolValidator protocolValidator;\n"
+            + "    private final " + aggregateName + "SaveCommonValidator commonValidator;\n"
+            + "    private final " + aggregateName + "SaveBusinessValidator businessValidator;\n\n"
+            + "    @Transactional\n"
+            + "    public BaseVO saveAndSubmit(" + aggregateName + "SubmitSaveDTO dto) {\n"
+            + "        protocolValidator.validate(dto);\n"
+            + "        commonValidator.validateForSubmit(dto);\n"
+            + "        businessValidator.validateForSubmit(dto);\n"
+            + "        save(dto);\n"
+            + "        if (dto.getDraftMeta() != null && dto.getDraftMeta().getDraftCode() != null) draftRepository.removeDraft(dto.getCorpid(), dto.getDraftMeta().getDraftCode());\n"
+            + "        return new BaseVO();\n"
             + "    }\n\n"
             + "    public Long save(" + aggregateName + "SaveDTO dto) {\n"
             + "        AdminParamValidator.requireCorpid(dto);\n"
@@ -473,7 +511,6 @@ public class TemplateRenderer {
         String aggregateName = aggregateName(moduleSpec);
         String packageName = moduleSpec.getPackageBase() + ".application.validator";
         return "package " + packageName + ";\n\n"
-            + "import xbb.ai.erp.base.common.exception.BizException;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n"
             + "public final class " + aggregateName + "Validator {\n\n"
             + "    private " + aggregateName + "Validator() {\n"
@@ -532,7 +569,7 @@ public class TemplateRenderer {
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DetailVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "ListItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "SaveItemVO;\n\n"
-            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftSaveVO;\n"
+            + "import xbb.ai.erp.base.common.vo.DraftSaveVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftListItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftDetailVO;\n\n"
             + "import java.util.List;\n\n"
@@ -576,17 +613,19 @@ public class TemplateRenderer {
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftSaveVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftListItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftDetailVO;\n"
-            + "import " + moduleSpec.getPackageBase() + ".application.assembler." + aggregateName + "AdminAssembler;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.service." + aggregateName + "AdminAppService;\n"
-            + "import " + moduleSpec.getPackageBase() + ".domain.model." + aggregateName + ";\n"
-            + "import " + moduleSpec.getPackageBase() + ".domain.repository." + aggregateName + "Repository;\n\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.service.draft." + aggregateName + "DraftAppService;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.service.query." + aggregateName + "QueryAppServiceImpl;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.service.save." + aggregateName + "SaveAppServiceImpl;\n\n"
             + "import java.util.HashMap;\n"
             + "import java.util.List;\n"
             + "import java.util.Map;\n\n"
             + "@Service\n"
             + "@RequiredArgsConstructor\n"
             + "public class " + aggregateName + "AdminAppServiceImpl implements " + aggregateName + "AdminAppService {\n\n"
-            + "    private final " + aggregateName + "Repository " + variableName + "Repository;\n\n"
+            + "    private final " + aggregateName + "QueryAppServiceImpl queryService;\n"
+            + "    private final " + aggregateName + "SaveAppServiceImpl saveService;\n"
+            + "    private final " + aggregateName + "DraftAppService draftService;\n\n"
             + "    @Override\n"
             + "    public ListBaseVO<" + aggregateName + "ListItemVO> list(" + aggregateName + "ListDTO dto) {\n"
             + "        Map<String, Object> conditionMap = new HashMap<>();\n"
@@ -617,31 +656,24 @@ public class TemplateRenderer {
             + "        return vo;\n"
             + "    }\n\n"
             + "    @Override\n"
-            + "    public " + aggregateName + "DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto) {\n"
-            + "        throw new BizException(\"草稿存储需要由业务模块实现\");\n"
+            + "    public DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto) {\n"
+            + "        return draftService.saveDraft(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public BaseVO saveAndSubmit(" + aggregateName + "SubmitSaveDTO dto) {\n"
-            + "        save(dto);\n"
-            + "        return new BaseVO();\n"
+            + "        return saveService.saveAndSubmit(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public List<" + aggregateName + "DraftListItemVO> draftList(" + aggregateName + "DraftListDTO dto) {\n"
-            + "        throw new BizException(\"草稿存储需要由业务模块实现\");\n"
+            + "        return draftService.draftList(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public " + aggregateName + "DraftDetailVO loadDraft(" + aggregateName + "DraftLoadDTO dto) {\n"
-            + "        throw new BizException(\"草稿存储需要由业务模块实现\");\n"
+            + "        return draftService.loadDraft(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public Long save(" + aggregateName + "SaveDTO dto) {\n"
-            + "        " + aggregateName + " " + variableName + " = " + aggregateName + "AdminAssembler.to" + aggregateName + "(dto);\n"
-            + "        if (" + variableName + ".getId() == null) {\n"
-            + "            " + variableName + "Repository.insert(" + variableName + ");\n"
-            + "        } else {\n"
-            + "            " + variableName + "Repository.update(" + variableName + ");\n"
-            + "        }\n"
-            + "        return " + variableName + ".getId();\n"
+            + "        return saveService.save(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public " + aggregateName + "DetailVO detail(IdBaseDTO dto) {\n"
@@ -669,10 +701,10 @@ public class TemplateRenderer {
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "DraftSaveDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftDetailVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftListItemVO;\n"
-            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftSaveVO;\n\n"
+            + "import xbb.ai.erp.base.common.vo.DraftSaveVO;\n\n"
             + "import java.util.List;\n\n"
             + "public interface " + aggregateName + "DraftAppService {\n"
-            + "    " + aggregateName + "DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto);\n\n"
+            + "    DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto);\n\n"
             + "    List<" + aggregateName + "DraftListItemVO> draftList(" + aggregateName + "DraftListDTO dto);\n\n"
             + "    " + aggregateName + "DraftDetailVO loadDraft(" + aggregateName + "DraftLoadDTO dto);\n"
             + "}\n";
@@ -683,27 +715,54 @@ public class TemplateRenderer {
         String packageName = moduleSpec.getPackageBase() + ".application.service.draft";
         return "package " + packageName + ";\n\n"
             + "import org.springframework.stereotype.Service;\n"
-            + "import xbb.ai.erp.base.common.exception.BizException;\n"
+            + "import lombok.RequiredArgsConstructor;\n"
+            + "import xbb.ai.erp.base.common.vo.DraftSaveVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "DraftListDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "DraftLoadDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "DraftSaveDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftDetailVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftListItemVO;\n"
-            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftSaveVO;\n\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.pojo." + aggregateName + "SaveDraftPojo;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.port." + aggregateName + "DraftRepository;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "SaveCommonValidator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".application.validator." + aggregateName + "SaveProtocolValidator;\n\n"
             + "import java.util.List;\n\n"
             + "@Service\n"
+            + "@RequiredArgsConstructor\n"
             + "public class " + aggregateName + "DraftAppServiceImpl implements " + aggregateName + "DraftAppService {\n\n"
+            + "    private final " + aggregateName + "DraftRepository repository;\n"
+            + "    private final " + aggregateName + "SaveProtocolValidator protocolValidator;\n"
+            + "    private final " + aggregateName + "SaveCommonValidator commonValidator;\n\n"
             + "    @Override\n"
-            + "    public " + aggregateName + "DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto) {\n"
-            + "        throw new BizException(\"草稿存储需要由业务模块实现\");\n"
+            + "    public DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto) {\n"
+            + "        protocolValidator.validate(dto);\n"
+            + "        commonValidator.validateForDraft(dto);\n"
+            + "        " + aggregateName + "SaveDraftPojo draft = new " + aggregateName + "SaveDraftPojo();\n"
+            + "        draft.setCorpid(dto.getCorpid());\n"
+            + "        draft.setMain(dto.getMain());\n"
+            + "        draft.setDraftCode(dto.getDraftMeta().getDraftCode());\n"
+            + "        draft.setDraftTitle(dto.getDraftMeta().getDraftTitle());\n"
+            + "        String code = repository.saveDraft(draft);\n"
+            + "        dto.getDraftMeta().setDraftCode(code);\n"
+            + "        DraftSaveVO vo = new DraftSaveVO();\n"
+            + "        vo.setDraftCode(code);\n"
+            + "        return vo;\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public List<" + aggregateName + "DraftListItemVO> draftList(" + aggregateName + "DraftListDTO dto) {\n"
-            + "        throw new BizException(\"草稿存储需要由业务模块实现\");\n"
+            + "        return repository.listDrafts(dto.getCorpid(), 10).stream().map(draft -> {\n"
+            + "            " + aggregateName + "DraftListItemVO vo = new " + aggregateName + "DraftListItemVO();\n"
+            + "            vo.setDraftCode(draft.getDraftCode());\n"
+            + "            vo.setDraftTitle(draft.getDraftTitle());\n"
+            + "            return vo;\n"
+            + "        }).toList();\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public " + aggregateName + "DraftDetailVO loadDraft(" + aggregateName + "DraftLoadDTO dto) {\n"
-            + "        throw new BizException(\"草稿存储需要由业务模块实现\");\n"
+            + "        " + aggregateName + "SaveDraftPojo draft = repository.loadDraft(dto.getCorpid(), dto.getDraftCode());\n"
+            + "        " + aggregateName + "DraftDetailVO vo = new " + aggregateName + "DraftDetailVO();\n"
+            + "        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); }\n"
+            + "        return vo;\n"
             + "    }\n"
             + "}\n";
     }
@@ -755,6 +814,40 @@ public class TemplateRenderer {
             + "        return detailVO;\n"
             + "    }\n"
             + "}\n";
+    }
+
+    public String renderDraftRepository(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".application.port";
+        return "package " + packageName + ";\n\nimport java.util.List;\nimport " + moduleSpec.getPackageBase() + ".application.pojo." + aggregateName + "SaveDraftPojo;\n\npublic interface " + aggregateName + "DraftRepository {\n    String saveDraft(" + aggregateName + "SaveDraftPojo draft);\n    List<" + aggregateName + "SaveDraftPojo> listDrafts(String corpid, int limit);\n    " + aggregateName + "SaveDraftPojo loadDraft(String corpid, String draftCode);\n    void removeDraft(String corpid, String draftCode);\n}\n";
+    }
+
+    public String renderDraftPojo(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".application.pojo";
+        return "package " + packageName + ";\n\nimport lombok.Data;\nimport " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "MainDTO;\n\n@Data\npublic class " + aggregateName + "SaveDraftPojo {\n    private String corpid;\n    private String draftCode;\n    private String draftTitle;\n    private " + aggregateName + "MainDTO main;\n    private Long updatedTime;\n}\n";
+    }
+
+    public String renderSaveProtocolValidator(ModuleSpec moduleSpec) { return renderSaveValidator(moduleSpec, "SaveProtocolValidator", "validate", "if (dto == null || dto.getMain() == null || dto.getCorpid() == null || dto.getCorpid().isBlank()) throw new BizException(\"保存协议不完整\");"); }
+
+    public String renderSaveCommonValidator(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".application.validator";
+        return "package " + packageName + ";\n\nimport org.springframework.stereotype.Component;\nimport " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n@Component\npublic class " + aggregateName + "SaveCommonValidator {\n    public void validateForDraft(" + aggregateName + "SaveDTO dto) {}\n    public void validateForSubmit(" + aggregateName + "SaveDTO dto) {}\n}\n";
+    }
+
+    public String renderSaveBusinessValidator(ModuleSpec moduleSpec) { return renderSaveValidator(moduleSpec, "SaveBusinessValidator", "validateForSubmit", ""); }
+
+    private String renderSaveValidator(ModuleSpec moduleSpec, String suffix, String method, String body) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".application.validator";
+        return "package " + packageName + ";\n\nimport org.springframework.stereotype.Component;\nimport xbb.ai.erp.base.common.exception.BizException;\nimport " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n@Component\npublic class " + aggregateName + suffix + " {\n    public void " + method + "(" + aggregateName + "SaveDTO dto) { " + body + " }\n}\n";
+    }
+
+    public String renderDraftRepositoryImpl(ModuleSpec moduleSpec) {
+        String aggregateName = aggregateName(moduleSpec);
+        String packageName = moduleSpec.getPackageBase() + ".infrastructure.persistence.repository";
+        return "package " + packageName + ";\n\nimport java.util.List;\nimport org.springframework.stereotype.Repository;\nimport " + moduleSpec.getPackageBase() + ".application.pojo." + aggregateName + "SaveDraftPojo;\nimport " + moduleSpec.getPackageBase() + ".application.port." + aggregateName + "DraftRepository;\n\n@Repository\npublic class " + aggregateName + "DraftRepositoryImpl implements " + aggregateName + "DraftRepository {\n    public String saveDraft(" + aggregateName + "SaveDraftPojo draft) { throw new UnsupportedOperationException(\"请配置草稿缓存实现\"); }\n    public List<" + aggregateName + "SaveDraftPojo> listDrafts(String corpid, int limit) { throw new UnsupportedOperationException(\"请配置草稿缓存实现\"); }\n    public " + aggregateName + "SaveDraftPojo loadDraft(String corpid, String draftCode) { throw new UnsupportedOperationException(\"请配置草稿缓存实现\"); }\n    public void removeDraft(String corpid, String draftCode) { throw new UnsupportedOperationException(\"请配置草稿缓存实现\"); }\n}\n";
     }
 
     public String renderListMetaProvider(ModuleSpec moduleSpec) {
@@ -1073,6 +1166,15 @@ public class TemplateRenderer {
 
     private String aggregateName(ModuleSpec moduleSpec) {
         return moduleSpec.getAggregate().getAggregateName();
+    }
+
+    private String repositoryBeanName(ModuleSpec moduleSpec, String aggregateName) {
+        String[] packageParts = moduleSpec.getPackageBase().split("\\.");
+        StringBuilder beanName = new StringBuilder();
+        for (String packagePart : packageParts) {
+            beanName.append(upperCamel(packagePart));
+        }
+        return lowerCamel(beanName.toString()) + aggregateName + "RepositoryImpl";
     }
 
     private String lowerCamel(String value) {

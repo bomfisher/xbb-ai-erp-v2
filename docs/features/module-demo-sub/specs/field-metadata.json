@@ -1,0 +1,73 @@
+{
+  "businessCode": "DEMO_SUB",
+  "fields": [
+    {
+      "name": "data_id",
+      "attr": "main.dataId",
+      "attrName": "data_id",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "data_id",
+      "businessCode": "DEMO"
+    },
+    {
+      "name": "name",
+      "attr": "main.name",
+      "attrName": "名称",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "name"
+    },
+    {
+      "name": "creator_id",
+      "attr": "main.creatorId",
+      "attrName": "创建人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "creator_id"
+    },
+    {
+      "name": "modify_id",
+      "attr": "main.modifyId",
+      "attrName": "修改人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "modify_id"
+    }
+  ],
+  "listActions": {
+    "top": [
+
+    ],
+    "bottom": [
+
+    ],
+    "row": [
+
+    ]
+  }
+}

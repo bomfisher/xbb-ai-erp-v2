@@ -160,7 +160,7 @@ class ListCommonServiceTest {
                 "customerCode",
                 "customer_code",
                 "TEXT",
-                Set.of("EQ", "NE", "CONTAINS")
+                List.of("EQ", "NE", "CONTAINS")
             ));
             return metaMap;
         }

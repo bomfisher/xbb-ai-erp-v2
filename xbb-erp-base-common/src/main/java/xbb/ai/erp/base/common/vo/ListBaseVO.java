@@ -7,7 +7,7 @@ import java.util.List;
 
 @Data
 public class ListBaseVO<T> {
-    private List<FieldEntity> headList;
+//    private List<FieldEntity> headList;
 
     private List<T> list;
 

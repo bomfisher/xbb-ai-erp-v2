@@ -3,6 +3,7 @@ package xbb.ai.erp.module.demo.application.provider;
 import org.springframework.stereotype.Component;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
+import xbb.ai.erp.base.common.pojo.ListButtonItemPojo;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.base.common.pojo.FilterField;
 import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;
@@ -67,14 +68,14 @@ public class DemoListMetaProvider implements ListMetaProvider {
     @Override
     public ListMetaBundlePojo buildTopButtonMeta(ListCommonQueryDTO dto) {
         ListMetaBundlePojo bundle = new ListMetaBundlePojo();
-        bundle.setTopButtonList(List.of());
+        bundle.setTopButtonList(List.of(new ListButtonItemPojo("ADD", "新建", 10, "ADD")));
         return bundle;
     }
 
     @Override
     public ListMetaBundlePojo buildBottomButtonMeta(ListCommonQueryDTO dto) {
         ListMetaBundlePojo bundle = new ListMetaBundlePojo();
-        bundle.setBottomButtonList(List.of());
+        bundle.setBottomButtonList(List.of(new ListButtonItemPojo("DELETE", "删除", 10, "DELETE")));
         return bundle;
     }
 
@@ -88,7 +89,7 @@ public class DemoListMetaProvider implements ListMetaProvider {
     private static Map<String, ListFilterMetaPojo> buildConditionMetaMap() {
         Map<String, ListFilterMetaPojo> map = new LinkedHashMap<>();
         for (Definition definition : DEFINITIONS) {
-            map.put(definition.attr(), new ListFilterMetaPojo(definition.attr(), definition.column(), definition.fieldType(), Set.copyOf(definition.symbols())));
+            map.put(definition.attr(), new ListFilterMetaPojo(definition.attr(), definition.column(), definition.fieldType(), definition.symbols()));
         }
         return Collections.unmodifiableMap(map);
     }

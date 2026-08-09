@@ -58,7 +58,7 @@ public class WarehouseAdminAppServiceImpl implements WarehouseAdminAppService {
         List<Warehouse> list = warehouseRepository == null ? List.of() : warehouseRepository.findByCondition(conditionMap);
         Long total = warehouseRepository == null ? 0L : warehouseRepository.count(conditionMap);
         ListBaseVO<WarehouseListItemVO> vo = new ListBaseVO<>();
-        vo.setHeadList(WarehouseFieldEnum.listHead());
+//        vo.setHeadList(WarehouseFieldEnum.listHead());
         vo.setList(list.stream().map(WarehouseAdminAssembler::toListItemVO).toList());
         vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum() == null ? 1 : dto.getPageNum(), total == null ? 0 : total.intValue()));
         return vo;

@@ -89,7 +89,7 @@ public class ProductQueryAppServiceImpl implements ProductQueryAppService {
         int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
         int toIndex = Math.min(fromIndex + pageSize, all.size());
         ListBaseVO<ProductBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setHeadList(buildBusinessSelectHeadList(dto.getBusinessCode()));
+//        vo.setHeadList(buildBusinessSelectHeadList(dto.getBusinessCode()));
         vo.setList(all.subList(fromIndex, toIndex));
         vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
         return vo;

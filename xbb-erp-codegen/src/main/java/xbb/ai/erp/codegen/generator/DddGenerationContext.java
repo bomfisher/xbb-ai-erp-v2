@@ -26,20 +26,7 @@ public record DddGenerationContext(
         if (!Files.isDirectory(resourceRoot)) {
             throw new IllegalArgumentException("module root 缺少 src/main/resources: " + moduleRootDir.toAbsolutePath());
         }
-        return new DddGenerationContext(moduleRootDir, javaSourceRoot, resourceRoot, inferBasePackage(javaSourceRoot, moduleSpec.getModuleCode()), moduleSpec, templateProfile);
-    }
-
-    private static String inferBasePackage(Path javaSourceRoot, String moduleCode) throws IOException {
-        try (Stream<Path> pathStream = Files.walk(javaSourceRoot)) {
-            List<Path> candidates = pathStream
-                .filter(Files::isDirectory)
-                .filter(path -> path.endsWith(Path.of("xbb/ai/erp/module", moduleCode)))
-                .toList();
-            if (candidates.size() != 1) {
-                throw new IllegalArgumentException("无法唯一推导基础包，候选数量=" + candidates.size() + ", sourceRoot=" + javaSourceRoot.toAbsolutePath());
-            }
-            return javaSourceRoot.relativize(candidates.get(0)).toString().replace('/', '.');
-        }
+        return new DddGenerationContext(moduleRootDir, javaSourceRoot, resourceRoot, moduleSpec.getPackageBase(), moduleSpec, templateProfile);
     }
 
     public String aggregateName() {

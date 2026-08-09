@@ -57,7 +57,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 
 | 路径 | 入参 | 返回 |
 | --- | --- | --- |
-| `POST /list` | `*ListDTO` | `ListBaseVO<*ListItemVO>` |
+| `POST /list` | `ListBaseDTO` | `ListBaseVO<*ListItemVO>` |
 | `POST /addItem` | `BaseDTO` | `SaveItemVO<*SaveItemVO>` |
 | `POST /updateItem` | `IdBaseDTO` | `SaveItemVO<*SaveItemVO>` |
 | `POST /saveDraft` | `*DraftSaveDTO` | `*DraftSaveVO` |
@@ -65,7 +65,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 | `POST /draftList` | `*DraftListDTO` | `List<*DraftListItemVO>` |
 | `POST /loadDraft` | `*DraftLoadDTO` | `*DraftDetailVO` |
 
-- `list` 同时接入 `*ListMetaProvider`、`*ListQueryAdapter` 和筛选白名单；列表需要子档摘要时必须批量查询。
+- `list` 直接使用 `ListBaseDTO`，不得仅为公共分页、关键词和动态 `conditions` 创建 `*ListDTO`；同时接入 `*ListMetaProvider`、`*ListQueryAdapter` 和筛选白名单。列表需要子档摘要时必须批量查询。
 - `addItem` 返回 `CREATE` 场景字段元数据与空表单；`updateItem` 返回 `UPDATE` 元数据以及主档、子档和 `sectionState` 回填。
 - `saveDraft`、`draftList`、`loadDraft` 放在 `application.service.draft`；草稿仓储定义在 `application.port`，实现放在基础设施层。
 - `saveAndSubmit` 放在 `application.service.save`，按“协议校验 → 通用字段校验 → 业务校验 → 主子档同步”执行；只有正式保存成功才删除来源草稿。

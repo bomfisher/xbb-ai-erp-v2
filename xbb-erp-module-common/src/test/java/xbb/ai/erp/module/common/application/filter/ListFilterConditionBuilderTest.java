@@ -56,7 +56,7 @@ class ListFilterConditionBuilderTest {
 
     private static Map<String, ListFilterMetaPojo> buildMetaMap() {
         return Map.of(
-            "customerName", new ListFilterMetaPojo("customerName", "customer_name", ListFilterFieldTypeEnum.TEXT.name(), Set.of(
+            "customerName", new ListFilterMetaPojo("customerName", "customer_name", ListFilterFieldTypeEnum.TEXT.name(), List.of(
                 ListFilterSymbolEnum.EQ.name(),
                 ListFilterSymbolEnum.NE.name(),
                 ListFilterSymbolEnum.CONTAINS.name(),
@@ -64,7 +64,7 @@ class ListFilterConditionBuilderTest {
                 ListFilterSymbolEnum.IS_EMPTY.name(),
                 ListFilterSymbolEnum.IS_NOT_EMPTY.name()
             )),
-            "createTime", new ListFilterMetaPojo("createTime", "add_time", ListFilterFieldTypeEnum.DATE.name(), Set.of(
+            "createTime", new ListFilterMetaPojo("createTime", "add_time", ListFilterFieldTypeEnum.DATE.name(), List.of(
                 ListFilterSymbolEnum.EQ.name(),
                 ListFilterSymbolEnum.GE.name(),
                 ListFilterSymbolEnum.LE.name(),

@@ -15,6 +15,7 @@ public record ListFilterFieldTypeRule(String protocolFieldType, List<String> sup
         Map.entry(FieldTypeEnum.TEXT.getType(), new ListFilterFieldTypeRule("TEXT", TEXT_SYMBOLS)),
         Map.entry(FieldTypeEnum.USER.getType(), new ListFilterFieldTypeRule("ID", ID_SYMBOLS)),
         Map.entry(FieldTypeEnum.DEPT.getType(), new ListFilterFieldTypeRule("ID", ID_SYMBOLS)),
+        Map.entry(FieldTypeEnum.BUSINESS.getType(), new ListFilterFieldTypeRule("BUSINESS", ID_SYMBOLS)),
         Map.entry(FieldTypeEnum.COMB.getType(), new ListFilterFieldTypeRule("ENUM", ID_SYMBOLS)),
         Map.entry(FieldTypeEnum.NUM_INT.getType(), new ListFilterFieldTypeRule("NUMBER", NUMBER_SYMBOLS)),
         Map.entry(FieldTypeEnum.NUM_DOUBLE.getType(), new ListFilterFieldTypeRule("NUMBER", NUMBER_SYMBOLS)),

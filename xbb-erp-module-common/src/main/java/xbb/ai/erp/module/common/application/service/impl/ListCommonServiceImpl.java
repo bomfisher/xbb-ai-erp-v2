@@ -2,6 +2,7 @@ package xbb.ai.erp.module.common.application.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
@@ -13,6 +14,10 @@ import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.common.application.provider.ListMetaRegistry;
 import xbb.ai.erp.module.common.application.service.ListCommonService;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Objects;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +37,8 @@ public class ListCommonServiceImpl implements ListCommonService {
     public ListHeaderVO header(ListCommonQueryDTO dto) {
         ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
         ListHeaderVO vo = new ListHeaderVO();
-        vo.setList(provider.buildHeaderMeta(dto));
+        List<FieldEntity> list = provider.buildHeaderMeta(dto);
+        vo.setList(Objects.isNull(list) ? Collections.emptyList() : list);
         return vo;
     }
 
@@ -41,7 +47,7 @@ public class ListCommonServiceImpl implements ListCommonService {
         ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
         ListMetaBundlePojo bundle = provider.buildTopButtonMeta(dto);
         ListTopButtonVO vo = new ListTopButtonVO();
-        vo.setList(bundle.getTopButtonList());
+        vo.setList(Objects.isNull(bundle.getTopButtonList()) ? Collections.emptyList() : bundle.getTopButtonList());
         return vo;
     }
 
@@ -50,7 +56,7 @@ public class ListCommonServiceImpl implements ListCommonService {
         ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
         ListMetaBundlePojo bundle = provider.buildBottomButtonMeta(dto);
         ListBottomButtonVO vo = new ListBottomButtonVO();
-        vo.setList(bundle.getBottomButtonList());
+        vo.setList(Objects.isNull(bundle.getBottomButtonList()) ? Collections.emptyList() : bundle.getBottomButtonList());
         return vo;
     }
 
@@ -59,7 +65,7 @@ public class ListCommonServiceImpl implements ListCommonService {
         ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
         ListMetaBundlePojo bundle = provider.buildRowActionMeta(dto);
         ListRowActionVO vo = new ListRowActionVO();
-        vo.setList(bundle.getRowActionList());
+        vo.setList(Objects.isNull(bundle.getRowActionList()) ? Collections.emptyList() : bundle.getRowActionList());
         return vo;
     }
 

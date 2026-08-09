@@ -14,8 +14,8 @@ public enum DemoFieldEnum {
     NAME("name", "main.name", "名称", FieldTypeEnum.TEXT, "name"),
     USER_ID("user_id", "main.userId", "员工", FieldTypeEnum.USER, "user_id"),
     DEP_ID("dep_id", "main.depId", "部门", FieldTypeEnum.DEPT, "dep_id"),
-    COMB("comb", "main.comb", "下拉", FieldTypeEnum.COMB, "comb", "1:信息1, 2:信息2"),
-    COMB_MULTI("comb_multi", "main.combMulti", "下拉多选", FieldTypeEnum.COMB_MULTI, null, "1:D信息1, 2:D信息2"),
+    COMB("comb", "main.comb", "下拉", FieldTypeEnum.COMB, "comb", "0:禁用, 1:启用"),
+    COMB_MULTI("comb_multi", "main.combMulti", "下拉多选", FieldTypeEnum.COMB_MULTI, null, "0:禁用1, 1:启用2"),
     NUM_INT("num_int", "main.numInt", "整数", FieldTypeEnum.NUM_INT, "num_int"),
     NUM_DOUBLE("num_double", "main.numDouble", "浮点", FieldTypeEnum.NUM_DOUBLE, "num_double"),
     AMOUNT("amount", "main.amount", "金额", FieldTypeEnum.AMOUNT, "amount"),
@@ -25,10 +25,7 @@ public enum DemoFieldEnum {
     IMAGE("image", "main.image", "图片", FieldTypeEnum.IMAGE, null),
     ADDRESS("address", "main.address", "地址", FieldTypeEnum.ADDRESS, null),
     CREATOR_ID("creator_id", "main.creatorId", "创建人", FieldTypeEnum.USER, "creator_id"),
-    MODIFY_ID("modify_id", "main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id"),
-    DEMO_ITEM("demoItem", "items", "明细", FieldTypeEnum.SUB_ITEM, null, null, Set.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), List.of(
-        new SubField("name", "name", "名称", FieldTypeEnum.TEXT, true, true)
-    ));
+    MODIFY_ID("modify_id", "main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id");
 
     private final String name;
     private final String attr;

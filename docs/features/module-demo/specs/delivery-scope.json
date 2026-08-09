@@ -1,0 +1,266 @@
+{
+  "moduleCode": "demo",
+  "root": {
+    "spec": "docs/features/module-demo/specs/demo.yaml",
+    "aggregate": "Demo",
+    "table": "demo",
+    "role": "ROOT"
+  },
+  "children": [],
+  "fieldMetadata": {
+    "businessCode": "DEMO",
+    "fields": [
+      {
+        "name": "name",
+        "attr": "main.name",
+        "attrName": "名称",
+        "fieldType": "TEXT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "name"
+      },
+      {
+        "name": "user_id",
+        "attr": "main.userId",
+        "attrName": "员工",
+        "fieldType": "USER",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "user_id"
+      },
+      {
+        "name": "dep_id",
+        "attr": "main.depId",
+        "attrName": "部门",
+        "fieldType": "DEPT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "dep_id"
+      },
+      {
+        "name": "comb",
+        "attr": "main.comb",
+        "attrName": "下拉",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "comb",
+        "options": "0:禁用, 1:启用"
+      },
+      {
+        "name": "comb_multi",
+        "attr": "main.combMulti",
+        "attrName": "下拉多选",
+        "fieldType": "COMB_MULTI",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null,
+        "options": "0:禁用1, 1:启用2"
+      },
+      {
+        "name": "num_int",
+        "attr": "main.numInt",
+        "attrName": "整数",
+        "fieldType": "NUM_INT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "num_int"
+      },
+      {
+        "name": "num_double",
+        "attr": "main.numDouble",
+        "attrName": "浮点",
+        "fieldType": "NUM_DOUBLE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "num_double"
+      },
+      {
+        "name": "amount",
+        "attr": "main.amount",
+        "attrName": "金额",
+        "fieldType": "AMOUNT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "amount"
+      },
+      {
+        "name": "date",
+        "attr": "main.date",
+        "attrName": "日期",
+        "fieldType": "DATE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "date"
+      },
+      {
+        "name": "time",
+        "attr": "main.time",
+        "attrName": "时间",
+        "fieldType": "TIME",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "time"
+      },
+      {
+        "name": "file",
+        "attr": "main.file",
+        "attrName": "附件",
+        "fieldType": "FILE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null
+      },
+      {
+        "name": "image",
+        "attr": "main.image",
+        "attrName": "图片",
+        "fieldType": "IMAGE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null
+      },
+      {
+        "name": "address",
+        "attr": "main.address",
+        "attrName": "地址",
+        "fieldType": "ADDRESS",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null
+      },
+      {
+        "name": "creator_id",
+        "attr": "main.creatorId",
+        "attrName": "创建人",
+        "fieldType": "USER",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "creator_id"
+      },
+      {
+        "name": "modify_id",
+        "attr": "main.modifyId",
+        "attrName": "修改人",
+        "fieldType": "USER",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "modify_id"
+      }
+    ],
+    "listActions": {
+      "top": [
+        {
+          "actionCode": "ADD",
+          "actionName": "新建"
+        }
+      ],
+      "bottom": [
+        {
+          "actionCode": "DELETE",
+          "actionName": "删除"
+        }
+      ],
+      "row": []
+    }
+  },
+  "rootEndpoints": [
+    "list",
+    "addItem",
+    "updateItem",
+    "saveDraft",
+    "saveAndSubmit",
+    "draftList",
+    "loadDraft"
+  ]
+}

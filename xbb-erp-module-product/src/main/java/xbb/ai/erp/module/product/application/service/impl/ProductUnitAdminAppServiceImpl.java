@@ -43,7 +43,7 @@ public class ProductUnitAdminAppServiceImpl implements ProductUnitAdminAppServic
         List<ProductUnitVO> list = productUnitRepository.findByCondition(condition).stream().map(ProductUnitAdminAssembler::toVO).toList();
         long total = productUnitRepository.count(condition);
         ListBaseVO<ProductUnitVO> vo = new ListBaseVO<>();
-        vo.setHeadList(ProductUnitFieldEnum.listHead());
+//        vo.setHeadList(ProductUnitFieldEnum.listHead());
         vo.setList(list);
         vo.setPageHelper(new ListBaseVO.PageHelper(resolvePage(dto.getOffset(), dto.getPageSize()), (int) total));
         return vo;

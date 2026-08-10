@@ -12,7 +12,7 @@
 
 - 接口：`POST /erp/v1/common/list/header`
 - 用途：按业务编码返回表头字段元数据
-- 差异点：仅返回表头字段定义，字段包含 `required`、`editable`，并可附带 `itemList` 与 `businessSelectConfig`
+- 差异点：仅返回表头字段定义，字段包含 `required`、`editable`，并可附带 `itemList`、`businessSelectConfig` 与列表专用的 `renderValueAttr`。
 - 业务文档：`docs/kn/common-m.md`
 - API 文档：`docs/api/endpoints/common-header.md`
 

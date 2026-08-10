@@ -21,3 +21,4 @@
 - 筛选字段和操作符由 `DEMO_SUB` 公共列表元数据下发，服务端只接受白名单映射；筛选项的 `fieldType` 为源字段枚举值，`filterFieldType` 为写入 `conditions[].fieldType` 的查询协议类型。
 - `dataId` 筛选项为关联 `DEMO` 的业务选择器，公共筛选元数据下发当前租户的 `businessSelectConfig`；先选择关联数据，再按 `data_id` 白名单筛选。
 - `userId` 与 `departmentId` 筛选项分别下发成员、部门的选择配置；前端先选择稳定 ID，再按白名单列筛选。
+- 列表响应在服务端按 LIST 表头渲染展示值：`dataName` 由 `dataId` 按 `DEMO` 批量解析；`userId`、`creatorId`、`modifyId` 按 `ORG_MEMBER` 批量解析；`departmentId` 按 `ORG_DEPARTMENT` 批量解析。原始引用值跨字段、跨当前页行去重后，每个目标只查询一次。

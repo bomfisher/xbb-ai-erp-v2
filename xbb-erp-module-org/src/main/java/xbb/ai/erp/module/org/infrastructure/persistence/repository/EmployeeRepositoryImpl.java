@@ -114,6 +114,20 @@ public class EmployeeRepositoryImpl {
             .eq(EmployeePO::getUserId, userId)));
     }
 
+    public List<Employee> listActiveByUserIds(String corpid, List<String> userIds) {
+        if (corpid == null || corpid.isBlank() || userIds == null || userIds.isEmpty()) {
+            return List.of();
+        }
+        return employeeMapper.selectList(new LambdaQueryWrapper<EmployeePO>()
+                .eq(EmployeePO::getCorpid, corpid)
+                .eq(EmployeePO::getEmploymentStatus, EmploymentStatusEnum.ACTIVE.getCode())
+                .eq(EmployeePO::getUserStatus, 1)
+                .in(EmployeePO::getUserId, userIds))
+            .stream()
+            .map(OrgConvertor::toDomain)
+            .toList();
+    }
+
     public List<EmployeeRoleRelation> listRoleRelationsByUserIds(String corpid, List<Long> userIdList) {
         if (corpid == null || corpid.isBlank() || userIdList == null || userIdList.isEmpty()) {
             return List.of();

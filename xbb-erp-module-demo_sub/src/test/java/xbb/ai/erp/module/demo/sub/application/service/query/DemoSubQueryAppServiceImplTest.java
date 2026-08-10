@@ -16,6 +16,7 @@ import xbb.ai.erp.module.demo.sub.application.field.DefaultDemoSubFieldFactory;
 import xbb.ai.erp.module.demo.sub.application.port.DemoLookupPort;
 import xbb.ai.erp.module.demo.sub.domain.model.DemoSub;
 import xbb.ai.erp.module.demo.sub.domain.repository.DemoSubRepository;
+import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 
 class DemoSubQueryAppServiceImplTest {
 
@@ -29,7 +30,8 @@ class DemoSubQueryAppServiceImplTest {
     demoSub.setDataId(100L);
     when(repository.findById("corp-001", 1L)).thenReturn(demoSub);
     DemoSubQueryAppServiceImpl service =
-        new DemoSubQueryAppServiceImpl(repository, null, new DefaultDemoSubFieldFactory(), demoLookupPort);
+        new DemoSubQueryAppServiceImpl(
+            repository, null, new DefaultDemoSubFieldFactory(), demoLookupPort, null, mock(ListValueRenderer.class));
 
     BaseDTO createDTO = new BaseDTO();
     createDTO.setCorpid("corp-001");

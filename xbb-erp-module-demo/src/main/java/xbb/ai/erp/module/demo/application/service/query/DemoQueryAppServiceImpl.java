@@ -6,6 +6,7 @@ import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
@@ -18,32 +19,32 @@ import xbb.ai.erp.module.demo.application.assembler.DemoAdminAssembler;
 import xbb.ai.erp.module.demo.application.field.DemoFieldFactory;
 import xbb.ai.erp.module.demo.application.schema.DemoListSchemaProvider;
 import xbb.ai.erp.module.common.application.util.ListQueryMapUtil;
+import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 import xbb.ai.erp.module.demo.domain.model.Demo;
 import xbb.ai.erp.module.demo.domain.repository.DemoRepository;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import xbb.ai.erp.module.demo.contract.DemoReferenceItem;
-import xbb.ai.erp.module.demo.contract.DemoReferenceQueryApi;
 import xbb.ai.erp.scene.meta.SceneFieldAssembler;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Service
-public class DemoQueryAppServiceImpl implements DemoReferenceQueryApi {
+public class DemoQueryAppServiceImpl {
 
     private final DemoRepository demoRepository;
     private final DemoFieldFactory fieldFactory;
     private final DemoListSchemaProvider schemaProvider;
+    private final ListValueRenderer listValueRenderer;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
     public DemoQueryAppServiceImpl(DemoRepository demoRepository, DemoFieldFactory fieldFactory,
-        DemoListSchemaProvider schemaProvider) {
+        DemoListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
         this.demoRepository = demoRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
+        this.listValueRenderer = listValueRenderer;
     }
 
     public ListBaseVO<DemoListItemVO> list(ListBaseDTO dto) {
@@ -52,7 +53,8 @@ public class DemoQueryAppServiceImpl implements DemoReferenceQueryApi {
         List<Demo> list = demoRepository.findByCondition(conditionMap);
         Long total = demoRepository.count(conditionMap);
         ListBaseVO<DemoListItemVO> vo = new ListBaseVO<>();
-        vo.setList(list.stream().map(DemoAdminAssembler::toListItemVO).toList());
+        List<DemoListItemVO> items = list.stream().map(DemoAdminAssembler::toListItemVO).toList();
+        vo.setList(listValueRenderer.render(dto.getCorpid(), BusinessCodeEnum.DEMO.getCode(), items));
         vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum() == null ? 1 : dto.getPageNum(), total == null ? 0 : total.intValue()));
         return vo;
     }
@@ -77,22 +79,6 @@ public class DemoQueryAppServiceImpl implements DemoReferenceQueryApi {
         AdminParamValidator.validateIdQuery(dto);
         Demo entity = demoRepository.findById(dto.getCorpid(), dto.getId());
         return DemoAdminAssembler.toDetailVO(DemoAdminAssembler.toSaveItemVO(entity));
-    }
-
-    @Override
-    public Map<Long, DemoReferenceItem> findActiveByIds(String corpid, Collection<Long> ids) {
-        if (corpid == null || corpid.isBlank() || ids == null || ids.isEmpty()) {
-            return Map.of();
-        }
-        Map<Long, DemoReferenceItem> references = new LinkedHashMap<>();
-        demoRepository.findByIds(corpid, ids).forEach(demo ->
-            references.put(demo.getId(), new DemoReferenceItem(demo.getId(), demo.getName())));
-        return references;
-    }
-
-    @Override
-    public boolean existsActive(String corpid, Long id) {
-        return id != null && demoRepository.findById(corpid, id) != null;
     }
 
     public List<DemoBusinessSelectOptionVO> businessSelectQuickSearch(DemoBusinessSelectQueryDTO dto) {

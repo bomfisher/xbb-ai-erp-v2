@@ -52,8 +52,7 @@ public class DemoListMetaProvider implements ListMetaProvider {
     public List<FieldEntity> buildHeaderMeta(ListCommonQueryDTO dto) {
         return Arrays.stream(DemoFieldEnum.values())
             .filter(field -> field.supports(SceneTypeEnum.LIST))
-            .map(this::toSceneMeta)
-            .map(SceneFieldAssembler::build)
+            .map(this::buildHeaderField)
             .toList();
     }
 
@@ -92,6 +91,12 @@ public class DemoListMetaProvider implements ListMetaProvider {
     private SceneFieldMeta toSceneMeta(DemoFieldEnum field) {
         return new SceneFieldMeta(field.getAttr(), field.getAttrName(), field.getFieldType(),
             Boolean.TRUE.equals(field.getRequired()) ? 1 : 0, 1, parseOptions(field.getOptions()), field.getBusinessCode());
+    }
+
+    private FieldEntity buildHeaderField(DemoFieldEnum field) {
+        FieldEntity entity = SceneFieldAssembler.build(toSceneMeta(field));
+        entity.setBusinessSelectConfig(selectConfig(field.getBusinessCode()));
+        return entity;
     }
 
     private static ListFilterFieldTypeRule filterRule(DemoFieldEnum field) {

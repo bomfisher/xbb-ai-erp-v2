@@ -2,17 +2,17 @@ package xbb.ai.erp.module.demo.sub.application.service.query;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.common.application.util.ListQueryMapUtil;
+import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 import xbb.ai.erp.module.demo.sub.admin.vo.*;
 import xbb.ai.erp.module.demo.sub.application.assembler.DemoSubAdminAssembler;
 import xbb.ai.erp.module.demo.sub.application.assembler.DemoSubFieldAssembler;
@@ -32,6 +32,7 @@ public class DemoSubQueryAppServiceImpl {
   private final DemoSubFieldFactory fieldFactory;
   private final DemoLookupPort demoLookupPort;
   private final DemoSubListSchemaProvider schemaProvider;
+  private final ListValueRenderer listValueRenderer;
   private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
   public ListBaseVO<DemoSubListItemVO> list(ListBaseDTO dto) {
@@ -39,17 +40,10 @@ public class DemoSubQueryAppServiceImpl {
     Map<String, Object> conditions = listQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap());
     List<DemoSub> rows = repository.findByCondition(conditions);
     Long total = repository.count(conditions);
-    Set<Long> dataIds =
-        rows.stream()
-            .map(DemoSub::getDataId)
-            .filter(java.util.Objects::nonNull)
-            .collect(Collectors.toSet());
-    Map<Long, String> dataNames = demoLookupPort.findNamesByIds(dto.getCorpid(), dataIds);
     ListBaseVO<DemoSubListItemVO> vo = new ListBaseVO<>();
-    vo.setList(
-        rows.stream()
-            .map(row -> DemoSubAdminAssembler.toListItemVO(row, dataNames.get(row.getDataId())))
-            .toList());
+    List<DemoSubListItemVO> list =
+        rows.stream().map(row -> DemoSubAdminAssembler.toListItemVO(row, null)).toList();
+    vo.setList(listValueRenderer.render(dto.getCorpid(), BusinessCodeEnum.DEMO_SUB.getCode(), list));
     vo.setPageHelper(
         new ListBaseVO.PageHelper(dto.getPageNum(), total == null ? 0 : total.intValue()));
     return vo;

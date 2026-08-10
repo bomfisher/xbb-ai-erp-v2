@@ -75,7 +75,15 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 - `draftList` 只能从草稿缓存读取，不查询正式业务表；按 `corpid` 和明确上限读取后转换为草稿列表 VO。`loadDraft` 也只能经草稿缓存按租户和草稿编码读取。
 - `saveAndSubmit` 固定按“协议校验 → 通用校验 → 业务校验 → 事务内正式保存 → 成功后删除来源草稿缓存”执行。每个模块必须生成 `*SaveBusinessValidator` 及 `validateForSubmit` 方法；暂未定义的领域规则可保留空占位方法，但不得跳过调用。
 - 正式保存进入 Repository 前，应用服务必须统一覆盖维护 `creatorId`、`modifyId`（均为 `dto.userId`）、`addTime`、`updateTime`（同一 `now`）和 `del=0`；持久化领域模型、DTO、转换器与 Mapper 参数统一使用属性名 `del`，禁止业务层使用兼容别名 `deleted`，数据库列仍为 `del`。
+- 当业务表主键为数据库 `AUTO_INCREMENT` 时，新增保存不得生成、预填或覆盖 `id`，也不得依赖 `xbb-erp-base-idgen`；Repository 插入前实体 `id` 必须为 `null`，由数据库生成后回写。仅更新既有记录时允许从请求/已存记录携带 `id`。受影响模块测试必须断言插入实体的 `id` 为 `null`。
 - 删除草稿缓存只能发生在正式保存全部成功之后，并且仅删除请求 `draftMeta.draftCode` 指定的同租户草稿。
+
+## Spring 装配与跨模块引用注意事项
+
+- 注册到公共 Registry 的列表渲染 Provider、选择 Provider 等 Bean，不得反向依赖该 Registry、Renderer，或其调用链上的页面 Query Application Service；否则容易形成 `Registry -> Provider -> QueryService -> Renderer -> Registry` 循环依赖。
+- 跨模块引用查询契约（如 `*ReferenceQueryApi`）必须由独立的轻量查询 Application Service 实现，该实现只依赖 Repository 或明确的查询 Port。禁止由同时注入 `ListValueRenderer`、Provider Registry 或页面编排依赖的列表 Query Application Service 实现。
+- 新增 Provider、让 Query Application Service 接入 Renderer，或调整 `*ReferenceQueryApi` 实现前，必须检查构造器依赖图：Provider 到引用查询实现的路径不得回流到 Renderer 或 Registry。禁止通过 `spring.main.allow-circular-references=true` 规避问题。
+- 受影响模块必须增加或更新最小 Spring `ApplicationContext` 回归测试，至少注册 Provider、Registry、Renderer、引用查询服务和列表 Query Application Service，并断言 Context 可以成功 `refresh`，以防止运行时才暴露循环依赖。
 
 ## 实现与交付门禁
 
@@ -88,3 +96,4 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 7. 执行 `scripts/harness-verify.sh`；新模块额外执行 `scripts/harness-verify.sh --module xbb-erp-module-<name>`，并运行受影响 Maven 模块测试。
 8. 接口契约变化时执行 `.claude/commands/multi-player/SKILL.md`，维护 API 原子文档、聚合文档和导航；交付报告列出变更、验证、迁移和待确认项。
 9. 不提交真实凭据、私钥或 Token；不绕过失败的 Harness 或 CI 检查。
+10. 涉及 Provider、Registry、Renderer 或跨模块 `*ReferenceQueryApi` 时，检查 Bean 构造器依赖图不存在回流闭环，并运行最小 Spring Context 回归测试。

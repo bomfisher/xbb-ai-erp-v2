@@ -58,6 +58,7 @@
 | `data.list[].editable` | 是 | 是否可编辑 |
 | `data.list[].itemList` | 是 | 字段可选项列表 |
 | `data.list[].businessSelectConfig` | 否 | 业务选择配置；当字段类型为 `12` 时返回 |
+| `data.list[].renderValueAttr` | 否 | 仅列表渲染字段返回；指定从列表行读取原始码值的属性，缺省时使用 `attr` |
 
 ## 规则说明
 
@@ -66,3 +67,4 @@
 - 结果仅包含表头字段元数据
 - 供应商列表当前会返回枚举字段的 `itemList`，供前端把码值转为显示文案
 - 供应商列表当前会返回 `ownerPurchaserId` 的 `USER(12)` 表头语义和成员单选配置
+- 列表数据接口可按表头的 `fieldType`、`itemList`、`businessSelectConfig.businessCode` 执行服务端展示值渲染；`renderValueAttr` 用于展示属性与原始码值属性不同的场景。

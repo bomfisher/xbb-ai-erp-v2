@@ -17,9 +17,9 @@ public enum DemoSubFieldEnum {
   DATA_NAME(
       "main.dataName",
       "关联DEMO",
-      FieldTypeEnum.TEXT,
+      FieldTypeEnum.BUSINESS,
       null,
-      null,
+      "DEMO",
       Set.of(SceneTypeEnum.LIST)),
   NAME(
       "main.name",

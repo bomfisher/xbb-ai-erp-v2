@@ -2,6 +2,7 @@ package xbb.ai.erp.module.demo.sub.application.service.save;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -33,6 +34,7 @@ class DemoSubSaveAppServiceImplTest {
         ArgumentCaptor<DemoSub> captor = ArgumentCaptor.forClass(DemoSub.class);
         verify(repository).insert(captor.capture());
         DemoSub entity = captor.getValue();
+        assertNull(entity.getId());
         assertEquals("user-001", entity.getCreatorId());
         assertEquals("user-001", entity.getModifyId());
         assertEquals(0, entity.getDel());

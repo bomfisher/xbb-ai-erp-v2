@@ -13,9 +13,11 @@ public class DemoListItemVO {
     private Integer numInt;
     private java.math.BigDecimal numDouble;
     private java.math.BigDecimal amount;
-    private Long date;
-    private Long time;
+    private String date;
+    private String time;
     private String file;
     private String image;
     private String address;
+    private String creatorId;
+    private String modifyId;
 }

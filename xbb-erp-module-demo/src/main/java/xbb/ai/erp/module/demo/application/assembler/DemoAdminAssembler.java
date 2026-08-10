@@ -56,11 +56,13 @@ public final class DemoAdminAssembler {
         vo.setNumInt(demo.getNumInt());
         vo.setNumDouble(demo.getNumDouble());
         vo.setAmount(demo.getAmount());
-        vo.setDate(demo.getDate());
-        vo.setTime(demo.getTime());
+        vo.setDate(demo.getDate() == null ? null : String.valueOf(demo.getDate()));
+        vo.setTime(demo.getTime() == null ? null : String.valueOf(demo.getTime()));
         vo.setFile(demo.getFile());
         vo.setImage(demo.getImage());
         vo.setAddress(demo.getAddress());
+        vo.setCreatorId(demo.getCreatorId());
+        vo.setModifyId(demo.getModifyId());
         return vo;
     }
 

@@ -48,28 +48,18 @@ public class DemoSubListMetaProvider implements ListMetaProvider {
         .map(
             meta -> {
               FilterField field = new FilterField();
+              DemoSubFieldEnum definition = Arrays.stream(DemoSubFieldEnum.values())
+                  .filter(def -> def.getAttr().endsWith("." + meta.getAttr()))
+                  .findFirst()
+                  .orElseThrow();
               field.setAttr(meta.getAttr());
-              field.setAttrName(
-                  Arrays.stream(DemoSubFieldEnum.values())
-                      .filter(def -> def.getAttr().endsWith("." + meta.getAttr()))
-                      .findFirst()
-                      .orElseThrow()
-                      .getAttrName());
-              field.setFieldType(meta.getFieldType());
+              field.setAttrName(definition.getAttrName());
+              field.setFieldType(String.valueOf(definition.getFieldType()));
+              field.setFilterFieldType(meta.getFieldType());
               field.setSupportedSymbols(new ArrayList<>(meta.getSupportedSymbols()));
               field.setItemList(List.of());
-              if (DemoSubFieldEnum.DATA_ID.getAttr().endsWith("." + meta.getAttr())) {
-                field.setBusinessSelectConfig(
-                    DemoSubFieldAssembler.buildDemoBusinessSelectConfig(dto.getCorpid()));
-              }
-              if (DemoSubFieldEnum.USER_ID.getAttr().endsWith("." + meta.getAttr())) {
-                field.setBusinessSelectConfig(
-                    DemoSubFieldAssembler.buildMemberSelectConfig(dto.getCorpid()));
-              }
-              if (DemoSubFieldEnum.DEPARTMENT_ID.getAttr().endsWith("." + meta.getAttr())) {
-                field.setBusinessSelectConfig(
-                    DemoSubFieldAssembler.buildDepartmentSelectConfig(dto.getCorpid()));
-              }
+              field.setSourceFieldType(definition.getFieldType());
+              field.setBusinessSelectConfig(buildBusinessSelectConfig(definition.getBusinessCode()));
               return field;
             })
         .toList();
@@ -95,5 +85,14 @@ public class DemoSubListMetaProvider implements ListMetaProvider {
 
   public ListMetaBundlePojo buildRowActionMeta(ListCommonQueryDTO dto) {
     return new ListMetaBundlePojo();
+  }
+
+  private FieldEntity.BusinessSelectConfig buildBusinessSelectConfig(String businessCode) {
+    if (businessCode == null) {
+      return null;
+    }
+    FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
+    config.setBusinessCode(businessCode);
+    return config;
   }
 }

@@ -26,8 +26,7 @@ public enum FieldTypeEnum {
     CHECKBOX(10),
     //单选框
     RADIO_BTN(11),
-    //开关
-    SWITCH(19),
+
     //员工单选
     USER(12),
     //员工多选
@@ -44,7 +43,9 @@ public enum FieldTypeEnum {
     FILE(17),
     //图片
     IMAGE(18),
-    ADDRESS(19),
+    //开关
+    SWITCH(19),
+    ADDRESS(20),
     //子档
     SUB_ITEM(49),
     //产品

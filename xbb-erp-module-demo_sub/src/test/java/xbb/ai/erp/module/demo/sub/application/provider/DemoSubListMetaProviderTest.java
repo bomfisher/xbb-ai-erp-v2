@@ -24,32 +24,30 @@ class DemoSubListMetaProviderTest {
             .findFirst()
             .orElseThrow();
 
-    assertEquals("BUSINESS", dataIdFilter.getFieldType());
+    assertEquals("16", dataIdFilter.getFieldType());
+    assertEquals("BUSINESS", dataIdFilter.getFilterFieldType());
     assertTrue(dataIdFilter.getSupportedSymbols().contains("EQ"));
     assertNotNull(dataIdFilter.getBusinessSelectConfig());
-    assertEquals("demo", dataIdFilter.getBusinessSelectConfig().getBusinessType());
-    assertEquals("corp-001", dataIdFilter.getBusinessSelectConfig().getRequestPayload().get("corpid"));
+    assertEquals("DEMO", dataIdFilter.getBusinessSelectConfig().getBusinessCode());
 
-    assertSelectConfig(provider, dto, "userId", "member", "/erp/v1/org/memberSelect/quickSearch");
-    assertSelectConfig(provider, dto, "departmentId", "department", "/erp/v1/org/departmentSelect/quickSearch");
+    assertSelectConfig(provider, dto, "userId", "ORG_MEMBER");
+    assertSelectConfig(provider, dto, "departmentId", "ORG_DEPARTMENT");
   }
 
   private void assertSelectConfig(
       DemoSubListMetaProvider provider,
       ListCommonQueryDTO dto,
       String attr,
-      String businessType,
-      String quickSearchUrl) {
+      String businessCode) {
     FilterField filter =
         provider.buildFilterMeta(dto).stream()
             .filter(field -> attr.equals(field.getAttr()))
             .findFirst()
             .orElseThrow();
 
-    assertEquals("ID", filter.getFieldType());
+    assertEquals("12", filter.getFieldType());
+    assertEquals("ID", filter.getFilterFieldType());
     assertNotNull(filter.getBusinessSelectConfig());
-    assertEquals(businessType, filter.getBusinessSelectConfig().getBusinessType());
-    assertEquals(quickSearchUrl, filter.getBusinessSelectConfig().getQuickSearchUrl());
-    assertEquals("corp-001", filter.getBusinessSelectConfig().getRequestPayload().get("corpid"));
+    assertEquals(businessCode, filter.getBusinessSelectConfig().getBusinessCode());
   }
 }

@@ -7,6 +7,8 @@ import lombok.Getter;
  */
 @Getter
 public enum BusinessCodeEnum {
+    ORG_MEMBER("ORG_MEMBER"),
+    ORG_DEPARTMENT("ORG_DEPARTMENT"),
     CUSTOMER("CUSTOMER"),
     DEMO("DEMO"),
     DEMO_SUB("DEMO_SUB"),

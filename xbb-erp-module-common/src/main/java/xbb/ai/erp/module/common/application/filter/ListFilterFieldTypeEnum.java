@@ -3,6 +3,13 @@ package xbb.ai.erp.module.common.application.filter;
 public enum ListFilterFieldTypeEnum {
     TEXT,
     ENUM,
+    ENUM_MULTI,
     ID,
-    DATE
+    BUSINESS,
+    NUM_INT,
+    NUM_DOUBLE,
+    AMOUNT,
+    STOCK,
+    DATE,
+    TIME
 }

@@ -54,6 +54,17 @@ class ListFilterConditionBuilderTest {
         assertThrows(BizException.class, () -> new ListFilterConditionBuilder().build(List.of(condition), buildMetaMap()));
     }
 
+    @Test
+    void should_accept_all_contains_symbols_with_multiple_values() {
+        ListFilterCondition condition = buildCondition("tags", "ENUM_MULTI", "CONTAINS_ALL", List.of("A", "B"));
+        Map<String, ListFilterMetaPojo> metaMap = Map.of("tags", new ListFilterMetaPojo(
+            "tags", "tags", "ENUM_MULTI", List.of("CONTAINS_ALL", "NOT_CONTAINS_ALL")));
+
+        List<ListFilterCondition> result = new ListFilterConditionBuilder().build(List.of(condition), metaMap);
+
+        assertEquals(List.of("A", "B"), result.get(0).getValue());
+    }
+
     private static Map<String, ListFilterMetaPojo> buildMetaMap() {
         return Map.of(
             "customerName", new ListFilterMetaPojo("customerName", "customer_name", ListFilterFieldTypeEnum.TEXT.name(), List.of(

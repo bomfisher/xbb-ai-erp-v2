@@ -65,7 +65,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 | `POST /draftList` | `*DraftListDTO` | `List<*DraftListItemVO>` |
 | `POST /loadDraft` | `*DraftLoadDTO` | `*DraftDetailVO` |
 
-- `list` 直接使用 `ListBaseDTO`，不得仅为公共分页、关键词和动态 `conditions` 创建 `*ListDTO`；同时接入 `*ListMetaProvider`、`*ListQueryAdapter` 和筛选白名单。列表需要子档摘要时必须批量查询。
+- `list` 的 Controller、总入口 Application Service 与 Query Application Service 均直接使用 `ListBaseDTO`，不得仅为公共分页、关键词和动态 `conditions` 创建 `*ListDTO`。Query Application Service 必须执行 `requireCorpid`、`ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())`，并将同一个条件 Map 交给 `findByCondition` 和 `count`；`schemaProvider` 从 `*ListMetaProvider` 的筛选白名单派生，禁止手工拼接字段筛选、排序或分组条件。列表需要子档摘要时必须批量查询。
 - `addItem` 返回 `CREATE` 场景字段元数据与空表单；`updateItem` 返回 `UPDATE` 元数据以及主档、子档和 `sectionState` 回填。
 - `saveDraft`、`draftList`、`loadDraft` 放在 `application.service.draft`；草稿仓储定义在 `application.port`，实现放在基础设施层。
 - `saveAndSubmit` 放在 `application.service.save`，按“协议校验 → 通用字段校验 → 业务校验 → 主子档同步”执行；只有正式保存成功才删除来源草稿。
@@ -76,7 +76,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 2. 用 `scripts/build_delivery_scope.py` 明确模块、主表、可选从表和字段元数据；在业务设计中单独记录领域特有规则。
 3. 用 `scripts/validate_module_specs.py` 校验 ROOT/CHILD 角色、模块一致性和生成范围；先运行 `scripts/run_codegen.py` 的 dry-run。
 4. 用户确认后才使用 `scripts/run_codegen.py --apply`。ROOT 必须生成 `*FieldEnum`、场景字段提供者、`headList`、`BusinessCodeEnum` 对应值和包含实际字段白名单/动作的 `*ListMetaProvider`；不得生成空 Provider。
-5. 用 `scripts/verify_module_delivery.py` 校验模块目录职责、Mapper 注册、ROOT 的七个接口、字段元数据、`headList`、业务编码和 CHILD 无独立 HTTP/Application 层。
+5. 用 `scripts/verify_module_delivery.py` 校验模块目录职责、Mapper 注册、ROOT 的七个接口、统一 `ListBaseDTO + ListQueryMapUtil + schemaProvider` 列表链路、字段元数据、`headList`、业务编码和 CHILD 无独立 HTTP/Application 层。
 6. 接口契约变化时，执行 `.claude/commands/multi-player/SKILL.md`，维护 API 原子文档、聚合文档和 `docs/kn/总目录.md`。
 7. 运行 `scripts/harness-verify.sh`、目标模块测试和本 Skill 脚本测试。
 

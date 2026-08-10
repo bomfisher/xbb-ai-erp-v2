@@ -5,7 +5,7 @@
 - 新建：`POST /erp/v1/demo-sub/addItem`；API：`docs/api/endpoints/demo-sub-add-item.md`
 - 编辑：`POST /erp/v1/demo-sub/updateItem`；API：`docs/api/endpoints/demo-sub-update-item.md`
 - 表单关联：`dataId` 在新建和编辑态均下发 `DEMO` 的 `BUSINESS(16)` 选择配置。
-- 列表筛选：`dataId` 下发同一 `DEMO` 选择配置，选择关联数据后按 `data_id` 筛选。
+- 列表筛选：`dataId` 下发同一 `DEMO` 选择配置，选择关联数据后按 `data_id` 筛选；元数据同时下发源 `fieldType` 和查询协议 `filterFieldType`。
 - 成员与部门：`userId`、`departmentId` 在列表筛选和新建/编辑中使用组织模块选择器，并保存稳定 ID。
 
 ## 保存与草稿

@@ -7,10 +7,24 @@
     <sql id="dynamicCondition">
         <choose>
             <when test="c.symbol == 'IS_EMPTY'">
-                and (${c.attr} is null or ${c.attr} = '')
+                <choose>
+                    <when test="c.fieldType == 'ENUM' or c.fieldType == 'ENUM_MULTI'">
+                        and (${c.attr} is null or JSON_TYPE(${c.attr}) = 'NULL' or JSON_LENGTH(${c.attr}) = 0 or JSON_UNQUOTE(${c.attr}) = '')
+                    </when>
+                    <otherwise>
+                        and (${c.attr} is null or ${c.attr} = '')
+                    </otherwise>
+                </choose>
             </when>
             <when test="c.symbol == 'IS_NOT_EMPTY'">
-                and (${c.attr} is not null and ${c.attr} != '')
+                <choose>
+                    <when test="c.fieldType == 'ENUM' or c.fieldType == 'ENUM_MULTI'">
+                        and (${c.attr} is not null and JSON_TYPE(${c.attr}) != 'NULL' and JSON_LENGTH(${c.attr}) &gt; 0 and JSON_UNQUOTE(${c.attr}) != '')
+                    </when>
+                    <otherwise>
+                        and (${c.attr} is not null and ${c.attr} != '')
+                    </otherwise>
+                </choose>
             </when>
             <when test="c.symbol == 'EQ'">
                 and ${c.attr} = #{c.value[0]}
@@ -19,10 +33,48 @@
                 and ${c.attr} != #{c.value[0]}
             </when>
             <when test="c.symbol == 'CONTAINS'">
-                and ${c.attr} like concat('%', #{c.value[0]}, '%')
+                <choose>
+                    <when test="c.fieldType == 'ENUM' or c.fieldType == 'ENUM_MULTI'">
+                        and JSON_CONTAINS(${c.attr}, JSON_QUOTE(#{c.value[0]}))
+                    </when>
+                    <otherwise>
+                        and ${c.attr} like concat('%', #{c.value[0]}, '%')
+                    </otherwise>
+                </choose>
             </when>
             <when test="c.symbol == 'NOT_CONTAINS'">
-                and ${c.attr} not like concat('%', #{c.value[0]}, '%')
+                <choose>
+                    <when test="c.fieldType == 'ENUM' or c.fieldType == 'ENUM_MULTI'">
+                        and not JSON_CONTAINS(${c.attr}, JSON_QUOTE(#{c.value[0]}))
+                    </when>
+                    <otherwise>
+                        and ${c.attr} not like concat('%', #{c.value[0]}, '%')
+                    </otherwise>
+                </choose>
+            </when>
+            <when test="c.symbol == 'CONTAINS_ALL'">
+                <foreach collection="c.value" item="item">
+                    <choose>
+                        <when test="c.fieldType == 'ENUM' or c.fieldType == 'ENUM_MULTI'">
+                            and JSON_CONTAINS(${c.attr}, JSON_QUOTE(#{item}))
+                        </when>
+                        <otherwise>
+                            and ${c.attr} like concat('%', #{item}, '%')
+                        </otherwise>
+                    </choose>
+                </foreach>
+            </when>
+            <when test="c.symbol == 'NOT_CONTAINS_ALL'">
+                <foreach collection="c.value" item="item">
+                    <choose>
+                        <when test="c.fieldType == 'ENUM' or c.fieldType == 'ENUM_MULTI'">
+                            and not JSON_CONTAINS(${c.attr}, JSON_QUOTE(#{item}))
+                        </when>
+                        <otherwise>
+                            and ${c.attr} not like concat('%', #{item}, '%')
+                        </otherwise>
+                    </choose>
+                </foreach>
             </when>
             <when test="c.symbol == 'IN'">
                 and ${c.attr} in

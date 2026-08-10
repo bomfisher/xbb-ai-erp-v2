@@ -18,7 +18,7 @@ public final class DemoSubConvertor {
     po.setName(demoSub.getName());
     po.setUserId(demoSub.getUserId());
     po.setDepartmentId(demoSub.getDepartmentId());
-    po.setDeleted(demoSub.getDeleted());
+    po.setDel(demoSub.getDel());
     po.setAddTime(demoSub.getAddTime());
     po.setUpdateTime(demoSub.getUpdateTime());
     po.setCreatorId(demoSub.getCreatorId());
@@ -37,7 +37,7 @@ public final class DemoSubConvertor {
     demoSub.setName(po.getName());
     demoSub.setUserId(po.getUserId());
     demoSub.setDepartmentId(po.getDepartmentId());
-    demoSub.setDeleted(po.getDeleted());
+    demoSub.setDel(po.getDel());
     demoSub.setAddTime(po.getAddTime());
     demoSub.setUpdateTime(po.getUpdateTime());
     demoSub.setCreatorId(po.getCreatorId());

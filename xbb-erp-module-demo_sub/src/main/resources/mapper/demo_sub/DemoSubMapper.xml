@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.demo.sub.infrastructure.persistence.mapper.DemoSubMapper">
 
     <sql id="BaseColumns">
-        id, corpid, data_id, name, user_id, department_id, del, add_time, update_time, creator_id, modify_id
+        id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -39,11 +39,11 @@
 
     <insert id="insertBatch">
         insert into demo_sub (
-            id, corpid, data_id, name, user_id, department_id, del, add_time, update_time, creator_id, modify_id
+            id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.corpid}, #{item.dataId}, #{item.name}, #{item.userId}, #{item.departmentId}, #{item.deleted}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.id}, #{item.corpid}, #{item.dataId}, #{item.name}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
 
@@ -72,9 +72,7 @@
             <if test="corpid != null">corpid = #{corpid},</if>
             <if test="dataId != null">data_id = #{dataId},</if>
             <if test="name != null">name = #{name},</if>
-            <if test="userId != null">user_id = #{userId},</if>
-            <if test="departmentId != null">department_id = #{departmentId},</if>
-            <if test="deleted != null">del = #{deleted},</if>
+            <if test="del != null">del = #{del},</if>
             <if test="addTime != null">add_time = #{addTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
             <if test="creatorId != null">creator_id = #{creatorId},</if>

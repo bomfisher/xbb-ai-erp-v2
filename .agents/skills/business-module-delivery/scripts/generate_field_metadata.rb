@@ -4,10 +4,33 @@
 require "json"
 require "yaml"
 
-FILTERABLE_FIELD_TYPES = %w[TEXT USER DEPT BUSINESS COMB NUM_INT NUM_DOUBLE AMOUNT DATE TIME].freeze
+FILTERABLE_FIELD_TYPES = %w[TEXT USER DEPT BUSINESS COMB COMB_MULTI CHECKBOX RADIO_BTN SWITCH NUM_INT NUM_DOUBLE AMOUNT STOCK DATE TIME].freeze
 NON_FILTERABLE_FIELD_TYPES = %w[FILE IMAGE ADDRESS SUB_ITEM PRODUCT].freeze
 REQUIRED_FIELD_KEYS = %w[name attr attrName fieldType scenes required editable defaultValue filterName].freeze
 OPTION_FIELD_TYPES = %w[COMB COMB_MULTI CHECKBOX RADIO_BTN].freeze
+FILTER_PROTOCOL_TYPES = {
+  "TEXT" => "TEXT", "USER" => "ID", "DEPT" => "ID", "BUSINESS" => "BUSINESS",
+  "COMB" => "ENUM", "RADIO_BTN" => "ENUM", "SWITCH" => "ENUM",
+  "COMB_MULTI" => "ENUM_MULTI", "CHECKBOX" => "ENUM_MULTI",
+  "NUM_INT" => "NUM_INT", "NUM_DOUBLE" => "NUM_DOUBLE", "AMOUNT" => "AMOUNT", "STOCK" => "STOCK",
+  "DATE" => "DATE", "TIME" => "TIME"
+}.freeze
+FILTER_SUPPORTED_SYMBOLS = {
+  "TEXT" => %w[EQ NE CONTAINS NOT_CONTAINS IS_EMPTY IS_NOT_EMPTY],
+  "USER" => %w[EQ NE IN IS_EMPTY IS_NOT_EMPTY], "DEPT" => %w[EQ NE IN IS_EMPTY IS_NOT_EMPTY],
+  "BUSINESS" => %w[EQ NE IN IS_EMPTY IS_NOT_EMPTY],
+  "COMB" => %w[CONTAINS NOT_CONTAINS IS_EMPTY IS_NOT_EMPTY],
+  "RADIO_BTN" => %w[CONTAINS NOT_CONTAINS IS_EMPTY IS_NOT_EMPTY],
+  "SWITCH" => %w[CONTAINS NOT_CONTAINS IS_EMPTY IS_NOT_EMPTY],
+  "COMB_MULTI" => %w[CONTAINS NOT_CONTAINS CONTAINS_ALL NOT_CONTAINS_ALL IS_EMPTY IS_NOT_EMPTY],
+  "CHECKBOX" => %w[CONTAINS NOT_CONTAINS CONTAINS_ALL NOT_CONTAINS_ALL IS_EMPTY IS_NOT_EMPTY],
+  "NUM_INT" => %w[EQ NE GE LE BETWEEN IS_EMPTY IS_NOT_EMPTY],
+  "NUM_DOUBLE" => %w[EQ NE GE LE BETWEEN IS_EMPTY IS_NOT_EMPTY],
+  "AMOUNT" => %w[EQ NE GE LE BETWEEN IS_EMPTY IS_NOT_EMPTY],
+  "STOCK" => %w[EQ NE GE LE BETWEEN IS_EMPTY IS_NOT_EMPTY],
+  "DATE" => %w[EQ GE LE BETWEEN IS_EMPTY IS_NOT_EMPTY],
+  "TIME" => %w[GE LE BETWEEN IS_EMPTY IS_NOT_EMPTY]
+}.freeze
 
 def fail_with(message)
   warn message
@@ -38,6 +61,10 @@ def normalize_field(field, path, child: false)
     fail_with("#{path} 的 fieldType #{field_type} 未定义筛选规则，filterName 必须为 null")
   end
   normalized_field = field.slice(*REQUIRED_FIELD_KEYS)
+  unless filter_name.nil?
+    normalized_field["filterFieldType"] = FILTER_PROTOCOL_TYPES.fetch(field_type)
+    normalized_field["supportedSymbols"] = FILTER_SUPPORTED_SYMBOLS.fetch(field_type)
+  end
   if OPTION_FIELD_TYPES.include?(field_type) && field.key?("options")
     fail_with("#{path}.options 必须是非空字符串") unless field["options"].is_a?(String) && !field["options"].strip.empty?
     normalized_field["options"] = field["options"]

@@ -10,8 +10,35 @@ from typing import Any, Dict
 
 SCENES = {"LIST", "CREATE", "UPDATE"}
 ACTION_GROUPS = ("top", "bottom", "row")
-FILTERABLE_FIELD_TYPES = {"TEXT", "USER", "DEPT", "BUSINESS", "COMB", "NUM_INT", "NUM_DOUBLE", "AMOUNT", "DATE", "TIME"}
+FILTERABLE_FIELD_TYPES = {
+    "TEXT", "USER", "DEPT", "BUSINESS", "COMB", "COMB_MULTI", "CHECKBOX", "RADIO_BTN", "SWITCH",
+    "NUM_INT", "NUM_DOUBLE", "AMOUNT", "STOCK", "DATE", "TIME",
+}
 NON_FILTERABLE_FIELD_TYPES = {"FILE", "IMAGE", "ADDRESS", "SUB_ITEM", "PRODUCT"}
+FILTER_PROTOCOL_TYPES = {
+    "TEXT": "TEXT", "USER": "ID", "DEPT": "ID", "BUSINESS": "BUSINESS",
+    "COMB": "ENUM", "RADIO_BTN": "ENUM", "SWITCH": "ENUM",
+    "COMB_MULTI": "ENUM_MULTI", "CHECKBOX": "ENUM_MULTI",
+    "NUM_INT": "NUM_INT", "NUM_DOUBLE": "NUM_DOUBLE", "AMOUNT": "AMOUNT", "STOCK": "STOCK",
+    "DATE": "DATE", "TIME": "TIME",
+}
+FILTER_SUPPORTED_SYMBOLS = {
+    "TEXT": ["EQ", "NE", "CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "USER": ["EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "DEPT": ["EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "BUSINESS": ["EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "COMB": ["CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "RADIO_BTN": ["CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "SWITCH": ["CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "COMB_MULTI": ["CONTAINS", "NOT_CONTAINS", "CONTAINS_ALL", "NOT_CONTAINS_ALL", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "CHECKBOX": ["CONTAINS", "NOT_CONTAINS", "CONTAINS_ALL", "NOT_CONTAINS_ALL", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "NUM_INT": ["EQ", "NE", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "NUM_DOUBLE": ["EQ", "NE", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "AMOUNT": ["EQ", "NE", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "STOCK": ["EQ", "NE", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "DATE": ["EQ", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+    "TIME": ["GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+}
 
 
 def load_metadata(path: Path) -> Dict[str, Any]:
@@ -51,6 +78,12 @@ def validate(metadata: Dict[str, Any]) -> list[str]:
             require_string(field["filterName"], f"{prefix}.filterName", errors)
             if child or field.get("fieldType") not in FILTERABLE_FIELD_TYPES:
                 errors.append(f"{prefix}.fieldType 不支持筛选，filterName 必须为 null")
+            expected_protocol = FILTER_PROTOCOL_TYPES.get(field.get("fieldType"))
+            if field.get("filterFieldType") != expected_protocol:
+                errors.append(f"{prefix}.filterFieldType 必须为 {expected_protocol}")
+            expected_symbols = FILTER_SUPPORTED_SYMBOLS.get(field.get("fieldType"))
+            if field.get("supportedSymbols") != expected_symbols:
+                errors.append(f"{prefix}.supportedSymbols 必须为 {expected_symbols}")
         if field.get("fieldType") in NON_FILTERABLE_FIELD_TYPES and field.get("filterName") is not None:
             errors.append(f"{prefix}.fieldType 不支持筛选，filterName 必须为 null")
         if field.get("fieldType") == "SUB_ITEM":

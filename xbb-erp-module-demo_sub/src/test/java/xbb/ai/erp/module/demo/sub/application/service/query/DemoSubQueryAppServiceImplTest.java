@@ -13,6 +13,7 @@ import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubSaveItemVO;
 import xbb.ai.erp.module.demo.sub.application.field.DefaultDemoSubFieldFactory;
+import xbb.ai.erp.module.demo.sub.application.port.DemoLookupPort;
 import xbb.ai.erp.module.demo.sub.domain.model.DemoSub;
 import xbb.ai.erp.module.demo.sub.domain.repository.DemoSubRepository;
 
@@ -21,13 +22,14 @@ class DemoSubQueryAppServiceImplTest {
   @Test
   void shouldBuildBusinessSelectConfigForCreateAndUpdate() {
     DemoSubRepository repository = mock(DemoSubRepository.class);
+    DemoLookupPort demoLookupPort = mock(DemoLookupPort.class);
     DemoSub demoSub = new DemoSub();
     demoSub.setId(1L);
     demoSub.setCorpid("corp-001");
     demoSub.setDataId(100L);
     when(repository.findById("corp-001", 1L)).thenReturn(demoSub);
     DemoSubQueryAppServiceImpl service =
-        new DemoSubQueryAppServiceImpl(repository, null, new DefaultDemoSubFieldFactory());
+        new DemoSubQueryAppServiceImpl(repository, null, new DefaultDemoSubFieldFactory(), demoLookupPort);
 
     BaseDTO createDTO = new BaseDTO();
     createDTO.setCorpid("corp-001");

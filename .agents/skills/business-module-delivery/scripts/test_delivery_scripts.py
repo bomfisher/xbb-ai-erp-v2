@@ -41,6 +41,8 @@ def write_metadata(path: Path) -> None:
             "fieldType": "TEXT",
             "scenes": ["LIST", "CREATE", "UPDATE"],
             "filterName": "order_no",
+            "filterFieldType": "TEXT",
+            "supportedSymbols": ["EQ", "NE", "CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"],
         }],
         "listActions": {
             "top": [{"actionCode": "ADD", "actionName": "新增"}],
@@ -104,6 +106,16 @@ fields:
     editable: true
     defaultValue: null
     filterName: null
+  - name: tags
+    attr: main.tags
+    attrName: 标签
+    fieldType: COMB_MULTI
+    scenes: [LIST, CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: tags
+    options: "A:甲, B:乙"
 listActions:
   top: []
   bottom: []
@@ -114,7 +126,12 @@ listActions:
             subprocess.run(["ruby", str(SCRIPTS / "generate_field_metadata.rb"), str(design), str(metadata)], check=True)
             generated = json.loads(metadata.read_text(encoding="utf-8"))
             self.assertEqual("order_no", generated["fields"][0]["filterName"])
+            self.assertEqual("TEXT", generated["fields"][0]["filterFieldType"])
+            self.assertEqual(["EQ", "NE", "CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"], generated["fields"][0]["supportedSymbols"])
             self.assertIsNone(generated["fields"][1]["filterName"])
+            self.assertEqual("tags", generated["fields"][2]["filterName"])
+            self.assertEqual("ENUM_MULTI", generated["fields"][2]["filterFieldType"])
+            self.assertEqual(["CONTAINS", "NOT_CONTAINS", "CONTAINS_ALL", "NOT_CONTAINS_ALL", "IS_EMPTY", "IS_NOT_EMPTY"], generated["fields"][2]["supportedSymbols"])
             subprocess.run(["python3", str(SCRIPTS / "validate_field_metadata.py"), str(metadata)], check=True)
 
     def test_field_design_generator_preserves_type_specific_configuration(self) -> None:
@@ -173,6 +190,7 @@ listActions:
             subprocess.run(["ruby", str(SCRIPTS / "generate_field_metadata.rb"), str(design), str(metadata)], check=True)
             generated = json.loads(metadata.read_text(encoding="utf-8"))
             self.assertEqual("0:禁用, 1:启用", generated["fields"][0]["options"])
+            self.assertEqual(["CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"], generated["fields"][0]["supportedSymbols"])
             self.assertEqual("PRODUCT", generated["fields"][1]["businessCode"])
             self.assertEqual("data_id", generated["fields"][1]["filterName"])
             self.assertEqual("skuId", generated["fields"][2]["subFields"][0]["name"])
@@ -202,26 +220,33 @@ listActions:
             business_enum.write_text('enum BusinessCodeEnum { SALES_ORDER("SALES_ORDER") }\n', encoding="utf-8")
             endpoint_methods = "\n".join(
                 f'    @PostMapping("/{endpoint}")\n    public ResultVO<Void> {endpoint}() {{ return null; }}'
-                for endpoint in ("list", "addItem", "updateItem", "saveDraft", "saveAndSubmit", "draftList", "loadDraft")
+                for endpoint in ("addItem", "updateItem", "saveDraft", "saveAndSubmit", "draftList", "loadDraft")
             )
             (source_root / "admin/SalesOrderAdminController.java").write_text(
-                "class SalesOrderAdminController {\n" + endpoint_methods + "\n}\n", encoding="utf-8"
+                "class SalesOrderAdminController {\n"
+                "    @PostMapping(\"/list\")\n    public ResultVO<Void> list(@RequestBody ListBaseDTO dto) { return null; }\n"
+                + endpoint_methods + "\n}\n", encoding="utf-8"
             )
             (source_root / "application/service/SalesOrderAdminAppService.java").write_text(
-                "interface SalesOrderAdminAppService {\n"
-                + "\n".join(f"    void {endpoint}();" for endpoint in ("list", "addItem", "updateItem", "saveDraft", "saveAndSubmit", "draftList", "loadDraft"))
+                "interface SalesOrderAdminAppService {\n    void list(ListBaseDTO dto);\n"
+                + "\n".join(f"    void {endpoint}();" for endpoint in ("addItem", "updateItem", "saveDraft", "saveAndSubmit", "draftList", "loadDraft"))
                 + "\n}\n", encoding="utf-8"
             )
             (source_root / "admin/SalesOrderFieldEnum.java").write_text(
                 'enum SalesOrderFieldEnum { ORDER_NO("main.orderNo", "订单编号", FieldTypeEnum.TEXT) }\n', encoding="utf-8"
             )
             (source_root / "application/service/query/SalesOrderQueryAppService.java").write_text(
-                "class SalesOrderQueryAppService { void addItem() { setHeadList(SceneTypeEnum.CREATE); } "
+                "class SalesOrderQueryAppService { void list(ListBaseDTO dto) { listQueryMapUtil.gen(dto, conditionMetaMap()); } "
+                "ListQueryMapUtil listQueryMapUtil; Object conditionMetaMap() { return null; } void addItem() { setHeadList(SceneTypeEnum.CREATE); } "
                 "void updateItem() { setHeadList(SceneTypeEnum.UPDATE); } void setHeadList(Object value) {} }\n",
                 encoding="utf-8",
             )
             (source_root / "application/provider/SalesOrderListMetaProvider.java").write_text(
-                'class SalesOrderListMetaProvider { String data = "main.orderNo 订单编号 order_no TEXT ADD 新增 EDIT 编辑"; }\n',
+                'class SalesOrderListMetaProvider { String data = "main.orderNo 订单编号 order_no setFilterFieldType main.tags 标签 tags COMB_MULTI ADD 新增 EDIT 编辑"; }\n',
+                encoding="utf-8",
+            )
+            (source_root / "infrastructure/persistence/repository/SalesOrderRepositoryImpl.java").write_text(
+                '@Repository("xbbAiErpModuleSalesSalesOrderRepositoryImpl") class SalesOrderRepositoryImpl {}\n',
                 encoding="utf-8",
             )
             for relative_path in (

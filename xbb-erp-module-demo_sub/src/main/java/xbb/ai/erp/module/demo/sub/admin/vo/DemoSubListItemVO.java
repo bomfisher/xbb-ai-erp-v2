@@ -4,7 +4,9 @@ import lombok.Data;
 
 @Data
 public class DemoSubListItemVO {
+  private Long id;
   private Long dataId;
+  private String dataName;
   private String name;
   private String userId;
   private Long departmentId;

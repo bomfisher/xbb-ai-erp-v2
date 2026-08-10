@@ -51,7 +51,7 @@ public class ListFilterConditionBuilder {
                     throw new BizException("筛选值长度不合法");
                 }
             }
-            case IN -> {
+            case IN, CONTAINS_ALL, NOT_CONTAINS_ALL -> {
                 if (values == null || values.isEmpty()) {
                     throw new BizException("筛选值长度不合法");
                 }

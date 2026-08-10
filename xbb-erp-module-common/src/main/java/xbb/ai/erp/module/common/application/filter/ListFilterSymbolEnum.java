@@ -5,6 +5,8 @@ public enum ListFilterSymbolEnum {
     NE,
     CONTAINS,
     NOT_CONTAINS,
+    CONTAINS_ALL,
+    NOT_CONTAINS_ALL,
     IN,
     GE,
     LE,

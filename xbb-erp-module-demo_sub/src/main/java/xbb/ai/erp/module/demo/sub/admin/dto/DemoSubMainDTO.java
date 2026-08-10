@@ -10,7 +10,7 @@ public class DemoSubMainDTO {
   private String name;
   private String userId;
   private Long departmentId;
-  private Integer deleted;
+  private Integer del;
   private Long addTime;
   private Long updateTime;
   private String creatorId;

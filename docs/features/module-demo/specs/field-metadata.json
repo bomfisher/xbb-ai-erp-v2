@@ -14,7 +14,16 @@
       "required": true,
       "editable": true,
       "defaultValue": null,
-      "filterName": "name"
+      "filterName": "name",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "user_id",
@@ -29,7 +38,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "user_id"
+      "filterName": "user_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "dep_id",
@@ -44,7 +61,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "dep_id"
+      "filterName": "dep_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "comb",
@@ -60,6 +85,13 @@
       "editable": true,
       "defaultValue": null,
       "filterName": "comb",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
       "options": "0:禁用, 1:启用"
     },
     {
@@ -91,7 +123,17 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "num_int"
+      "filterName": "num_int",
+      "filterFieldType": "NUM_INT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "num_double",
@@ -106,7 +148,17 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "num_double"
+      "filterName": "num_double",
+      "filterFieldType": "NUM_DOUBLE",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "amount",
@@ -121,7 +173,17 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "amount"
+      "filterName": "amount",
+      "filterFieldType": "AMOUNT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "date",
@@ -136,7 +198,16 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "date"
+      "filterName": "date",
+      "filterFieldType": "DATE",
+      "supportedSymbols": [
+        "EQ",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "time",
@@ -151,7 +222,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "time"
+      "filterName": "time",
+      "filterFieldType": "TIME",
+      "supportedSymbols": [
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "file",
@@ -211,7 +290,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "creator_id"
+      "filterName": "creator_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "modify_id",
@@ -226,7 +313,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "modify_id"
+      "filterName": "modify_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     }
   ],
   "listActions": {

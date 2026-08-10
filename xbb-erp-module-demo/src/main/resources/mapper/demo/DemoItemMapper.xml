@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.demo.infrastructure.persistence.mapper.DemoItemMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.dataId != null">
+            and data_id = #{conditionMap.dataId}
+        </if>
+        <if test="conditionMap.name != null and conditionMap.name != ''">
+            and name = #{conditionMap.name}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch">
+        insert into demo_item (
+            id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.id}, #{item.corpid}, #{item.dataId}, #{item.name}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update demo_item
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update demo_item
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.demo.infrastructure.persistence.po.DemoItemPO">
+        update demo_item
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="dataId != null">data_id = #{dataId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="del != null">del = #{del},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.demo.infrastructure.persistence.po.DemoItemPO">
+        select <include refid="BaseColumns"/>
+        from demo_item
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.demo.infrastructure.persistence.po.DemoItemPO">
+        select <include refid="BaseColumns"/>
+        from demo_item
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from demo_item
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

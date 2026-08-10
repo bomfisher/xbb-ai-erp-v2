@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldItem;
+import xbb.ai.erp.base.common.filed.FieldTypeEnum;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.base.common.pojo.FilterField;
 import xbb.ai.erp.base.common.pojo.ListButtonItemPojo;
@@ -132,7 +133,32 @@ class ListCommonServiceTest {
         assertEquals(Set.of("EQ", "NE", "CONTAINS"), metaMap.get("customerCode").getSupportedSymbols());
     }
 
-    private static final class StubListMetaProvider implements ListMetaProvider {
+    @Test
+    void should_normalize_filter_field_subtype_and_switch_options() {
+        ListMetaProvider provider = new StubListMetaProvider() {
+            @Override
+            public List<FilterField> buildFilterMeta(ListCommonQueryDTO dto) {
+                FilterField field = new FilterField();
+                field.setAttr("enabled");
+                field.setAttrName("开关");
+                field.setSourceFieldType(FieldTypeEnum.SWITCH.getType());
+                field.setFieldType("TEXT");
+                field.setSupportedSymbols(List.of("CONTAINS"));
+                return List.of(field);
+            }
+        };
+        ListCommonServiceImpl service = new ListCommonServiceImpl(new ListMetaRegistry(List.of(provider)));
+        ListCommonQueryDTO dto = new ListCommonQueryDTO();
+        dto.setBusinessCode("CUSTOMER");
+
+        FilterField field = service.filter(dto).getList().get(0);
+
+        assertEquals("19", field.getFieldType());
+        assertEquals("ENUM", field.getFilterFieldType());
+        assertEquals(List.of("1", "2"), field.getItemList().stream().map(item -> item.getValue().toString()).toList());
+    }
+
+    private static class StubListMetaProvider implements ListMetaProvider {
 
         @Override
         public String businessCode() {

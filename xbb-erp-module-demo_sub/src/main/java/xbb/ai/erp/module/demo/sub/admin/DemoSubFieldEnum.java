@@ -13,7 +13,14 @@ public enum DemoSubFieldEnum {
       FieldTypeEnum.BUSINESS,
       "data_id",
       "DEMO",
-      Set.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE)),
+      Set.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE)),
+  DATA_NAME(
+      "main.dataName",
+      "关联DEMO",
+      FieldTypeEnum.TEXT,
+      null,
+      null,
+      Set.of(SceneTypeEnum.LIST)),
   NAME(
       "main.name",
       "名称",
@@ -26,17 +33,17 @@ public enum DemoSubFieldEnum {
       "成员",
       FieldTypeEnum.USER,
       "user_id",
-      null,
+      "ORG_MEMBER",
       Set.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE)),
   DEPARTMENT_ID(
       "main.departmentId",
       "部门",
       FieldTypeEnum.DEPT,
       "department_id",
-      null,
+      "ORG_DEPARTMENT",
       Set.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE)),
-  CREATOR_ID("main.creatorId", "创建人", FieldTypeEnum.USER, "creator_id", null, Set.of(SceneTypeEnum.LIST)),
-  MODIFY_ID("main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id", null, Set.of(SceneTypeEnum.LIST));
+  CREATOR_ID("main.creatorId", "创建人", FieldTypeEnum.USER, "creator_id", "ORG_MEMBER", Set.of(SceneTypeEnum.LIST)),
+  MODIFY_ID("main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id", "ORG_MEMBER", Set.of(SceneTypeEnum.LIST));
   private final String attr;
   private final String attrName;
   private final Integer fieldType;

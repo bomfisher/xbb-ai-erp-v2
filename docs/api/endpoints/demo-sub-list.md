@@ -18,6 +18,6 @@
 ```
 
 ## 规则说明
-- 筛选字段和操作符由 `DEMO_SUB` 公共列表元数据下发，服务端只接受白名单映射。
+- 筛选字段和操作符由 `DEMO_SUB` 公共列表元数据下发，服务端只接受白名单映射；筛选项的 `fieldType` 为源字段枚举值，`filterFieldType` 为写入 `conditions[].fieldType` 的查询协议类型。
 - `dataId` 筛选项为关联 `DEMO` 的业务选择器，公共筛选元数据下发当前租户的 `businessSelectConfig`；先选择关联数据，再按 `data_id` 白名单筛选。
 - `userId` 与 `departmentId` 筛选项分别下发成员、部门的选择配置；前端先选择稳定 ID，再按白名单列筛选。

@@ -17,9 +17,9 @@ import xbb.ai.erp.module.demo.sub.domain.repository.DemoSubRepository;
 public class DemoSubSaveAppServiceImpl {
   private final DemoSubRepository repository;
   private final DemoSubDraftRepository draftRepository;
+  private final DemoSubSaveBusinessValidator businessValidator;
   private final DemoSubSaveProtocolValidator protocolValidator = new DemoSubSaveProtocolValidator();
   private final DemoSubSaveCommonValidator commonValidator = new DemoSubSaveCommonValidator();
-  private final DemoSubSaveBusinessValidator businessValidator = new DemoSubSaveBusinessValidator();
 
   @Transactional
   public BaseVO saveAndSubmit(DemoSubSubmitSaveDTO dto) {
@@ -39,7 +39,7 @@ public class DemoSubSaveAppServiceImpl {
     entity.setModifyId(dto.getUserId());
     entity.setAddTime(now);
     entity.setUpdateTime(now);
-    entity.setDeleted(0);
+    entity.setDel(0);
     if (entity.getId() == null) repository.insert(entity);
     else repository.update(entity);
     return entity.getId();

@@ -25,7 +25,7 @@ public final class DemoSubAdminAssembler {
       demoSub.setName(main.getName());
       demoSub.setUserId(main.getUserId());
       demoSub.setDepartmentId(main.getDepartmentId());
-      demoSub.setDeleted(main.getDeleted());
+      demoSub.setDel(main.getDel());
       demoSub.setAddTime(main.getAddTime());
       demoSub.setUpdateTime(main.getUpdateTime());
       demoSub.setCreatorId(main.getCreatorId());
@@ -35,9 +35,11 @@ public final class DemoSubAdminAssembler {
     return demoSub;
   }
 
-  public static DemoSubListItemVO toListItemVO(DemoSub demoSub) {
+  public static DemoSubListItemVO toListItemVO(DemoSub demoSub, String dataName) {
     DemoSubListItemVO vo = new DemoSubListItemVO();
+    vo.setId(demoSub.getId());
     vo.setDataId(demoSub.getDataId());
+    vo.setDataName(dataName);
     vo.setName(demoSub.getName());
     vo.setUserId(demoSub.getUserId());
     vo.setDepartmentId(demoSub.getDepartmentId());
@@ -58,7 +60,7 @@ public final class DemoSubAdminAssembler {
     main.setName(demoSub.getName());
     main.setUserId(demoSub.getUserId());
     main.setDepartmentId(demoSub.getDepartmentId());
-    main.setDeleted(demoSub.getDeleted());
+    main.setDel(demoSub.getDel());
     main.setAddTime(demoSub.getAddTime());
     main.setUpdateTime(demoSub.getUpdateTime());
     main.setCreatorId(demoSub.getCreatorId());

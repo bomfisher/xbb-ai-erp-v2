@@ -3,6 +3,9 @@ package xbb.ai.erp.module.common.application.service.impl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.base.common.filed.FieldItem;
+import xbb.ai.erp.base.common.filed.FieldTypeEnum;
+import xbb.ai.erp.base.common.pojo.FilterField;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.admin.vo.ListBottomButtonVO;
 import xbb.ai.erp.module.common.admin.vo.ListFilterVO;
@@ -14,6 +17,7 @@ import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.common.application.provider.ListMetaRegistry;
 import xbb.ai.erp.module.common.application.service.ListCommonService;
+import xbb.ai.erp.module.common.application.filter.ListFilterFieldTypeRule;
 
 import java.util.Collections;
 import java.util.List;
@@ -29,8 +33,36 @@ public class ListCommonServiceImpl implements ListCommonService {
     public ListFilterVO filter(ListCommonQueryDTO dto) {
         ListMetaProvider provider = listMetaRegistry.getRequiredProvider(dto.getBusinessCode());
         ListFilterVO vo = new ListFilterVO();
-        vo.setList(provider.buildFilterMeta(dto));
+        List<FilterField> fields = provider.buildFilterMeta(dto);
+        vo.setList(Objects.isNull(fields) ? Collections.emptyList() : fields.stream()
+            .map(this::normalizeFilterField)
+            .toList());
         return vo;
+    }
+
+    private FilterField normalizeFilterField(FilterField field) {
+        if (field.sourceFieldType() == null) {
+            if (field.getFilterFieldType() == null) {
+                field.setFilterFieldType(field.getFieldType());
+            }
+            return field;
+        }
+        ListFilterFieldTypeRule.find(field.sourceFieldType()).ifPresent(rule -> {
+            field.setFilterFieldType(rule.protocolFieldType());
+            field.setFieldType(String.valueOf(field.sourceFieldType()));
+            field.setSupportedSymbols(rule.supportedSymbols());
+        });
+        if (Objects.equals(FieldTypeEnum.SWITCH.getType(), field.sourceFieldType())) {
+            field.setItemList(List.of(fieldItem("1", "开启"), fieldItem("2", "关闭")));
+        }
+        return field;
+    }
+
+    private FieldItem fieldItem(String value, String text) {
+        FieldItem item = new FieldItem();
+        item.setValue(value);
+        item.setText(text);
+        return item;
     }
 
     @Override

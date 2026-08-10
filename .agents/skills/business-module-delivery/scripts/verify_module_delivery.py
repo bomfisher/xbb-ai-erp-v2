@@ -70,13 +70,22 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
         errors.append(f"缺少列表元数据 Provider：{provider}")
     else:
         provider_content = provider.read_text(encoding="utf-8") + "\n" + field_enum_content
-        if "return List.of();" in provider_content or "return Map.of();" in provider_content:
+        empty_metadata_methods = (
+            r"buildFilterMeta\s*\([^)]*\)\s*\{\s*return\s+(?:java\.util\.)?Collections\.emptyList\(\);",
+            r"buildFilterConditionMeta\s*\([^)]*\)\s*\{\s*return\s+(?:java\.util\.)?Collections\.emptyMap\(\);",
+            r"buildHeaderMeta\s*\([^)]*\)\s*\{\s*return\s+(?:java\.util\.)?Collections\.emptyList\(\);",
+            r"buildFilterMeta\s*\([^)]*\)\s*\{\s*return\s+List\.of\(\);",
+            r"buildFilterConditionMeta\s*\([^)]*\)\s*\{\s*return\s+Map\.of\(\);",
+            r"buildHeaderMeta\s*\([^)]*\)\s*\{\s*return\s+List\.of\(\);",
+        )
+        if any(re.search(pattern, provider_content, re.DOTALL) for pattern in empty_metadata_methods):
             errors.append("ListMetaProvider 仍为空骨架，未生成明确字段元数据")
         for field in metadata["fields"]:
             if "LIST" in field["scenes"] or field["filterName"] is not None:
                 required_fragments = [field["attr"].split(".")[-1], field["attrName"]]
                 if field["filterName"] is not None:
                     required_fragments.append(field["filterName"])
+                    required_fragments.append("setFilterFieldType")
                 missing = [fragment for fragment in required_fragments if fragment not in provider_content]
                 if missing:
                     errors.append(f"ListMetaProvider 未覆盖 {field['name']}：{'、'.join(missing)}")
@@ -84,6 +93,25 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
             for action in action_group:
                 if action["actionCode"] not in provider_content or action["actionName"] not in provider_content:
                     errors.append(f"ListMetaProvider 未覆盖列表动作：{action['actionCode']}")
+    return errors
+
+
+def validate_list_contract(source_root: Path, aggregate: str) -> list[str]:
+    errors = []
+    controller = source_root / "admin" / f"{aggregate}AdminController.java"
+    if controller.is_file() and not re.search(r"list\s*\(\s*@RequestBody\s+ListBaseDTO\s+\w+\s*\)", controller.read_text(encoding="utf-8")):
+        errors.append("Controller 的 list 必须直接接收 ListBaseDTO")
+
+    app_service = source_root / "application/service" / f"{aggregate}AdminAppService.java"
+    if app_service.is_file() and not re.search(r"\blist\s*\(\s*ListBaseDTO\s+\w+\s*\)", app_service.read_text(encoding="utf-8")):
+        errors.append("Application Service 的 list 必须直接接收 ListBaseDTO")
+
+    query_services = java_files(source_root / "application/service/query")
+    query_content = "\n".join(path.read_text(encoding="utf-8") for path in query_services)
+    required_fragments = ("ListBaseDTO", "ListQueryMapUtil", "listQueryMapUtil.gen(", "conditionMetaMap()")
+    missing = [fragment for fragment in required_fragments if fragment not in query_content]
+    if missing:
+        errors.append("Query AppService 未使用公共列表条件映射：" + "、".join(missing))
     return errors
 
 
@@ -121,6 +149,7 @@ def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata:
     if not repository_impl.is_file() or "@Repository(\"" not in repository_impl.read_text(encoding="utf-8"):
         errors.append("RepositoryImpl 必须声明模块级显式 Spring Bean 名，避免跨模块同名聚合冲突")
     errors.extend(validate_field_delivery(module_root, source_root, aggregate, metadata))
+    errors.extend(validate_list_contract(source_root, aggregate))
     return errors
 
 

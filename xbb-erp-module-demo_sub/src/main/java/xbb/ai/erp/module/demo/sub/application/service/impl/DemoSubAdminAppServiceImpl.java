@@ -24,6 +24,7 @@ public class DemoSubAdminAppServiceImpl implements DemoSubAdminAppService {
   private final DemoSubQueryAppServiceImpl queryService;
   private final DemoSubSaveAppServiceImpl saveService;
   private final DemoSubDraftAppService draftService;
+  private final xbb.ai.erp.module.demo.sub.application.port.DemoLookupPort demoLookupPort;
 
   @Override
   public ListBaseVO<DemoSubListItemVO> list(ListBaseDTO dto) {
@@ -38,6 +39,22 @@ public class DemoSubAdminAppServiceImpl implements DemoSubAdminAppService {
   @Override
   public SaveItemVO<DemoSubSaveItemVO> updateItem(IdBaseDTO dto) {
     return queryService.updateItem(dto);
+  }
+
+  @Override
+  public DemoSubSelectionFillVO selectionFill(DemoSubSelectionFillDTO dto) {
+    if (!"main.dataId".equals(dto.getFieldAttr()) || dto.getReferenceId() == null) {
+      throw new xbb.ai.erp.base.common.exception.BizException("回填来源字段或关联数据不能为空");
+    }
+    String parentName = demoLookupPort.findNamesByIds(dto.getCorpid(), java.util.Set.of(dto.getReferenceId()))
+        .get(dto.getReferenceId());
+    if (parentName == null) {
+      throw new xbb.ai.erp.base.common.exception.BizException("关联DEMO不存在或不可用");
+    }
+    DemoSubSelectionFillVO vo = new DemoSubSelectionFillVO();
+    vo.setReferenceId(dto.getReferenceId());
+    vo.setPatch(java.util.Map.of("main.parentName", parentName));
+    return vo;
   }
 
   @Override

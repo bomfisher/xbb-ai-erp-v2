@@ -28,7 +28,7 @@ public final class PurchaseSourceRelationConvertor {
         po.setReversedQty(purchaseSourceRelation.getReversedQty());
         po.setRelationStatus(purchaseSourceRelation.getRelationStatus());
         po.setVersion(purchaseSourceRelation.getVersion());
-        po.setDeleted(purchaseSourceRelation.getDeleted());
+        po.setDel(purchaseSourceRelation.getDeleted());
         po.setAddTime(purchaseSourceRelation.getAddTime());
         po.setUpdateTime(purchaseSourceRelation.getUpdateTime());
         po.setCreatorId(purchaseSourceRelation.getCreatorId());
@@ -56,7 +56,7 @@ public final class PurchaseSourceRelationConvertor {
         purchaseSourceRelation.setReversedQty(po.getReversedQty());
         purchaseSourceRelation.setRelationStatus(po.getRelationStatus());
         purchaseSourceRelation.setVersion(po.getVersion());
-        purchaseSourceRelation.setDeleted(po.getDeleted());
+        purchaseSourceRelation.setDeleted(po.getDel());
         purchaseSourceRelation.setAddTime(po.getAddTime());
         purchaseSourceRelation.setUpdateTime(po.getUpdateTime());
         purchaseSourceRelation.setCreatorId(po.getCreatorId());

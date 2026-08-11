@@ -1,11 +1,14 @@
 package xbb.ai.erp.module.demo.application.assembler;
 
 import xbb.ai.erp.module.demo.admin.dto.DemoMainDTO;
+import xbb.ai.erp.module.demo.admin.dto.DemoItemDTO;
 import xbb.ai.erp.module.demo.admin.dto.DemoSaveDTO;
 import xbb.ai.erp.module.demo.admin.vo.DemoDetailVO;
 import xbb.ai.erp.module.demo.admin.vo.DemoListItemVO;
 import xbb.ai.erp.module.demo.admin.vo.DemoSaveItemVO;
 import xbb.ai.erp.module.demo.domain.model.Demo;
+import xbb.ai.erp.module.demo.domain.model.DemoItem;
+import java.util.List;
 
 public final class DemoAdminAssembler {
 
@@ -13,7 +16,10 @@ public final class DemoAdminAssembler {
     }
 
     public static DemoSaveItemVO buildEmptySaveItemVO() {
-        return new DemoSaveItemVO();
+        DemoSaveItemVO vo = new DemoSaveItemVO();
+        vo.setItems(List.of());
+        vo.setItems2(List.of());
+        return vo;
     }
 
     public static Demo toDemo(DemoSaveDTO dto) {
@@ -93,6 +99,8 @@ public final class DemoAdminAssembler {
         main.setAddTime(demo.getAddTime());
         main.setUpdateTime(demo.getUpdateTime());
         vo.setMain(main);
+        vo.setItems(List.of());
+        vo.setItems2(List.of());
         return vo;
     }
 
@@ -100,5 +108,29 @@ public final class DemoAdminAssembler {
         DemoDetailVO detailVO = new DemoDetailVO();
         detailVO.setMainData(saveItemVO);
         return detailVO;
+    }
+
+    public static DemoItem toDemoItem(DemoItemDTO dto, boolean appendSecondItemSuffix, String corpid, Long dataId, String userId, long now) {
+        DemoItem item = new DemoItem();
+        item.setId(dto.getId());
+        item.setCorpid(corpid);
+        item.setDataId(dataId);
+        item.setName(appendSecondItemSuffix && !dto.getName().endsWith("-2") ? dto.getName() + "-2" : dto.getName());
+        item.setCreatorId(userId);
+        item.setModifyId(userId);
+        item.setAddTime(now);
+        item.setUpdateTime(now);
+        item.setDel(0);
+        return item;
+    }
+
+    public static List<DemoItemDTO> toDemoItemDTOs(List<DemoItem> items) {
+        if (items == null) return List.of();
+        return items.stream().map(item -> {
+            DemoItemDTO dto = new DemoItemDTO();
+            dto.setId(item.getId());
+            dto.setName(item.getName());
+            return dto;
+        }).toList();
     }
 }

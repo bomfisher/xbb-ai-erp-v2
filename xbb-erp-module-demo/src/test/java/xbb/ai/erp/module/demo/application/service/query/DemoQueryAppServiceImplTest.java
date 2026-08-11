@@ -19,6 +19,7 @@ import xbb.ai.erp.module.demo.application.field.DemoFieldFactory;
 import xbb.ai.erp.module.demo.application.schema.DemoListSchemaProvider;
 import xbb.ai.erp.module.demo.domain.model.Demo;
 import xbb.ai.erp.module.demo.domain.repository.DemoRepository;
+import xbb.ai.erp.module.demo.domain.repository.DemoItemRepository;
 
 class DemoQueryAppServiceImplTest {
 
@@ -46,7 +47,7 @@ class DemoQueryAppServiceImplTest {
               return items;
             });
     DemoQueryAppServiceImpl service =
-        new DemoQueryAppServiceImpl(repository, mock(DemoFieldFactory.class), schemaProvider, renderer);
+        new DemoQueryAppServiceImpl(repository, mock(DemoItemRepository.class), mock(DemoFieldFactory.class), schemaProvider, renderer);
     ListBaseDTO dto = new ListBaseDTO();
     dto.setCorpid("corp-001");
     dto.setPageNum(1);

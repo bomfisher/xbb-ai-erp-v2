@@ -59,9 +59,16 @@ class DemoSubQueryAppServiceImplTest {
     assertEquals("DEMO", config.getBusinessCode());
     assertEquals("corp-001", config.getRequestPayload().get("corpid"));
     assertFalse(config.getMultiple());
+    assertNotNull(dataIdField.getSelectionFillConfig());
+    assertEquals(Boolean.TRUE, dataIdField.getSelectionFillConfig().getEnabled());
 
     assertFieldConfig(result, "main.userId", "member", "/erp/v1/org/memberSelect/getById");
     assertFieldConfig(result, "main.departmentId", "department", "/erp/v1/org/departmentSelect/getById");
+    assertNotNull(
+        result.getHeadList().stream()
+            .filter(field -> "main.parentName".equals(field.getAttr()))
+            .findFirst()
+            .orElse(null));
   }
 
   private void assertFieldConfig(

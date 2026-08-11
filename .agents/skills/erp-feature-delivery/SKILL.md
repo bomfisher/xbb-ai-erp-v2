@@ -39,6 +39,8 @@ listActions:
 - 每个字段必须显式提供 `name`、`attr`、`attrName`、`fieldType`、`scenes`、`required`、`editable`、`defaultValue`、`filterName`；`filterName: null` 表示不可筛选。
 - `name` 是稳定设计标识/枚举常量来源，`attr` 是前端提交和回填路径，`filterName` 是服务端数据库列白名单；三者不得混用。
 - `COMB`、`COMB_MULTI`、`CHECKBOX`、`RADIO_BTN` 可提供 `options`，格式为 `值:文案` 的逗号分隔字符串；生成的 `headList.itemList` 与列表筛选 `itemList` 必须解析为相同的 `FieldItem(value,text)`，不得保留原始字符串或输出空列表。`RADIO_BTN` 按 `COMB` 协议输出；`SWITCH` 也按 `COMB` 输出且 `itemList` 固定为 `1:开启`、`2:关闭`。所有选择数据字段（`USER`、`DEPT`、`BUSINESS`、`PRODUCT` 及其多选变体）必须提供目标 `businessCode`；后端返回的 `businessSelectConfig` 只能包含该 `businessCode`，禁止下发 URL、请求体、占位文案、标题、业务类型或单多选语义。前端依据 `businessCode` 常量注册表解析端点和展示语义。当选择字段配置了非空 `filterName` 时，列表筛选元数据也必须下发相同的仅编码配置。
+- 业务选择回填属于**消费方业务模块**：每个具备新建/编辑表单的业务至多提供一个 `POST /erp/v1/{business}/selectionFill` 接口，接口以 `fieldAttr + referenceId` 识别来源；模块内按 `fieldAttr` 分派其全部上游业务的回填规则，禁止按上游单据新增 HTTP 接口。仅需选择、不需回填的字段不得调用该接口。字段设计可在 `BUSINESS` 字段声明 `selectionFill: true`；生成元数据保留该布尔值并下发为 `selectionFillConfig: { enabled: true }`，不得下发目标字段映射、来源 URL、SQL 或其他回填实现细节。`businessSelectConfig` 仍仅包含目标 `businessCode`。
+- `selectionFill` 必须由当前模块应用服务经轻量跨模块 `*ReferenceQueryApi` / 查询 Port 按租户查询来源数据，返回仅包含当前表单可写 `attr` 路径的 `patch`。服务端必须校验 `fieldAttr` 是本模块已启用回填的选择字段、`referenceId` 属于当前租户且有效；正式保存必须按业务语义重新校验或重算受回填影响的快照字段，禁止信任前端 patch。
 - 列表筛选元数据必须同时返回两类字段类型：`fieldType` 为源字段枚举值（与 `headList.fieldType` 一致，用于前端精确选择控件），`filterFieldType` 为筛选协议类型（用于 `conditions[].fieldType` 的白名单校验）。`ListCommonServiceImpl#filter` 统一派生二者：`COMB_MULTI`、`CHECKBOX` 映射为 `ENUM_MULTI`，`BUSINESS` 映射为 `BUSINESS`，`USER`、`DEPT` 映射为 `ID`；`NUM_INT`、`NUM_DOUBLE`、`AMOUNT`、`STOCK`、`DATE`、`TIME` 必须保留各自源类型。条件白名单、值长度校验和 Mapper SQL 必须同步支持这些操作符。
 - `COMB`、`RADIO_BTN`、`SWITCH`、`COMB_MULTI`、`CHECKBOX` 的持久化筛选值统一按 JSON 处理：单选仅支持 `CONTAINS`、`NOT_CONTAINS`、`IS_EMPTY`、`IS_NOT_EMPTY`，多选额外支持 `CONTAINS_ALL`、`NOT_CONTAINS_ALL`；Mapper 对枚举条件必须使用 `JSON_CONTAINS`，禁止以 `LIKE` 匹配 JSON 文本。`DATE` 仅支持 `EQ`、`GE`、`LE`、`BETWEEN`、`IS_EMPTY`、`IS_NOT_EMPTY`；`TIME` 仅支持 `GE`、`LE`、`BETWEEN`、`IS_EMPTY`、`IS_NOT_EMPTY`。
 - `DATE`、`TIME` 的筛选和保存传输值统一为 13 位毫秒时间戳；前端仅在控件展示层格式化为日期或年月日时分秒，后端不得要求 ISO 文本日期。
@@ -93,6 +95,7 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 4. 检查 Controller、Application Service、Query Application Service 的列表签名均为 `ListBaseDTO`；Query Application Service 使用 `ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())`，`findByCondition` 与 `count` 共享结果 Map，Repository 已 import 并调用条件准备工具，字段工厂不保留无意义的 `SceneFieldMeta.class::cast`。
 5. 检查草稿缓存仓储及其基础设施实现、`DraftSaveVO` 返回类型、草稿保存的协议/通用校验、草稿列表缓存读取、业务校验器占位调用，以及正式保存成功后的草稿缓存删除。
 6. 为字段场景、下拉选项、选择字段的仅 `businessCode` 配置、`SUB_ITEM.subField`、筛选映射、列表动作、草稿缓存和保存校验链补充受影响模块测试；验证 `ListMetaProvider` 的筛选、表头和条件元数据均非空且来自同一字段定义。
+   涉及 `selectionFill` 时，额外验证：启用字段在 CREATE/UPDATE `headList` 下发 `selectionFillConfig.enabled=true`，未启用选择字段不下发该配置；每个上游字段均由同一模块接口按 `fieldAttr` 正确分派；无效字段、跨租户或失效引用被拒绝；保存校验拒绝伪造或过期回填快照。
 7. 执行 `scripts/harness-verify.sh`；新模块额外执行 `scripts/harness-verify.sh --module xbb-erp-module-<name>`，并运行受影响 Maven 模块测试。
 8. 接口契约变化时执行 `.claude/commands/multi-player/SKILL.md`，维护 API 原子文档、聚合文档和导航；交付报告列出变更、验证、迁移和待确认项。
 9. 不提交真实凭据、私钥或 Token；不绕过失败的 Harness 或 CI 检查。

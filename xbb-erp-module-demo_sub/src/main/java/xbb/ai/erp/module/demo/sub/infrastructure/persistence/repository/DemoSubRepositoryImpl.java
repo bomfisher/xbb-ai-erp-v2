@@ -18,7 +18,9 @@ public class DemoSubRepositoryImpl implements DemoSubRepository {
 
   @Override
   public void insert(DemoSub demoSub) {
-    demoSubMapper.insert(DemoSubConvertor.toPO(demoSub));
+    DemoSubPO po = DemoSubConvertor.toPO(demoSub);
+    demoSubMapper.insertAuto(po);
+    demoSub.setId(po.getId());
   }
 
   @Override

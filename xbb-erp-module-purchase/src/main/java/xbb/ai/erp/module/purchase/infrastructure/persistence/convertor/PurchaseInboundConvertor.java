@@ -36,7 +36,7 @@ public final class PurchaseInboundConvertor {
         po.setPeriodLockedFlag(purchaseInbound.getPeriodLockedFlag());
         po.setVersion(purchaseInbound.getVersion());
         po.setRemark(purchaseInbound.getRemark());
-        po.setDeleted(purchaseInbound.getDeleted());
+        po.setDel(purchaseInbound.getDeleted());
         po.setAddTime(purchaseInbound.getAddTime());
         po.setUpdateTime(purchaseInbound.getUpdateTime());
         po.setCreatorId(purchaseInbound.getCreatorId());
@@ -72,7 +72,7 @@ public final class PurchaseInboundConvertor {
         purchaseInbound.setPeriodLockedFlag(po.getPeriodLockedFlag());
         purchaseInbound.setVersion(po.getVersion());
         purchaseInbound.setRemark(po.getRemark());
-        purchaseInbound.setDeleted(po.getDeleted());
+        purchaseInbound.setDeleted(po.getDel());
         purchaseInbound.setAddTime(po.getAddTime());
         purchaseInbound.setUpdateTime(po.getUpdateTime());
         purchaseInbound.setCreatorId(po.getCreatorId());

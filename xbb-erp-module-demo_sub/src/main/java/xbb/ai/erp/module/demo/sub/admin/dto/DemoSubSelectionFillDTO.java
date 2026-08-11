@@ -1,0 +1,12 @@
+package xbb.ai.erp.module.demo.sub.admin.dto;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import xbb.ai.erp.base.common.dto.BaseDTO;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class DemoSubSelectionFillDTO extends BaseDTO {
+  private String fieldAttr;
+  private Long referenceId;
+}

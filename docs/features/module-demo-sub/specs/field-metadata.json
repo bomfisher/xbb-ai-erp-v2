@@ -15,7 +15,16 @@
       "editable": true,
       "defaultValue": null,
       "filterName": "data_id",
-      "businessCode": "DEMO"
+      "filterFieldType": "BUSINESS",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "DEMO",
+      "selectionFill": true
     },
     {
       "name": "name",
@@ -30,7 +39,40 @@
       "required": true,
       "editable": true,
       "defaultValue": null,
-      "filterName": "name"
+      "filterName": "name",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "parent_name",
+      "attr": "main.parentName",
+      "attrName": "父级名称",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "parent_name",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "creator_id",
@@ -43,7 +85,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "creator_id"
+      "filterName": "creator_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     },
     {
       "name": "modify_id",
@@ -56,7 +106,15 @@
       "required": false,
       "editable": true,
       "defaultValue": null,
-      "filterName": "modify_id"
+      "filterName": "modify_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
     }
   ],
   "listActions": {
@@ -67,7 +125,10 @@
 
     ],
     "row": [
-
+      {
+        "actionCode": "EDIT",
+        "actionName": "编辑"
+      }
     ]
   }
 }

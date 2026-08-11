@@ -28,6 +28,13 @@ public enum DemoSubFieldEnum {
       "name",
       null,
       Set.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE)),
+  PARENT_NAME(
+      "main.parentName",
+      "父级名称",
+      FieldTypeEnum.TEXT,
+      "parent_name",
+      null,
+      Set.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE)),
   USER_ID(
       "main.userId",
       "成员",

@@ -19,7 +19,9 @@ public class DemoItemRepositoryImpl implements DemoItemRepository {
 
     @Override
     public void insert(DemoItem demoItem) {
-        demoItemMapper.insert(DemoItemConvertor.toPO(demoItem));
+        DemoItemPO po = DemoItemConvertor.toPO(demoItem);
+        demoItemMapper.insertAuto(po);
+        demoItem.setId(po.getId());
     }
 
     @Override
@@ -38,6 +40,11 @@ public class DemoItemRepositoryImpl implements DemoItemRepository {
     }
 
     @Override
+    public void removeByDataId(String corpid, Long dataId) {
+        demoItemMapper.removeByDataId(corpid, dataId);
+    }
+
+    @Override
     public void update(DemoItem demoItem) {
         DemoItemPO po = DemoItemConvertor.toPO(demoItem);
         demoItemMapper.update(po);
@@ -46,6 +53,11 @@ public class DemoItemRepositoryImpl implements DemoItemRepository {
     @Override
     public DemoItem findById(String corpid, Long id) {
         return DemoItemConvertor.toDomain(demoItemMapper.findById(corpid, id));
+    }
+
+    @Override
+    public List<DemoItem> findByDataId(String corpid, Long dataId) {
+        return demoItemMapper.findByDataId(corpid, dataId).stream().map(DemoItemConvertor::toDomain).toList();
     }
 
     @Override

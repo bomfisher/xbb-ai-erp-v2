@@ -23,6 +23,7 @@ public final class DemoSubAdminAssembler {
       demoSub.setCorpid(main.getCorpid());
       demoSub.setDataId(main.getDataId());
       demoSub.setName(main.getName());
+      demoSub.setParentName(main.getParentName());
       demoSub.setUserId(main.getUserId());
       demoSub.setDepartmentId(main.getDepartmentId());
       demoSub.setDel(main.getDel());
@@ -41,6 +42,7 @@ public final class DemoSubAdminAssembler {
     vo.setDataId(demoSub.getDataId());
     vo.setDataName(dataName);
     vo.setName(demoSub.getName());
+    vo.setParentName(demoSub.getParentName());
     vo.setUserId(demoSub.getUserId());
     vo.setDepartmentId(demoSub.getDepartmentId());
     vo.setCreatorId(demoSub.getCreatorId());
@@ -58,6 +60,7 @@ public final class DemoSubAdminAssembler {
     main.setCorpid(demoSub.getCorpid());
     main.setDataId(demoSub.getDataId());
     main.setName(demoSub.getName());
+    main.setParentName(demoSub.getParentName());
     main.setUserId(demoSub.getUserId());
     main.setDepartmentId(demoSub.getDepartmentId());
     main.setDel(demoSub.getDel());

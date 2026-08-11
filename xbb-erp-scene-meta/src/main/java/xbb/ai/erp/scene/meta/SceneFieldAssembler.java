@@ -21,6 +21,7 @@ public final class SceneFieldAssembler {
         entity.setRequired(definition.getRequired());
         entity.setEditable(definition.getEditable());
         entity.setItemList(definition.getItemList());
+        entity.setSubField(buildHeadList(definition.getSubFields()));
         if (definition.getBusinessCode() != null && !definition.getBusinessCode().isBlank()) {
             FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
             config.setBusinessCode(definition.getBusinessCode());

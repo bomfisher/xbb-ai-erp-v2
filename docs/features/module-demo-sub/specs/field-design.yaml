@@ -10,6 +10,7 @@ fields:
     defaultValue: null
     filterName: data_id
     businessCode: DEMO
+    selectionFill: true
   - name: name
     attr: main.name
     attrName: "名称"
@@ -19,6 +20,15 @@ fields:
     editable: true
     defaultValue: null
     filterName: name
+  - name: parent_name
+    attr: main.parentName
+    attrName: "父级名称"
+    fieldType: TEXT
+    scenes: [LIST, CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: parent_name
   - name: creator_id
     attr: main.creatorId
     attrName: "创建人"
@@ -40,4 +50,6 @@ fields:
 listActions:
   top: []
   bottom: []
-  row: []
+  row:
+    - actionCode: EDIT
+      actionName: "编辑"

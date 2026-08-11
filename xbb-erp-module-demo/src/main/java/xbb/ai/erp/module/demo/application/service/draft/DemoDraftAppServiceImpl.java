@@ -30,6 +30,8 @@ public class DemoDraftAppServiceImpl implements DemoDraftAppService {
         DemoSaveDraftPojo draft = new DemoSaveDraftPojo();
         draft.setCorpid(dto.getCorpid());
         draft.setMain(dto.getMain());
+        draft.setItems(dto.getItems());
+        draft.setItems2(dto.getItems2());
         draft.setDraftCode(dto.getDraftMeta().getDraftCode());
         draft.setDraftTitle(dto.getDraftMeta().getDraftTitle());
         String code = repository.saveDraft(draft);
@@ -53,7 +55,7 @@ public class DemoDraftAppServiceImpl implements DemoDraftAppService {
     public DemoDraftDetailVO loadDraft(DemoDraftLoadDTO dto) {
         DemoSaveDraftPojo draft = repository.loadDraft(dto.getCorpid(), dto.getDraftCode());
         DemoDraftDetailVO vo = new DemoDraftDetailVO();
-        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); }
+        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); vo.setItems(draft.getItems()); vo.setItems2(draft.getItems2()); }
         return vo;
     }
 }

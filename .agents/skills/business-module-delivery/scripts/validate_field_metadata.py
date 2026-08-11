@@ -93,6 +93,11 @@ def validate(metadata: Dict[str, Any]) -> list[str]:
             else:
                 for index, sub_field in enumerate(sub_fields):
                     validate_field(sub_field, f"{prefix}.subFields[{index}]", child=True)
+        if "selectionFill" in field:
+            if field.get("fieldType") != "BUSINESS":
+                errors.append(f"{prefix}.selectionFill 只能用于 BUSINESS 字段")
+            elif not isinstance(field.get("selectionFill"), bool):
+                errors.append(f"{prefix}.selectionFill 必须为布尔值")
 
     business_code = metadata.get("businessCode")
     require_string(business_code, "businessCode", errors)

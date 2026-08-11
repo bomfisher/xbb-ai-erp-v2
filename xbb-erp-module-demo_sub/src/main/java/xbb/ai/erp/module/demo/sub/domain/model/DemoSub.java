@@ -8,6 +8,7 @@ public class DemoSub {
   private String corpid;
   private Long dataId;
   private String name;
+  private String parentName;
   private String userId;
   private Long departmentId;
   private Integer del;

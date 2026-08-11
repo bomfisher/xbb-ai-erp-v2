@@ -20,7 +20,9 @@ public class DemoRepositoryImpl implements DemoRepository {
 
     @Override
     public void insert(Demo demo) {
-        demoMapper.insert(DemoConvertor.toPO(demo));
+        DemoPO po = DemoConvertor.toPO(demo);
+        demoMapper.insertAuto(po);
+        demo.setId(po.getId());
     }
 
     @Override

@@ -16,6 +16,7 @@ public final class DemoSubConvertor {
     po.setCorpid(demoSub.getCorpid());
     po.setDataId(demoSub.getDataId());
     po.setName(demoSub.getName());
+    po.setParentName(demoSub.getParentName());
     po.setUserId(demoSub.getUserId());
     po.setDepartmentId(demoSub.getDepartmentId());
     po.setDel(demoSub.getDel());
@@ -35,6 +36,7 @@ public final class DemoSubConvertor {
     demoSub.setCorpid(po.getCorpid());
     demoSub.setDataId(po.getDataId());
     demoSub.setName(po.getName());
+    demoSub.setParentName(po.getParentName());
     demoSub.setUserId(po.getUserId());
     demoSub.setDepartmentId(po.getDepartmentId());
     demoSub.setDel(po.getDel());

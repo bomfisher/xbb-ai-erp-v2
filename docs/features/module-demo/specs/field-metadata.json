@@ -338,7 +338,10 @@
       }
     ],
     "row": [
-
+      {
+        "actionCode": "EDIT",
+        "actionName": "编辑"
+      }
     ]
   }
 }

@@ -11,6 +11,8 @@ import java.util.Collection;
 
 @Mapper
 public interface DemoMapper extends BaseMapper<DemoPO> {
+    int insertAuto(DemoPO po);
+
     int insertBatch(@Param("list") List<DemoPO> poList);
 
     int removeById(@Param("corpid") String corpid, @Param("id") Long id);

@@ -14,11 +14,13 @@ import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubDraftLoadDTO;
 import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubDraftSaveDTO;
 import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubSaveDTO;
 import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubSubmitSaveDTO;
+import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubSelectionFillDTO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubDetailVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubDraftDetailVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubDraftListItemVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubListItemVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubSaveItemVO;
+import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubSelectionFillVO;
 
 public interface DemoSubAdminAppService {
   ListBaseVO<DemoSubListItemVO> list(ListBaseDTO dto);
@@ -26,6 +28,8 @@ public interface DemoSubAdminAppService {
   SaveItemVO<DemoSubSaveItemVO> addItem(BaseDTO dto);
 
   SaveItemVO<DemoSubSaveItemVO> updateItem(IdBaseDTO dto);
+
+  DemoSubSelectionFillVO selectionFill(DemoSubSelectionFillDTO dto);
 
   DraftSaveVO saveDraft(DemoSubDraftSaveDTO dto);
 

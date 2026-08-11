@@ -27,6 +27,14 @@ aggregate:
     - { name: del, column: del, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: false }
     - { name: addTime, column: add_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
     - { name: updateTime, column: update_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: false }
+  childAggregates:
+    - aggregateName: DemoItem
+      tableName: demo_item
+      relation: Demo.id = DemoItem.dataId
+      fields:
+        - { name: id, column: id, javaType: Long, primaryKey: true }
+        - { name: dataId, column: data_id, javaType: Long, queryable: true }
+        - { name: name, column: name, javaType: String, required: true }
 generate:
   admin: true
   application: true

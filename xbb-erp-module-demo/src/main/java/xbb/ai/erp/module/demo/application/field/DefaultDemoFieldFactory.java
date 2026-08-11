@@ -5,6 +5,8 @@ import java.util.List;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import org.springframework.stereotype.Component;
 import xbb.ai.erp.module.demo.admin.DemoFieldEnum;
+import xbb.ai.erp.module.demo.admin.DemoItemFieldEnum;
+import xbb.ai.erp.module.demo.admin.DemoItem2FieldEnum;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
@@ -14,9 +16,35 @@ public class DefaultDemoFieldFactory implements DemoFieldFactory {
     public List<SceneFieldMeta> getFields(SceneTypeEnum scene) {
         return Arrays.stream(DemoFieldEnum.values())
             .filter(field -> field.supports(scene))
-            .map(field -> new SceneFieldMeta(
-                field.getAttr(), field.getAttrName(), field.getFieldType(), Boolean.TRUE.equals(field.getRequired()) ? 1 : 0,
-                1, parseOptions(field.getOptions()), field.getBusinessCode()))
+            .map(this::toSceneFieldMeta)
+            .toList();
+    }
+
+    private SceneFieldMeta toSceneFieldMeta(DemoFieldEnum field) {
+        return new SceneFieldMeta(field.getAttr(), field.getAttrName(), field.getFieldType(),
+            Boolean.TRUE.equals(field.getRequired()) ? 1 : 0, 1, parseOptions(field.getOptions()),
+            field.getBusinessCode(), subFields(field));
+    }
+
+    private static List<SceneFieldMeta> subFields(DemoFieldEnum field) {
+        return switch (field) {
+            case DEMO_ITEM -> demoItemFields();
+            case DEMO_ITEM_2 -> demoItem2Fields();
+            default -> List.of();
+        };
+    }
+
+    private static List<SceneFieldMeta> demoItemFields() {
+        return Arrays.stream(DemoItemFieldEnum.values())
+            .map(field -> new SceneFieldMeta(field.getAttr(), field.getAttrName(), field.getFieldType(),
+                Boolean.TRUE.equals(field.getRequired()) ? 1 : 0, 1, List.of()))
+            .toList();
+    }
+
+    private static List<SceneFieldMeta> demoItem2Fields() {
+        return Arrays.stream(DemoItem2FieldEnum.values())
+            .map(field -> new SceneFieldMeta(field.getAttr(), field.getAttrName(), field.getFieldType(),
+                Boolean.TRUE.equals(field.getRequired()) ? 1 : 0, 1, List.of()))
             .toList();
     }
 

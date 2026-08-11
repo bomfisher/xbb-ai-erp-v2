@@ -21,7 +21,9 @@ public enum DemoFieldEnum {
     IMAGE("main.image", "图片", FieldTypeEnum.IMAGE, null, false, null, null),
     ADDRESS("main.address", "地址", FieldTypeEnum.ADDRESS, null, false, null, null),
     CREATOR_ID("main.creatorId", "创建人", FieldTypeEnum.USER, "creator_id", false, null, "ORG_MEMBER"),
-    MODIFY_ID("main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id", false, null, "ORG_MEMBER");
+    MODIFY_ID("main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id", false, null, "ORG_MEMBER"),
+    DEMO_ITEM("items", "demo子档", FieldTypeEnum.SUB_ITEM, null, false, null, null),
+    DEMO_ITEM_2("items2", "demo子档2", FieldTypeEnum.SUB_ITEM, null, false, null, null);
 
     private final String attr;
     private final String attrName;
@@ -43,6 +45,7 @@ public enum DemoFieldEnum {
     }
 
     public boolean supports(SceneTypeEnum scene) {
-        return scenes.contains(scene);
+        return scenes.contains(scene)
+            && (!FieldTypeEnum.SUB_ITEM.getType().equals(fieldType) || scene != SceneTypeEnum.LIST);
     }
 }

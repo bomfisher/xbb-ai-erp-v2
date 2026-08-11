@@ -35,7 +35,7 @@ public final class PurchasePendingTaskConvertor {
         po.setTaskStatus(purchasePendingTask.getTaskStatus());
         po.setSalesLinkedFlag(purchasePendingTask.getSalesLinkedFlag());
         po.setVersion(purchasePendingTask.getVersion());
-        po.setDeleted(purchasePendingTask.getDeleted());
+        po.setDel(purchasePendingTask.getDeleted());
         po.setAddTime(purchasePendingTask.getAddTime());
         po.setUpdateTime(purchasePendingTask.getUpdateTime());
         po.setCreatorId(purchasePendingTask.getCreatorId());
@@ -70,7 +70,7 @@ public final class PurchasePendingTaskConvertor {
         purchasePendingTask.setTaskStatus(po.getTaskStatus());
         purchasePendingTask.setSalesLinkedFlag(po.getSalesLinkedFlag());
         purchasePendingTask.setVersion(po.getVersion());
-        purchasePendingTask.setDeleted(po.getDeleted());
+        purchasePendingTask.setDeleted(po.getDel());
         purchasePendingTask.setAddTime(po.getAddTime());
         purchasePendingTask.setUpdateTime(po.getUpdateTime());
         purchasePendingTask.setCreatorId(po.getCreatorId());

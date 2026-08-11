@@ -9,6 +9,8 @@ import xbb.ai.erp.module.demo.sub.infrastructure.persistence.po.DemoSubPO;
 
 @Mapper
 public interface DemoSubMapper extends BaseMapper<DemoSubPO> {
+  int insertAuto(DemoSubPO po);
+
   int insertBatch(@Param("list") List<DemoSubPO> poList);
 
   int removeById(@Param("corpid") String corpid, @Param("id") Long id);

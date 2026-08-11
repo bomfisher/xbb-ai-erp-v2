@@ -144,4 +144,6 @@ listActions:
   bottom:
     - actionCode: DELETE
       actionName: "删除"
-  row: []
+  row:
+    - actionCode: EDIT
+      actionName: "编辑"

@@ -4,3 +4,5 @@
 - 路径：`/erp/v1/demo/addItem`
 - 请求：`BaseDTO`。
 - 响应：`ResultVO<SaveItemVO<DemoSaveItemVO>>`，返回 `CREATE` 场景字段元数据和空主档/子档数据。`COMB`、`COMB_MULTI`、`CHECKBOX`、`RADIO_BTN` 使用 `itemList(value,text)` 返回选项；选择数据字段的 `businessSelectConfig` 仅返回目标 `businessCode`，前端按编码注册表解析选择接口。
+- `headList` 中的 `items` 使用 `fieldType=49`，并通过 `subField` 返回 Demo 领域独立维护的子档字段；`data.items` 初始化为空数组。
+- `items2` 是第二个独立子档字段，同样使用 `fieldType=49`；`data.items2` 初始化为空数组。

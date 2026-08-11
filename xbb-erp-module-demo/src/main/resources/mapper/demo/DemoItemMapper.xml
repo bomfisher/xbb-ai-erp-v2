@@ -37,13 +37,21 @@
         </if>
     </sql>
 
+    <insert id="insertAuto" useGeneratedKeys="true" keyProperty="id">
+        insert into demo_item (
+            corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
+        ) values (
+            #{corpid}, #{dataId}, #{name}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId}
+        )
+    </insert>
+
     <insert id="insertBatch">
         insert into demo_item (
-            id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
+            corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.corpid}, #{item.dataId}, #{item.name}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.dataId}, #{item.name}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
 
@@ -66,16 +74,19 @@
         </foreach>
     </update>
 
+    <update id="removeByDataId">
+        update demo_item
+        set del = 1
+        where corpid = #{corpid}
+          and data_id = #{dataId}
+          and del = 0
+    </update>
+
     <update id="update" parameterType="xbb.ai.erp.module.demo.infrastructure.persistence.po.DemoItemPO">
         update demo_item
         <set>
-            <if test="corpid != null">corpid = #{corpid},</if>
-            <if test="dataId != null">data_id = #{dataId},</if>
             <if test="name != null">name = #{name},</if>
-            <if test="del != null">del = #{del},</if>
-            <if test="addTime != null">add_time = #{addTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="creatorId != null">creator_id = #{creatorId},</if>
             <if test="modifyId != null">modify_id = #{modifyId},</if>
         </set>
         where corpid = #{corpid}
@@ -89,6 +100,15 @@
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
+    </select>
+
+    <select id="findByDataId" resultType="xbb.ai.erp.module.demo.infrastructure.persistence.po.DemoItemPO">
+        select <include refid="BaseColumns"/>
+        from demo_item
+        where corpid = #{corpid}
+          and data_id = #{dataId}
+          and del = 0
+        order by id asc
     </select>
 
     <select id="findByCondition" resultType="xbb.ai.erp.module.demo.infrastructure.persistence.po.DemoItemPO">

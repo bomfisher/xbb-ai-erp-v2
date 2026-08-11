@@ -11,6 +11,7 @@ public enum BusinessCodeEnum {
     ORG_DEPARTMENT("ORG_DEPARTMENT"),
     CUSTOMER("CUSTOMER"),
     DEMO("DEMO"),
+    DEMO_ITEM("DEMO_ITEM"),
     DEMO_SUB("DEMO_SUB"),
     PRODUCT("PRODUCT"),
     SUPPLIER("SUPPLIER"),

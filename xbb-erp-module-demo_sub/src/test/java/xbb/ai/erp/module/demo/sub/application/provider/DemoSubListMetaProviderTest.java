@@ -34,6 +34,19 @@ class DemoSubListMetaProviderTest {
     assertSelectConfig(provider, dto, "departmentId", "ORG_DEPARTMENT");
   }
 
+  @Test
+  void shouldBuildEditRowAction() {
+    DemoSubListMetaProvider provider = new DemoSubListMetaProvider(new DefaultDemoSubFieldFactory());
+
+    var action = provider.buildRowActionMeta(new ListCommonQueryDTO()).getRowActionList().getFirst();
+
+    assertEquals("EDIT", action.getActionCode());
+    assertEquals("编辑", action.getActionName());
+    assertEquals(10, action.getSort());
+    assertEquals("PRIMARY", action.getShowMode());
+    assertEquals("NONE", action.getConfirmType());
+  }
+
   private void assertSelectConfig(
       DemoSubListMetaProvider provider,
       ListCommonQueryDTO dto,

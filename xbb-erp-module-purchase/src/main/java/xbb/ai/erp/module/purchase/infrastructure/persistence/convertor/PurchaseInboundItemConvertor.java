@@ -35,7 +35,7 @@ public final class PurchaseInboundItemConvertor {
         po.setTaxAmount(purchaseInboundItem.getTaxAmount());
         po.setInventoryCostAmount(purchaseInboundItem.getInventoryCostAmount());
         po.setVersion(purchaseInboundItem.getVersion());
-        po.setDeleted(purchaseInboundItem.getDeleted());
+        po.setDel(purchaseInboundItem.getDeleted());
         po.setAddTime(purchaseInboundItem.getAddTime());
         po.setUpdateTime(purchaseInboundItem.getUpdateTime());
         po.setCreatorId(purchaseInboundItem.getCreatorId());
@@ -70,7 +70,7 @@ public final class PurchaseInboundItemConvertor {
         purchaseInboundItem.setTaxAmount(po.getTaxAmount());
         purchaseInboundItem.setInventoryCostAmount(po.getInventoryCostAmount());
         purchaseInboundItem.setVersion(po.getVersion());
-        purchaseInboundItem.setDeleted(po.getDeleted());
+        purchaseInboundItem.setDeleted(po.getDel());
         purchaseInboundItem.setAddTime(po.getAddTime());
         purchaseInboundItem.setUpdateTime(po.getUpdateTime());
         purchaseInboundItem.setCreatorId(po.getCreatorId());

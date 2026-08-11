@@ -8,6 +8,7 @@ public class DemoSubListItemVO {
   private Long dataId;
   private String dataName;
   private String name;
+  private String parentName;
   private String userId;
   private Long departmentId;
   private String creatorId;

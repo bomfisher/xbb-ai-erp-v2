@@ -11,6 +11,7 @@ import xbb.ai.erp.base.common.filed.FieldTypeEnum;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.pojo.FilterField;
 import xbb.ai.erp.base.common.pojo.ListButtonItemPojo;
+import xbb.ai.erp.base.common.pojo.ListRowActionItemPojo;
 import xbb.ai.erp.module.demo.admin.DemoFieldEnum;
 import xbb.ai.erp.scene.meta.SceneFieldAssembler;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
@@ -72,7 +73,20 @@ public class DemoListMetaProvider implements ListMetaProvider {
 
     @Override
     public ListMetaBundlePojo buildRowActionMeta(ListCommonQueryDTO dto) {
-        return new ListMetaBundlePojo();
+        ListMetaBundlePojo bundle = new ListMetaBundlePojo();
+        bundle.setRowActionList(List.of(buildRowAction("EDIT", "编辑", 10, "PRIMARY", "NONE")));
+        return bundle;
+    }
+
+    private static ListRowActionItemPojo buildRowAction(String actionCode, String actionName, Integer sort,
+                                                        String showMode, String confirmType) {
+        ListRowActionItemPojo item = new ListRowActionItemPojo();
+        item.setActionCode(actionCode);
+        item.setActionName(actionName);
+        item.setSort(sort);
+        item.setShowMode(showMode);
+        item.setConfirmType(confirmType);
+        return item;
     }
 
     private FilterField buildFilterField(DemoFieldEnum field) {

@@ -8,7 +8,7 @@
 
 ## 请求示例
 ```json
-{"corpid":"企业ID","userId":"员工ID","main":{"dataId":1,"name":"示例名称"}}
+{"corpid":"企业ID","userId":"员工ID","main":{"dataId":1,"parentName":"DEMO名称","name":"示例名称"}}
 ```
 
 ## 响应示例

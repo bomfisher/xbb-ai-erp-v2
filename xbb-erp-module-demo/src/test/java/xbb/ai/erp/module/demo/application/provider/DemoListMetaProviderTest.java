@@ -51,4 +51,15 @@ class DemoListMetaProviderTest {
         assertEquals("ORG_MEMBER", user.getBusinessSelectConfig().getBusinessCode());
         assertNull(user.getBusinessSelectConfig().getQuickSearchUrl());
     }
+
+    @Test
+    void buildsEditRowAction() {
+        var action = provider.buildRowActionMeta(null).getRowActionList().getFirst();
+
+        assertEquals("EDIT", action.getActionCode());
+        assertEquals("编辑", action.getActionName());
+        assertEquals(10, action.getSort());
+        assertEquals("PRIMARY", action.getShowMode());
+        assertEquals("NONE", action.getConfirmType());
+    }
 }

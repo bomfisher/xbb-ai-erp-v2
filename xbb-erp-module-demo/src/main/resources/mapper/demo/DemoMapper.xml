@@ -28,13 +28,21 @@
         </if>
     </sql>
 
+    <insert id="insertAuto" useGeneratedKeys="true" keyProperty="id">
+        insert into demo (
+            corpid, name, user_id, dep_id, comb, comb_multi, num_int, num_double, amount, date, time, file, image, address, creator_id, modify_id, del, add_time, update_time
+        ) values (
+            #{corpid}, #{name}, #{userId}, #{depId}, #{comb}, #{combMulti}, #{numInt}, #{numDouble}, #{amount}, #{date}, #{time}, #{file}, #{image}, #{address}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime}
+        )
+    </insert>
+
     <insert id="insertBatch">
         insert into demo (
-            id, corpid, name, user_id, dep_id, comb, comb_multi, num_int, num_double, amount, date, time, file, image, address, creator_id, modify_id, del, add_time, update_time
+            corpid, name, user_id, dep_id, comb, comb_multi, num_int, num_double, amount, date, time, file, image, address, creator_id, modify_id, del, add_time, update_time
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.corpid}, #{item.name}, #{item.userId}, #{item.depId}, #{item.comb}, #{item.combMulti}, #{item.numInt}, #{item.numDouble}, #{item.amount}, #{item.date}, #{item.time}, #{item.file}, #{item.image}, #{item.address}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
+            (#{item.corpid}, #{item.name}, #{item.userId}, #{item.depId}, #{item.comb}, #{item.combMulti}, #{item.numInt}, #{item.numDouble}, #{item.amount}, #{item.date}, #{item.time}, #{item.file}, #{item.image}, #{item.address}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
         </foreach>
     </insert>
 

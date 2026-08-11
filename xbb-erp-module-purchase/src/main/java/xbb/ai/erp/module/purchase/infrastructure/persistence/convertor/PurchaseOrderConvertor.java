@@ -53,7 +53,7 @@ public final class PurchaseOrderConvertor {
         po.setPeriodLockedFlag(purchaseOrder.getPeriodLockedFlag());
         po.setVersion(purchaseOrder.getVersion());
         po.setRemark(purchaseOrder.getRemark());
-        po.setDeleted(purchaseOrder.getDeleted());
+        po.setDel(purchaseOrder.getDeleted());
         po.setAddTime(purchaseOrder.getAddTime());
         po.setUpdateTime(purchaseOrder.getUpdateTime());
         po.setCreatorId(purchaseOrder.getCreatorId());
@@ -106,7 +106,7 @@ public final class PurchaseOrderConvertor {
         purchaseOrder.setPeriodLockedFlag(po.getPeriodLockedFlag());
         purchaseOrder.setVersion(po.getVersion());
         purchaseOrder.setRemark(po.getRemark());
-        purchaseOrder.setDeleted(po.getDeleted());
+        purchaseOrder.setDeleted(po.getDel());
         purchaseOrder.setAddTime(po.getAddTime());
         purchaseOrder.setUpdateTime(po.getUpdateTime());
         purchaseOrder.setCreatorId(po.getCreatorId());

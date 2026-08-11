@@ -15,6 +15,7 @@ public class FieldEntity {
     private List<FieldItem> itemList;
     private List<FieldEntity> subField;
     private BusinessSelectConfig businessSelectConfig;
+    private SelectionFillConfig selectionFillConfig;
     private ProductSelectConfig productSelectConfig;
 
     @Data
@@ -29,6 +30,11 @@ public class FieldEntity {
         private String placeholder;
         private String dialogTitle;
         private Boolean multiple;
+    }
+
+    @Data
+    public static class SelectionFillConfig {
+        private Boolean enabled;
     }
 
     @Data

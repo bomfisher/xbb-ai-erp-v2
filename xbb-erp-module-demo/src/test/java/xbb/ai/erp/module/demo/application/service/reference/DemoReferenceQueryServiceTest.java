@@ -19,6 +19,7 @@ import xbb.ai.erp.module.demo.application.schema.DemoListSchemaProvider;
 import xbb.ai.erp.module.demo.application.service.query.DemoQueryAppServiceImpl;
 import xbb.ai.erp.module.demo.domain.model.Demo;
 import xbb.ai.erp.module.demo.domain.repository.DemoRepository;
+import xbb.ai.erp.module.demo.domain.repository.DemoItemRepository;
 
 class DemoReferenceQueryServiceTest {
   @Test
@@ -41,6 +42,7 @@ class DemoReferenceQueryServiceTest {
   void shouldCreateReferenceProviderAndListQueryWithoutCircularDependency() {
     try (AnnotationConfigApplicationContext context = new AnnotationConfigApplicationContext()) {
       context.registerBean(DemoRepository.class, () -> mock(DemoRepository.class));
+      context.registerBean(DemoItemRepository.class, () -> mock(DemoItemRepository.class));
       context.registerBean(DemoFieldFactory.class, () -> mock(DemoFieldFactory.class));
       context.register(
           DemoListMetaProvider.class,

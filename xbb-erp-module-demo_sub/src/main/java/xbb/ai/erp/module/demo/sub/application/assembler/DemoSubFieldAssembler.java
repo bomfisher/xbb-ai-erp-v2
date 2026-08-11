@@ -22,6 +22,7 @@ public final class DemoSubFieldAssembler {
               FieldEntity entity = SceneFieldAssembler.build(field);
               if (DemoSubFieldEnum.DATA_ID.getAttr().equals(entity.getAttr())) {
                 entity.setBusinessSelectConfig(buildDemoBusinessSelectConfig(corpid));
+                entity.setSelectionFillConfig(buildSelectionFillConfig());
               }
               if (DemoSubFieldEnum.USER_ID.getAttr().equals(entity.getAttr())) {
                 entity.setBusinessSelectConfig(buildMemberSelectConfig(corpid));
@@ -75,6 +76,12 @@ public final class DemoSubFieldAssembler {
     config.setPlaceholder("请选择关联DEMO数据");
     config.setDialogTitle("选择关联DEMO数据");
     config.setMultiple(Boolean.FALSE);
+    return config;
+  }
+
+  private static FieldEntity.SelectionFillConfig buildSelectionFillConfig() {
+    FieldEntity.SelectionFillConfig config = new FieldEntity.SelectionFillConfig();
+    config.setEnabled(Boolean.TRUE);
     return config;
   }
 

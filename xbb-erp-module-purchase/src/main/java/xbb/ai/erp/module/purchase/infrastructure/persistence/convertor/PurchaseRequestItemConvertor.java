@@ -29,7 +29,7 @@ public final class PurchaseRequestItemConvertor {
         po.setSuggestedVendorId(purchaseRequestItem.getSuggestedVendorId());
         po.setSuggestedDeliveryDate(purchaseRequestItem.getSuggestedDeliveryDate());
         po.setVersion(purchaseRequestItem.getVersion());
-        po.setDeleted(purchaseRequestItem.getDeleted());
+        po.setDel(purchaseRequestItem.getDeleted());
         po.setAddTime(purchaseRequestItem.getAddTime());
         po.setUpdateTime(purchaseRequestItem.getUpdateTime());
         po.setCreatorId(purchaseRequestItem.getCreatorId());
@@ -58,7 +58,7 @@ public final class PurchaseRequestItemConvertor {
         purchaseRequestItem.setSuggestedVendorId(po.getSuggestedVendorId());
         purchaseRequestItem.setSuggestedDeliveryDate(po.getSuggestedDeliveryDate());
         purchaseRequestItem.setVersion(po.getVersion());
-        purchaseRequestItem.setDeleted(po.getDeleted());
+        purchaseRequestItem.setDeleted(po.getDel());
         purchaseRequestItem.setAddTime(po.getAddTime());
         purchaseRequestItem.setUpdateTime(po.getUpdateTime());
         purchaseRequestItem.setCreatorId(po.getCreatorId());

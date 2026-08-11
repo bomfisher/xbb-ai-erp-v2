@@ -30,7 +30,7 @@ public final class PurchaseRequestConvertor {
         po.setTaxAmount(purchaseRequest.getTaxAmount());
         po.setVersion(purchaseRequest.getVersion());
         po.setRemark(purchaseRequest.getRemark());
-        po.setDeleted(purchaseRequest.getDeleted());
+        po.setDel(purchaseRequest.getDeleted());
         po.setAddTime(purchaseRequest.getAddTime());
         po.setUpdateTime(purchaseRequest.getUpdateTime());
         po.setCreatorId(purchaseRequest.getCreatorId());
@@ -60,7 +60,7 @@ public final class PurchaseRequestConvertor {
         purchaseRequest.setTaxAmount(po.getTaxAmount());
         purchaseRequest.setVersion(po.getVersion());
         purchaseRequest.setRemark(po.getRemark());
-        purchaseRequest.setDeleted(po.getDeleted());
+        purchaseRequest.setDeleted(po.getDel());
         purchaseRequest.setAddTime(po.getAddTime());
         purchaseRequest.setUpdateTime(po.getUpdateTime());
         purchaseRequest.setCreatorId(po.getCreatorId());

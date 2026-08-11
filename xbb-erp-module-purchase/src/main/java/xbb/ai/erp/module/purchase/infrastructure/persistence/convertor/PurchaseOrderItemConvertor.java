@@ -40,7 +40,7 @@ public final class PurchaseOrderItemConvertor {
         po.setIsGift(purchaseOrderItem.getIsGift());
         po.setDeliveryPlanSnapshot(purchaseOrderItem.getDeliveryPlanSnapshot());
         po.setVersion(purchaseOrderItem.getVersion());
-        po.setDeleted(purchaseOrderItem.getDeleted());
+        po.setDel(purchaseOrderItem.getDeleted());
         po.setAddTime(purchaseOrderItem.getAddTime());
         po.setUpdateTime(purchaseOrderItem.getUpdateTime());
         po.setCreatorId(purchaseOrderItem.getCreatorId());
@@ -80,7 +80,7 @@ public final class PurchaseOrderItemConvertor {
         purchaseOrderItem.setIsGift(po.getIsGift());
         purchaseOrderItem.setDeliveryPlanSnapshot(po.getDeliveryPlanSnapshot());
         purchaseOrderItem.setVersion(po.getVersion());
-        purchaseOrderItem.setDeleted(po.getDeleted());
+        purchaseOrderItem.setDeleted(po.getDel());
         purchaseOrderItem.setAddTime(po.getAddTime());
         purchaseOrderItem.setUpdateTime(po.getUpdateTime());
         purchaseOrderItem.setCreatorId(po.getCreatorId());

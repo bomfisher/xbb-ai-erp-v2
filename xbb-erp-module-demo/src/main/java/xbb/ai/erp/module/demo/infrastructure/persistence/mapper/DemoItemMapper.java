@@ -10,15 +10,21 @@ import java.util.Map;
 
 @Mapper
 public interface DemoItemMapper extends BaseMapper<DemoItemPO> {
+    int insertAuto(DemoItemPO po);
+
     int insertBatch(@Param("list") List<DemoItemPO> poList);
 
     int removeById(@Param("corpid") String corpid, @Param("id") Long id);
 
     int removeBatchByIds(@Param("corpid") String corpid, @Param("ids") List<Long> ids);
 
+    int removeByDataId(@Param("corpid") String corpid, @Param("dataId") Long dataId);
+
     int update(DemoItemPO po);
 
     DemoItemPO findById(@Param("corpid") String corpid, @Param("id") Long id);
+
+    List<DemoItemPO> findByDataId(@Param("corpid") String corpid, @Param("dataId") Long dataId);
 
     List<DemoItemPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 

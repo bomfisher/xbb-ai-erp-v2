@@ -22,6 +22,7 @@ import xbb.ai.erp.module.common.application.util.ListQueryMapUtil;
 import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 import xbb.ai.erp.module.demo.domain.model.Demo;
 import xbb.ai.erp.module.demo.domain.repository.DemoRepository;
+import xbb.ai.erp.module.demo.domain.repository.DemoItemRepository;
 
 import java.util.List;
 import java.util.Map;
@@ -34,14 +35,16 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 public class DemoQueryAppServiceImpl {
 
     private final DemoRepository demoRepository;
+    private final DemoItemRepository demoItemRepository;
     private final DemoFieldFactory fieldFactory;
     private final DemoListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public DemoQueryAppServiceImpl(DemoRepository demoRepository, DemoFieldFactory fieldFactory,
+    public DemoQueryAppServiceImpl(DemoRepository demoRepository, DemoItemRepository demoItemRepository, DemoFieldFactory fieldFactory,
         DemoListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
         this.demoRepository = demoRepository;
+        this.demoItemRepository = demoItemRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
@@ -71,7 +74,13 @@ public class DemoQueryAppServiceImpl {
         Demo entity = demoRepository.findById(dto.getCorpid(), dto.getId());
         SaveItemVO<DemoSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(fieldFactory.getFields(SceneTypeEnum.UPDATE).stream().map(SceneFieldAssembler::build).toList());
-        vo.setData(DemoAdminAssembler.toSaveItemVO(entity));
+        DemoSaveItemVO data = DemoAdminAssembler.toSaveItemVO(entity);
+        List<xbb.ai.erp.module.demo.domain.model.DemoItem> allItems = demoItemRepository.findByDataId(dto.getCorpid(), dto.getId());
+        data.setItems(DemoAdminAssembler.toDemoItemDTOs(allItems.stream()
+            .filter(item -> item.getName() == null || !item.getName().endsWith("-2")).toList()));
+        data.setItems2(DemoAdminAssembler.toDemoItemDTOs(allItems.stream()
+            .filter(item -> item.getName() != null && item.getName().endsWith("-2")).toList()));
+        vo.setData(data);
         return vo;
     }
 

@@ -74,6 +74,11 @@ def normalize_field(field, path, child: false)
     fail_with("#{path}.businessCode 必须是显式的大写枚举值") unless upstream_business_code.is_a?(String) && upstream_business_code.match?(/\A[A-Z][A-Z0-9_]*\z/)
     normalized_field["businessCode"] = upstream_business_code
   end
+  if field.key?("selectionFill")
+    fail_with("#{path}.selectionFill 只能用于 BUSINESS 字段") unless field_type == "BUSINESS"
+    fail_with("#{path}.selectionFill 必须为布尔值") unless [true, false].include?(field["selectionFill"])
+    normalized_field["selectionFill"] = field["selectionFill"]
+  end
   if field_type == "SUB_ITEM"
     sub_fields = field["subFields"]
     fail_with("#{path}.subFields 必须是数组") unless sub_fields.is_a?(Array)

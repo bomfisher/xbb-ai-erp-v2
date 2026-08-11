@@ -14,11 +14,15 @@ public interface DemoItemRepository {
 
     void removeBatchByIds(String corpid, List<Long> ids);
 
+    void removeByDataId(String corpid, Long dataId);
+
     void update(DemoItem demoItem);
 
     DemoItem findById(String corpid, Long id);
 
     List<DemoItem> findByCondition(Map<String, Object> conditionMap);
+
+    List<DemoItem> findByDataId(String corpid, Long dataId);
 
     Long count(Map<String, Object> conditionMap);
 }

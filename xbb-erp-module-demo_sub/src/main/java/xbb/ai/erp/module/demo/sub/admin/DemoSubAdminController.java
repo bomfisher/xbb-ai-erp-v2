@@ -18,10 +18,12 @@ import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubDraftListDTO;
 import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubDraftLoadDTO;
 import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubDraftSaveDTO;
 import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubSubmitSaveDTO;
+import xbb.ai.erp.module.demo.sub.admin.dto.DemoSubSelectionFillDTO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubDraftDetailVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubDraftListItemVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubListItemVO;
 import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubSaveItemVO;
+import xbb.ai.erp.module.demo.sub.admin.vo.DemoSubSelectionFillVO;
 import xbb.ai.erp.module.demo.sub.application.service.DemoSubAdminAppService;
 
 @RestController
@@ -44,6 +46,11 @@ public class DemoSubAdminController {
   @PostMapping("/updateItem")
   public ResultVO<SaveItemVO<DemoSubSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
     return ResultVO.success(demoSubAdminAppService.updateItem(dto));
+  }
+
+  @PostMapping("/selectionFill")
+  public ResultVO<DemoSubSelectionFillVO> selectionFill(@RequestBody DemoSubSelectionFillDTO dto) {
+    return ResultVO.success(demoSubAdminAppService.selectionFill(dto));
   }
 
   @PostMapping("/saveDraft")

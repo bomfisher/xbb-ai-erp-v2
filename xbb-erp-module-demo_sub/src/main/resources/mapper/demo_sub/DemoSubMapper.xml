@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.demo.sub.infrastructure.persistence.mapper.DemoSubMapper">
 
     <sql id="BaseColumns">
-        id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
+        id, corpid, data_id, name, parent_name, del, add_time, update_time, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -37,13 +37,21 @@
         </if>
     </sql>
 
+    <insert id="insertAuto" useGeneratedKeys="true" keyProperty="id">
+        insert into demo_sub (
+            corpid, data_id, name, parent_name, del, add_time, update_time, creator_id, modify_id
+        ) values (
+            #{corpid}, #{dataId}, #{name}, #{parentName}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId}
+        )
+    </insert>
+
     <insert id="insertBatch">
         insert into demo_sub (
-            id, corpid, data_id, name, del, add_time, update_time, creator_id, modify_id
+            corpid, data_id, name, parent_name, del, add_time, update_time, creator_id, modify_id
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.id}, #{item.corpid}, #{item.dataId}, #{item.name}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.dataId}, #{item.name}, #{item.parentName}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
 
@@ -72,6 +80,7 @@
             <if test="corpid != null">corpid = #{corpid},</if>
             <if test="dataId != null">data_id = #{dataId},</if>
             <if test="name != null">name = #{name},</if>
+            <if test="parentName != null">parent_name = #{parentName},</if>
             <if test="del != null">del = #{del},</if>
             <if test="addTime != null">add_time = #{addTime},</if>
             <if test="updateTime != null">update_time = #{updateTime},</if>

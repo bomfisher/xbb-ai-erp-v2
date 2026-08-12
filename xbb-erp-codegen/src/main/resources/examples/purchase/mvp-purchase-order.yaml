@@ -1,0 +1,25 @@
+moduleCode: purchase
+moduleApiName: purchase
+businessName: purchaseOrder
+businessCode: PURCHASE_ORDER
+moduleName: 采购
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregate:
+  aggregateName: PurchaseOrder
+  tableName: purchase_order
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: orderNo, column: order_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: supplierId, column: supplier_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: supplierName, column: supplier_name, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: orderDate, column: order_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: expectedDate, column: expected_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: totalAmount, column: total_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: status, column: status, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

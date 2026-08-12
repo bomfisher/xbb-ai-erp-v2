@@ -69,7 +69,7 @@ infrastructure (PO、Mapper、Convertor、Repository 实现)
   ├─ POST /erp/v1/common/list/filter|header|topButton|bottomButton|rowAction
   │    -> ListCommonController -> ListCommonService
   │    -> ListMetaRegistry -> 目标模块 ListMetaProvider
-  └─ POST /erp/v1/{business}/list
+  └─ POST /erp/v1/{moduleApiName}/{businessName}/list
        -> {Business}AdminController -> QueryAppService
        -> ListQueryAdapter -> Domain Repository -> Assembler -> ListBaseVO
 ```
@@ -95,14 +95,14 @@ infrastructure (PO、Mapper、Convertor、Repository 实现)
 
 ### 新建页
 
-1. 前端调用 `POST /erp/v1/{business}/addItem`，入参为 `BaseDTO`。
+1. 前端调用 `POST /erp/v1/{moduleApiName}/{businessName}/addItem`，入参为 `BaseDTO`。
 2. Query AppService 用 `*FieldFactory.getFields(SceneTypeEnum.CREATE)` 生成 `headList`。
 3. Assembler 构造空的 `*SaveItemVO`：主档为空对象、子档为空列表、可选子档 `sectionState` 默认为 `0`。
 4. 前端根据字段元数据渲染新建表单；用户开启一个可选分区时，将对应 `sectionState` 设为 `1`。
 
 ### 编辑页
 
-1. 前端从列表的 `EDIT` 行动作进入编辑，调用 `POST /erp/v1/{business}/updateItem`，入参为 `IdBaseDTO`。
+1. 前端从列表的 `EDIT` 行动作进入编辑，调用 `POST /erp/v1/{moduleApiName}/{businessName}/updateItem`，入参为 `IdBaseDTO`。
 2. Query AppService 用 `UPDATE` 场景生成 `headList`，查询主档与各子档并批量/按主键加载。
 3. Assembler 将领域模型回填为表单 DTO 形状，并根据每个子档是否有数据生成 `sectionState`：有数据为 `1`，无数据为 `0`。
 4. 无效的公司、缺少主键、主档不存在等情况都以 `BizException` 中断，不返回半成品表单。

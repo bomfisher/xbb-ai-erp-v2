@@ -12,7 +12,7 @@ description: 用户提供了完整的module初始化资料时执行
 - 包名查重，重复返回第一步
 - 完成项目初始化创建，仅生成package结构，不创建任何文件，详见 `.claude/commands/init-module/module-demo.md`
 - 持久层代码优先走仓库内 YAML 生成器 `xbb-erp-codegen`，不要再手工逐个创建 PO、Mapper、RepositoryImpl、Mapper XML
-- 先准备模块规格 YAML；已有规格优先复用，没有则按数据库设计资料补一份。规格字段至少包含：`moduleCode`、`moduleName`、`packageBase`、`pathStrategy`、`aggregate.aggregateName`、`aggregate.tableName`、`aggregate.fields`、`generate`。可参考 `xbb-erp-codegen/src/main/resources/examples/supplier-vendor.yaml` 或 `xbb-erp-codegen/src/main/resources/examples/customer-module.yaml`。
+- 先准备模块规格 YAML；已有规格优先复用，没有则按数据库设计资料补一份。规格字段至少包含：`moduleDir`（短横线目录名）、`moduleCode`（下划线生成编码）、`moduleName`、`packageBase`、`pathStrategy`、`aggregate.aggregateName`、`aggregate.tableName`、`aggregate.fields`、`generate`。可参考 `xbb-erp-codegen/src/main/resources/examples/supplier-vendor.yaml` 或 `xbb-erp-codegen/src/main/resources/examples/customer-module.yaml`。
 - 先执行 dry-run 检查路径是否正确：`mvn -pl xbb-erp-codegen -am exec:java -Dexec.mainClass=xbb.ai.erp.codegen.cli.CodegenCli -Dexec.args='dry-run <spec.yaml>'`
 - dry-run 确认无误后再执行生成：`mvn -pl xbb-erp-codegen -am exec:java -Dexec.mainClass=xbb.ai.erp.codegen.cli.CodegenCli -Dexec.args='generate <spec.yaml> .'`
 - `pathStrategy` 当前默认使用 `ddd-mybatis-plus`，生成结果应落到当前模块的 `admin`、`application`、`domain`、`infrastructure/persistence` 以及 `src/main/resources/mapper/<moduleCode>`
@@ -30,7 +30,7 @@ description: 用户提供了完整的module初始化资料时执行
 - 完成后至少执行模块级编译验证；优先验证生成器模块和目标业务模块
 
 ## 执行检查清单
-- 第一步：确认业务名、模块目录名、`moduleCode`、`packageBase` 一致
+- 第一步：确认模块目录/`artifactId` 使用 `moduleDir`，生成编码使用 `moduleCode`，Java 包使用 `packageBase`；三者不要求字符串相同
 - 第二步：确认目标模块目录不存在重名冲突
 - 第三步：仅按 `.claude/commands/init-module/module-demo.md` 创建 package 结构，不预先手写业务文件
 - 第四步：准备或补齐 YAML 规格，优先复用已有规格文件
@@ -41,7 +41,7 @@ description: 用户提供了完整的module初始化资料时执行
 - 第九步：执行模块级编译验证，并记录无关失败项，不顺手修 unrelated 问题
 
 ## 交付物清单
-- 目标业务模块目录，例如 `xbb-erp-module-<moduleCode>`
+- 目标业务模块目录，例如 `xbb-erp-module-<moduleDir>`
 - 模块规格 YAML，优先放在生成器示例或业务模块可追溯的位置
 - 持久层代码：`PO`、`Mapper`、`RepositoryImpl`、`Mapper XML`
 - 管理端基础骨架：`admin/dto`、`admin/vo`、`controller`、`application/service`

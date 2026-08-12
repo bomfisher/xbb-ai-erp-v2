@@ -1,9 +1,9 @@
 # save-s
 
 ## 客户
-- 接口：`POST /erp/v1/customer/saveAndSubmit`
+- 接口：`POST /erp/v1/masterData/customer/saveAndSubmit`
 - 用途：客户正式保存
-- 差异点：支持主档 + 子档正式落库
+- 差异点：支持主档 + 联系人子表同步，并回写默认联系人
 - 业务文档：`docs/kn/customer-m.md`
 - API 文档：`docs/api/endpoints/customer-save-and-submit.md`
 

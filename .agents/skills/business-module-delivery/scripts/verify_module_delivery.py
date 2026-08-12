@@ -44,9 +44,10 @@ def require_service_methods(service: Path) -> list[str]:
 
 def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str, metadata: dict) -> list[str]:
     errors = []
+    field_enum_content = ""
     field_enum = source_root / "admin" / f"{aggregate}FieldEnum.java"
     if not field_enum.is_file():
-        errors.append(f"缺少字段枚举：{field_enum}")
+        errors.append(f"缺少共享字段事实源：{field_enum}")
     else:
         field_enum_content = field_enum.read_text(encoding="utf-8")
         for field in metadata["fields"]:
@@ -69,7 +70,16 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
     if not provider.is_file():
         errors.append(f"缺少列表元数据 Provider：{provider}")
     else:
-        provider_content = provider.read_text(encoding="utf-8") + "\n" + field_enum_content
+        provider_content = provider.read_text(encoding="utf-8")
+        shared_enum_fragments = (
+            f"{aggregate}FieldEnum",
+            f"Arrays.stream({aggregate}FieldEnum.values())",
+        )
+        if any(fragment and fragment not in provider_content for fragment in shared_enum_fragments):
+            errors.append("ListMetaProvider 必须从共享 FieldEnum 派生字段元数据，禁止直接硬编码字段")
+        hard_coded_field_fragments = ('setAttr("', 'setAttrName("', 'FieldTypeEnum.')
+        if any(fragment in provider_content for fragment in hard_coded_field_fragments):
+            errors.append("ListMetaProvider 不得硬编码字段定义，应仅从共享 FieldEnum 投影字段元数据")
         empty_metadata_methods = (
             r"buildFilterMeta\s*\([^)]*\)\s*\{\s*return\s+(?:java\.util\.)?Collections\.emptyList\(\);",
             r"buildFilterConditionMeta\s*\([^)]*\)\s*\{\s*return\s+(?:java\.util\.)?Collections\.emptyMap\(\);",
@@ -81,18 +91,21 @@ def validate_field_delivery(module_root: Path, source_root: Path, aggregate: str
         if any(re.search(pattern, provider_content, re.DOTALL) for pattern in empty_metadata_methods):
             errors.append("ListMetaProvider 仍为空骨架，未生成明确字段元数据")
         for field in metadata["fields"]:
-            if "LIST" in field["scenes"] or field["filterName"] is not None:
-                required_fragments = [field["attr"].split(".")[-1], field["attrName"]]
-                if field["filterName"] is not None:
-                    required_fragments.append(field["filterName"])
-                    required_fragments.append("setFilterFieldType")
-                missing = [fragment for fragment in required_fragments if fragment not in provider_content]
-                if missing:
-                    errors.append(f"ListMetaProvider 未覆盖 {field['name']}：{'、'.join(missing)}")
+            required_fragments = [field["attr"], field["attrName"], f"FieldTypeEnum.{field['fieldType']}"]
+            missing = [fragment for fragment in required_fragments if fragment not in field_enum_content]
+            if missing:
+                errors.append(f"共享 FieldEnum 未覆盖 {field['name']}：{'、'.join(missing)}")
         for action_group in metadata["listActions"].values():
             for action in action_group:
                 if action["actionCode"] not in provider_content or action["actionName"] not in provider_content:
                     errors.append(f"ListMetaProvider 未覆盖列表动作：{action['actionCode']}")
+    field_factory = source_root / "application/field" / f"{aggregate}FieldFactory.java"
+    if not field_factory.is_file():
+        errors.append(f"缺少字段工厂：{field_factory}")
+    else:
+        factory_content = field_factory.read_text(encoding="utf-8")
+        if f"Arrays.stream({aggregate}FieldEnum.values())" not in factory_content or "private enum Field" in factory_content:
+            errors.append("FieldFactory 必须只遍历共享 FieldEnum，禁止维护第二份字段枚举")
     return errors
 
 
@@ -112,6 +125,70 @@ def validate_list_contract(source_root: Path, aggregate: str) -> list[str]:
     missing = [fragment for fragment in required_fragments if fragment not in query_content]
     if missing:
         errors.append("Query AppService 未使用公共列表条件映射：" + "、".join(missing))
+    return errors
+
+
+def validate_auto_increment_insert_contract(module_root: Path, source_root: Path, aggregate: str) -> list[str]:
+    errors = []
+    repository = source_root / "infrastructure/persistence/repository" / f"{aggregate}RepositoryImpl.java"
+    po = source_root / "infrastructure/persistence/po" / f"{aggregate}PO.java"
+    if not repository.is_file() or not po.is_file():
+        return errors
+
+    repository_content = repository.read_text(encoding="utf-8")
+    po_content = po.read_text(encoding="utf-8")
+    insert_match = re.search(
+        r"public\s+Long\s+insert\s*\([^)]*\)\s*\{(?P<body>.*?)\}",
+        repository_content,
+        re.DOTALL,
+    )
+    if not insert_match:
+        errors.append("RepositoryImpl 的 insert 必须返回数据库生成的 Long 主键")
+        return errors
+
+    insert_body = insert_match.group("body")
+    if "po.setId(null);" not in insert_body:
+        errors.append("AUTO_INCREMENT 插入前必须清空 PO.id，禁止预填主键")
+    if not re.search(r"\w+\.setId\(po\.getId\(\)\);", insert_body):
+        errors.append("AUTO_INCREMENT 插入后必须将 PO.id 回写领域对象")
+    if "return po.getId();" not in insert_body:
+        errors.append("AUTO_INCREMENT insert 必须返回数据库回填的 PO.id")
+    batch_match = re.search(
+        r"public\s+void\s+insertBatch\s*\([^)]*\)\s*\{(?P<body>.*?)\}",
+        repository_content,
+        re.DOTALL,
+    )
+    if not batch_match:
+        errors.append("RepositoryImpl 缺少可校验的 insertBatch 方法")
+    else:
+        batch_body = batch_match.group("body")
+        required_batch_fragments = (
+            "poList.forEach(po -> po.setId(null));",
+            "Mapper.insertBatch(poList);",
+            ".setId(poList.get(index).getId());",
+        )
+        missing = [fragment for fragment in required_batch_fragments if fragment not in batch_body]
+        if missing:
+            errors.append("AUTO_INCREMENT insertBatch 必须清空 PO.id 并将回填主键逐项写回领域数组：" + "、".join(missing))
+    if "IdWorker" in repository_content or "xbb.ai.erp.base.idgen" in repository_content or "Snowflake" in repository_content:
+        errors.append("AUTO_INCREMENT 插入不得依赖雪花 ID 生成器")
+    if "extends BaseEntity" not in po_content and ("@TableId" not in po_content or "IdType.AUTO" not in po_content):
+        errors.append("PO 必须继承带有 @TableId(type = IdType.AUTO) 的 BaseEntity，禁止默认雪花 ID 策略")
+    mapper_xml_files = list((module_root / "src/main/resources/mapper").glob(f"**/{aggregate}Mapper.xml"))
+    if len(mapper_xml_files) != 1:
+        errors.append("无法唯一定位 Mapper XML 以校验 insertBatch 主键回填")
+    else:
+        mapper_xml = mapper_xml_files[0].read_text(encoding="utf-8")
+        batch_insert_match = re.search(r"<insert\s+id=\"insertBatch\"(?P<attributes>[^>]*)>(?P<body>.*?)</insert>", mapper_xml, re.DOTALL)
+        if not batch_insert_match:
+            errors.append("Mapper XML 缺少 insertBatch")
+        else:
+            attributes = batch_insert_match.group("attributes")
+            column_match = re.search(r"insert\s+into\s+\w+\s*\((?P<columns>.*?)\)\s*values", batch_insert_match.group("body"), re.DOTALL | re.IGNORECASE)
+            if 'useGeneratedKeys="true"' not in attributes or 'keyProperty="id"' not in attributes:
+                errors.append("insertBatch 必须配置 useGeneratedKeys=\"true\" 和 keyProperty=\"id\"")
+            if column_match and re.search(r"\bid\b", column_match.group("columns")):
+                errors.append("AUTO_INCREMENT insertBatch 不得插入 id 列")
     return errors
 
 
@@ -150,6 +227,7 @@ def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata:
         errors.append("RepositoryImpl 必须声明模块级显式 Spring Bean 名，避免跨模块同名聚合冲突")
     errors.extend(validate_field_delivery(module_root, source_root, aggregate, metadata))
     errors.extend(validate_list_contract(source_root, aggregate))
+    errors.extend(validate_auto_increment_insert_contract(module_root, source_root, aggregate))
     return errors
 
 

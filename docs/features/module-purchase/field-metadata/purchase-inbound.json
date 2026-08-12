@@ -1,0 +1,232 @@
+{
+  "businessCode": "PURCHASE_INBOUND",
+  "fields": [
+    {
+      "name": "inboundNo",
+      "attr": "main.inboundNo",
+      "attrName": "inbound_no",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "inbound_no",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "purchaseOrderId",
+      "attr": "main.purchaseOrderId",
+      "attrName": "purchase_order_id",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "PURCHASE_ORDER"
+    },
+    {
+      "name": "supplierId",
+      "attr": "main.supplierId",
+      "attrName": "supplier_id",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "SUPPLIER"
+    },
+    {
+      "name": "warehouseId",
+      "attr": "main.warehouseId",
+      "attrName": "warehouse_id",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "WAREHOUSE"
+    },
+    {
+      "name": "inboundDate",
+      "attr": "main.inboundDate",
+      "attrName": "inbound_date",
+      "fieldType": "DATE",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "inbound_date",
+      "filterFieldType": "DATE",
+      "supportedSymbols": [
+        "EQ",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "totalAmount",
+      "attr": "main.totalAmount",
+      "attrName": "total_amount",
+      "fieldType": "AMOUNT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "total_amount",
+      "filterFieldType": "AMOUNT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "status",
+      "attr": "main.status",
+      "attrName": "status",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "status",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "1:启用,0:禁用"
+    },
+    {
+      "name": "remark",
+      "attr": "main.remark",
+      "attrName": "remark",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "remark",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "creatorId",
+      "attr": "main.creatorId",
+      "attrName": "creator_id",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "creator_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "modifyId",
+      "attr": "main.modifyId",
+      "attrName": "modify_id",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "modify_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    }
+  ],
+  "listActions": {
+    "top": [
+      {
+        "actionCode": "ADD",
+        "actionName": "新建"
+      }
+    ],
+    "bottom": [
+      {
+        "actionCode": "DELETE",
+        "actionName": "删除"
+      }
+    ],
+    "row": [
+
+    ]
+  }
+}

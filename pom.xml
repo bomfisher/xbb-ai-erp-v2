@@ -23,8 +23,10 @@
         <module>xbb-erp-module-common</module>
         <module>xbb-erp-module-demo</module>
         <module>xbb-erp-module-demo-contract</module>
-        <module>xbb-erp-module-demo_sub</module>
+        <module>xbb-erp-module-demo-sub</module>
         <module>xbb-erp-module-org</module>
+        <module>xbb-erp-module-master-data</module>
+        <module>xbb-erp-module-purchase</module>
         <module>xbb-erp-app-admin</module>
         <module>xbb-erp-app-mobile</module>
         <module>xbb-erp-app-job</module>

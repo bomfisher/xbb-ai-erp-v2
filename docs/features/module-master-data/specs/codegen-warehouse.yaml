@@ -1,0 +1,24 @@
+moduleDir: master-data
+moduleCode: module_master_data
+moduleApiName: masterData
+businessName: warehouse
+businessCode: WAREHOUSE
+moduleName: 主数据
+packageBase: xbb.ai.erp.module.masterdata
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregate:
+  aggregateName: Warehouse
+  tableName: warehouse
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: warehouseCode, column: warehouse_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: warehouseName, column: warehouse_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: address, column: address, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: ownerId, column: owner_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: enabled, column: enabled, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

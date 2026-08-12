@@ -11,25 +11,25 @@
 ## 新建
 
 ### `addItem`
-- 接口路径：`POST /erp/v1/customer/addItem`
+- 接口路径：`POST /erp/v1/masterData/customer/addItem`
 - 用途：客户新增表单元数据初始化
-- 差异点：返回 `headList + data + sectionState` 的新建抽屉结构
+- 差异点：联系人以顶层 `contacts` 的 `SUB_ITEM(49)` 子表协议返回
 - API 文档：`docs/api/endpoints/customer-add-item.md`
 
 ## 编辑
 
 ### `updateItem`
-- 接口路径：`POST /erp/v1/customer/updateItem`
+- 接口路径：`POST /erp/v1/masterData/customer/updateItem`
 - 用途：客户编辑表单元数据加载
-- 差异点：按已有客户数据回填子档与 `sectionState`
+- 差异点：回填顶层 `contacts` 子表，保留联系人行 ID 供保存同步
 - API 文档：`docs/api/endpoints/customer-update-item.md`
 
 ## 保存
 
 ### `saveAndSubmit`
-- 接口路径：`POST /erp/v1/customer/saveAndSubmit`
+- 接口路径：`POST /erp/v1/masterData/customer/saveAndSubmit`
 - 用途：客户正式保存并提交
-- 差异点：执行严格校验并正式落库
+- 差异点：事务内同步联系人子表并回写默认联系人 ID
 - API 文档：`docs/api/endpoints/customer-save-and-submit.md`
 
 ## 草稿

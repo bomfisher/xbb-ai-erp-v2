@@ -47,13 +47,14 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 ## 聚合与目录边界
 
 - 单主表或主从表的主表使用 `ROOT` 规格：可生成 `admin`、`application`、`domain`、`infrastructure.persistence` 和 Mapper XML 骨架。
+- 每个 ROOT 规格必须显式提供 `moduleApiName`、唯一的 `businessName` 和 `businessCode`；前两者均为小驼峰，按 `moduleApiName/businessName` 生成 Controller 的 `/erp/v1/masterData/customer`，`businessCode` 决定 `ListMetaProvider` 注册编码。它们不能复用模块级 `moduleCode` 作为默认值，尤其一个模块包含多个 ROOT 时。
 - 主从表的从表使用 `CHILD` 规格：仅生成 `domain`、`infrastructure.persistence` 和 Mapper XML；禁止创建独立 Controller、DTO、VO、Application、列表或页面。
 - 按 `docs/guide/业务模块目录规范.md` 按需建立目录，不能为了凑骨架创建空包。实现本 Skill 的七个接口时，必须具备其所需的 `admin`、`application`、`domain`、`infrastructure.persistence` 与 Mapper XML 职责目录。
 - 主档与子档的字段、关系、同步与删除语义由目标业务定义；应用服务在同一事务边界内编排主子档保存。
 
 ## 必须交付的 HTTP 接口
 
-主表 Controller 的路径为 `/erp/v1/{business}`，仅通过总入口 Application Service 调用，并使用 `ResultVO.success()` 包装：
+主表 Controller 的路径为 `/erp/v1/{moduleApiName}/{businessName}`，仅通过总入口 Application Service 调用，并使用 `ResultVO.success()` 包装：
 
 | 路径 | 入参 | 返回 |
 | --- | --- | --- |
@@ -69,24 +70,30 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 - `addItem` 返回 `CREATE` 场景字段元数据与空表单；`updateItem` 返回 `UPDATE` 元数据以及主档、子档和 `sectionState` 回填。
 - `saveDraft`、`draftList`、`loadDraft` 放在 `application.service.draft`；草稿仓储定义在 `application.port`，实现放在基础设施层。
 - `saveAndSubmit` 放在 `application.service.save`，按“协议校验 → 通用字段校验 → 业务校验 → 主子档同步”执行；只有正式保存成功才删除来源草稿。
+- 提供完整字段元数据时，必须生成 `admin/*FieldEnum` 作为唯一字段事实源，形态对齐 `DemoFieldEnum`：`*FieldFactory` 只能遍历该枚举按场景生成 `headList`，`*ListMetaProvider` 只能遍历该枚举生成筛选和表头。Provider 禁止直接 `new FieldEntity`/`new FilterField` 后硬编码字段 attr、名称、类型、选项或筛选白名单；按钮动作可由已确认的 `listActions` 生成。
+- 规格未声明其他主键策略时，业务表主键固定使用数据库 `AUTO_INCREMENT`：所有 PO 继承的 `BaseEntity.id` 必须显式标记 `@TableId(type = IdType.AUTO)`；Repository 的 `Long insert` 必须先将 PO 的 `id` 置为 `null`，调用 Mapper 后把 MyBatis 回填的 `po.id` 写回领域对象并作为返回值。`insertBatch` 必须对全部 PO 清空 `id`，Mapper XML 使用 `useGeneratedKeys="true" keyProperty="id"` 且不插入 `id` 列，完成后按原顺序将每个 `poList[index].id` 回写给领域数组对象。禁止引用 `xbb-erp-base-idgen`、`IdWorker`、`Snowflake` 或预生成 ID；`save` 返回的新增 ID 必须直接来自 `insert` 的数据库回填结果。
 
 ## 执行步骤
 
 1. 用 `scripts/validate_field_metadata.py` 校验字段元数据来源完整；输出缺失项时暂停并向开发者确认。
-2. 用 `scripts/build_delivery_scope.py` 明确模块、主表、可选从表和字段元数据；在业务设计中单独记录领域特有规则。
-3. 用 `scripts/validate_module_specs.py` 校验 ROOT/CHILD 角色、模块一致性和生成范围；先运行 `scripts/run_codegen.py` 的 dry-run。
-4. 用户确认后才使用 `scripts/run_codegen.py --apply`。ROOT 必须生成 `*FieldEnum`、场景字段提供者、`headList`、`BusinessCodeEnum` 对应值和包含实际字段白名单/动作的 `*ListMetaProvider`；不得生成空 Provider。
-5. 用 `scripts/verify_module_delivery.py` 校验模块目录职责、Mapper 注册、ROOT 的七个接口、统一 `ListBaseDTO + ListQueryMapUtil + schemaProvider` 列表链路、字段元数据、`headList`、业务编码和 CHILD 无独立 HTTP/Application 层。
-6. 接口契约变化时，执行 `.claude/commands/multi-player/SKILL.md`，维护 API 原子文档、聚合文档和 `docs/kn/总目录.md`。
-7. 运行 `scripts/harness-verify.sh`、目标模块测试和本 Skill 脚本测试。
+2. 紧接着执行 `scripts/sync_business_code.py <field-metadata.json> --enum-path xbb-erp-base-common/src/main/java/xbb/ai/erp/base/common/module/BusinessCodeEnum.java`。缺少编码必须阻断后续生成；开发者已确认公共模块变更时，再以 `--apply` 自动登记。禁止仅在交付末端发现编码缺失。
+3. 用 `scripts/build_delivery_scope.py` 明确模块、主表、可选从表和字段元数据；在业务设计中单独记录领域特有规则。
+4. 用 `scripts/validate_module_specs.py` 校验 ROOT/CHILD 角色、模块一致性和生成范围；先运行 `scripts/run_codegen.py` 的 dry-run。未提供 `field-metadata.json` 时允许只生成代码骨架。
+5. 已提供完整 `field-metadata.json` 时，用户确认后必须对单个 ROOT 使用 `scripts/run_codegen.py --project-root . --field-metadata <field-metadata.json> <ROOT规格.yaml> --apply`。该模式会覆盖 ROOT 的 `*FieldEnum`、`*ListMetaProvider`，并生成只消费该枚举的 `*FieldFactory`、`*ListSchemaProvider` 与标准 QueryService；列表统一接收 `ListBaseDTO`，`addItem/updateItem` 生成 `headList`。多个 ROOT 必须逐一指定其各自的元数据执行，禁止复用同一份字段元数据。
+6. 用 `scripts/verify_module_delivery.py` 校验模块目录职责、Mapper 注册、ROOT 的七个接口、统一 `ListBaseDTO + ListQueryMapUtil + schemaProvider` 列表链路、字段元数据、`headList`、业务编码、AUTO_INCREMENT 插入后的主键回填和 CHILD 无独立 HTTP/Application 层。
+7. 接口契约变化时，执行 `.claude/commands/multi-player/SKILL.md`，维护 API 原子文档、聚合文档和 `docs/kn/总目录.md`。
+8. 运行 `scripts/harness-verify.sh`、目标模块测试和本 Skill 脚本测试。
 
 ## 脚本
 
 - `scripts/build_delivery_scope.py --module-code <domain> --root-spec <主表.yaml> --field-metadata <field-metadata.json> [--child-spec <从表.yaml> ...] --output <scope.json>`
 - `scripts/generate_field_metadata.rb <字段设计.yaml> <field-metadata.json>`
 - `scripts/validate_field_metadata.py <field-metadata.json>`
+- `scripts/sync_business_code.py <field-metadata.json> --enum-path <BusinessCodeEnum.java> [--apply]`
 - `scripts/validate_module_specs.py <主表.yaml> [从表.yaml ...]`
-- `scripts/run_codegen.py --project-root . <规格.yaml> [规格.yaml ...] [--apply]`
+- `scripts/run_codegen.py --project-root . [--field-metadata <field-metadata.json>] <规格.yaml> [规格.yaml ...] [--apply]`
+- `scripts/generate_list_meta_provider.py <field-metadata.json> <ROOT规格.yaml> <模块目录> [--apply]`
+- `scripts/generate_query_form_contract.py <field-metadata.json> <ROOT规格.yaml> <模块目录> [--apply]`
 - `scripts/verify_mapper_registration.py <模块目录>`
 - `scripts/verify_module_delivery.py <模块目录> <主聚合名> --field-metadata <field-metadata.json> [--child <从聚合名> ...] [--skip-tests]`
 - `scripts/test_delivery_scripts.py`

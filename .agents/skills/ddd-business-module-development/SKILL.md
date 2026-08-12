@@ -24,7 +24,7 @@ description: 在本仓库按 DDD 约束新增或扩展 ERP 业务模块、列表
 
 ### 2. 实现列表页
 
-- 同时实现 `POST /erp/v1/{business}/list` 的数据查询和 `ListMetaProvider` 的字段、筛选、按钮、行操作元数据。
+- 同时实现 `POST /erp/v1/{moduleApiName}/{businessName}/list` 的数据查询和 `ListMetaProvider` 的字段、筛选、按钮、行操作元数据。
 - 用 `businessCode()` 接入 `ListMetaRegistry`；用 `*ListQueryAdapter` 将动态筛选条件映射到列名和操作符白名单。
 - 从 `LIST` 场景字段工厂生成表头；列表子档摘要必须批量查询，不能在行循环中访问数据库。
 - 列表页DTO需要有 `private String keyword`, `private List<ListFilterCondition> conditions`字段

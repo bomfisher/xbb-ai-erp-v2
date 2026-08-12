@@ -1,4 +1,7 @@
 moduleCode: customer
+moduleApiName: customer
+businessName: customer
+businessCode: CUSTOMER
 moduleName: 客户
 packageBase: xbb.ai.erp.module.customer
 pathStrategy: ddd-mybatis-plus

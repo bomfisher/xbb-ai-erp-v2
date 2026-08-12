@@ -1,3 +1,4 @@
+moduleDir: demo-sub
 moduleCode: demo_sub
 moduleName: DEMO 下游业务
 packageBase: xbb.ai.erp.module.demo.sub

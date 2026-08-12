@@ -12,6 +12,11 @@ public enum BusinessCodeEnum {
     DEMO("DEMO"),
     DEMO_ITEM("DEMO_ITEM"),
     DEMO_SUB("DEMO_SUB"),
+    CUSTOMER("CUSTOMER"),
+    SUPPLIER("SUPPLIER"),
+    WAREHOUSE("WAREHOUSE"),
+    PURCHASE_ORDER("PURCHASE_ORDER"),
+    PURCHASE_INBOUND("PURCHASE_INBOUND"),
     ;
 
     private final String code;

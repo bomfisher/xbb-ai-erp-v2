@@ -1,0 +1,32 @@
+moduleDir: master-data
+moduleCode: module_master_data
+moduleApiName: masterData
+businessName: supplier
+businessCode: SUPPLIER
+moduleName: 主数据
+packageBase: xbb.ai.erp.module.masterdata
+pathStrategy: ddd-mybatis-plus
+aggregateName: Supplier
+tableName: supplier
+aggregateRole: ROOT
+admin: true
+application: true
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: Supplier
+  tableName: supplier
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: supplierCode, column: supplier_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: supplierName, column: supplier_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: defaultContactId, column: default_contact_id, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: mobile, column: mobile, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: address, column: address, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: enabled, column: enabled, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

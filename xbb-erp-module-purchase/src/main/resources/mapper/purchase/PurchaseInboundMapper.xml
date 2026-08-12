@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInboundMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, inbound_no, purchase_order_id, supplier_id, supplier_name, warehouse_id, inbound_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.inboundNo != null and conditionMap.inboundNo != ''">
+            and inbound_no = #{conditionMap.inboundNo}
+        </if>
+        <if test="conditionMap.purchaseOrderId != null">
+            and purchase_order_id = #{conditionMap.purchaseOrderId}
+        </if>
+        <if test="conditionMap.supplierId != null">
+            and supplier_id = #{conditionMap.supplierId}
+        </if>
+        <if test="conditionMap.warehouseId != null">
+            and warehouse_id = #{conditionMap.warehouseId}
+        </if>
+        <if test="conditionMap.inboundDate != null">
+            and inbound_date = #{conditionMap.inboundDate}
+        </if>
+        <if test="conditionMap.totalAmount != null">
+            and total_amount = #{conditionMap.totalAmount}
+        </if>
+        <if test="conditionMap.status != null and conditionMap.status != ''">
+            and status = #{conditionMap.status}
+        </if>
+        <if test="conditionMap.remark != null and conditionMap.remark != ''">
+            and remark = #{conditionMap.remark}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_inbound (
+            corpid, inbound_no, purchase_order_id, supplier_id, supplier_name, warehouse_id, inbound_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.inboundNo}, #{item.purchaseOrderId}, #{item.supplierId}, #{item.supplierName}, #{item.warehouseId}, #{item.inboundDate}, #{item.totalAmount}, #{item.status}, #{item.remark}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update purchase_inbound
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update purchase_inbound
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        update purchase_inbound
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="inboundNo != null">inbound_no = #{inboundNo},</if>
+            <if test="purchaseOrderId != null">purchase_order_id = #{purchaseOrderId},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="inboundDate != null">inbound_date = #{inboundDate},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="del != null">del = #{del},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        select <include refid="BaseColumns"/>
+        from purchase_inbound
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        select <include refid="BaseColumns"/>
+        from purchase_inbound
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from purchase_inbound
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

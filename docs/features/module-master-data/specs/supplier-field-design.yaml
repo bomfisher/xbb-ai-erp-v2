@@ -1,0 +1,23 @@
+businessCode: SUPPLIER
+fields:
+  - { name: supplier_code, attr: main.supplierCode, attrName: 供应商编码, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: supplier_code }
+  - { name: supplier_name, attr: main.supplierName, attrName: 供应商名称, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: supplier_name }
+  - name: default_contact_id
+    attr: main.defaultContactId
+    attrName: 默认联系人
+    fieldType: SUB_ITEM
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+    subFields:
+      - { name: name, attr: name, attrName: 联系人名称, fieldType: TEXT, scenes: [CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null }
+      - { name: mobile, attr: mobile, attrName: 手机号, fieldType: TEXT, scenes: [CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null }
+  - { name: mobile, attr: main.mobile, attrName: 手机号, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null }
+  - { name: address, attr: main.address, attrName: 地址, fieldType: ADDRESS, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null }
+  - { name: enabled, attr: main.enabled, attrName: 启用状态, fieldType: COMB, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: '1', filterName: enabled, options: '0:禁用,1:启用' }
+  - { name: remark, attr: main.remark, attrName: 备注, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: remark }
+  - { name: creator_id, attr: main.creatorId, attrName: 创建人, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: creator_id, businessCode: USER }
+  - { name: modify_id, attr: main.modifyId, attrName: 修改人, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: modify_id, businessCode: USER }
+listActions: { top: [{ actionCode: ADD, actionName: 新建 }], bottom: [{ actionCode: DELETE, actionName: 删除 }], row: [] }

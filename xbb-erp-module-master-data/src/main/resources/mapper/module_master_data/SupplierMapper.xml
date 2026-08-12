@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.masterdata.infrastructure.persistence.mapper.SupplierMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, supplier_code, supplier_name, default_contact_id, mobile, address, enabled, remark, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.supplierCode != null and conditionMap.supplierCode != ''">
+            and supplier_code = #{conditionMap.supplierCode}
+        </if>
+        <if test="conditionMap.supplierName != null and conditionMap.supplierName != ''">
+            and supplier_name = #{conditionMap.supplierName}
+        </if>
+        <if test="conditionMap.enabled != null">
+            and enabled = #{conditionMap.enabled}
+        </if>
+        <if test="conditionMap.remark != null and conditionMap.remark != ''">
+            and remark = #{conditionMap.remark}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into supplier (
+            corpid, supplier_code, supplier_name, default_contact_id, mobile, address, enabled, remark, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.supplierCode}, #{item.supplierName}, #{item.defaultContactId}, #{item.mobile}, #{item.address}, #{item.enabled}, #{item.remark}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update supplier
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update supplier
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.masterdata.infrastructure.persistence.po.SupplierPO">
+        update supplier
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="supplierCode != null">supplier_code = #{supplierCode},</if>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="defaultContactId != null">default_contact_id = #{defaultContactId},</if>
+            <if test="mobile != null">mobile = #{mobile},</if>
+            <if test="address != null">address = #{address},</if>
+            <if test="enabled != null">enabled = #{enabled},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.masterdata.infrastructure.persistence.po.SupplierPO">
+        select <include refid="BaseColumns"/>
+        from supplier
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.masterdata.infrastructure.persistence.po.SupplierPO">
+        select <include refid="BaseColumns"/>
+        from supplier
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from supplier
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

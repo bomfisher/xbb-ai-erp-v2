@@ -12,7 +12,8 @@ description: 在本仓库交付或重构完整 ERP 功能，编排需求规格�
 1. 阅读 `docs/harness/README.md`、`docs/harness/工程规则唯一事实源.md`、`docs/harness/文档地图.md`、`docs/harness/功能交付输入模板.md` 与目标模块/API 文档。
 2. 检查 `git status --short`；由开发者决定是否创建 worktree，禁止覆盖既有改动。
 3. 明确主聚合、从聚合、数据库关系、页面场景、筛选白名单、列表动作、保存/草稿语义与验收标准。缺失业务事实时暂停确认，禁止按字段名猜测业务规则。
-4. 新模块的目录后缀和 `moduleCode` 只能使用小写字母、数字、下划线，禁止使用短横线；Java `packageBase` 的每个片段必须是合法 Java 标识符。生成前确认 `xbb-erp-module-<moduleCode>`、`src/main/java/<packageBase 路径>` 和所有生成文件的 `package` 声明一致，禁止用模块目录名替代 Java 包路径。
+4. 新模块必须显式区分：`moduleDir` 使用小写字母、数字和短横线，决定 Maven 目录与 artifactId（如 `master-data` → `xbb-erp-module-master-data`）；`moduleCode` 使用小写字母、数字和下划线，决定生成器资源路径；`packageBase` 的每个片段必须是合法 Java 标识符。三者不得互相替代。生成前确认目录/`artifactId` 使用 `moduleDir`，源码路径和 `package` 使用 `packageBase`，Mapper 资源路径使用 `moduleCode`。
+5. 每个会生成 Controller 或 `ListMetaProvider` 的 ROOT 规格必须显式声明 `moduleApiName`、`businessName` 和 `businessCode`：接口固定为 `/erp/v1/{moduleApiName}/{businessName}/*`，前两者均为小驼峰 URL 值，例如 `masterData/customer`；`businessCode` 是对应 `BusinessCodeEnum` 的大写枚举值。一个模块存在多个 ROOT 时，`businessName` 与 `businessCode` 必须各自唯一；禁止退回共用 `moduleCode`，以免 HTTP 映射或列表注册冲突。
 
 ## 字段元数据优先
 
@@ -39,7 +40,7 @@ listActions:
 - 每个字段必须显式提供 `name`、`attr`、`attrName`、`fieldType`、`scenes`、`required`、`editable`、`defaultValue`、`filterName`；`filterName: null` 表示不可筛选。
 - `name` 是稳定设计标识/枚举常量来源，`attr` 是前端提交和回填路径，`filterName` 是服务端数据库列白名单；三者不得混用。
 - `COMB`、`COMB_MULTI`、`CHECKBOX`、`RADIO_BTN` 可提供 `options`，格式为 `值:文案` 的逗号分隔字符串；生成的 `headList.itemList` 与列表筛选 `itemList` 必须解析为相同的 `FieldItem(value,text)`，不得保留原始字符串或输出空列表。`RADIO_BTN` 按 `COMB` 协议输出；`SWITCH` 也按 `COMB` 输出且 `itemList` 固定为 `1:开启`、`2:关闭`。所有选择数据字段（`USER`、`DEPT`、`BUSINESS`、`PRODUCT` 及其多选变体）必须提供目标 `businessCode`；后端返回的 `businessSelectConfig` 只能包含该 `businessCode`，禁止下发 URL、请求体、占位文案、标题、业务类型或单多选语义。前端依据 `businessCode` 常量注册表解析端点和展示语义。当选择字段配置了非空 `filterName` 时，列表筛选元数据也必须下发相同的仅编码配置。
-- 业务选择回填属于**消费方业务模块**：每个具备新建/编辑表单的业务至多提供一个 `POST /erp/v1/{business}/selectionFill` 接口，接口以 `fieldAttr + referenceId` 识别来源；模块内按 `fieldAttr` 分派其全部上游业务的回填规则，禁止按上游单据新增 HTTP 接口。仅需选择、不需回填的字段不得调用该接口。字段设计可在 `BUSINESS` 字段声明 `selectionFill: true`；生成元数据保留该布尔值并下发为 `selectionFillConfig: { enabled: true }`，不得下发目标字段映射、来源 URL、SQL 或其他回填实现细节。`businessSelectConfig` 仍仅包含目标 `businessCode`。
+- 业务选择回填属于**消费方业务模块**：每个具备新建/编辑表单的业务至多提供一个 `POST /erp/v1/{moduleApiName}/{businessName}/selectionFill` 接口，接口以 `fieldAttr + referenceId` 识别来源；模块内按 `fieldAttr` 分派其全部上游业务的回填规则，禁止按上游单据新增 HTTP 接口。仅需选择、不需回填的字段不得调用该接口。字段设计可在 `BUSINESS` 字段声明 `selectionFill: true`；生成元数据保留该布尔值并下发为 `selectionFillConfig: { enabled: true }`，不得下发目标字段映射、来源 URL、SQL 或其他回填实现细节。`businessSelectConfig` 仍仅包含目标 `businessCode`。
 - `selectionFill` 必须由当前模块应用服务经轻量跨模块 `*ReferenceQueryApi` / 查询 Port 按租户查询来源数据，返回仅包含当前表单可写 `attr` 路径的 `patch`。服务端必须校验 `fieldAttr` 是本模块已启用回填的选择字段、`referenceId` 属于当前租户且有效；正式保存必须按业务语义重新校验或重算受回填影响的快照字段，禁止信任前端 patch。
 - 列表筛选元数据必须同时返回两类字段类型：`fieldType` 为源字段枚举值（与 `headList.fieldType` 一致，用于前端精确选择控件），`filterFieldType` 为筛选协议类型（用于 `conditions[].fieldType` 的白名单校验）。`ListCommonServiceImpl#filter` 统一派生二者：`COMB_MULTI`、`CHECKBOX` 映射为 `ENUM_MULTI`，`BUSINESS` 映射为 `BUSINESS`，`USER`、`DEPT` 映射为 `ID`；`NUM_INT`、`NUM_DOUBLE`、`AMOUNT`、`STOCK`、`DATE`、`TIME` 必须保留各自源类型。条件白名单、值长度校验和 Mapper SQL 必须同步支持这些操作符。
 - `COMB`、`RADIO_BTN`、`SWITCH`、`COMB_MULTI`、`CHECKBOX` 的持久化筛选值统一按 JSON 处理：单选仅支持 `CONTAINS`、`NOT_CONTAINS`、`IS_EMPTY`、`IS_NOT_EMPTY`，多选额外支持 `CONTAINS_ALL`、`NOT_CONTAINS_ALL`；Mapper 对枚举条件必须使用 `JSON_CONTAINS`，禁止以 `LIKE` 匹配 JSON 文本。`DATE` 仅支持 `EQ`、`GE`、`LE`、`BETWEEN`、`IS_EMPTY`、`IS_NOT_EMPTY`；`TIME` 仅支持 `GE`、`LE`、`BETWEEN`、`IS_EMPTY`、`IS_NOT_EMPTY`。
@@ -61,7 +62,7 @@ ruby .agents/skills/business-module-delivery/scripts/generate_field_metadata.rb 
 python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.py <field-metadata.json>
 ```
 
-字段定义只能有一个可执行事实源。生成或维护 `*FieldEnum` 后，`*FieldFactory` 必须按场景、选项、选择目标和子档定义派生 `headList`，`*ListMetaProvider` 必须从同一字段定义派生表头、筛选属性、白名单列、操作符、筛选选项和选择目标；禁止再维护并行的 `DEFINITIONS`、字段列表或筛选符号常量。生成后不得保留 `emptyList`/`emptyMap`/`List.of()`/`Map.of()` 形式的空筛选、空表头或空条件元数据实现。
+字段定义只能有一个可执行事实源。完整元数据模式必须生成 `admin/*FieldEnum`（以 `DemoFieldEnum` 为形态参考），并由 `*FieldFactory` 和 `*ListMetaProvider` 共同消费：前者只按场景将枚举投影为 `headList`，后者只遍历枚举派生表头、筛选属性、白名单列、操作符、筛选选项和选择目标。禁止在 Provider、Factory 或 Schema 维护第二份字段常量、`DEFINITIONS`、字段列表或筛选符号常量，也禁止在 Provider 中直接 `new FieldEntity` 后写入字段元数据。生成后不得保留 `emptyList`/`emptyMap`/`List.of()`/`Map.of()` 形式的空筛选、空表头或空条件元数据实现。
 
 ## 实施路由
 
@@ -89,7 +90,7 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 
 ## 实现与交付门禁
 
-1. 先执行 ROOT/CHILD 规格 `dry-run`；确认模块目录不含短横线、源码路径由 `packageBase` 推导且与 `package` 声明完全一致；再检查 `admin -> application -> domain` 依赖、Repository 边界、事务和子档批量加载。
+1. 先执行 ROOT/CHILD 规格 `dry-run`；确认模块目录只使用短横线、源码路径由 `packageBase` 推导且与 `package` 声明完全一致；再检查 `admin -> application -> domain` 依赖、Repository 边界、事务和子档批量加载。
 2. `addItem` 以 `CREATE` 字段生成空表单与 `headList`；`updateItem` 以 `UPDATE` 字段生成 `headList`，并按明确关联回填主档、子档和 `sectionState`。每个选择数据字段必须在两个场景的 `headList` 中组装只含目标 `businessCode` 的 `businessSelectConfig`；不得下发任何 URL、租户请求体或展示语义。选项字段必须返回非空 `itemList`。
 3. 列表筛选必须只接受由 `filterName` 派生的属性/列/操作符白名单，绝不接受前端传入 SQL、列名或操作符；可筛选字段必须返回源 `fieldType` 加协议 `filterFieldType`，`BUSINESS(16)` 的协议类型为 `BUSINESS`，`USER(12)`、`DEPT(14)` 为 `ID`，三者均返回仅含目标编码的 `businessSelectConfig`；选项字段必须复用表单 `itemList`。验证单选/多选 JSON 枚举条件使用 `JSON_CONTAINS`，`DATE`、`TIME` 的白名单严格符合字段元数据脚本生成的操作符集合。
 4. 检查 Controller、Application Service、Query Application Service 的列表签名均为 `ListBaseDTO`；Query Application Service 使用 `ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())`，`findByCondition` 与 `count` 共享结果 Map，Repository 已 import 并调用条件准备工具，字段工厂不保留无意义的 `SceneFieldMeta.class::cast`。

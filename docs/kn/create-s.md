@@ -1,9 +1,9 @@
 # create-s
 
 ## 客户
-- 接口：`POST /erp/v1/customer/addItem`
+- 接口：`POST /erp/v1/masterData/customer/addItem`
 - 用途：客户新增表单元数据初始化
-- 差异点：返回 `headList + data + sectionState` 的新建抽屉结构
+- 差异点：返回顶层 `contacts` 联系人子表及一行空白默认值
 - 业务文档：`docs/kn/customer-m.md`
 - API 文档：`docs/api/endpoints/customer-add-item.md`
 

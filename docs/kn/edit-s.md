@@ -1,9 +1,9 @@
 # edit-s
 
 ## 客户
-- 接口：`POST /erp/v1/customer/updateItem`
+- 接口：`POST /erp/v1/masterData/customer/updateItem`
 - 用途：客户编辑表单元数据加载
-- 差异点：按已有客户数据回填子档与 `sectionState`
+- 差异点：按已有客户数据回填顶层联系人子表
 - 业务文档：`docs/kn/customer-m.md`
 - API 文档：`docs/api/endpoints/customer-update-item.md`
 

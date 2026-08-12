@@ -91,7 +91,7 @@ verify_migrations() {
 
 verify_module() {
   [[ -n "$module_name" ]] || return 0
-  [[ "$module_name" =~ ^xbb-erp-module-[a-z0-9_]+$ ]] || fail "模块名必须为 xbb-erp-module-<name>"
+  [[ "$module_name" =~ ^xbb-erp-module-[a-z0-9]+(-[a-z0-9]+)*$ ]] || fail "模块名必须为 xbb-erp-module-<name>，其中 <name> 仅使用小写字母、数字和短横线"
   local module_dir="$root_dir/$module_name"
   local java_dir="$module_dir/src/main/java"
   [[ -d "$java_dir" ]] || fail "模块源码目录不存在: $module_name"

@@ -77,12 +77,19 @@
 - 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/demo`
 - 不负责什么：不承载 OSS、地址高德、附件上传服务和下游业务完整流程
 
-#### xbb-erp-module-demo_sub
+#### xbb-erp-module-demo-sub
 - 功能定位：DEMO 下游业务独立模块
 - 责任范围：复用 `demo_sub` 表，提供 `DEMO_SUB` 列表、动态表单初始化、正式保存和草稿接口协议。
 - 当前表范围：`demo_sub`
 - 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/demo_sub`
 - 不负责什么：不创建或维护 `demo` 主档；草稿存储实现待后续接入。
+
+#### xbb-erp-module-purchase
+- 功能定位：采购订单与采购入库业务模块
+- 责任范围：`purchase_order`、`purchase_inbound` 两个独立主档的列表、表单初始化、保存提交、草稿与持久化能力。
+- 当前表范围：`purchase_order`、`purchase_inbound`
+- 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/purchase`
+- 不负责什么：不承载订单明细、库存变更、供应商/仓库主数据维护与供应商名称实时回填。
 
 
 

@@ -20,11 +20,6 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-module-product</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-org</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -35,27 +30,22 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-module-customer</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-demo</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-module-demo_sub</artifactId>
+            <artifactId>xbb-erp-module-demo-sub</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-master-data</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-purchase</artifactId>
-            <version>${project.version}</version>
-        </dependency>
-        <dependency>
-            <groupId>org.bomfish</groupId>
-            <artifactId>xbb-erp-module-supplier</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -1,0 +1,24 @@
+moduleDir: master-data
+moduleCode: module_master_data
+moduleApiName: masterData
+businessName: customer
+businessCode: CUSTOMER
+moduleName: 主数据
+packageBase: xbb.ai.erp.module.masterdata
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregate:
+  aggregateName: Customer
+  tableName: customer
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: customerCode, column: customer_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: customerName, column: customer_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: defaultContactId, column: default_contact_id, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: address, column: address, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: enabled, column: enabled, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

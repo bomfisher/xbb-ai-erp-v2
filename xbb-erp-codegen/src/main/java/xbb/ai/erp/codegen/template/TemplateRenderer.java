@@ -75,7 +75,7 @@ public class TemplateRenderer {
             + "import java.util.List;\n"
             + "import java.util.Map;\n\n"
             + "public interface " + aggregateName + "Repository {\n"
-            + "    void insert(" + aggregateName + " " + variableName + ");\n\n"
+            + "    Long insert(" + aggregateName + " " + variableName + ");\n\n"
             + "    void insertBatch(List<" + aggregateName + "> " + variableName + "List);\n\n"
             + "    void removeById(String corpid, Long id);\n\n"
             + "    void removeBatchByIds(String corpid, List<Long> ids);\n\n"
@@ -89,26 +89,16 @@ public class TemplateRenderer {
     public String renderPO(ModuleSpec moduleSpec) {
         String packageName = moduleSpec.getPackageBase() + ".infrastructure.persistence.po";
         String aggregateName = aggregateName(moduleSpec);
-        if (shouldExtendBaseEntity(moduleSpec.getAggregate().getFields())) {
-            return "package " + packageName + ";\n\n"
-                + "import com.baomidou.mybatisplus.annotation.TableName;\n"
-                + "import lombok.Data;\n"
-                + "import lombok.EqualsAndHashCode;\n"
-                + "import xbb.ai.erp.base.persistence.entity.BaseEntity;\n\n"
-                + "@Data\n"
-                + "@EqualsAndHashCode(callSuper = true)\n"
-                + "@TableName(\"" + moduleSpec.getAggregate().getTableName() + "\")\n"
-                + "public class " + aggregateName + "PO extends BaseEntity {\n"
-                + renderFields(filterBaseEntityFields(moduleSpec.getAggregate().getFields()), true)
-                + "}\n";
-        }
         return "package " + packageName + ";\n\n"
             + "import com.baomidou.mybatisplus.annotation.TableName;\n"
-            + "import lombok.Data;\n\n"
+            + "import lombok.Data;\n"
+            + "import lombok.EqualsAndHashCode;\n"
+            + "import xbb.ai.erp.base.persistence.entity.BaseEntity;\n\n"
             + "@Data\n"
+            + "@EqualsAndHashCode(callSuper = true)\n"
             + "@TableName(\"" + moduleSpec.getAggregate().getTableName() + "\")\n"
-            + "public class " + aggregateName + "PO {\n"
-            + renderFields(moduleSpec.getAggregate().getFields(), true)
+            + "public class " + aggregateName + "PO extends BaseEntity {\n"
+            + renderFields(filterBaseEntityFields(moduleSpec.getAggregate().getFields()), true)
             + "}\n";
     }
 
@@ -183,12 +173,21 @@ public class TemplateRenderer {
             + "public class " + aggregateName + "RepositoryImpl implements " + aggregateName + "Repository {\n\n"
             + "    private final " + aggregateName + "Mapper " + variableName + "Mapper;\n\n"
             + "    @Override\n"
-            + "    public void insert(" + aggregateName + " " + variableName + ") {\n"
-            + "        " + variableName + "Mapper.insert(" + aggregateName + "Convertor.toPO(" + variableName + "));\n"
+            + "    public Long insert(" + aggregateName + " " + variableName + ") {\n"
+            + "        " + aggregateName + "PO po = " + aggregateName + "Convertor.toPO(" + variableName + ");\n"
+            + "        po.setId(null);\n"
+            + "        " + variableName + "Mapper.insert(po);\n"
+            + "        " + variableName + ".setId(po.getId());\n"
+            + "        return po.getId();\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public void insertBatch(List<" + aggregateName + "> " + variableName + "List) {\n"
-            + "        " + variableName + "Mapper.insertBatch(" + variableName + "List.stream().map(" + aggregateName + "Convertor::toPO).toList());\n"
+            + "        List<" + aggregateName + "PO> poList = " + variableName + "List.stream().map(" + aggregateName + "Convertor::toPO).toList();\n"
+            + "        poList.forEach(po -> po.setId(null));\n"
+            + "        " + variableName + "Mapper.insertBatch(poList);\n"
+            + "        for (int index = 0; index < " + variableName + "List.size(); index++) {\n"
+            + "            " + variableName + "List.get(index).setId(poList.get(index).getId());\n"
+            + "        }\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public void removeById(String corpid, Long id) {\n"
@@ -227,7 +226,7 @@ public class TemplateRenderer {
             + "import lombok.Data;\n"
             + "import lombok.EqualsAndHashCode;\n"
             + "import xbb.ai.erp.base.common.dto.BaseDTO;\n"
-            + "import xbb.ai.erp.module.common.admin.pojo.ListFilterCondition;\n\n"
+            + "import xbb.ai.erp.base.common.pojo.ListFilterCondition;\n\n"
             + "import java.util.List;\n\n"
             + "@Data\n"
             + "@EqualsAndHashCode(callSuper = true)\n"
@@ -464,8 +463,12 @@ public class TemplateRenderer {
         String variableName = lowerCamel(aggregateName);
         String packageName = moduleSpec.getPackageBase() + ".application.service.save";
         return "package " + packageName + ";\n\n"
+            + "import lombok.RequiredArgsConstructor;\n"
             + "import org.springframework.stereotype.Service;\n"
+            + "import xbb.ai.erp.base.common.dto.BatchBaseDTO;\n"
+            + "import org.springframework.transaction.annotation.Transactional;\n"
             + "import xbb.ai.erp.base.common.support.AdminParamValidator;\n"
+            + "import xbb.ai.erp.base.common.vo.BaseVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SubmitSaveDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.assembler." + aggregateName + "AdminAssembler;\n"
@@ -498,11 +501,15 @@ public class TemplateRenderer {
             + "        " + aggregateName + "Validator.validateSave(dto);\n"
             + "        " + aggregateName + " entity = " + aggregateName + "AdminAssembler.to" + aggregateName + "(dto);\n"
             + "        if (entity.getId() == null) {\n"
-            + "            " + variableName + "Repository.insert(entity);\n"
-            + "        } else {\n"
-            + "            " + variableName + "Repository.update(entity);\n"
+            + "            return " + variableName + "Repository.insert(entity);\n"
             + "        }\n"
+            + "        " + variableName + "Repository.update(entity);\n"
             + "        return entity.getId();\n"
+            + "    }\n\n"
+            + "    public void delete(BatchBaseDTO dto) {\n"
+            + "        if (dto.getIdList() != null && !dto.getIdList().isEmpty()) {\n"
+            + "            " + variableName + "Repository.removeBatchByIds(dto.getCorpid(), dto.getIdList());\n"
+            + "        }\n"
             + "    }\n"
             + "}\n";
     }
@@ -511,6 +518,7 @@ public class TemplateRenderer {
         String aggregateName = aggregateName(moduleSpec);
         String packageName = moduleSpec.getPackageBase() + ".application.validator";
         return "package " + packageName + ";\n\n"
+            + "import xbb.ai.erp.base.common.exception.BizException;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n"
             + "public final class " + aggregateName + "Validator {\n\n"
             + "    private " + aggregateName + "Validator() {\n"
@@ -577,7 +585,7 @@ public class TemplateRenderer {
             + "    ListBaseVO<" + aggregateName + "ListItemVO> list(" + aggregateName + "ListDTO dto);\n\n"
             + "    SaveItemVO<" + aggregateName + "SaveItemVO> addItem(BaseDTO dto);\n\n"
             + "    SaveItemVO<" + aggregateName + "SaveItemVO> updateItem(IdBaseDTO dto);\n\n"
-            + "    " + aggregateName + "DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto);\n\n"
+            + "    DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto);\n\n"
             + "    BaseVO saveAndSubmit(" + aggregateName + "SubmitSaveDTO dto);\n\n"
             + "    List<" + aggregateName + "DraftListItemVO> draftList(" + aggregateName + "DraftListDTO dto);\n\n"
             + "    " + aggregateName + "DraftDetailVO loadDraft(" + aggregateName + "DraftLoadDTO dto);\n\n"
@@ -610,16 +618,14 @@ public class TemplateRenderer {
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DetailVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "ListItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "SaveItemVO;\n"
-            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftSaveVO;\n"
+            + "import xbb.ai.erp.base.common.vo.DraftSaveVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftListItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftDetailVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.service." + aggregateName + "AdminAppService;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.service.draft." + aggregateName + "DraftAppService;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.service.query." + aggregateName + "QueryAppServiceImpl;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.service.save." + aggregateName + "SaveAppServiceImpl;\n\n"
-            + "import java.util.HashMap;\n"
             + "import java.util.List;\n"
-            + "import java.util.Map;\n\n"
             + "@Service\n"
             + "@RequiredArgsConstructor\n"
             + "public class " + aggregateName + "AdminAppServiceImpl implements " + aggregateName + "AdminAppService {\n\n"
@@ -628,32 +634,15 @@ public class TemplateRenderer {
             + "    private final " + aggregateName + "DraftAppService draftService;\n\n"
             + "    @Override\n"
             + "    public ListBaseVO<" + aggregateName + "ListItemVO> list(" + aggregateName + "ListDTO dto) {\n"
-            + "        Map<String, Object> conditionMap = new HashMap<>();\n"
-            + renderConditionMapLines(moduleSpec.getAggregate().getFields())
-            + "        conditionMap.put(\"pageNum\", dto.getPageNum());\n"
-            + "        conditionMap.put(\"offset\", dto.getOffset());\n"
-            + "        conditionMap.put(\"pageSize\", dto.getPageSize());\n"
-            + "        conditionMap.put(\"groupByStr\", dto.getGroupByStr());\n"
-            + "        conditionMap.put(\"orderByStr\", dto.getOrderByStr());\n"
-            + "        conditionMap.put(\"conditions\", dto.getConditions());\n"
-            + "        List<" + aggregateName + "> list = " + variableName + "Repository.findByCondition(conditionMap);\n"
-            + "        Long total = " + variableName + "Repository.count(conditionMap);\n"
-            + "        ListBaseVO<" + aggregateName + "ListItemVO> vo = new ListBaseVO<>();\n"
-            + "        vo.setList(list.stream().map(" + aggregateName + "AdminAssembler::toListItemVO).toList());\n"
-            + "        vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum() == null ? 1 : dto.getPageNum(), total == null ? 0 : total.intValue()));\n"
-            + "        return vo;\n"
+            + "        return queryService.list(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public SaveItemVO<" + aggregateName + "SaveItemVO> addItem(BaseDTO dto) {\n"
-            + "        SaveItemVO<" + aggregateName + "SaveItemVO> vo = new SaveItemVO<>();\n"
-            + "        vo.setData(" + aggregateName + "AdminAssembler.buildEmptySaveItemVO());\n"
-            + "        return vo;\n"
+            + "        return queryService.addItem(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public SaveItemVO<" + aggregateName + "SaveItemVO> updateItem(IdBaseDTO dto) {\n"
-            + "        SaveItemVO<" + aggregateName + "SaveItemVO> vo = new SaveItemVO<>();\n"
-            + "        vo.setData(toSaveItem(dto));\n"
-            + "        return vo;\n"
+            + "        return queryService.updateItem(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public DraftSaveVO saveDraft(" + aggregateName + "DraftSaveDTO dto) {\n"
@@ -677,17 +666,11 @@ public class TemplateRenderer {
             + "    }\n\n"
             + "    @Override\n"
             + "    public " + aggregateName + "DetailVO detail(IdBaseDTO dto) {\n"
-            + "        return " + aggregateName + "AdminAssembler.toDetailVO(toSaveItem(dto));\n"
+            + "        return queryService.detail(dto);\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public void delete(BatchBaseDTO dto) {\n"
-            + "        if (dto.getIdList() == null || dto.getIdList().isEmpty()) {\n"
-            + "            return;\n"
-            + "        }\n"
-            + "        " + variableName + "Repository.removeBatchByIds(dto.getCorpid(), dto.getIdList());\n"
-            + "    }\n\n"
-            + "    private " + aggregateName + "SaveItemVO toSaveItem(IdBaseDTO dto) {\n"
-            + "        return " + aggregateName + "AdminAssembler.toSaveItemVO(" + variableName + "Repository.findById(dto.getCorpid(), dto.getId()));\n"
+            + "        saveService.delete(dto);\n"
             + "    }\n"
             + "}\n";
     }
@@ -852,12 +835,13 @@ public class TemplateRenderer {
 
     public String renderListMetaProvider(ModuleSpec moduleSpec) {
         String aggregateName = aggregateName(moduleSpec);
+        String businessCode = businessCode(moduleSpec);
         String packageName = moduleSpec.getPackageBase() + ".application.provider";
         return "package " + packageName + ";\n\n"
             + "import org.springframework.stereotype.Component;\n"
             + "import xbb.ai.erp.base.common.filed.FieldEntity;\n"
             + "import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;\n"
-            + "import xbb.ai.erp.module.common.admin.pojo.FilterField;\n"
+            + "import xbb.ai.erp.base.common.pojo.FilterField;\n"
             + "import xbb.ai.erp.module.common.application.filter.ListFilterMetaPojo;\n"
             + "import xbb.ai.erp.module.common.application.pojo.ListMetaBundlePojo;\n"
             + "import xbb.ai.erp.module.common.application.provider.ListMetaProvider;\n\n"
@@ -867,7 +851,7 @@ public class TemplateRenderer {
             + "public class " + aggregateName + "ListMetaProvider implements ListMetaProvider {\n\n"
             + "    @Override\n"
             + "    public String businessCode() {\n"
-            + "        return \"" + moduleSpec.getModuleCode() + "\";\n"
+            + "        return \"" + businessCode + "\";\n"
             + "    }\n\n"
             + "    @Override\n"
             + "    public List<FilterField> buildFilterMeta(ListCommonQueryDTO dto) {\n"
@@ -900,6 +884,7 @@ public class TemplateRenderer {
         String aggregateName = aggregateName(moduleSpec);
         String packageName = moduleSpec.getPackageBase() + ".admin";
         String variableName = lowerCamel(aggregateName);
+        String apiPath = apiPath(moduleSpec);
         return "package " + packageName + ";\n\n"
             + "import lombok.RequiredArgsConstructor;\n"
             + "import org.springframework.web.bind.annotation.PostMapping;\n"
@@ -919,13 +904,13 @@ public class TemplateRenderer {
             + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SubmitSaveDTO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftDetailVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftListItemVO;\n"
-            + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "DraftSaveVO;\n"
+            + "import xbb.ai.erp.base.common.vo.DraftSaveVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "ListItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".admin.vo." + aggregateName + "SaveItemVO;\n"
             + "import " + moduleSpec.getPackageBase() + ".application.service." + aggregateName + "AdminAppService;\n\n"
             + "import java.util.List;\n\n"
             + "@RestController\n"
-            + "@RequestMapping(\"/erp/v1/" + moduleSpec.getModuleCode() + "\")\n"
+            + "@RequestMapping(\"/erp/v1/" + apiPath + "\")\n"
             + "@RequiredArgsConstructor\n"
             + "public class " + aggregateName + "AdminController {\n\n"
             + "    private final " + aggregateName + "AdminAppService " + variableName + "AdminAppService;\n\n"
@@ -942,7 +927,7 @@ public class TemplateRenderer {
             + "        return ResultVO.success(" + variableName + "AdminAppService.updateItem(dto));\n"
             + "    }\n\n"
             + "    @PostMapping(\"/saveDraft\")\n"
-            + "    public ResultVO<" + aggregateName + "DraftSaveVO> saveDraft(@RequestBody " + aggregateName + "DraftSaveDTO dto) {\n"
+            + "    public ResultVO<DraftSaveVO> saveDraft(@RequestBody " + aggregateName + "DraftSaveDTO dto) {\n"
             + "        return ResultVO.success(" + variableName + "AdminAppService.saveDraft(dto));\n"
             + "    }\n\n"
             + "    @PostMapping(\"/saveAndSubmit\")\n"
@@ -958,6 +943,20 @@ public class TemplateRenderer {
             + "        return ResultVO.success(" + variableName + "AdminAppService.loadDraft(dto));\n"
             + "    }\n"
             + "}\n";
+    }
+
+    private String apiPath(ModuleSpec moduleSpec) {
+        if (moduleSpec.getModuleApiName() == null || moduleSpec.getModuleApiName().isBlank()
+            || moduleSpec.getBusinessName() == null || moduleSpec.getBusinessName().isBlank()) {
+            return moduleSpec.getModuleCode();
+        }
+        return moduleSpec.getModuleApiName() + "/" + moduleSpec.getBusinessName();
+    }
+
+    private String businessCode(ModuleSpec moduleSpec) {
+        return moduleSpec.getBusinessCode() == null || moduleSpec.getBusinessCode().isBlank()
+            ? moduleSpec.getModuleCode()
+            : moduleSpec.getBusinessCode();
     }
 
     public String renderMapperXml(ModuleSpec moduleSpec) {
@@ -996,7 +995,7 @@ public class TemplateRenderer {
             + "            limit #{conditionMap.pageSize}\n"
             + "        </if>\n"
             + "    </sql>\n\n"
-            + "    <insert id=\"insertBatch\">\n        insert into " + tableName + " (\n            " + insertColumns + "\n        )\n        values\n        <foreach collection=\"list\" item=\"item\" separator=\",\">\n            (" + insertValues + ")\n        </foreach>\n    </insert>\n\n"
+            + "    <insert id=\"insertBatch\" useGeneratedKeys=\"true\" keyProperty=\"id\">\n        insert into " + tableName + " (\n            " + insertColumnsWithoutId(moduleSpec.getAggregate().getFields()) + "\n        )\n        values\n        <foreach collection=\"list\" item=\"item\" separator=\",\">\n            (" + insertValuesWithoutId(moduleSpec.getAggregate().getFields()) + ")\n        </foreach>\n    </insert>\n\n"
             + "    <update id=\"removeById\">\n        update " + tableName + "\n        set del = 1\n        where corpid = #{corpid}\n          and id = #{id}\n          and del = 0\n    </update>\n\n"
             + "    <update id=\"removeBatchByIds\">\n        update " + tableName + "\n        set del = 1\n        where corpid = #{corpid}\n          and del = 0\n          and id in\n        <foreach collection=\"ids\" item=\"id\" open=\"(\" separator=\",\" close=\")\">\n            #{id}\n        </foreach>\n    </update>\n\n"
             + "    <update id=\"update\" parameterType=\"" + resultType + "\">\n        update " + tableName + "\n        <set>\n"
@@ -1016,6 +1015,7 @@ public class TemplateRenderer {
     public String renderConditionMapHelper(ModuleSpec moduleSpec) {
         String packageName = moduleSpec.getPackageBase() + ".infrastructure.persistence.repository";
         return "package " + packageName + ";\n\n"
+            + "import xbb.ai.erp.base.common.exception.BizException;\n"
             + "import java.util.HashMap;\n"
             + "import java.util.Map;\n\n"
             + "final class ConditionMapHelper {\n\n"
@@ -1082,7 +1082,28 @@ public class TemplateRenderer {
     }
 
     private String renderFields(List<FieldSpec> fields, boolean persistenceMode) {
-        return fields.stream().map(field -> "    private " + normalizeType(field.getJavaType(), persistenceMode) + " " + field.getName() + ";\n").collect(Collectors.joining());
+        return fields.stream().map(field -> renderField(field, persistenceMode)).collect(Collectors.joining());
+    }
+
+    private String insertColumnsWithoutId(List<FieldSpec> fields) {
+        return fields.stream()
+            .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()))
+            .map(FieldSpec::getColumn)
+            .collect(Collectors.joining(", "));
+    }
+
+    private String insertValuesWithoutId(List<FieldSpec> fields) {
+        return fields.stream()
+            .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()))
+            .map(field -> "#{item." + field.getName() + "}")
+            .collect(Collectors.joining(", "));
+    }
+
+    private String renderField(FieldSpec field, boolean persistenceMode) {
+        String tableId = persistenceMode && Boolean.TRUE.equals(field.getPrimaryKey())
+            ? "    @TableId(value = \"" + field.getColumn() + "\", type = IdType.AUTO)\n"
+            : "";
+        return tableId + "    private " + normalizeType(field.getJavaType(), persistenceMode) + " " + field.getName() + ";\n";
     }
 
     private String renderQueryableFields(List<FieldSpec> fields) {
@@ -1128,13 +1149,6 @@ public class TemplateRenderer {
             .collect(Collectors.joining("\n"));
     }
 
-    private boolean shouldExtendBaseEntity(List<FieldSpec> fields) {
-        return hasField(fields, "id", "Long")
-            && hasField(fields, "deleted", "Integer")
-            && hasField(fields, "addTime", "Long")
-            && hasField(fields, "updateTime", "Long");
-    }
-
     private List<FieldSpec> filterBaseEntityFields(List<FieldSpec> fields) {
         return fields.stream()
             .filter(field -> !isBaseEntityField(field.getName()))
@@ -1151,10 +1165,6 @@ public class TemplateRenderer {
 
     private boolean hasField(List<FieldSpec> fields, String fieldName) {
         return fields.stream().anyMatch(field -> fieldName.equals(field.getName()));
-    }
-
-    private boolean hasField(List<FieldSpec> fields, String fieldName, String javaType) {
-        return fields.stream().anyMatch(field -> fieldName.equals(field.getName()) && javaType.equals(field.getJavaType()));
     }
 
     private String normalizeType(String javaType, boolean persistenceMode) {

@@ -53,7 +53,7 @@
   <main class="shell">
     <header><div><h1>ERP <span>字段设计器</span></h1><p class="subtitle">粘贴建表 SQL，确认字段页面属性，生成可直接交给业务模块交付 Skill 的字段设计 YAML。</p></div><div class="offline">纯离线运行 · 无外部依赖</div></header>
     <section class="card" aria-labelledby="sourceTitle">
-      <div class="source-grid"><div><label id="sourceTitle" for="sqlInput">建表 SQL <span class="hint">支持 MySQL CREATE TABLE，自动跳过基础字段与索引约束</span></label><textarea id="sqlInput" spellcheck="false" placeholder="CREATE TABLE `demo` (\n  `name` varchar(64) NOT NULL COMMENT '名称',\n  `status` tinyint NOT NULL COMMENT '状态'\n);"></textarea></div><div class="side-controls"><button class="button primary" id="parseButton" type="button">解析字段</button><button class="button" id="addButton" type="button">手动新增字段</button><p class="notice">过滤：id、corpid、del、add_time、update_time</p></div></div>
+      <div class="source-grid"><div><label id="sourceTitle" for="sqlInput">建表 SQL <span class="hint">支持 MySQL CREATE TABLE，自动跳过基础字段与索引约束</span></label><textarea id="sqlInput" spellcheck="false" placeholder="CREATE TABLE `demo` (\n  `name` varchar(64) NOT NULL COMMENT '名称',\n  `status` tinyint NOT NULL COMMENT '状态'\n);">CREATE TABLE `demo` (`item_no` varchar(64) NOT NULL COMMENT '编号', `amount` decimal(18,2) NOT NULL COMMENT '金额', `status` tinyint NOT NULL COMMENT '状态', `remark` varchar(255) COMMENT '备注');</textarea></div><div class="side-controls"><button class="button primary" id="parseButton" type="button">解析字段</button><button class="button" id="addButton" type="button">手动新增字段</button><p class="notice">过滤：id、corpid、del、add_time、update_time</p></div></div>
     </section>
     <div class="section-head"><div><h2>字段配置 <span class="count" id="fieldCount">0</span></h2><p class="notice">关闭“启用”的字段不会写入 YAML；不可筛选类型切换后会自动关闭“可筛选”。</p></div></div>
     <section id="fieldList" aria-live="polite"><div class="empty">请先粘贴 SQL 并点击“解析字段”，或手动新增字段。</div></section>
@@ -100,16 +100,16 @@
         <label class="domain-option"><input name="domainAlias" type="radio" value="opening"><span>期初初始化领域<small>opening</small></span></label>
         <label class="domain-option"><input name="domainAlias" type="radio" value="custom"><span>自定义领域<small>手动输入 alias</small></span></label>
       </fieldset>
-      <label class="custom-domain" for="customDomainAlias">自定义菜单领域 alias <span class="hint">小驼峰，例如 finance</span><input id="customDomainAlias" type="text" maxlength="64" placeholder="例如 finance"></label>
-      <div class="route-output"><label for="routeOutput">菜单路由 JSON</label><textarea id="routeOutput" spellcheck="false" readonly placeholder="选择菜单领域后，生成结果会显示在这里。"></textarea></div>
+      <label class="custom-domain" for="customDomainAlias">自定义菜单领域 alias <span class="hint">小驼峰，例如 finance</span><input id="customDomainAlias" type="text" value="finance" maxlength="64" placeholder="例如 finance"></label>
+      <div class="route-output"><label for="routeOutput">菜单路由 JSON</label><textarea id="routeOutput" spellcheck="false" readonly placeholder="选择菜单领域后，生成结果会显示在这里。">{ "routePath": "masterData/demo", "componentPath": "masterData/demo/list" }</textarea></div>
     </section>
     <section class="card document-config" aria-labelledby="documentConfigTitle">
       <div class="section-head"><div><h2 id="documentConfigTitle">模块指导文档</h2><p class="notice">按“业务域、SQL、YAML、菜单”结构生成 Markdown 文档。</p></div><div class="footer-actions"><button class="button primary" id="generateDocumentButton" type="button">生成文档</button><button class="button" id="copyDocumentButton" type="button">复制 Markdown</button><button class="button" id="saveDocumentButton" type="button">选择目录并保存</button></div></div>
-      <div class="document-fields"><label for="documentTitle">文档标题<input id="documentTitle" type="text" maxlength="128" placeholder="例如 客户"></label><label for="documentOutputPath">输出相对路径 <span class="hint">在选择的目录下创建</span><input id="documentOutputPath" type="text" value="module.md" maxlength="255" placeholder="例如 docs/customer.md"></label></div>
+      <div class="document-fields"><label for="documentTitle">文档标题<input id="documentTitle" type="text" value="示例单据" maxlength="128" placeholder="例如 客户"></label><label for="documentOutputPath">输出相对路径 <span class="hint">在选择的目录下创建</span><input id="documentOutputPath" type="text" value="module.md" maxlength="255" placeholder="例如 docs/customer.md"></label></div>
       <p class="action-hint">点击“选择目录并保存”后选择实际输出目录；不支持目录选择的浏览器会下载文档。</p>
-      <div class="document-output"><label for="documentOutput">模块指导文档 Markdown</label><textarea id="documentOutput" spellcheck="false" readonly placeholder="完成 SQL 解析后可生成文档。"></textarea></div>
+      <div class="document-output"><label for="documentOutput">模块指导文档 Markdown</label><textarea id="documentOutput" spellcheck="false" readonly placeholder="完成 SQL 解析后可生成文档。">## 示例单据</textarea></div>
     </section>
-    <section class="card output" aria-labelledby="outputTitle"><div class="output-bar"><div class="business-code"><label for="businessCode">业务编码 <span class="hint">BusinessCodeEnum 值</span></label><input id="businessCode" type="text" value="DEMO" maxlength="64" placeholder="例如 SALES_ORDER"></div><div class="footer-actions"><button class="button primary" id="generateButton" type="button">生成 YAML</button><button class="button" id="copyButton" type="button">复制 YAML</button><button class="button" id="downloadButton" type="button">下载 YAML</button></div></div><label id="outputTitle" for="yamlOutput">字段设计 YAML</label><textarea id="yamlOutput" spellcheck="false" readonly placeholder="生成结果会显示在这里。"></textarea><p id="status" class="status" role="status"></p></section>
+    <section class="card output" aria-labelledby="outputTitle"><div class="output-bar"><div class="business-code"><label for="businessCode">业务编码 <span class="hint">BusinessCodeEnum 值</span></label><input id="businessCode" type="text" value="DEMO" maxlength="64" placeholder="例如 SALES_ORDER"></div><div class="footer-actions"><button class="button primary" id="generateButton" type="button">生成 YAML</button><button class="button" id="copyButton" type="button">复制 YAML</button><button class="button" id="downloadButton" type="button">下载 YAML</button></div></div><label id="outputTitle" for="yamlOutput">字段设计 YAML</label><textarea id="yamlOutput" spellcheck="false" readonly placeholder="生成结果会显示在这里。">businessCode: DEMO&#10;fields: []</textarea><p id="status" class="status" role="status"></p></section>
   </main>
   <script>
     (() => {
@@ -133,8 +133,12 @@
       const selectedDomainAlias = () => { const value=document.querySelector('input[name="domainAlias"]:checked')?.value; return value === 'custom' ? $('#customDomainAlias').value.trim() : value; };
       const moduleDomain = alias => `module-${alias.replace(/([A-Z])/g, '-$1').toLowerCase()}`;
       const buildRoute = () => { const code=$('#businessCode').value.trim().toUpperCase(); const domainAlias=selectedDomainAlias(); if(!/^[A-Z][A-Z0-9_]*$/.test(code)){ setStatus('请先填写以大写字母开头的业务编码，再生成菜单路由。','error'); return ''; } if(!/^[a-z][A-Za-z0-9]*$/.test(domainAlias)){ setStatus('菜单领域 alias 必须以小写字母开头，只能包含字母和数字。','error'); return ''; } const routeCode=routeBusinessCode(code); const route=JSON.stringify({ routePath:`${domainAlias}/${routeCode}`, componentPath:`${domainAlias}/${routeCode}/list` },null,2); $('#routeOutput').value=route; setStatus('菜单路由 JSON 已生成。','success'); return route; };
+      const DEFAULT_STATUS_OPTIONS = [{ value:'1', text:'启用' }, { value:'0', text:'禁用' }];
+      const defaultStatusOptions = () => DEFAULT_STATUS_OPTIONS.map(item => ({ ...item }));
       const inferType = (name, dbType) => {
         const lower = name.toLowerCase(); const type = dbType.toLowerCase();
+        if (lower.endsWith('amount')) return 'AMOUNT';
+        if (lower.endsWith('status')) return 'COMB';
         if (['user_id','create_id','creator_id','modify_id','modifier_id'].includes(lower)) return 'USER';
         if (lower === 'dep_id') return 'DEPT';
         if (lower.includes('image')) return 'IMAGE'; if (lower.includes('file')) return 'FILE';
@@ -147,7 +151,7 @@
       };
       const isListFilterOnly = field => !field.isChild && LIST_FILTER_ONLY.has(field.name.toLowerCase());
       const normalizeFieldCapabilities = field => { if(isListFilterOnly(field)){ field.scenes=['LIST']; field.required=false; field.editable=false; field.filterable=true; } };
-      const defaultField = (name = 'new_field', dbType = 'varchar(255)', comment = '', isChild = false) => { const fieldType = inferType(name, dbType); const field={ id: cryptoId(), enabled:true, name, dbType, isChild, attr:isChild ? camelCase(name) : `main.${camelCase(name)}`, attrName:comment || name, scenes:isChild ? ['CREATE','UPDATE'] : ['LIST','CREATE','UPDATE'], required:false, editable:true, filterable:!isChild && FILTERABLE.has(fieldType), fieldType, extra:'', optionItems:[], subFields:[] }; normalizeFieldCapabilities(field); return field; };
+      const defaultField = (name = 'new_field', dbType = 'varchar(255)', comment = '', isChild = false) => { const lower=name.toLowerCase(); const fieldType = inferType(name, dbType); const optionItems=lower.endsWith('status') ? defaultStatusOptions() : []; const field={ id: cryptoId(), enabled:true, name, dbType, isChild, attr:isChild ? camelCase(name) : `main.${camelCase(name)}`, attrName:comment || name, scenes:isChild ? ['CREATE','UPDATE'] : ['LIST','CREATE','UPDATE'], required:lower.endsWith('_no'), editable:true, filterable:!isChild && !lower.endsWith('remark') && FILTERABLE.has(fieldType), fieldType, extra:JSON.stringify(optionItems), optionItems, subFields:[] }; normalizeFieldCapabilities(field); return field; };
       const cryptoId = () => `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
       const splitColumns = (source) => { const parts=[]; let start=0, depth=0, quote=''; for(let index=0; index<source.length; index++){ const char=source[index]; if(quote){ if(char===quote && source[index-1] !== '\\') quote=''; continue; } if(char==='\'' || char==='"' || char==='`'){ quote=char; continue; } if(char==='(') depth++; else if(char===')') depth=Math.max(0,depth-1); else if(char===',' && depth===0){ parts.push(source.slice(start,index)); start=index+1; } } parts.push(source.slice(start)); return parts; };
       const parseSql = () => {

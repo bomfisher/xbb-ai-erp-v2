@@ -1,4 +1,7 @@
 moduleCode: purchase
+moduleApiName: purchase
+businessName: purchaseRequest
+businessCode: PURCHASE_REQUEST
 moduleName: 采购申请
 packageBase: xbb.ai.erp.module.purchase
 pathStrategy: ddd-mybatis-plus

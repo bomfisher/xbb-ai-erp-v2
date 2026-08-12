@@ -21,6 +21,7 @@ import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class CodeGeneratorTest {
@@ -65,7 +66,15 @@ class CodeGeneratorTest {
         assertTrue(mapperContent.contains("import org.apache.ibatis.annotations.Mapper;"));
         assertTrue(mapperContent.contains("@Mapper\npublic interface CustomerMapper"));
         String repositoryContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/repository/CustomerRepositoryImpl.java"));
+        String poContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/po/CustomerPO.java"));
         assertTrue(repositoryContent.contains("@Repository(\"xbbAiErpModuleCustomerCustomerRepositoryImpl\")"));
+        assertTrue(repositoryContent.contains("po.setId(null);"));
+        assertTrue(repositoryContent.contains("customer.setId(po.getId());"));
+        assertTrue(repositoryContent.contains("public Long insert(Customer customer)"));
+        assertTrue(repositoryContent.contains("return po.getId();"));
+        assertTrue(repositoryContent.contains("poList.forEach(po -> po.setId(null));"));
+        assertTrue(repositoryContent.contains("customerList.get(index).setId(poList.get(index).getId());"));
+        assertTrue(poContent.contains("extends BaseEntity"));
         assertTrue(controllerContent.contains("@PostMapping(\"/saveDraft\")"));
         assertTrue(controllerContent.contains("@PostMapping(\"/saveAndSubmit\")"));
         assertTrue(controllerContent.contains("@PostMapping(\"/draftList\")"));
@@ -74,6 +83,68 @@ class CodeGeneratorTest {
         assertFalse(controllerContent.contains("@PostMapping(\"/save\")"));
         assertTrue(xmlContent.contains("xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"));
         assertTrue(providerContent.contains("implements ListMetaProvider"));
+    }
+
+    @Test
+    void should_generate_explicit_api_path_and_business_code() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/customer-module.yaml"));
+        moduleSpec.setModuleApiName("masterData");
+        moduleSpec.setBusinessName("customer");
+        moduleSpec.setBusinessCode("CUSTOMER");
+        Path moduleRootDir = prepareModuleRoot("master-data");
+        DddGenerationContext context = DddGenerationContext.create(moduleRootDir, moduleSpec, "full");
+        new CodeGenerator().generate(context, new DddModuleLayoutPlanner().plan(context));
+
+        String controllerContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/admin/CustomerAdminController.java"));
+        String providerContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/provider/CustomerListMetaProvider.java"));
+        assertTrue(controllerContent.contains("@RequestMapping(\"/erp/v1/masterData/customer\")"));
+        assertTrue(providerContent.contains("return \"CUSTOMER\";"));
+    }
+
+    @Test
+    void should_load_delivery_spec_with_orchestration_fields() throws Exception {
+        Path specPath = Files.createTempFile("master-data-delivery-", ".yaml");
+        Files.writeString(specPath, """
+            moduleDir: master-data
+            moduleCode: module_master_data
+            moduleApiName: masterData
+            businessName: customer
+            businessCode: CUSTOMER
+            packageBase: xbb.ai.erp.module.masterdata
+            aggregateName: Customer
+            tableName: customer
+            aggregateRole: ROOT
+            admin: true
+            application: true
+            domain: true
+            persistence: true
+            xml: true
+            aggregate:
+              aggregateName: Customer
+              tableName: customer
+            """);
+
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(specPath);
+
+        assertEquals("master-data", moduleSpec.getModuleDir());
+        assertEquals("Customer", moduleSpec.getAggregate().getAggregateName());
+        new SpecValidator().validate(moduleSpec);
+    }
+
+    @Test
+    void should_require_route_identity_for_root_spec() {
+        ModuleSpec moduleSpec = new ModuleSpec();
+        moduleSpec.setModuleCode("master_data");
+        moduleSpec.setPackageBase("xbb.ai.erp.module.masterdata");
+        moduleSpec.getAggregate().setAggregateName("Customer");
+        moduleSpec.getAggregate().setTableName("customer");
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+            () -> new SpecValidator().validate(moduleSpec));
+
+        assertTrue(exception.getMessage().contains("ROOT 规格的 moduleApiName 不能为空"));
+        assertTrue(exception.getMessage().contains("ROOT 规格的 businessName 不能为空"));
+        assertTrue(exception.getMessage().contains("ROOT 规格的 businessCode 不能为空"));
     }
 
     @Test
@@ -214,8 +285,8 @@ class CodeGeneratorTest {
         String mapperXml = Files.readString(moduleRootDir.resolve("src/main/resources/mapper/purchase/PurchaseRequestMapper.xml"));
         String conditionMapHelper = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/purchase/infrastructure/persistence/repository/ConditionMapHelper.java"));
 
-        assertTrue(appServiceImpl.contains("conditionMap.put(\"pageNum\", dto.getPageNum());"));
-        assertTrue(appServiceImpl.contains("purchaseRequestRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());"));
+        assertTrue(appServiceImpl.contains("return queryService.list(dto);"));
+        assertTrue(appServiceImpl.contains("saveService.delete(dto);"));
         assertFalse(appServiceImpl.contains("dto.getIdList().forEach(id -> purchaseRequestRepository.removeById(dto.getCorpid(), id));"));
 
         assertTrue(repositoryImpl.contains("Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);"));

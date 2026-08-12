@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseOrderMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.orderNo != null and conditionMap.orderNo != ''">
+            and order_no = #{conditionMap.orderNo}
+        </if>
+        <if test="conditionMap.supplierId != null">
+            and supplier_id = #{conditionMap.supplierId}
+        </if>
+        <if test="conditionMap.orderDate != null">
+            and order_date = #{conditionMap.orderDate}
+        </if>
+        <if test="conditionMap.expectedDate != null">
+            and expected_date = #{conditionMap.expectedDate}
+        </if>
+        <if test="conditionMap.totalAmount != null">
+            and total_amount = #{conditionMap.totalAmount}
+        </if>
+        <if test="conditionMap.status != null and conditionMap.status != ''">
+            and status = #{conditionMap.status}
+        </if>
+        <if test="conditionMap.remark != null and conditionMap.remark != ''">
+            and remark = #{conditionMap.remark}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_order (
+            corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.orderNo}, #{item.supplierId}, #{item.supplierName}, #{item.orderDate}, #{item.expectedDate}, #{item.totalAmount}, #{item.status}, #{item.remark}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update purchase_order
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update purchase_order
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderPO">
+        update purchase_order
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="orderNo != null">order_no = #{orderNo},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="supplierName != null">supplier_name = #{supplierName},</if>
+            <if test="orderDate != null">order_date = #{orderDate},</if>
+            <if test="expectedDate != null">expected_date = #{expectedDate},</if>
+            <if test="totalAmount != null">total_amount = #{totalAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="del != null">del = #{del},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderPO">
+        select <include refid="BaseColumns"/>
+        from purchase_order
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderPO">
+        select <include refid="BaseColumns"/>
+        from purchase_order
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from purchase_order
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

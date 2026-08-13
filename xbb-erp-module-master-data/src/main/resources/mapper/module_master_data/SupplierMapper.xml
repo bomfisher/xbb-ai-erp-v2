@@ -45,11 +45,11 @@
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into supplier (
-            corpid, supplier_code, supplier_name, default_contact_id, mobile, address, enabled, remark, creator_id, modify_id
+            corpid, supplier_code, supplier_name, default_contact_id, mobile, address, enabled, remark, creator_id, modify_id, del, add_time, update_time
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.supplierCode}, #{item.supplierName}, #{item.defaultContactId}, #{item.mobile}, #{item.address}, #{item.enabled}, #{item.remark}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.supplierCode}, #{item.supplierName}, #{item.defaultContactId}, #{item.mobile}, #{item.address}, #{item.enabled}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
         </foreach>
     </insert>
 
@@ -85,6 +85,7 @@
             <if test="remark != null">remark = #{remark},</if>
             <if test="creatorId != null">creator_id = #{creatorId},</if>
             <if test="modifyId != null">modify_id = #{modifyId},</if>
+            update_time = #{updateTime},
         </set>
         where corpid = #{corpid}
           and id = #{id}

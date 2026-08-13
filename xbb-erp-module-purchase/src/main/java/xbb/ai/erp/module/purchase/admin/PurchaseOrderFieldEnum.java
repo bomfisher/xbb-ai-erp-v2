@@ -18,6 +18,13 @@ public enum PurchaseOrderFieldEnum {
     TOTAL_AMOUNT("main.totalAmount", "total_amount", FieldTypeEnum.AMOUNT, "total_amount", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     STATUS("main.status", "status", FieldTypeEnum.COMB, "status", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "1:启用,0:禁用", null, List.of()),
     REMARK("main.remark", "remark", FieldTypeEnum.TEXT, "remark", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    ITEMS("items", "采购产品", FieldTypeEnum.SUB_ITEM, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of(
+        new SceneFieldMeta("skuId", "产品", FieldTypeEnum.PRODUCT.getType(), 1, 1, List.of(), "PRODUCT_SKU", List.of()),
+        new SceneFieldMeta("warehouseId", "仓库", FieldTypeEnum.BUSINESS.getType(), 0, 1, List.of(), "WAREHOUSE", List.of()),
+        new SceneFieldMeta("currentStock", "当前库存数量", FieldTypeEnum.STOCK.getType(), 0, 0),
+        new SceneFieldMeta("unitName", "单位", FieldTypeEnum.TEXT.getType(), 0, 0),
+        new SceneFieldMeta("qty", "数量", FieldTypeEnum.NUM_DOUBLE.getType(), 1, 1),
+        new SceneFieldMeta("unitPrice", "单价", FieldTypeEnum.AMOUNT.getType(), 1, 1))),
     CREATOR_ID("main.creatorId", "creator_id", FieldTypeEnum.USER, "creator_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of()),
     MODIFY_ID("main.modifyId", "modify_id", FieldTypeEnum.USER, "modify_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of());
 

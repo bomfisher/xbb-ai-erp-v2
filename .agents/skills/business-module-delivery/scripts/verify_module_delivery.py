@@ -128,6 +128,35 @@ def validate_list_contract(source_root: Path, aggregate: str) -> list[str]:
     return errors
 
 
+def validate_list_date_time_string_contract(source_root: Path, aggregate: str, metadata: dict) -> list[str]:
+    errors = []
+    list_fields = [
+        field for field in metadata["fields"]
+        if field["fieldType"] in {"DATE", "TIME"} and "LIST" in field["scenes"]
+    ]
+    if not list_fields:
+        return errors
+    list_item_vo = source_root / "admin" / "vo" / f"{aggregate}ListItemVO.java"
+    assembler = source_root / "application" / "assembler" / f"{aggregate}AdminAssembler.java"
+    if not list_item_vo.is_file() or not assembler.is_file():
+        return ["列表 DATE/TIME 字段缺少 ListItemVO 或 AdminAssembler"]
+    list_item_content = list_item_vo.read_text(encoding="utf-8")
+    assembler_content = assembler.read_text(encoding="utf-8")
+    variable = aggregate[:1].lower() + aggregate[1:]
+    for field in list_fields:
+        name = field["name"]
+        setter = name[:1].upper() + name[1:]
+        if not re.search(rf"private\s+String\s+{re.escape(name)};", list_item_content):
+            errors.append(f"列表 {field['fieldType']} 字段 {name} 必须在 ListItemVO 中声明为 String")
+        expected_assignment = (
+            f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
+            f"String.valueOf({variable}.get{setter}()));"
+        )
+        if expected_assignment not in assembler_content:
+            errors.append(f"列表 {field['fieldType']} 字段 {name} 必须在 toListItemVO 中转换为 String")
+    return errors
+
+
 def validate_auto_increment_insert_contract(module_root: Path, source_root: Path, aggregate: str) -> list[str]:
     errors = []
     repository = source_root / "infrastructure/persistence/repository" / f"{aggregate}RepositoryImpl.java"
@@ -137,6 +166,16 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
 
     repository_content = repository.read_text(encoding="utf-8")
     po_content = po.read_text(encoding="utf-8")
+    mapper_files = list((source_root / "infrastructure/persistence/mapper").glob(f"{aggregate}Mapper.java"))
+    mapper_xml_files = list((module_root / "src/main/resources/mapper").glob(f"**/{aggregate}Mapper.xml"))
+    if len(mapper_files) == 1:
+        mapper_content = mapper_files[0].read_text(encoding="utf-8")
+        if "BaseMapper" in mapper_content:
+            errors.append("Mapper 禁止继承 MyBatis-Plus BaseMapper，所有持久化语句必须显式声明")
+        if not re.search(r"\bint\s+insert\s*\(" + re.escape(aggregate) + r"PO\s+po\s*\)", mapper_content):
+            errors.append("Mapper 必须声明自定义单条 insert，禁止 Repository 使用 BaseMapper 默认 insert")
+    else:
+        errors.append("无法唯一定位 Mapper 以校验自定义单条 insert")
     insert_match = re.search(
         r"public\s+Long\s+insert\s*\([^)]*\)\s*\{(?P<body>.*?)\}",
         repository_content,
@@ -147,8 +186,8 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
         return errors
 
     insert_body = insert_match.group("body")
-    if "po.setId(null);" not in insert_body:
-        errors.append("AUTO_INCREMENT 插入前必须清空 PO.id，禁止预填主键")
+    if "initializeForInsert(po);" not in insert_body:
+        errors.append("insert 必须调用 initializeForInsert 初始化 BaseEntity 字段")
     if not re.search(r"\w+\.setId\(po\.getId\(\)\);", insert_body):
         errors.append("AUTO_INCREMENT 插入后必须将 PO.id 回写领域对象")
     if "return po.getId();" not in insert_body:
@@ -163,13 +202,23 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
     else:
         batch_body = batch_match.group("body")
         required_batch_fragments = (
-            "poList.forEach(po -> po.setId(null));",
+            "poList.forEach(this::initializeForInsert);",
             "Mapper.insertBatch(poList);",
             ".setId(poList.get(index).getId());",
         )
         missing = [fragment for fragment in required_batch_fragments if fragment not in batch_body]
         if missing:
-            errors.append("AUTO_INCREMENT insertBatch 必须清空 PO.id 并将回填主键逐项写回领域数组：" + "、".join(missing))
+            errors.append("insertBatch 必须调用 initializeForInsert 并将回填主键逐项写回领域数组：" + "、".join(missing))
+    required_initializer_fragments = (
+        "private void initializeForInsert(BaseEntity po)",
+        "po.setId(null);",
+        "po.setDel(0);",
+        "po.setAddTime(now);",
+        "po.setUpdateTime(now);",
+    )
+    missing_initializer = [fragment for fragment in required_initializer_fragments if fragment not in repository_content]
+    if missing_initializer:
+        errors.append("RepositoryImpl 必须提供完整的 initializeForInsert(BaseEntity po)：" + "、".join(missing_initializer))
     if "IdWorker" in repository_content or "xbb.ai.erp.base.idgen" in repository_content or "Snowflake" in repository_content:
         errors.append("AUTO_INCREMENT 插入不得依赖雪花 ID 生成器")
     if "extends BaseEntity" not in po_content and ("@TableId" not in po_content or "IdType.AUTO" not in po_content):
@@ -179,6 +228,11 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
         errors.append("无法唯一定位 Mapper XML 以校验 insertBatch 主键回填")
     else:
         mapper_xml = mapper_xml_files[0].read_text(encoding="utf-8")
+        single_insert_match = re.search(r"<insert\s+id=\"insert\"(?P<attributes>[^>]*)>(?P<body>.*?)</insert>", mapper_xml, re.DOTALL)
+        if not single_insert_match:
+            errors.append("Mapper XML 必须生成单条 insert，禁止依赖 MyBatis-Plus BaseMapper 默认实现")
+        elif 'useGeneratedKeys="true"' not in single_insert_match.group("attributes") or 'keyProperty="id"' not in single_insert_match.group("attributes"):
+            errors.append("单条 insert 必须配置 useGeneratedKeys=\"true\" 和 keyProperty=\"id\"")
         batch_insert_match = re.search(r"<insert\s+id=\"insertBatch\"(?P<attributes>[^>]*)>(?P<body>.*?)</insert>", mapper_xml, re.DOTALL)
         if not batch_insert_match:
             errors.append("Mapper XML 缺少 insertBatch")
@@ -190,6 +244,23 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
             if column_match and re.search(r"\bid\b", column_match.group("columns")):
                 errors.append("AUTO_INCREMENT insertBatch 不得插入 id 列")
     return errors
+
+
+def validate_save_assembler_audit_contract(source_root: Path, aggregate: str) -> list[str]:
+    assembler = source_root / "application/assembler" / f"{aggregate}AdminAssembler.java"
+    if not assembler.is_file():
+        return []
+    content = assembler.read_text(encoding="utf-8")
+    required_fragments = (
+        "import java.util.Objects;",
+        "Objects.isNull(main.getId())",
+        ".setCreatorId(dto.getUserId());",
+        ".setModifyId(dto.getUserId());",
+    )
+    missing = [fragment for fragment in required_fragments if fragment not in content]
+    if missing:
+        return ["AdminAssembler 保存装配必须维护 creatorId/modifyId：" + "、".join(missing)]
+    return []
 
 
 def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata: dict) -> list[str]:
@@ -227,7 +298,9 @@ def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata:
         errors.append("RepositoryImpl 必须声明模块级显式 Spring Bean 名，避免跨模块同名聚合冲突")
     errors.extend(validate_field_delivery(module_root, source_root, aggregate, metadata))
     errors.extend(validate_list_contract(source_root, aggregate))
+    errors.extend(validate_list_date_time_string_contract(source_root, aggregate, metadata))
     errors.extend(validate_auto_increment_insert_contract(module_root, source_root, aggregate))
+    errors.extend(validate_save_assembler_audit_contract(source_root, aggregate))
     return errors
 
 

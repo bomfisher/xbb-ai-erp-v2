@@ -1,11 +1,18 @@
 package xbb.ai.erp.module.purchase.application.assembler;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.util.List;
+import java.util.Objects;
+
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderMainDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderItemDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderSaveDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDetailVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseOrder;
+import xbb.ai.erp.module.purchase.domain.model.PurchaseOrderItem;
 
 public final class PurchaseOrderAdminAssembler {
 
@@ -13,7 +20,9 @@ public final class PurchaseOrderAdminAssembler {
     }
 
     public static PurchaseOrderSaveItemVO buildEmptySaveItemVO() {
-        return new PurchaseOrderSaveItemVO();
+        PurchaseOrderSaveItemVO vo = new PurchaseOrderSaveItemVO();
+        vo.setItems(List.of());
+        return vo;
     }
 
     public static PurchaseOrder toPurchaseOrder(PurchaseOrderSaveDTO dto) {
@@ -43,8 +52,8 @@ public final class PurchaseOrderAdminAssembler {
         vo.setOrderNo(purchaseOrder.getOrderNo());
         vo.setSupplierId(purchaseOrder.getSupplierId());
         vo.setSupplierName(purchaseOrder.getSupplierName());
-        vo.setOrderDate(purchaseOrder.getOrderDate());
-        vo.setExpectedDate(purchaseOrder.getExpectedDate());
+        vo.setOrderDate(Objects.isNull(purchaseOrder.getOrderDate()) ? "" : String.valueOf(purchaseOrder.getOrderDate()));
+        vo.setExpectedDate(Objects.isNull(purchaseOrder.getExpectedDate()) ? "" : String.valueOf(purchaseOrder.getExpectedDate()));
         vo.setTotalAmount(purchaseOrder.getTotalAmount());
         vo.setStatus(purchaseOrder.getStatus());
         vo.setRemark(purchaseOrder.getRemark());
@@ -72,6 +81,7 @@ public final class PurchaseOrderAdminAssembler {
         main.setCreatorId(purchaseOrder.getCreatorId());
         main.setModifyId(purchaseOrder.getModifyId());
         vo.setMain(main);
+        vo.setItems(List.of());
         return vo;
     }
 
@@ -79,5 +89,46 @@ public final class PurchaseOrderAdminAssembler {
         PurchaseOrderDetailVO detailVO = new PurchaseOrderDetailVO();
         detailVO.setMainData(saveItemVO);
         return detailVO;
+    }
+
+    public static PurchaseOrderItem toPurchaseOrderItem(PurchaseOrderItemDTO dto, String corpid,
+                                                         Long purchaseOrderId, int lineNo, String userId) {
+        PurchaseOrderItem item = new PurchaseOrderItem();
+        item.setId(dto.getId());
+        item.setCorpid(corpid);
+        item.setPurchaseOrderId(purchaseOrderId);
+        item.setLineNo(lineNo);
+        item.setSkuId(dto.getSkuId());
+        item.setSkuCode(dto.getSkuCode());
+        item.setSkuName(dto.getSkuName());
+        item.setSpecification(dto.getSpecification());
+        item.setUnitName(dto.getUnitName());
+        item.setQty(dto.getQty());
+        item.setInboundQty(BigDecimal.ZERO);
+        item.setUnitPrice(dto.getUnitPrice());
+        item.setTaxRate(dto.getTaxRate() == null ? BigDecimal.ZERO : dto.getTaxRate());
+        item.setAmount(dto.getQty().multiply(dto.getUnitPrice()).setScale(2, RoundingMode.HALF_UP));
+        item.setCreatorId(userId);
+        item.setModifyId(userId);
+        return item;
+    }
+
+    public static List<PurchaseOrderItemDTO> toPurchaseOrderItemDTOs(List<PurchaseOrderItem> items) {
+        if (items == null) {
+            return List.of();
+        }
+        return items.stream().map(item -> {
+            PurchaseOrderItemDTO dto = new PurchaseOrderItemDTO();
+            dto.setId(item.getId());
+            dto.setSkuId(item.getSkuId());
+            dto.setSkuCode(item.getSkuCode());
+            dto.setSkuName(item.getSkuName());
+            dto.setSpecification(item.getSpecification());
+            dto.setUnitName(item.getUnitName());
+            dto.setQty(item.getQty());
+            dto.setUnitPrice(item.getUnitPrice());
+            dto.setTaxRate(item.getTaxRate());
+            return dto;
+        }).toList();
     }
 }

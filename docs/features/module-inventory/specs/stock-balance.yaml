@@ -1,0 +1,26 @@
+moduleDir: inventory
+moduleCode: inventory
+moduleName: 库存
+packageBase: xbb.ai.erp.module.inventory
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregate:
+  aggregateName: StockBalance
+  tableName: stock_balance
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true }
+    - { name: corpid, column: corpid, javaType: String }
+    - { name: warehouseId, column: warehouse_id, javaType: Long }
+    - { name: skuId, column: sku_id, javaType: Long }
+    - { name: qty, column: qty, javaType: java.math.BigDecimal }
+    - { name: lockedQty, column: locked_qty, javaType: java.math.BigDecimal }
+    - { name: availableQty, column: available_qty, javaType: java.math.BigDecimal }
+    - { name: totalCost, column: total_cost, javaType: java.math.BigDecimal }
+    - { name: unitCost, column: unit_cost, javaType: java.math.BigDecimal }
+    - { name: version, column: version, javaType: Integer }
+    - { name: del, column: del, javaType: Integer }
+    - { name: addTime, column: add_time, javaType: Long }
+    - { name: updateTime, column: update_time, javaType: Long }
+    - { name: creatorId, column: creator_id, javaType: String }
+    - { name: modifyId, column: modify_id, javaType: String }
+generate: { persistence: true }

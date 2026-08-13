@@ -15,12 +15,14 @@ import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftLoadDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderBusinessSelectQueryDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderSubmitSaveDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDraftDetailVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDraftListItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderBusinessSelectOptionVO;
 import xbb.ai.erp.module.purchase.application.service.PurchaseOrderAdminAppService;
 
 import java.util.List;
@@ -65,5 +67,20 @@ public class PurchaseOrderAdminController {
     @PostMapping("/loadDraft")
     public ResultVO<PurchaseOrderDraftDetailVO> loadDraft(@RequestBody PurchaseOrderDraftLoadDTO dto) {
         return ResultVO.success(purchaseOrderAdminAppService.loadDraft(dto));
+    }
+
+    @PostMapping("/businessSelect/quickSearch")
+    public ResultVO<List<PurchaseOrderBusinessSelectOptionVO>> businessSelectQuickSearch(@RequestBody PurchaseOrderBusinessSelectQueryDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.businessSelectQuickSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/dialogSearch")
+    public ResultVO<ListBaseVO<PurchaseOrderBusinessSelectOptionVO>> businessSelectDialogSearch(@RequestBody PurchaseOrderBusinessSelectQueryDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.businessSelectDialogSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/getById")
+    public ResultVO<PurchaseOrderBusinessSelectOptionVO> businessSelectGetById(@RequestBody PurchaseOrderBusinessSelectQueryDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.businessSelectGetById(dto));
     }
 }

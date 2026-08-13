@@ -15,11 +15,13 @@ import xbb.ai.erp.module.masterdata.admin.dto.WarehouseSubmitSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftListDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftLoadDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.WarehouseBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDraftListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDraftDetailVO;
+import xbb.ai.erp.module.masterdata.admin.vo.WarehouseBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.service.WarehouseAdminAppService;
 import xbb.ai.erp.module.masterdata.application.service.draft.WarehouseDraftAppService;
 import xbb.ai.erp.module.masterdata.application.service.query.WarehouseQueryAppServiceImpl;
@@ -83,5 +85,20 @@ public class WarehouseAdminAppServiceImpl implements WarehouseAdminAppService {
     @Override
     public void delete(BatchBaseDTO dto) {
         saveService.delete(dto);
+    }
+
+    @Override
+    public List<WarehouseBusinessSelectOptionVO> businessSelectQuickSearch(WarehouseBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectQuickSearch(dto);
+    }
+
+    @Override
+    public ListBaseVO<WarehouseBusinessSelectOptionVO> businessSelectDialogSearch(WarehouseBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectDialogSearch(dto);
+    }
+
+    @Override
+    public WarehouseBusinessSelectOptionVO businessSelectGetById(WarehouseBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectGetById(dto);
     }
 }

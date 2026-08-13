@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.inventory.infrastructure.persistence.mapper.StockReservationMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, warehouse_id, sku_id, source_type, source_id, source_line_id, reserved_qty, outbound_qty, released_qty, remaining_qty, status, reserved_at, released_at, idempotency_key, version, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into stock_reservation (
+            corpid, warehouse_id, sku_id, source_type, source_id, source_line_id, reserved_qty, outbound_qty, released_qty, remaining_qty, status, reserved_at, released_at, idempotency_key, version, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.warehouseId}, #{item.skuId}, #{item.sourceType}, #{item.sourceId}, #{item.sourceLineId}, #{item.reservedQty}, #{item.outboundQty}, #{item.releasedQty}, #{item.remainingQty}, #{item.status}, #{item.reservedAt}, #{item.releasedAt}, #{item.idempotencyKey}, #{item.version}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update stock_reservation
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update stock_reservation
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockReservationPO">
+        update stock_reservation
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="sourceLineId != null">source_line_id = #{sourceLineId},</if>
+            <if test="reservedQty != null">reserved_qty = #{reservedQty},</if>
+            <if test="outboundQty != null">outbound_qty = #{outboundQty},</if>
+            <if test="releasedQty != null">released_qty = #{releasedQty},</if>
+            <if test="remainingQty != null">remaining_qty = #{remainingQty},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="reservedAt != null">reserved_at = #{reservedAt},</if>
+            <if test="releasedAt != null">released_at = #{releasedAt},</if>
+            <if test="idempotencyKey != null">idempotency_key = #{idempotencyKey},</if>
+            <if test="version != null">version = #{version},</if>
+            <if test="del != null">del = #{del},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockReservationPO">
+        select <include refid="BaseColumns"/>
+        from stock_reservation
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockReservationPO">
+        select <include refid="BaseColumns"/>
+        from stock_reservation
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from stock_reservation
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

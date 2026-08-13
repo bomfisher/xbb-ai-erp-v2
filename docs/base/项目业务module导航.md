@@ -70,6 +70,13 @@
 
 ### xbb-erp-module-*
 
+#### xbb-erp-module-master-data
+- 功能定位：主数据管理模块。
+- 责任范围：客户、供应商、仓库、产品 SPU 主档的页面接口及产品 SKU 的持久化聚合。
+- 当前表范围：`customer`、`supplier`、`warehouse`、`product_spu`、`product_sku`。
+- 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/module_master_data`。
+- 不负责什么：SKU 的页面、列表、草稿或独立 HTTP 接口。
+
 #### xbb-erp-module-demo
 - 功能定位：DEMO 主从业务基础模块
 - 责任范围：`demo` 主表、`demo_item` 子档、`demo_sub` 下游关联的 DDD 领域与持久化骨架，主表提供列表、表单初始化、保存提交和草稿接口骨架
@@ -90,6 +97,13 @@
 - 当前表范围：`purchase_order`、`purchase_inbound`
 - 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/purchase`
 - 不负责什么：不承载订单明细、库存变更、供应商/仓库主数据维护与供应商名称实时回填。
+
+#### xbb-erp-module-inventory
+- 功能定位：库存数量、锁库与成本台账持久化模块。
+- 责任范围：`stock_balance`、`stock_transaction`、`stock_cost_transaction`、`stock_reservation` 的领域模型、Repository、MyBatis Mapper 与 XML 映射。
+- 当前表范围：`stock_balance`、`stock_transaction`、`stock_cost_transaction`、`stock_reservation`。
+- 当前代码落位：`domain`、`infrastructure/persistence`、`src/main/resources/mapper/inventory`。
+- 不负责什么：不提供库存业务操作、锁库策略、成本计算或 HTTP 接口；这些由后续库存用例实现。
 
 
 

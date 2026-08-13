@@ -8,6 +8,8 @@ FILTERABLE_FIELD_TYPES = %w[TEXT USER DEPT BUSINESS COMB COMB_MULTI CHECKBOX RAD
 NON_FILTERABLE_FIELD_TYPES = %w[FILE IMAGE ADDRESS SUB_ITEM PRODUCT].freeze
 REQUIRED_FIELD_KEYS = %w[name attr attrName fieldType scenes required editable defaultValue filterName].freeze
 OPTION_FIELD_TYPES = %w[COMB COMB_MULTI CHECKBOX RADIO_BTN].freeze
+FIXED_BUSINESS_CODES = { "USER" => "ORG_MEMBER", "DEPT" => "ORG_DEPARTMENT" }.freeze
+EXPLICIT_BUSINESS_CODE_FIELD_TYPES = %w[BUSINESS PRODUCT].freeze
 FILTER_PROTOCOL_TYPES = {
   "TEXT" => "TEXT", "USER" => "ID", "DEPT" => "ID", "BUSINESS" => "BUSINESS",
   "COMB" => "ENUM", "RADIO_BTN" => "ENUM", "SWITCH" => "ENUM",
@@ -69,10 +71,12 @@ def normalize_field(field, path, child: false)
     fail_with("#{path}.options 必须是非空字符串") unless field["options"].is_a?(String) && !field["options"].strip.empty?
     normalized_field["options"] = field["options"]
   end
-  if field_type == "BUSINESS" && field.key?("businessCode")
-    upstream_business_code = field["businessCode"]
-    fail_with("#{path}.businessCode 必须是显式的大写枚举值") unless upstream_business_code.is_a?(String) && upstream_business_code.match?(/\A[A-Z][A-Z0-9_]*\z/)
-    normalized_field["businessCode"] = upstream_business_code
+  if FIXED_BUSINESS_CODES.key?(field_type)
+    normalized_field["businessCode"] = FIXED_BUSINESS_CODES.fetch(field_type)
+  elsif EXPLICIT_BUSINESS_CODE_FIELD_TYPES.include?(field_type)
+    target_business_code = field["businessCode"]
+    fail_with("#{path} 的 #{field_type} 必须提供显式目标 businessCode") unless target_business_code.is_a?(String) && target_business_code.match?(/\A[A-Z][A-Z0-9_]*\z/)
+    normalized_field["businessCode"] = target_business_code
   end
   if field.key?("selectionFill")
     fail_with("#{path}.selectionFill 只能用于 BUSINESS 字段") unless field_type == "BUSINESS"

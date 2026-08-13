@@ -41,6 +41,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 
 - `businessCode` 是 `BusinessCodeEnum` 的显式枚举值；若基础枚举不存在该值，先由开发者确认允许修改公共模块，不能自行发明。
 - 每个字段必须提供 `attr`、`attrName`、`fieldType` 和使用场景；`filterName` 是服务端筛选白名单列名，填 `null` 表示不可筛选。
+- `USER` 字段的 `businessCode` 固定为 `ORG_MEMBER`，`DEPT` 字段固定为 `ORG_DEPARTMENT`；两者由字段元数据脚本生成，输入不得覆盖。其他业务选择字段必须提供已确认的目标 `businessCode`。
 - 筛选协议类型和 `symbols` 始终由 `fieldType` 的统一映射推导，设计文档和字段元数据不得重复维护；`FILE`、`IMAGE`、`ADDRESS`、`SUB_ITEM`、`PRODUCT` 必须使用 `filterName: null`。
 - 没有 LIST、CREATE、UPDATE、筛选或按钮需求时，输入中必须显式写为空数组或 `filterName: null`；“未提供”不等于“不需要”。
 
@@ -67,11 +68,14 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 | `POST /loadDraft` | `*DraftLoadDTO` | `*DraftDetailVO` |
 
 - `list` 的 Controller、总入口 Application Service 与 Query Application Service 均直接使用 `ListBaseDTO`，不得仅为公共分页、关键词和动态 `conditions` 创建 `*ListDTO`。Query Application Service 必须执行 `requireCorpid`、`ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())`，并将同一个条件 Map 交给 `findByCondition` 和 `count`；`schemaProvider` 从 `*ListMetaProvider` 的筛选白名单派生，禁止手工拼接字段筛选、排序或分组条件。列表需要子档摘要时必须批量查询。
+- 字段元数据中同时处于 `LIST` 场景的 `DATE`、`TIME` 字段，领域模型、保存 DTO 和 PO 仍使用 13 位毫秒时间戳；仅 `*ListItemVO` 声明为 `String`，`*AdminAssembler#toListItemVO` 必须生成 `null -> ""`、非空 `String.valueOf(...)` 的转换。`generate_query_form_contract.py --apply` 和 `verify_module_delivery.py` 共同强制此协议。
 - `addItem` 返回 `CREATE` 场景字段元数据与空表单；`updateItem` 返回 `UPDATE` 元数据以及主档、子档和 `sectionState` 回填。
 - `saveDraft`、`draftList`、`loadDraft` 放在 `application.service.draft`；草稿仓储定义在 `application.port`，实现放在基础设施层。
 - `saveAndSubmit` 放在 `application.service.save`，按“协议校验 → 通用字段校验 → 业务校验 → 主子档同步”执行；只有正式保存成功才删除来源草稿。
 - 提供完整字段元数据时，必须生成 `admin/*FieldEnum` 作为唯一字段事实源，形态对齐 `DemoFieldEnum`：`*FieldFactory` 只能遍历该枚举按场景生成 `headList`，`*ListMetaProvider` 只能遍历该枚举生成筛选和表头。Provider 禁止直接 `new FieldEntity`/`new FilterField` 后硬编码字段 attr、名称、类型、选项或筛选白名单；按钮动作可由已确认的 `listActions` 生成。
 - 规格未声明其他主键策略时，业务表主键固定使用数据库 `AUTO_INCREMENT`：所有 PO 继承的 `BaseEntity.id` 必须显式标记 `@TableId(type = IdType.AUTO)`；Repository 的 `Long insert` 必须先将 PO 的 `id` 置为 `null`，调用 Mapper 后把 MyBatis 回填的 `po.id` 写回领域对象并作为返回值。`insertBatch` 必须对全部 PO 清空 `id`，Mapper XML 使用 `useGeneratedKeys="true" keyProperty="id"` 且不插入 `id` 列，完成后按原顺序将每个 `poList[index].id` 回写给领域数组对象。禁止引用 `xbb-erp-base-idgen`、`IdWorker`、`Snowflake` 或预生成 ID；`save` 返回的新增 ID 必须直接来自 `insert` 的数据库回填结果。
+- `*Mapper` 禁止继承 MyBatis-Plus `BaseMapper`，必须额外声明 `int insert(*PO po)` 并在 XML 中生成单条 `<insert id="insert">`。
+- 所有生成的 PO 继承 `BaseEntity` 后，`*RepositoryImpl` 必须生成 `initializeForInsert(BaseEntity po)`；`insert` 和 `insertBatch` 都必须经此方法初始化 `id=null`、`del=0`、同一时间戳的 `addTime`、`updateTime`。`*AdminAssembler#to*` 在新增时设置 `creatorId=dto.userId`，每次保存设置 `modifyId=dto.userId`。
 
 ## 执行步骤
 
@@ -80,7 +84,7 @@ ROOT 在生成代码前必须提供 `field-metadata.json`。该文件只能转�
 3. 用 `scripts/build_delivery_scope.py` 明确模块、主表、可选从表和字段元数据；在业务设计中单独记录领域特有规则。
 4. 用 `scripts/validate_module_specs.py` 校验 ROOT/CHILD 角色、模块一致性和生成范围；先运行 `scripts/run_codegen.py` 的 dry-run。未提供 `field-metadata.json` 时允许只生成代码骨架。
 5. 已提供完整 `field-metadata.json` 时，用户确认后必须对单个 ROOT 使用 `scripts/run_codegen.py --project-root . --field-metadata <field-metadata.json> <ROOT规格.yaml> --apply`。该模式会覆盖 ROOT 的 `*FieldEnum`、`*ListMetaProvider`，并生成只消费该枚举的 `*FieldFactory`、`*ListSchemaProvider` 与标准 QueryService；列表统一接收 `ListBaseDTO`，`addItem/updateItem` 生成 `headList`。多个 ROOT 必须逐一指定其各自的元数据执行，禁止复用同一份字段元数据。
-6. 用 `scripts/verify_module_delivery.py` 校验模块目录职责、Mapper 注册、ROOT 的七个接口、统一 `ListBaseDTO + ListQueryMapUtil + schemaProvider` 列表链路、字段元数据、`headList`、业务编码、AUTO_INCREMENT 插入后的主键回填和 CHILD 无独立 HTTP/Application 层。
+6. 用 `scripts/verify_module_delivery.py` 校验模块目录职责、Mapper 注册、ROOT 的七个接口、统一 `ListBaseDTO + ListQueryMapUtil + schemaProvider` 列表链路、字段元数据、`headList`、业务编码、`BaseEntity` 插入初始化、保存装配审计人和 CHILD 无独立 HTTP/Application 层。生成器会跳过已存在文件，旧骨架必须按该校验迁移，不得因生成命令成功而视为符合当前协议。
 7. 接口契约变化时，执行 `.claude/commands/multi-player/SKILL.md`，维护 API 原子文档、聚合文档和 `docs/kn/总目录.md`。
 8. 运行 `scripts/harness-verify.sh`、目标模块测试和本 Skill 脚本测试。
 

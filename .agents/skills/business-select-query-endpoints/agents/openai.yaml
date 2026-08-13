@@ -1,0 +1,4 @@
+interface:
+  display_name: "Business Select Query Endpoints"
+  short_description: "Implement standard business selection endpoints"
+  default_prompt: "Add standard business selection query endpoints for a backend business code."

@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.inventory.infrastructure.persistence.mapper.StockCostTransactionMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, warehouse_id, sku_id, action_type, business_code, source_id, qty_before, qty_change, qty_after, total_cost_before, total_cost_change, total_cost_after, unit_cost_before, unit_cost, unit_cost_after, tail_difference, reason, idempotency_key, operator_id, occurred_at, del, add_time, update_time, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into stock_cost_transaction (
+            corpid, warehouse_id, sku_id, action_type, business_code, source_id, qty_before, qty_change, qty_after, total_cost_before, total_cost_change, total_cost_after, unit_cost_before, unit_cost, unit_cost_after, tail_difference, reason, idempotency_key, operator_id, occurred_at, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.warehouseId}, #{item.skuId}, #{item.actionType}, #{item.businessCode}, #{item.sourceId}, #{item.qtyBefore}, #{item.qtyChange}, #{item.qtyAfter}, #{item.totalCostBefore}, #{item.totalCostChange}, #{item.totalCostAfter}, #{item.unitCostBefore}, #{item.unitCost}, #{item.unitCostAfter}, #{item.tailDifference}, #{item.reason}, #{item.idempotencyKey}, #{item.operatorId}, #{item.occurredAt}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update stock_cost_transaction
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update stock_cost_transaction
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockCostTransactionPO">
+        update stock_cost_transaction
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="actionType != null">action_type = #{actionType},</if>
+            <if test="businessCode != null">business_code = #{businessCode},</if>
+            <if test="sourceId != null">source_id = #{sourceId},</if>
+            <if test="qtyBefore != null">qty_before = #{qtyBefore},</if>
+            <if test="qtyChange != null">qty_change = #{qtyChange},</if>
+            <if test="qtyAfter != null">qty_after = #{qtyAfter},</if>
+            <if test="totalCostBefore != null">total_cost_before = #{totalCostBefore},</if>
+            <if test="totalCostChange != null">total_cost_change = #{totalCostChange},</if>
+            <if test="totalCostAfter != null">total_cost_after = #{totalCostAfter},</if>
+            <if test="unitCostBefore != null">unit_cost_before = #{unitCostBefore},</if>
+            <if test="unitCost != null">unit_cost = #{unitCost},</if>
+            <if test="unitCostAfter != null">unit_cost_after = #{unitCostAfter},</if>
+            <if test="tailDifference != null">tail_difference = #{tailDifference},</if>
+            <if test="reason != null">reason = #{reason},</if>
+            <if test="idempotencyKey != null">idempotency_key = #{idempotencyKey},</if>
+            <if test="operatorId != null">operator_id = #{operatorId},</if>
+            <if test="occurredAt != null">occurred_at = #{occurredAt},</if>
+            <if test="del != null">del = #{del},</if>
+            <if test="addTime != null">add_time = #{addTime},</if>
+            <if test="updateTime != null">update_time = #{updateTime},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockCostTransactionPO">
+        select <include refid="BaseColumns"/>
+        from stock_cost_transaction
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByIdempotencyKey" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockCostTransactionPO">
+        select <include refid="BaseColumns"/>
+        from stock_cost_transaction
+        where corpid = #{corpid} and idempotency_key = #{idempotencyKey} and del = 0
+    </select>
+
+    <select id="findByIdempotencyKeys" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockCostTransactionPO">
+        select <include refid="BaseColumns"/> from stock_cost_transaction
+        where corpid = #{corpid} and del = 0 and idempotency_key in
+        <foreach collection="idempotencyKeys" item="key" open="(" separator="," close=")">#{key}</foreach>
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockCostTransactionPO">
+        select <include refid="BaseColumns"/>
+        from stock_cost_transaction
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from stock_cost_transaction
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

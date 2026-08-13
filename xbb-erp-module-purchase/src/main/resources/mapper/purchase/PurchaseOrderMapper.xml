@@ -52,6 +52,15 @@
         </if>
     </sql>
 
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_order (
+            corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+        )
+        values (
+            #{corpid}, #{orderNo}, #{supplierId}, #{supplierName}, #{orderDate}, #{expectedDate}, #{totalAmount}, #{status}, #{remark}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId}
+        )
+    </insert>
+
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into purchase_order (
             corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id

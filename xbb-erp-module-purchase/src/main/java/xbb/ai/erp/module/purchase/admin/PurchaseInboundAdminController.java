@@ -16,6 +16,7 @@ import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftLoadDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSubmitSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundConfirmDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundDraftDetailVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundDraftListItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
@@ -55,6 +56,11 @@ public class PurchaseInboundAdminController {
     @PostMapping("/saveAndSubmit")
     public ResultVO<BaseVO> saveAndSubmit(@RequestBody PurchaseInboundSubmitSaveDTO dto) {
         return ResultVO.success(purchaseInboundAdminAppService.saveAndSubmit(dto));
+    }
+
+    @PostMapping("/confirmInbound")
+    public ResultVO<BaseVO> confirmInbound(@RequestBody PurchaseInboundConfirmDTO dto) {
+        return ResultVO.success(purchaseInboundAdminAppService.confirmInbound(dto));
     }
 
     @PostMapping("/draftList")

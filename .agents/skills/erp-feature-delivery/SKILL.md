@@ -39,7 +39,7 @@ listActions:
 
 - 每个字段必须显式提供 `name`、`attr`、`attrName`、`fieldType`、`scenes`、`required`、`editable`、`defaultValue`、`filterName`；`filterName: null` 表示不可筛选。
 - `name` 是稳定设计标识/枚举常量来源，`attr` 是前端提交和回填路径，`filterName` 是服务端数据库列白名单；三者不得混用。
-- `COMB`、`COMB_MULTI`、`CHECKBOX`、`RADIO_BTN` 可提供 `options`，格式为 `值:文案` 的逗号分隔字符串；生成的 `headList.itemList` 与列表筛选 `itemList` 必须解析为相同的 `FieldItem(value,text)`，不得保留原始字符串或输出空列表。`RADIO_BTN` 按 `COMB` 协议输出；`SWITCH` 也按 `COMB` 输出且 `itemList` 固定为 `1:开启`、`2:关闭`。所有选择数据字段（`USER`、`DEPT`、`BUSINESS`、`PRODUCT` 及其多选变体）必须提供目标 `businessCode`；后端返回的 `businessSelectConfig` 只能包含该 `businessCode`，禁止下发 URL、请求体、占位文案、标题、业务类型或单多选语义。前端依据 `businessCode` 常量注册表解析端点和展示语义。当选择字段配置了非空 `filterName` 时，列表筛选元数据也必须下发相同的仅编码配置。
+- `COMB`、`COMB_MULTI`、`CHECKBOX`、`RADIO_BTN` 可提供 `options`，格式为 `值:文案` 的逗号分隔字符串；生成的 `headList.itemList` 与列表筛选 `itemList` 必须解析为相同的 `FieldItem(value,text)`，不得保留原始字符串或输出空列表。`RADIO_BTN` 按 `COMB` 协议输出；`SWITCH` 也按 `COMB` 输出且 `itemList` 固定为 `1:开启`、`2:关闭`。选择字段的目标 `businessCode` 必须由字段类型唯一决定：`USER` 固定为 `ORG_MEMBER`，`DEPT` 固定为 `ORG_DEPARTMENT`；`BUSINESS`、`PRODUCT` 及其多选变体必须提供显式目标编码。字段设计不得为 `USER`、`DEPT` 覆盖这两个固定编码。后端返回的 `businessSelectConfig` 只能包含该 `businessCode`，禁止下发 URL、请求体、占位文案、标题、业务类型或单多选语义。前端依据 `businessCode` 常量注册表解析端点和展示语义。当选择字段配置了非空 `filterName` 时，列表筛选元数据也必须下发相同的仅编码配置。
 - 业务选择回填属于**消费方业务模块**：每个具备新建/编辑表单的业务至多提供一个 `POST /erp/v1/{moduleApiName}/{businessName}/selectionFill` 接口，接口以 `fieldAttr + referenceId` 识别来源；模块内按 `fieldAttr` 分派其全部上游业务的回填规则，禁止按上游单据新增 HTTP 接口。仅需选择、不需回填的字段不得调用该接口。字段设计可在 `BUSINESS` 字段声明 `selectionFill: true`；生成元数据保留该布尔值并下发为 `selectionFillConfig: { enabled: true }`，不得下发目标字段映射、来源 URL、SQL 或其他回填实现细节。`businessSelectConfig` 仍仅包含目标 `businessCode`。
 - `selectionFill` 必须由当前模块应用服务经轻量跨模块 `*ReferenceQueryApi` / 查询 Port 按租户查询来源数据，返回仅包含当前表单可写 `attr` 路径的 `patch`。服务端必须校验 `fieldAttr` 是本模块已启用回填的选择字段、`referenceId` 属于当前租户且有效；正式保存必须按业务语义重新校验或重算受回填影响的快照字段，禁止信任前端 patch。
 - 列表筛选元数据必须同时返回两类字段类型：`fieldType` 为源字段枚举值（与 `headList.fieldType` 一致，用于前端精确选择控件），`filterFieldType` 为筛选协议类型（用于 `conditions[].fieldType` 的白名单校验）。`ListCommonServiceImpl#filter` 统一派生二者：`COMB_MULTI`、`CHECKBOX` 映射为 `ENUM_MULTI`，`BUSINESS` 映射为 `BUSINESS`，`USER`、`DEPT` 映射为 `ID`；`NUM_INT`、`NUM_DOUBLE`、`AMOUNT`、`STOCK`、`DATE`、`TIME` 必须保留各自源类型。条件白名单、值长度校验和 Mapper SQL 必须同步支持这些操作符。
@@ -53,6 +53,7 @@ listActions:
 
 - 业务列表接口统一直接接收 `ListBaseDTO`，不得为仅承载公共分页和动态筛选的列表重新生成 `*ListDTO`；Controller、总入口 Application Service 与 Query Application Service 的 `list` 签名必须一致。
 - Query Application Service 固定执行 `AdminParamValidator.requireCorpid(dto)` → `ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())` → 同一条件 Map 的 `findByCondition/count` → `ListBaseVO` 分页组装。禁止手工向条件 Map 写入 `id`、名称、字段、排序或分组片段；`schemaProvider` 必须从同一 `ListMetaProvider` 的筛选白名单派生元数据。
+- Query Application Service 组装列表项后必须调用 `listValueRenderer.render(dto.getCorpid(), BusinessCodeEnum.{businessCode}.getCode(), items)` 再写入 `vo.setList`；`businessCode` 必须来自 ROOT 规格，禁止硬编码或复用 `DEMO`。渲染 Provider 不得反向依赖该 Query Application Service。
 - `findByCondition` 和 `count` 必须共用同一个条件准备入口；Repository 实现必须显式 import 并调用 `ConditionMapHelper` 或统一的 `QueryConditionMapHelper`，不得绕过分页和筛选约束。
 
 执行：
@@ -77,7 +78,9 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 - `saveDraft` 固定返回 `xbb.ai.erp.base.common.vo.DraftSaveVO`。流程固定为：DTO 转草稿保存上下文 → 协议校验 → `CommonValidator.validateForDraft` → 转草稿 Pojo → 缓存仓储保存 → 回写 `draftMeta.draftCode` → 返回 `DraftSaveVO.draftCode`。
 - `draftList` 只能从草稿缓存读取，不查询正式业务表；按 `corpid` 和明确上限读取后转换为草稿列表 VO。`loadDraft` 也只能经草稿缓存按租户和草稿编码读取。
 - `saveAndSubmit` 固定按“协议校验 → 通用校验 → 业务校验 → 事务内正式保存 → 成功后删除来源草稿缓存”执行。每个模块必须生成 `*SaveBusinessValidator` 及 `validateForSubmit` 方法；暂未定义的领域规则可保留空占位方法，但不得跳过调用。
-- 正式保存进入 Repository 前，应用服务必须统一覆盖维护 `creatorId`、`modifyId`（均为 `dto.userId`）、`addTime`、`updateTime`（同一 `now`）和 `del=0`；持久化领域模型、DTO、转换器与 Mapper 参数统一使用属性名 `del`，禁止业务层使用兼容别名 `deleted`，数据库列仍为 `del`。
+- 所有生成的 `*PO` 必须继承 `BaseEntity`。生成的 `*RepositoryImpl` 必须提供 `initializeForInsert(BaseEntity po)`，在 `insert` 和 `insertBatch` 中调用，并统一初始化 `id=null`、`del=0`、`addTime` 与 `updateTime`（同一 `now`）。
+- 所有生成的 `*Mapper` 禁止继承 MyBatis-Plus `BaseMapper`，必须声明显式的 `int insert(*PO po)`，Mapper XML 必须生成对应的单条 `<insert id="insert">`；单条和批量插入均使用数据库自增主键回填。
+- `*AdminAssembler#to*` 保存装配必须维护审计人：当 `dto.getMain().getId()` 为 `null` 时设置 `creatorId=dto.userId`，每次保存均设置 `modifyId=dto.userId`。持久化领域模型、DTO、转换器与 Mapper 参数统一使用属性名 `del`，禁止业务层使用兼容别名 `deleted`，数据库列仍为 `del`。
 - 当业务表主键为数据库 `AUTO_INCREMENT` 时，新增保存不得生成、预填或覆盖 `id`，也不得依赖 `xbb-erp-base-idgen`；Repository 插入前实体 `id` 必须为 `null`，由数据库生成后回写。仅更新既有记录时允许从请求/已存记录携带 `id`。受影响模块测试必须断言插入实体的 `id` 为 `null`。
 - 删除草稿缓存只能发生在正式保存全部成功之后，并且仅删除请求 `draftMeta.draftCode` 指定的同租户草稿。
 
@@ -90,7 +93,7 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 
 ## 实现与交付门禁
 
-1. 先执行 ROOT/CHILD 规格 `dry-run`；确认模块目录只使用短横线、源码路径由 `packageBase` 推导且与 `package` 声明完全一致；再检查 `admin -> application -> domain` 依赖、Repository 边界、事务和子档批量加载。
+1. 先执行 ROOT/CHILD 规格 `dry-run`；确认模块目录只使用短横线、源码路径由 `packageBase` 推导且与 `package` 声明完全一致；再检查 `admin -> application -> domain` 依赖、Repository 边界、事务和子档批量加载。代码生成器会保留已有 Java/XML 文件，不会用新模板覆盖旧骨架；因此每次生成后必须执行交付校验，若发现旧骨架协议缺失，必须人工迁移到当前模板后才能交付。
 2. `addItem` 以 `CREATE` 字段生成空表单与 `headList`；`updateItem` 以 `UPDATE` 字段生成 `headList`，并按明确关联回填主档、子档和 `sectionState`。每个选择数据字段必须在两个场景的 `headList` 中组装只含目标 `businessCode` 的 `businessSelectConfig`；不得下发任何 URL、租户请求体或展示语义。选项字段必须返回非空 `itemList`。
 3. 列表筛选必须只接受由 `filterName` 派生的属性/列/操作符白名单，绝不接受前端传入 SQL、列名或操作符；可筛选字段必须返回源 `fieldType` 加协议 `filterFieldType`，`BUSINESS(16)` 的协议类型为 `BUSINESS`，`USER(12)`、`DEPT(14)` 为 `ID`，三者均返回仅含目标编码的 `businessSelectConfig`；选项字段必须复用表单 `itemList`。验证单选/多选 JSON 枚举条件使用 `JSON_CONTAINS`，`DATE`、`TIME` 的白名单严格符合字段元数据脚本生成的操作符集合。
 4. 检查 Controller、Application Service、Query Application Service 的列表签名均为 `ListBaseDTO`；Query Application Service 使用 `ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())`，`findByCondition` 与 `count` 共享结果 Map，Repository 已 import 并调用条件准备工具，字段工厂不保留无意义的 `SceneFieldMeta.class::cast`。

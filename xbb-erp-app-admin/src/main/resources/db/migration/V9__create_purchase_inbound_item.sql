@@ -1,0 +1,21 @@
+CREATE TABLE `purchase_inbound_item` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `corpid` varchar(64) NOT NULL COMMENT '租户ID',
+  `purchase_inbound_id` bigint(20) NOT NULL,
+  `purchase_order_item_id` bigint(20) NOT NULL,
+  `sku_id` bigint(20) NOT NULL,
+  `sku_name` varchar(128) NOT NULL,
+  `unit_name` varchar(32) NOT NULL,
+  `qty` decimal(18,6) NOT NULL,
+  `unit_price` decimal(18,6) NOT NULL,
+  `amount` decimal(18,2) NOT NULL,
+  `cost_unit` decimal(18,6) NOT NULL,
+  `cost_amount` decimal(18,2) NOT NULL,
+  `del` tinyint(2) NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(64) NOT NULL,
+  `modify_id` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `idx_purchase_inbound_item_sku` (`corpid`,`sku_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='采购入库单行';

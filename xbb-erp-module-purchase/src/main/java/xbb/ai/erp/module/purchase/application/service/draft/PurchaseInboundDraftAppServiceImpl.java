@@ -30,6 +30,7 @@ public class PurchaseInboundDraftAppServiceImpl implements PurchaseInboundDraftA
         PurchaseInboundSaveDraftPojo draft = new PurchaseInboundSaveDraftPojo();
         draft.setCorpid(dto.getCorpid());
         draft.setMain(dto.getMain());
+        draft.setItems(dto.getItems());
         draft.setDraftCode(dto.getDraftMeta().getDraftCode());
         draft.setDraftTitle(dto.getDraftMeta().getDraftTitle());
         String code = repository.saveDraft(draft);
@@ -53,7 +54,7 @@ public class PurchaseInboundDraftAppServiceImpl implements PurchaseInboundDraftA
     public PurchaseInboundDraftDetailVO loadDraft(PurchaseInboundDraftLoadDTO dto) {
         PurchaseInboundSaveDraftPojo draft = repository.loadDraft(dto.getCorpid(), dto.getDraftCode());
         PurchaseInboundDraftDetailVO vo = new PurchaseInboundDraftDetailVO();
-        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); }
+        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); vo.setItems(draft.getItems()); }
         return vo;
     }
 }

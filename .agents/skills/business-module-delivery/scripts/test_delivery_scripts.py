@@ -190,6 +190,73 @@ class DeliveryScriptsTest(unittest.TestCase):
                 self.assertIn("import xbb.ai.erp.base.common.dto.ListBaseDTO;", content)
                 self.assertNotIn("SalesOrderListDTO", content)
 
+    def test_query_form_contract_generator_converts_only_list_date_time_fields_to_strings(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            metadata = root / "field-metadata.json"
+            spec = root / "sales-order.yaml"
+            module_root = root / "xbb-erp-module-sales-management"
+            write_spec(spec, "ROOT", "SalesOrder", "sales_order", True, True)
+            metadata.write_text(json.dumps({
+                "businessCode": "SALES_ORDER",
+                "fields": [
+                    {
+                        "name": "orderDate", "attr": "main.orderDate", "attrName": "下单日期",
+                        "fieldType": "DATE", "scenes": ["LIST", "CREATE", "UPDATE"],
+                        "required": True, "editable": True, "defaultValue": None, "filterName": "order_date",
+                        "filterFieldType": "DATE", "supportedSymbols": ["EQ", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+                    },
+                    {
+                        "name": "deliveryTime", "attr": "main.deliveryTime", "attrName": "送达时间",
+                        "fieldType": "TIME", "scenes": ["LIST", "CREATE", "UPDATE"],
+                        "required": False, "editable": True, "defaultValue": None, "filterName": "delivery_time",
+                        "filterFieldType": "TIME", "supportedSymbols": ["GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
+                    },
+                ],
+                "listActions": {"top": [], "bottom": [], "row": []},
+            }, ensure_ascii=False), encoding="utf-8")
+            source_root = module_root / "src/main/java/xbb/ai/erp/module/sales"
+            for path in (
+                source_root / "admin",
+                source_root / "admin/vo",
+                source_root / "application/assembler",
+                source_root / "application/service",
+                source_root / "application/service/impl",
+            ):
+                path.mkdir(parents=True, exist_ok=True)
+            (source_root / "admin/vo/SalesOrderListItemVO.java").write_text(
+                "class SalesOrderListItemVO { private Long orderDate; private Long deliveryTime; }\n",
+                encoding="utf-8",
+            )
+            (source_root / "application/assembler/SalesOrderAdminAssembler.java").write_text(
+                "import java.util.Objects; class SalesOrderAdminAssembler { void toListItemVO(SalesOrder salesOrder, SalesOrderListItemVO vo) { "
+                "vo.setOrderDate(salesOrder.getOrderDate()); vo.setDeliveryTime(salesOrder.getDeliveryTime()); } }\n",
+                encoding="utf-8",
+            )
+            for path in (
+                source_root / "admin/SalesOrderAdminController.java",
+                source_root / "application/service/SalesOrderAdminAppService.java",
+                source_root / "application/service/impl/SalesOrderAdminAppServiceImpl.java",
+            ):
+                path.write_text("class Placeholder { void list(SalesOrderListDTO request) {} }\n", encoding="utf-8")
+
+            subprocess.run([
+                "python3", str(SCRIPTS / "generate_query_form_contract.py"), str(metadata), str(spec), str(module_root), "--apply",
+            ], check=True)
+
+            list_item_vo = (source_root / "admin/vo/SalesOrderListItemVO.java").read_text(encoding="utf-8")
+            assembler = (source_root / "application/assembler/SalesOrderAdminAssembler.java").read_text(encoding="utf-8")
+            self.assertIn("private String orderDate;", list_item_vo)
+            self.assertIn("private String deliveryTime;", list_item_vo)
+            self.assertIn('vo.setOrderDate(Objects.isNull(salesOrder.getOrderDate()) ? "" : String.valueOf(salesOrder.getOrderDate()));', assembler)
+            self.assertIn('vo.setDeliveryTime(Objects.isNull(salesOrder.getDeliveryTime()) ? "" : String.valueOf(salesOrder.getDeliveryTime()));', assembler)
+            verify_spec = importlib.util.spec_from_file_location("verify_module_delivery", SCRIPTS / "verify_module_delivery.py")
+            verify_module = importlib.util.module_from_spec(verify_spec)
+            verify_spec.loader.exec_module(verify_module)
+            self.assertEqual([], verify_module.validate_list_date_time_string_contract(
+                source_root, "SalesOrder", json.loads(metadata.read_text(encoding="utf-8")),
+            ))
+
     def test_delivery_validator_requires_standard_list_and_form_contract(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             module_root = Path(temp_dir) / "xbb-erp-module-sales"
@@ -249,13 +316,14 @@ class DeliveryScriptsTest(unittest.TestCase):
                 text=True,
             )
             self.assertNotEqual(0, verify.returncode)
-            self.assertIn("AUTO_INCREMENT 插入前必须清空 PO.id", verify.stderr)
+            self.assertIn("insert 必须调用 initializeForInsert", verify.stderr)
             self.assertIn("AUTO_INCREMENT 插入后必须将 PO.id 回写领域对象", verify.stderr)
             self.assertIn("AUTO_INCREMENT insert 必须返回数据库回填的 PO.id", verify.stderr)
-            self.assertIn("AUTO_INCREMENT insertBatch 必须清空 PO.id 并将回填主键逐项写回领域数组", verify.stderr)
+            self.assertIn("insertBatch 必须调用 initializeForInsert 并将回填主键逐项写回领域数组", verify.stderr)
             self.assertIn("insertBatch 必须配置 useGeneratedKeys", verify.stderr)
             self.assertIn("AUTO_INCREMENT insertBatch 不得插入 id 列", verify.stderr)
             self.assertIn("BaseEntity", verify.stderr)
+            self.assertIn("完整的 initializeForInsert", verify.stderr)
 
     def test_module_specs_and_scope_support_root_and_child(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -299,6 +367,48 @@ class DeliveryScriptsTest(unittest.TestCase):
             self.assertIn('SALES_ORDER("SALES_ORDER")', enum_path.read_text(encoding="utf-8"))
             subprocess.run(command, check=True)
 
+    def test_business_code_sync_includes_fixed_user_and_department_codes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            metadata = Path(temp_dir) / "field-metadata.json"
+            enum_path = Path(temp_dir) / "BusinessCodeEnum.java"
+            metadata.write_text(json.dumps({
+                "businessCode": "SALES_ORDER",
+                "fields": [
+                    {
+                        "name": "ownerId", "attr": "main.ownerId", "attrName": "负责人", "fieldType": "USER",
+                        "scenes": ["CREATE"], "filterName": None, "businessCode": "ORG_MEMBER",
+                    },
+                    {
+                        "name": "departmentId", "attr": "main.departmentId", "attrName": "所属部门", "fieldType": "DEPT",
+                        "scenes": ["CREATE"], "filterName": None, "businessCode": "ORG_DEPARTMENT",
+                    },
+                ],
+                "listActions": {"top": [], "bottom": [], "row": []},
+            }, ensure_ascii=False), encoding="utf-8")
+            enum_path.write_text('enum BusinessCodeEnum { DEMO("DEMO"),\n    ;\n}\n', encoding="utf-8")
+            command = ["python3", str(SCRIPTS / "sync_business_code.py"), str(metadata), "--enum-path", str(enum_path)]
+            missing = subprocess.run(command, capture_output=True, text=True)
+            self.assertNotEqual(0, missing.returncode)
+            self.assertIn("SALES_ORDER、ORG_MEMBER、ORG_DEPARTMENT", missing.stderr)
+            subprocess.run([*command, "--apply"], check=True)
+            synced = enum_path.read_text(encoding="utf-8")
+            self.assertIn('SALES_ORDER("SALES_ORDER")', synced)
+            self.assertIn('ORG_MEMBER("ORG_MEMBER")', synced)
+            self.assertIn('ORG_DEPARTMENT("ORG_DEPARTMENT")', synced)
+
+    def test_delivery_validator_rejects_assembler_without_audit_assignments(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_root = Path(temp_dir) / "src/main/java/xbb/ai/erp/module/sales"
+            assembler = source_root / "application/assembler/SalesOrderAdminAssembler.java"
+            assembler.parent.mkdir(parents=True)
+            assembler.write_text("class SalesOrderAdminAssembler {}\n", encoding="utf-8")
+            verify_spec = importlib.util.spec_from_file_location("verify_module_delivery", SCRIPTS / "verify_module_delivery.py")
+            verify_module = importlib.util.module_from_spec(verify_spec)
+            verify_spec.loader.exec_module(verify_module)
+            errors = verify_module.validate_save_assembler_audit_contract(source_root, "SalesOrder")
+            self.assertEqual(1, len(errors))
+            self.assertIn("creatorId/modifyId", errors[0])
+
     def test_field_design_generator_derives_filter_rules_from_field_type(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             design = Path(temp_dir) / "field-design.yaml"
@@ -334,6 +444,25 @@ fields:
     defaultValue: null
     filterName: tags
     options: "A:甲, B:乙"
+  - name: ownerId
+    attr: main.ownerId
+    attrName: 负责人
+    fieldType: USER
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: owner_id
+    businessCode: OVERRIDE_NOT_ALLOWED
+  - name: departmentId
+    attr: main.departmentId
+    attrName: 所属部门
+    fieldType: DEPT
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: department_id
 listActions:
   top: []
   bottom: []
@@ -350,7 +479,61 @@ listActions:
             self.assertEqual("tags", generated["fields"][2]["filterName"])
             self.assertEqual("ENUM_MULTI", generated["fields"][2]["filterFieldType"])
             self.assertEqual(["CONTAINS", "NOT_CONTAINS", "CONTAINS_ALL", "NOT_CONTAINS_ALL", "IS_EMPTY", "IS_NOT_EMPTY"], generated["fields"][2]["supportedSymbols"])
+            self.assertEqual("ORG_MEMBER", generated["fields"][3]["businessCode"])
+            self.assertEqual("ORG_DEPARTMENT", generated["fields"][4]["businessCode"])
             subprocess.run(["python3", str(SCRIPTS / "validate_field_metadata.py"), str(metadata)], check=True)
+
+    def test_query_contract_generator_emits_fixed_user_and_department_business_codes(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            design = root / "field-design.yaml"
+            metadata = root / "field-metadata.json"
+            spec = root / "sales-order.yaml"
+            module_root = root / "xbb-erp-module-sales-management"
+            write_spec(spec, "ROOT", "SalesOrder", "sales_order", True, True)
+            source_root = module_root / "src/main/java/xbb/ai/erp/module/sales"
+            for path in (
+                source_root / "admin/SalesOrderAdminController.java",
+                source_root / "application/service/SalesOrderAdminAppService.java",
+                source_root / "application/service/impl/SalesOrderAdminAppServiceImpl.java",
+            ):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("class Placeholder { void list(SalesOrderListDTO request) {} }\n", encoding="utf-8")
+            design.write_text(
+                """businessCode: SALES_ORDER
+fields:
+  - name: ownerId
+    attr: main.ownerId
+    attrName: 负责人
+    fieldType: USER
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+  - name: departmentId
+    attr: main.departmentId
+    attrName: 所属部门
+    fieldType: DEPT
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+listActions:
+  top: []
+  bottom: []
+  row: []
+""",
+                encoding="utf-8",
+            )
+            subprocess.run(["ruby", str(SCRIPTS / "generate_field_metadata.rb"), str(design), str(metadata)], check=True)
+            subprocess.run([
+                "python3", str(SCRIPTS / "generate_query_form_contract.py"), str(metadata), str(spec), str(module_root), "--apply",
+            ], check=True)
+            field_enum = (module_root / "src/main/java/xbb/ai/erp/module/sales/admin/SalesOrderFieldEnum.java").read_text(encoding="utf-8")
+            self.assertIn('OWNER_ID("main.ownerId", "负责人", FieldTypeEnum.USER, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "ORG_MEMBER"', field_enum)
+            self.assertIn('DEPARTMENT_ID("main.departmentId", "所属部门", FieldTypeEnum.DEPT, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "ORG_DEPARTMENT"', field_enum)
 
     def test_field_design_generator_preserves_type_specific_configuration(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -398,6 +581,7 @@ fields:
         editable: true
         defaultValue: null
         filterName: null
+        businessCode: PRODUCT_SKU
 listActions:
   top: []
   bottom: []
@@ -412,7 +596,44 @@ listActions:
             self.assertEqual("PRODUCT", generated["fields"][1]["businessCode"])
             self.assertEqual("data_id", generated["fields"][1]["filterName"])
             self.assertEqual("skuId", generated["fields"][2]["subFields"][0]["name"])
+            self.assertEqual("PRODUCT_SKU", generated["fields"][2]["subFields"][0]["businessCode"])
             subprocess.run(["python3", str(SCRIPTS / "validate_field_metadata.py"), str(metadata)], check=True)
+
+    def test_query_contract_generator_preserves_product_business_code_for_sub_fields(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            metadata = root / "field-metadata.json"
+            spec = root / "purchase-order.yaml"
+            module_root = root / "xbb-erp-module-purchase"
+            write_spec(spec, "ROOT", "PurchaseOrder", "purchase_order", True, True)
+            metadata.write_text(json.dumps({
+                "businessCode": "PURCHASE_ORDER",
+                "fields": [{
+                    "name": "items", "attr": "items", "attrName": "采购产品", "fieldType": "SUB_ITEM",
+                    "scenes": ["CREATE", "UPDATE"], "required": False, "editable": True,
+                    "defaultValue": None, "filterName": None, "subFields": [{
+                        "name": "skuId", "attr": "skuId", "attrName": "产品", "fieldType": "PRODUCT",
+                        "scenes": ["CREATE", "UPDATE"], "required": True, "editable": True,
+                        "defaultValue": None, "filterName": None, "businessCode": "PRODUCT_SKU",
+                    }],
+                }],
+                "listActions": {"top": [], "bottom": [], "row": []},
+            }, ensure_ascii=False), encoding="utf-8")
+            source_root = module_root / "src/main/java/xbb/ai/erp/module/sales"
+            for path in (
+                source_root / "admin/PurchaseOrderAdminController.java",
+                source_root / "application/service/PurchaseOrderAdminAppService.java",
+                source_root / "application/service/impl/PurchaseOrderAdminAppServiceImpl.java",
+            ):
+                path.parent.mkdir(parents=True, exist_ok=True)
+                path.write_text("class Placeholder { void list(PurchaseOrderListDTO request) {} }\n", encoding="utf-8")
+
+            subprocess.run([
+                "python3", str(SCRIPTS / "generate_query_form_contract.py"), str(metadata), str(spec), str(module_root), "--apply",
+            ], check=True)
+
+            field_enum = (source_root / "admin/PurchaseOrderFieldEnum.java").read_text(encoding="utf-8")
+            self.assertIn('new SceneFieldMeta("skuId", "产品", FieldTypeEnum.PRODUCT.getType(), 1, 1, List.of(), "PRODUCT_SKU", List.of())', field_enum)
 
     def test_delivery_validator_accepts_complete_root_and_child(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

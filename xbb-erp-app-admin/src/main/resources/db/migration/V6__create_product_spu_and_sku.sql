@@ -1,0 +1,40 @@
+CREATE TABLE `product_spu` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `corpid` varchar(64) NOT NULL COMMENT '租户ID',
+  `spu_code` varchar(64) NOT NULL,
+  `spu_name` varchar(128) NOT NULL,
+  `category_name` varchar(64) DEFAULT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT '1',
+  `remark` varchar(255) DEFAULT NULL,
+  `del` tinyint(2) NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(64) NOT NULL,
+  `modify_id` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_product_spu_code` (`corpid`, `spu_code`),
+  KEY `idx_product_spu_name` (`corpid`, `spu_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='产品SPU';
+
+CREATE TABLE `product_sku` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `corpid` varchar(64) NOT NULL COMMENT '租户ID',
+  `spu_id` bigint(20) NOT NULL,
+  `sku_code` varchar(64) NOT NULL,
+  `sku_name` varchar(128) NOT NULL,
+  `specification` varchar(128) DEFAULT NULL,
+  `unit_name` varchar(32) NOT NULL,
+  `sale_price` decimal(18,6) DEFAULT NULL,
+  `purchase_price` decimal(18,6) DEFAULT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT '1',
+  `remark` varchar(255) DEFAULT NULL,
+  `del` tinyint(2) NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(64) NOT NULL,
+  `modify_id` varchar(64) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_product_sku_code` (`corpid`, `sku_code`),
+  KEY `idx_product_sku_spu` (`corpid`, `spu_id`),
+  KEY `idx_product_sku_name` (`corpid`, `sku_name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='产品SKU';

@@ -27,6 +27,8 @@
         <module>xbb-erp-module-org</module>
         <module>xbb-erp-module-master-data</module>
         <module>xbb-erp-module-purchase</module>
+        <module>xbb-erp-module-inventory-contract</module>
+        <module>xbb-erp-module-inventory</module>
         <module>xbb-erp-app-admin</module>
         <module>xbb-erp-app-mobile</module>
         <module>xbb-erp-app-job</module>

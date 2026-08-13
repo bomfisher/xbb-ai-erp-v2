@@ -1,0 +1,10 @@
+package xbb.ai.erp.module.masterdata.admin.dto;
+
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+
+@Data
+@EqualsAndHashCode(callSuper = true)
+public class ProductSpuSubmitSaveDTO extends ProductSpuSaveDTO {
+    private ProductSpuDraftMetaDTO draftMeta = new ProductSpuDraftMetaDTO();
+}

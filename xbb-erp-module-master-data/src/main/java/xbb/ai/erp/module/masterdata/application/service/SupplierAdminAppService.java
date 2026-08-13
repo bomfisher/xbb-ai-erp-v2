@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierSaveDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.SupplierBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierSubmitSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftListDTO;
@@ -16,6 +17,7 @@ import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftLoadDTO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO;
+import xbb.ai.erp.module.masterdata.admin.vo.SupplierBusinessSelectOptionVO;
 
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierDraftListItemVO;
@@ -43,4 +45,10 @@ public interface SupplierAdminAppService {
     SupplierDetailVO detail(IdBaseDTO dto);
 
     void delete(BatchBaseDTO dto);
+
+    List<SupplierBusinessSelectOptionVO> businessSelectQuickSearch(SupplierBusinessSelectQueryDTO dto);
+
+    ListBaseVO<SupplierBusinessSelectOptionVO> businessSelectDialogSearch(SupplierBusinessSelectQueryDTO dto);
+
+    SupplierBusinessSelectOptionVO businessSelectGetById(SupplierBusinessSelectQueryDTO dto);
 }

@@ -20,6 +20,7 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     @Override
     public Long insert(Supplier supplier) {
         SupplierPO po = SupplierConvertor.toPO(supplier);
+        initializeForInsert(po);
         po.setId(null);
         supplierMapper.insert(po);
         supplier.setId(po.getId());
@@ -29,7 +30,7 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     @Override
     public void insertBatch(List<Supplier> supplierList) {
         List<SupplierPO> poList = supplierList.stream().map(SupplierConvertor::toPO).toList();
-        poList.forEach(po -> po.setId(null));
+        poList.forEach(this::initializeForInsert);
         supplierMapper.insertBatch(poList);
         for (int index = 0; index < supplierList.size(); index++) {
             supplierList.get(index).setId(poList.get(index).getId());
@@ -49,6 +50,7 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     @Override
     public void update(Supplier supplier) {
         SupplierPO po = SupplierConvertor.toPO(supplier);
+        po.setUpdateTime(System.currentTimeMillis());
         supplierMapper.update(po);
     }
 
@@ -67,5 +69,13 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     public Long count(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return supplierMapper.count(preparedConditionMap);
+    }
+
+    private void initializeForInsert(SupplierPO po) {
+        long now = System.currentTimeMillis();
+        po.setId(null);
+        po.setDel(0);
+        po.setAddTime(now);
+        po.setUpdateTime(now);
     }
 }

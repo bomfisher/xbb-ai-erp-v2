@@ -10,7 +10,7 @@ public class PurchaseInboundListItemVO {
     private Long supplierId;
     private String supplierName;
     private Long warehouseId;
-    private Long inboundDate;
+    private String inboundDate;
     private java.math.BigDecimal totalAmount;
     private String status;
     private String remark;

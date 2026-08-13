@@ -20,6 +20,7 @@ public class WarehouseRepositoryImpl implements WarehouseRepository {
     @Override
     public Long insert(Warehouse warehouse) {
         WarehousePO po = WarehouseConvertor.toPO(warehouse);
+        initializeForInsert(po);
         po.setId(null);
         warehouseMapper.insert(po);
         warehouse.setId(po.getId());
@@ -29,7 +30,7 @@ public class WarehouseRepositoryImpl implements WarehouseRepository {
     @Override
     public void insertBatch(List<Warehouse> warehouseList) {
         List<WarehousePO> poList = warehouseList.stream().map(WarehouseConvertor::toPO).toList();
-        poList.forEach(po -> po.setId(null));
+        poList.forEach(this::initializeForInsert);
         warehouseMapper.insertBatch(poList);
         for (int index = 0; index < warehouseList.size(); index++) {
             warehouseList.get(index).setId(poList.get(index).getId());
@@ -49,6 +50,7 @@ public class WarehouseRepositoryImpl implements WarehouseRepository {
     @Override
     public void update(Warehouse warehouse) {
         WarehousePO po = WarehouseConvertor.toPO(warehouse);
+        po.setUpdateTime(System.currentTimeMillis());
         warehouseMapper.update(po);
     }
 
@@ -67,5 +69,13 @@ public class WarehouseRepositoryImpl implements WarehouseRepository {
     public Long count(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return warehouseMapper.count(preparedConditionMap);
+    }
+
+    private void initializeForInsert(WarehousePO po) {
+        long now = System.currentTimeMillis();
+        po.setId(null);
+        po.setDel(0);
+        po.setAddTime(now);
+        po.setUpdateTime(now);
     }
 }

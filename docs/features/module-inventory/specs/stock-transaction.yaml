@@ -1,0 +1,29 @@
+moduleDir: inventory
+moduleCode: inventory
+moduleName: 库存
+packageBase: xbb.ai.erp.module.inventory
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregate:
+  aggregateName: StockTransaction
+  tableName: stock_transaction
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true }
+    - { name: corpid, column: corpid, javaType: String }
+    - { name: warehouseId, column: warehouse_id, javaType: Long }
+    - { name: skuId, column: sku_id, javaType: Long }
+    - { name: actionType, column: action_type, javaType: String }
+    - { name: qtyBefore, column: qty_before, javaType: java.math.BigDecimal }
+    - { name: qtyChange, column: qty_change, javaType: java.math.BigDecimal }
+    - { name: qtyAfter, column: qty_after, javaType: java.math.BigDecimal }
+    - { name: sourceType, column: source_type, javaType: String }
+    - { name: sourceId, column: source_id, javaType: Long }
+    - { name: idempotencyKey, column: idempotency_key, javaType: String }
+    - { name: operatorId, column: operator_id, javaType: String }
+    - { name: occurredAt, column: occurred_at, javaType: java.time.LocalDateTime }
+    - { name: del, column: del, javaType: Integer }
+    - { name: addTime, column: add_time, javaType: Long }
+    - { name: updateTime, column: update_time, javaType: Long }
+    - { name: creatorId, column: creator_id, javaType: String }
+    - { name: modifyId, column: modify_id, javaType: String }
+generate: { persistence: true }

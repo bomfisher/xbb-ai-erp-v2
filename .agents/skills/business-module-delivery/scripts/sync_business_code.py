@@ -13,18 +13,28 @@ def sync(metadata_path: Path, enum_path: Path, apply: bool) -> bool:
     errors = validate(metadata)
     if errors:
         raise ValueError("字段元数据校验失败，不能登记业务编码：\n- " + "\n- ".join(errors))
-    business_code = metadata["businessCode"]
+    business_codes = [metadata["businessCode"]]
+    business_codes.extend(
+        field["businessCode"]
+        for field in metadata["fields"]
+        if field.get("businessCode") and field["businessCode"] not in business_codes
+    )
     source = enum_path.read_text(encoding="utf-8")
-    if re.search(rf'\b{re.escape(business_code)}\s*\(\s*"{re.escape(business_code)}"\s*\)', source):
-        print(f"BusinessCodeEnum 已登记：{business_code}")
+    missing_codes = [
+        business_code for business_code in business_codes
+        if not re.search(rf'\b{re.escape(business_code)}\s*\(\s*"{re.escape(business_code)}"\s*\)', source)
+    ]
+    if not missing_codes:
+        print("BusinessCodeEnum 已登记：" + "、".join(business_codes))
         return False
     if not apply:
-        raise ValueError(f"BusinessCodeEnum 缺少业务编码：{business_code}；确认后使用 --apply 登记")
+        raise ValueError("BusinessCodeEnum 缺少业务编码：" + "、".join(missing_codes) + "；确认后使用 --apply 登记")
     marker = "    ;\n"
     if marker not in source:
         raise ValueError(f"无法定位 BusinessCodeEnum 枚举结束标记：{enum_path}")
-    enum_path.write_text(source.replace(marker, f'    {business_code}("{business_code}"),\n{marker}', 1), encoding="utf-8")
-    print(f"BusinessCodeEnum 已登记：{business_code}")
+    entries = "".join(f'    {business_code}("{business_code}"),\n' for business_code in missing_codes)
+    enum_path.write_text(source.replace(marker, entries + marker, 1), encoding="utf-8")
+    print("BusinessCodeEnum 已登记：" + "、".join(missing_codes))
     return True
 
 

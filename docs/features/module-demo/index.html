@@ -53,7 +53,7 @@
   <main class="shell">
     <header><div><h1>ERP <span>字段设计器</span></h1><p class="subtitle">粘贴建表 SQL，确认字段页面属性，生成可直接交给业务模块交付 Skill 的字段设计 YAML。</p></div><div class="offline">纯离线运行 · 无外部依赖</div></header>
     <section class="card" aria-labelledby="sourceTitle">
-      <div class="source-grid"><div><label id="sourceTitle" for="sqlInput">建表 SQL <span class="hint">支持 MySQL CREATE TABLE，自动跳过基础字段与索引约束</span></label><textarea id="sqlInput" spellcheck="false" placeholder="CREATE TABLE `demo` (\n  `name` varchar(64) NOT NULL COMMENT '名称',\n  `status` tinyint NOT NULL COMMENT '状态'\n);">CREATE TABLE `demo` (`item_no` varchar(64) NOT NULL COMMENT '编号', `amount` decimal(18,2) NOT NULL COMMENT '金额', `status` tinyint NOT NULL COMMENT '状态', `remark` varchar(255) COMMENT '备注');</textarea></div><div class="side-controls"><button class="button primary" id="parseButton" type="button">解析字段</button><button class="button" id="addButton" type="button">手动新增字段</button><p class="notice">过滤：id、corpid、del、add_time、update_time</p></div></div>
+      <div class="source-grid"><div><label id="sourceTitle" for="sqlInput">主表 SQL <span class="hint">支持 MySQL CREATE TABLE，自动跳过基础字段与索引约束</span></label><textarea id="sqlInput" spellcheck="false" placeholder="CREATE TABLE `demo` (\n  `name` varchar(64) NOT NULL COMMENT '名称',\n  `status` tinyint NOT NULL COMMENT '状态'\n);">CREATE TABLE `demo` (`item_no` varchar(64) NOT NULL COMMENT '编号', `amount` decimal(18,2) NOT NULL COMMENT '金额', `status` tinyint NOT NULL COMMENT '状态', `remark` varchar(255) COMMENT '备注');</textarea><label for="subSqlInput">副表 SQL <span class="hint">可选；可输入多个 CREATE TABLE，分别生成 SUB_ITEM 字段及子档字段</span></label><textarea id="subSqlInput" spellcheck="false" placeholder="CREATE TABLE `demo_item` (\n  `sku_id` bigint NOT NULL COMMENT 'SKU',\n  `quantity` int NOT NULL COMMENT '数量'\n);\n\nCREATE TABLE `demo_gift` (\n  `gift_name` varchar(64) NOT NULL COMMENT '赠品名称'\n);"></textarea></div><div class="side-controls"><button class="button primary" id="parseButton" type="button">解析字段</button><button class="button" id="addButton" type="button">手动新增字段</button><p class="notice">主副表均过滤：id、corpid、del、add_time、update_time</p></div></div>
     </section>
     <div class="section-head"><div><h2>字段配置 <span class="count" id="fieldCount">0</span></h2><p class="notice">关闭“启用”的字段不会写入 YAML；不可筛选类型切换后会自动关闭“可筛选”。</p></div></div>
     <section id="fieldList" aria-live="polite"><div class="empty">请先粘贴 SQL 并点击“解析字段”，或手动新增字段。</div></section>
@@ -118,11 +118,13 @@
       const TYPES = ['TEXT','NUM_INT','NUM_DOUBLE','AMOUNT','DATE','TIME','COMB','COMB_MULTI','CHECKBOX','RADIO_BTN','USER','USER_MULTI','DEPT','DEPT_MULTI','BUSINESS','FILE','IMAGE','ADDRESS','SUB_ITEM','PRODUCT'];
       const OPTION_TYPES = new Set(['COMB','COMB_MULTI','CHECKBOX','RADIO_BTN']);
       const IGNORED = new Set(['id','corpid','del','add_time','update_time']);
+      const CHILD_IGNORED = new Set(['creator_id','modify_id','line_no']);
       const LIST_FILTER_ONLY = new Set(['creator_id','modify_id']);
       let fields = [];
       const $ = (selector) => document.querySelector(selector);
       const escapeHtml = (value) => String(value ?? '').replace(/[&<>"']/g, char => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[char]));
       const camelCase = (name) => name.toLowerCase().replace(/_+([a-z0-9])/g, (_, character) => character.toUpperCase());
+      const displayName = (comment, name) => comment.trim() || name;
       const escapeYaml = (value) => { const text = String(value ?? ''); return /^[A-Za-z0-9_./-]+$/.test(text) ? text : JSON.stringify(text); };
       const setStatus = (message, type = '') => { const node = $('#status'); node.textContent = message; node.className = `status ${type}`; };
       const ACTION_PRESETS = { ADD:{ actionCode:'ADD', actionName:'新建' }, EXPORT:{ actionCode:'EXPORT', actionName:'导出' }, DELETE:{ actionCode:'DELETE', actionName:'删除' } };
@@ -151,23 +153,41 @@
       };
       const isListFilterOnly = field => !field.isChild && LIST_FILTER_ONLY.has(field.name.toLowerCase());
       const normalizeFieldCapabilities = field => { if(isListFilterOnly(field)){ field.scenes=['LIST']; field.required=false; field.editable=false; field.filterable=true; } };
-      const defaultField = (name = 'new_field', dbType = 'varchar(255)', comment = '', isChild = false) => { const lower=name.toLowerCase(); const fieldType = inferType(name, dbType); const optionItems=lower.endsWith('status') ? defaultStatusOptions() : []; const field={ id: cryptoId(), enabled:true, name, dbType, isChild, attr:isChild ? camelCase(name) : `main.${camelCase(name)}`, attrName:comment || name, scenes:isChild ? ['CREATE','UPDATE'] : ['LIST','CREATE','UPDATE'], required:lower.endsWith('_no'), editable:true, filterable:!isChild && !lower.endsWith('remark') && FILTERABLE.has(fieldType), fieldType, extra:JSON.stringify(optionItems), optionItems, subFields:[] }; normalizeFieldCapabilities(field); return field; };
+      const defaultField = (name = 'new_field', dbType = 'varchar(255)', comment = '', isChild = false) => { const lower=name.toLowerCase(); const inferredType = inferType(name, dbType); const fieldType = isChild && (lower === 'sku_id' || lower === 'spu_id') ? 'PRODUCT' : inferredType; const optionItems=lower.endsWith('status') ? defaultStatusOptions() : []; const field={ id: cryptoId(), enabled:true, name, dbType, isChild, attr:isChild ? camelCase(name) : `main.${camelCase(name)}`, attrName:displayName(comment, name), scenes:isChild ? ['CREATE','UPDATE'] : ['LIST','CREATE','UPDATE'], required:lower.endsWith('_no'), editable:true, filterable:!isChild && !lower.endsWith('remark') && FILTERABLE.has(fieldType), fieldType, extra:JSON.stringify(optionItems), optionItems, subFields:[] }; normalizeFieldCapabilities(field); return field; };
       const cryptoId = () => `${Date.now()}-${Math.random().toString(36).slice(2,8)}`;
       const splitColumns = (source) => { const parts=[]; let start=0, depth=0, quote=''; for(let index=0; index<source.length; index++){ const char=source[index]; if(quote){ if(char===quote && source[index-1] !== '\\') quote=''; continue; } if(char==='\'' || char==='"' || char==='`'){ quote=char; continue; } if(char==='(') depth++; else if(char===')') depth=Math.max(0,depth-1); else if(char===',' && depth===0){ parts.push(source.slice(start,index)); start=index+1; } } parts.push(source.slice(start)); return parts; };
-      const parseSql = () => {
-        const sql = $('#sqlInput').value.replace(/\/\*[\s\S]*?\*\//g,' ').replace(/--[^\n]*/g,' ');
+      const parseTable = (source, isChild = false) => {
+        const sql = source.replace(/\/\*[\s\S]*?\*\//g,' ').replace(/--[^\n]*/g,' ');
         const opening = sql.indexOf('('); const closing = sql.lastIndexOf(')');
-        if(opening < 0 || closing <= opening) { setStatus('没有识别到完整的 CREATE TABLE 字段区，请检查 SQL。','error'); return; }
+        if(opening < 0 || closing <= opening) return null;
         const parsed = [];
         splitColumns(sql.slice(opening + 1, closing)).forEach(line => {
           const normalized=line.trim(); if(!normalized || /^(PRIMARY\s+KEY|UNIQUE(?:\s+KEY|\s+INDEX)?|KEY|INDEX|CONSTRAINT|FOREIGN\s+KEY|CHECK)\b/i.test(normalized)) return;
           const match=normalized.match(/^`?([A-Za-z_][A-Za-z0-9_]*)`?\s+([A-Za-z]+(?:\s*\([^)]*\))?)/);
-          if(!match || IGNORED.has(match[1].toLowerCase())) return;
+          if(!match || IGNORED.has(match[1].toLowerCase()) || (isChild && CHILD_IGNORED.has(match[1].toLowerCase()))) return;
           const commentMatch=normalized.match(/\bCOMMENT\s+(?:'((?:\\'|[^'])*)'|"((?:\\"|[^"])*)")/i);
-          const comment=(commentMatch?.[1] ?? commentMatch?.[2] ?? '').replace(/\\(['"])/g,'$1'); parsed.push(defaultField(match[1],match[2],comment));
+          const comment=(commentMatch?.[1] ?? commentMatch?.[2] ?? '').replace(/\\(['"])/g,'$1'); parsed.push(defaultField(match[1],match[2],comment,isChild));
         });
-        if(!parsed.length) { setStatus('未解析到可用字段；请确认字段以“字段名 类型”形式定义。','error'); return; }
-        fields=parsed; const businessCode=tableBusinessCode(sql); const name=tableName(sql); if(businessCode) $('#businessCode').value=businessCode; if(name){ $('#documentTitle').value=tableComment(sql) || name; $('#documentOutputPath').value=`${name}.md`; } render(); setStatus(`已解析 ${fields.length} 个字段，业务编码已按表名生成。`,'success'); if(businessCode) buildRoute();
+        return { sql, fields: parsed, name: tableName(sql), comment: tableComment(sql) };
+      };
+      const splitCreateTables = source => {
+        const starts=[...source.matchAll(/\bCREATE\s+TABLE\b/gi)].map(match=>match.index);
+        return starts.map((start,index)=>source.slice(start,starts[index+1] ?? source.length).trim());
+      };
+      const parseSql = () => {
+        const mainTable = parseTable($('#sqlInput').value);
+        if(!mainTable || !mainTable.fields.length) { setStatus('未解析到主表字段；请确认 SQL 包含完整的 CREATE TABLE 和“字段名 类型”定义。','error'); return; }
+        fields=mainTable.fields;
+        const subSql = $('#subSqlInput').value.trim();
+        if(subSql) {
+          const subTables=splitCreateTables(subSql).map(sql=>parseTable(sql,true));
+          if(!subTables.length || subTables.some(subTable=>!subTable || !subTable.fields.length)) { setStatus('每段副表 SQL 都必须包含完整 CREATE TABLE 和至少一个可用字段。','error'); return; }
+          subTables.forEach((subTable,index) => {
+            const subTableName = subTable.name || `sub_items_${index + 1}`;
+            fields.push({ id:cryptoId(), enabled:true, name:subTableName, dbType:'', isChild:false, attr:camelCase(subTableName), attrName:displayName(subTable.comment, subTableName || '副表明细'), scenes:['CREATE','UPDATE'], required:false, editable:true, filterable:false, fieldType:'SUB_ITEM', extra:'', optionItems:[], subFields:subTable.fields });
+          });
+        }
+        const businessCode=tableBusinessCode(mainTable.sql); if(businessCode) $('#businessCode').value=businessCode; if(mainTable.name){ $('#documentTitle').value=mainTable.comment || mainTable.name; $('#documentOutputPath').value=`${mainTable.name}.md`; } render(); const subItemFields=fields.filter(field=>field.fieldType==='SUB_ITEM'); setStatus(`已解析主表 ${mainTable.fields.length} 个字段${subItemFields.length ? `，${subItemFields.length} 个副表共 ${subItemFields.reduce((total,field)=>total + field.subFields.length,0)} 个子档字段` : ''}。`,'success'); if(businessCode) buildRoute();
       };
       const render = () => { const container=$('#fieldList'); $('#fieldCount').textContent=fields.length; if(!fields.length){ container.innerHTML='<div class="empty">请先粘贴 SQL 并点击“解析字段”，或手动新增字段。</div>'; return; } container.innerHTML=fields.map((field,index) => fieldHtml(field,index)).join(''); bindFieldEvents(); };
       const optionJson = field => JSON.stringify(field.optionItems ?? []);
@@ -191,7 +211,7 @@
       const toggleCustomAction = (position) => { const custom = $(`#${position}ActionPreset`).value === 'CUSTOM'; $(`#${position}CustomFields`).hidden = !custom; };
       const buildYaml = () => { const code=$('#businessCode').value.trim().toUpperCase(); if(!/^[A-Z][A-Z0-9_]*$/.test(code)){ setStatus('业务编码必须为大写字母开头，只能包含大写字母、数字和下划线。','error'); return ''; } const active=fields.filter(field=>field.enabled); if(!active.length){ setStatus('至少启用一个字段后才能生成 YAML。','error'); return ''; } if(active.some(field=>!isValidField(field))){ setStatus('每个启用字段及其子档字段都必须填写 name、attr、attrName，并至少勾选一个场景。','error'); return ''; } const topAction=actionYaml('top',2); const bottomAction=actionYaml('bottom',2); if(!topAction || !bottomAction){ setStatus('自定义列表动作必须填写动作编码和显示名称。','error'); return ''; } const lines=[`businessCode: ${code}`,'fields:']; active.forEach(field=>appendYamlField(lines,field,2)); lines.push('listActions:','  top:',...topAction,'  bottom:',...bottomAction,'  row: []'); const yaml=lines.join('\n')+'\n'; $('#yamlOutput').value=yaml; setStatus(`已生成 ${active.length} 个启用字段的 YAML；可直接保存为字段设计文件。`,'success'); return yaml; };
       const documentPath = () => { const value=$('#documentOutputPath').value.trim().replace(/\\/g,'/'); const parts=value.split('/').filter(Boolean); if(!parts.length || parts.some(part=>part==='.' || part==='..')) return null; const fileName=parts.pop(); return { directories:parts, fileName:fileName.endsWith('.md') ? fileName : `${fileName}.md`, display:value.endsWith('.md') ? value : `${value}.md` }; };
-      const buildDocument = () => { const sql=$('#sqlInput').value.trim(); const name=tableName(sql); const title=$('#documentTitle').value.trim() || tableComment(sql) || name; if(!sql || !name || !fields.length){ setStatus('请先解析完整的建表 SQL，再生成模块指导文档。','error'); return ''; } if(!title){ setStatus('请填写文档标题。','error'); return ''; } const yaml=buildYaml(); const route=buildRoute(); if(!yaml || !route) return ''; const domainAlias=selectedDomainAlias(); const document=`## ${title}\n\n### 业务域\n\n${moduleDomain(domainAlias)}\n\n### sql\n\n\`\`\`sql\n${sql}\n\`\`\`\n\n### ymal\n\n\`\`\`yaml\n${yaml}\`\`\`\n\n### 菜单\n\n\`\`\`json\n${route}\n\`\`\`\n`; $('#documentOutput').value=document; setStatus('模块指导文档已生成。','success'); return document; };
+      const buildDocument = () => { const sql=$('#sqlInput').value.trim(); const name=tableName(sql); const title=$('#documentTitle').value.trim() || tableComment(sql) || name; if(!sql || !name || !fields.length){ setStatus('请先解析完整的建表 SQL，再生成模块指导文档。','error'); return ''; } if(!title){ setStatus('请填写文档标题。','error'); return ''; } const yaml=buildYaml(); const route=buildRoute(); if(!yaml || !route) return ''; const subTables=splitCreateTables($('#subSqlInput').value.trim()); const subSqlSection=subTables.length ? `\n### 副表 sql\n\n${subTables.map((subSql,index)=>`#### 副表 ${index + 1}\n\n\`\`\`sql\n${subSql}\n\`\`\``).join('\n\n')}\n` : ''; const domainAlias=selectedDomainAlias(); const document=`## ${title}\n\n### 业务域\n\n${moduleDomain(domainAlias)}\n\n### sql\n\n\`\`\`sql\n${sql}\n\`\`\`${subSqlSection}\n### ymal\n\n\`\`\`yaml\n${yaml}\`\`\`\n\n### 菜单\n\n\`\`\`json\n${route}\n\`\`\`\n`; $('#documentOutput').value=document; setStatus('模块指导文档已生成。','success'); return document; };
       const downloadDocument = (content, fileName) => { const blob=new Blob([content],{type:'text/markdown;charset=utf-8'}); const link=document.createElement('a'); link.href=URL.createObjectURL(blob); link.download=fileName; link.click(); URL.revokeObjectURL(link.href); };
       const saveDocument = async () => { const document=buildDocument(); const path=documentPath(); if(!document) return; if(!path){ setStatus('输出相对路径不能为空，且不能包含 . 或 .. 目录。','error'); return; } if(!window.showDirectoryPicker){ downloadDocument(document,path.fileName); setStatus(`浏览器不支持目录选择，已下载 ${path.fileName}。`,'success'); return; } try { let directory=await window.showDirectoryPicker({mode:'readwrite'}); for(const part of path.directories) directory=await directory.getDirectoryHandle(part,{create:true}); const file=await directory.getFileHandle(path.fileName,{create:true}); const writer=await file.createWritable(); await writer.write(document); await writer.close(); setStatus(`模块指导文档已保存到所选目录的 ${path.display}。`,'success'); } catch(error) { if(error.name==='AbortError') setStatus('已取消选择输出目录。'); else setStatus(`保存文档失败：${error.message || '浏览器拒绝写入'}。`,'error'); } };
       const addField = () => { fields.push(defaultField()); render(); setStatus('已新增一个手动字段，请补齐字段名、路径和展示名称。','success'); };

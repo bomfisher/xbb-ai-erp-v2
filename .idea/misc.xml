@@ -10,21 +10,8 @@
     <option name="originalFiles">
       <list>
         <option value="$PROJECT_DIR$/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-customer/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-common/pom.xml" />
         <option value="$PROJECT_DIR$/../xbb-ai-erp-v2-front/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-demo/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-master-data/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-purchase/pom.xml" />
       </list>
-    </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/xbb-erp-module-customer/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-demo-sub/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-product/pom.xml" />
-        <option value="$PROJECT_DIR$/xbb-erp-module-supplier/pom.xml" />
-      </set>
     </option>
   </component>
   <component name="ProjectInspectionProfilesVisibleTreeState">

@@ -16,7 +16,7 @@ public class FieldEntity {
     private List<FieldEntity> subField;
     private BusinessSelectConfig businessSelectConfig;
     private SelectionFillConfig selectionFillConfig;
-    private ProductSelectConfig productSelectConfig;
+//    private ProductSelectConfig productSelectConfig;
 
     @Data
     public static class BusinessSelectConfig {

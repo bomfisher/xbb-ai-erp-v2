@@ -7,6 +7,8 @@ import xbb.ai.erp.module.masterdata.admin.vo.WarehouseListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO;
 import xbb.ai.erp.module.masterdata.domain.model.Warehouse;
 
+import java.util.Objects;
+
 public final class WarehouseAdminAssembler {
 
     private WarehouseAdminAssembler() {
@@ -28,8 +30,10 @@ public final class WarehouseAdminAssembler {
             warehouse.setOwnerId(main.getOwnerId());
             warehouse.setEnabled(main.getEnabled());
             warehouse.setRemark(main.getRemark());
-            warehouse.setCreatorId(main.getCreatorId());
-            warehouse.setModifyId(main.getModifyId());
+            if (Objects.isNull(dto.getMain().getId())) {
+                warehouse.setCreatorId(dto.getUserId());
+            }
+            warehouse.setModifyId(dto.getUserId());
         }
         warehouse.setCorpid(dto.getCorpid());
         return warehouse;

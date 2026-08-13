@@ -54,6 +54,20 @@ class ListValueRendererTest {
     assertEquals("成员一", rows.get(1).getCreatorId());
   }
 
+  @Test
+  void shouldRenderDateAndTimeFieldsAsStringsIncludingEmptyValues() {
+    ListValueRenderer renderer =
+        new ListValueRenderer(
+            new ListMetaRegistry(List.of(new DateTimeListMetaProvider())),
+            new ListReferenceValueProviderRegistry(List.of()));
+    List<DateTimeRow> rows = List.of(new DateTimeRow(0L, null));
+
+    renderer.render("corp-001", "DATE_TIME", rows);
+
+    assertEquals("1970-01-01", rows.getFirst().getOrderDate());
+    assertEquals("", rows.getFirst().getExpectedTime());
+  }
+
   private static class TestListMetaProvider implements ListMetaProvider {
     @Override
     public String businessCode() {
@@ -100,6 +114,76 @@ class ListValueRendererTest {
       config.setBusinessCode("ORG_MEMBER");
       field.setBusinessSelectConfig(config);
       return field;
+    }
+  }
+
+  private static class DateTimeListMetaProvider implements ListMetaProvider {
+    @Override
+    public String businessCode() {
+      return "DATE_TIME";
+    }
+
+    @Override
+    public List<FilterField> buildFilterMeta(ListCommonQueryDTO dto) {
+      return List.of();
+    }
+
+    @Override
+    public Map<String, ListFilterMetaPojo> buildFilterConditionMeta(ListCommonQueryDTO dto) {
+      return Map.of();
+    }
+
+    @Override
+    public List<FieldEntity> buildHeaderMeta(ListCommonQueryDTO dto) {
+      return List.of(dateField("main.orderDate", FieldTypeEnum.DATE), dateField("main.expectedTime", FieldTypeEnum.TIME));
+    }
+
+    @Override
+    public ListMetaBundlePojo buildTopButtonMeta(ListCommonQueryDTO dto) {
+      return new ListMetaBundlePojo();
+    }
+
+    @Override
+    public ListMetaBundlePojo buildBottomButtonMeta(ListCommonQueryDTO dto) {
+      return new ListMetaBundlePojo();
+    }
+
+    @Override
+    public ListMetaBundlePojo buildRowActionMeta(ListCommonQueryDTO dto) {
+      return new ListMetaBundlePojo();
+    }
+
+    private FieldEntity dateField(String attr, FieldTypeEnum fieldType) {
+      FieldEntity field = new FieldEntity();
+      field.setAttr(attr);
+      field.setFieldType(String.valueOf(fieldType.getType()));
+      return field;
+    }
+  }
+
+  private static class DateTimeRow {
+    private String orderDate;
+    private String expectedTime;
+
+    private DateTimeRow(Long orderDate, Long expectedTime) {
+      this.orderDate = orderDate == null ? null : String.valueOf(orderDate);
+      this.expectedTime = expectedTime == null ? null : String.valueOf(expectedTime);
+    }
+
+    public String getOrderDate() {
+      return orderDate;
+    }
+
+    public void setOrderDate(String orderDate) {
+      this.orderDate = orderDate;
+    }
+
+    public String getExpectedTime() {
+      return expectedTime;
+    }
+
+    public void setExpectedTime(String expectedTime) {
+      this.expectedTime = expectedTime;
     }
   }
 

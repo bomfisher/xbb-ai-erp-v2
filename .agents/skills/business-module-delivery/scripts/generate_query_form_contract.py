@@ -34,7 +34,7 @@ def enum_constant(field: dict[str, Any]) -> str:
 
 def sub_fields_literal(field: dict[str, Any]) -> str:
     return "List.of(" + ", ".join(
-        f"new SceneFieldMeta({java_string(sub['attr'])}, {java_string(sub['attrName'])}, FieldTypeEnum.{sub['fieldType']}.getType(), {1 if sub['required'] else 0}, {1 if sub['editable'] else 0})"
+        f"new SceneFieldMeta({java_string(sub['attr'])}, {java_string(sub['attrName'])}, FieldTypeEnum.{sub['fieldType']}.getType(), {1 if sub['required'] else 0}, {1 if sub['editable'] else 0}, List.of(), {java_string(sub['businessCode']) if sub.get('businessCode') else 'null'}, List.of())"
         for sub in field.get("subFields", [])
     ) + ")"
 
@@ -147,7 +147,7 @@ public class {aggregate}ListSchemaProvider {{
 '''
 
 
-def render_query(package_base: str, aggregate: str) -> str:
+def render_query(package_base: str, aggregate: str, business_code: str) -> str:
     variable = class_variable(aggregate)
     return f'''package {package_base}.application.service.query;
 
@@ -157,10 +157,12 @@ import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.common.application.util.ListQueryMapUtil;
+import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 import xbb.ai.erp.scene.meta.SceneFieldAssembler;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 import {package_base}.admin.vo.{aggregate}DetailVO;
@@ -176,10 +178,11 @@ public class {aggregate}QueryAppServiceImpl {{
     private final {aggregate}Repository {variable}Repository;
     private final {aggregate}FieldFactory fieldFactory;
     private final {aggregate}ListSchemaProvider schemaProvider;
+    private final ListValueRenderer listValueRenderer;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public {aggregate}QueryAppServiceImpl({aggregate}Repository {variable}Repository, {aggregate}FieldFactory fieldFactory, {aggregate}ListSchemaProvider schemaProvider) {{
-        this.{variable}Repository = {variable}Repository; this.fieldFactory = fieldFactory; this.schemaProvider = schemaProvider;
+    public {aggregate}QueryAppServiceImpl({aggregate}Repository {variable}Repository, {aggregate}FieldFactory fieldFactory, {aggregate}ListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {{
+        this.{variable}Repository = {variable}Repository; this.fieldFactory = fieldFactory; this.schemaProvider = schemaProvider; this.listValueRenderer = listValueRenderer;
     }}
 
     public ListBaseVO<{aggregate}ListItemVO> list(ListBaseDTO dto) {{
@@ -188,7 +191,8 @@ public class {aggregate}QueryAppServiceImpl {{
         List<{aggregate}> list = {variable}Repository.findByCondition(conditionMap);
         Long total = {variable}Repository.count(conditionMap);
         ListBaseVO<{aggregate}ListItemVO> vo = new ListBaseVO<>();
-        vo.setList(list.stream().map({aggregate}AdminAssembler::toListItemVO).toList());
+        List<{aggregate}ListItemVO> items = list.stream().map({aggregate}AdminAssembler::toListItemVO).toList();
+        vo.setList(listValueRenderer.render(dto.getCorpid(), BusinessCodeEnum.{business_code}.getCode(), items));
         vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum(), total == null ? 0 : total.intValue()));
         return vo;
     }}
@@ -216,6 +220,51 @@ public class {aggregate}QueryAppServiceImpl {{
     }}
 }}
 '''
+
+
+def upper_camel(value: str) -> str:
+    return value[:1].upper() + value[1:]
+
+
+def rewrite_list_date_time_contract(source_root: Path, aggregate: str, metadata: dict[str, Any]) -> None:
+    list_fields = [
+        field for field in metadata["fields"]
+        if field["fieldType"] in {"DATE", "TIME"} and "LIST" in field["scenes"]
+    ]
+    if not list_fields:
+        return
+    list_item_vo = source_root / "admin" / "vo" / f"{aggregate}ListItemVO.java"
+    assembler = source_root / "application" / "assembler" / f"{aggregate}AdminAssembler.java"
+    if not list_item_vo.is_file() or not assembler.is_file():
+        missing = [str(path) for path in (list_item_vo, assembler) if not path.is_file()]
+        raise ValueError("缺少列表 DATE/TIME 转字符串所需骨架：" + "、".join(missing))
+
+    list_item_content = list_item_vo.read_text(encoding="utf-8")
+    assembler_content = assembler.read_text(encoding="utf-8")
+    variable = class_variable(aggregate)
+    for field in list_fields:
+        name = field["name"]
+        setter = upper_camel(name)
+        declaration_pattern = rf"(private\s+)[^;\n]+(\s+{re.escape(name)};)"
+        list_item_content, declarations = re.subn(
+            declaration_pattern,
+            r"\1String\2",
+            list_item_content,
+            count=1,
+        )
+        if declarations == 0:
+            raise ValueError(f"未找到列表 VO 字段：{list_item_vo}#{name}")
+        assignment = f"vo.set{setter}({variable}.get{setter}());"
+        replacement = (
+            f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
+            f"String.valueOf({variable}.get{setter}()));"
+        )
+        if assignment not in assembler_content:
+            raise ValueError(f"未找到列表装配赋值：{assembler}#{name}")
+        assembler_content = assembler_content.replace(assignment, replacement, 1)
+
+    list_item_vo.write_text(list_item_content, encoding="utf-8")
+    assembler.write_text(assembler_content, encoding="utf-8")
 
 
 def rewrite_list_contract(path: Path, package_base: str, aggregate: str) -> None:
@@ -268,6 +317,7 @@ def main() -> None:
         raise ValueError("字段元数据校验失败：\n- " + "\n- ".join(errors))
     package_base = property_value(args.spec, "packageBase")
     aggregate = property_value(args.spec, "aggregateName")
+    business_code = property_value(args.spec, "businessCode")
     source_root = args.module_root / "src/main/java" / Path(*package_base.split("."))
     targets = (source_root / "admin" / f"{aggregate}FieldEnum.java", source_root / "application/field" / f"{aggregate}FieldFactory.java", source_root / "application/schema" / f"{aggregate}ListSchemaProvider.java", source_root / "application/service/query" / f"{aggregate}QueryAppServiceImpl.java")
     if not args.apply:
@@ -278,7 +328,8 @@ def main() -> None:
     targets[0].write_text(render_field_enum(metadata, package_base, aggregate), encoding="utf-8")
     targets[1].write_text(render_field_factory(package_base, aggregate), encoding="utf-8")
     targets[2].write_text(render_schema(package_base, aggregate), encoding="utf-8")
-    targets[3].write_text(render_query(package_base, aggregate), encoding="utf-8")
+    targets[3].write_text(render_query(package_base, aggregate, business_code), encoding="utf-8")
+    rewrite_list_date_time_contract(source_root, aggregate, metadata)
     controller = source_root / "admin" / f"{aggregate}AdminController.java"
     service = source_root / "application/service" / f"{aggregate}AdminAppService.java"
     service_impl = source_root / "application/service/impl" / f"{aggregate}AdminAppServiceImpl.java"

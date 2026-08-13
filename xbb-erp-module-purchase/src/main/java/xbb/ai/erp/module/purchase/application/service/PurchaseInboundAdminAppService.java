@@ -10,6 +10,7 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSubmitSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundConfirmDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftLoadDTO;
@@ -33,6 +34,8 @@ public interface PurchaseInboundAdminAppService {
     DraftSaveVO saveDraft(PurchaseInboundDraftSaveDTO dto);
 
     BaseVO saveAndSubmit(PurchaseInboundSubmitSaveDTO dto);
+
+    BaseVO confirmInbound(PurchaseInboundConfirmDTO dto);
 
     List<PurchaseInboundDraftListItemVO> draftList(PurchaseInboundDraftListDTO dto);
 

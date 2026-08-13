@@ -7,10 +7,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 class BaseEntityTest {
 
     @Test
-    void should_use_integer_deleted_flag() {
+    void should_use_integer_del_flag() {
         BaseEntity entity = new BaseEntity();
-        entity.setDeleted(0);
+        entity.setDel(0);
 
-        assertEquals(0, entity.getDeleted());
+        assertEquals(0, entity.getDel());
     }
 }

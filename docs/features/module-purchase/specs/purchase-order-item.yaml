@@ -1,0 +1,32 @@
+moduleDir: purchase
+moduleCode: purchase
+moduleName: 采购订单行
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+admin: false
+application: false
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: PurchaseOrderItem
+  tableName: purchase_order_item
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: purchaseOrderId, column: purchase_order_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: lineNo, column: line_no, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuId, column: sku_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuCode, column: sku_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuName, column: sku_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: specification, column: specification, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: unitName, column: unit_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: qty, column: qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: inboundQty, column: inbound_qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: unitPrice, column: unit_price, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: taxRate, column: tax_rate, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate: { admin: false, application: false, domain: true, persistence: true, xml: true }

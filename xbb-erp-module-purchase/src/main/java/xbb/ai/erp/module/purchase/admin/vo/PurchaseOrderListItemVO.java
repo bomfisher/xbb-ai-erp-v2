@@ -8,8 +8,8 @@ public class PurchaseOrderListItemVO {
     private String orderNo;
     private Long supplierId;
     private String supplierName;
-    private Long orderDate;
-    private Long expectedDate;
+    private String orderDate;
+    private String expectedDate;
     private java.math.BigDecimal totalAmount;
     private String status;
     private String remark;

@@ -2,6 +2,8 @@ package xbb.ai.erp.module.masterdata.application.assembler;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerContactDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerMainDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerSaveDTO;
@@ -34,8 +36,10 @@ public final class CustomerAdminAssembler {
             customer.setAddress(main.getAddress());
             customer.setEnabled(main.getEnabled());
             customer.setRemark(main.getRemark());
-            customer.setCreatorId(main.getCreatorId());
-            customer.setModifyId(main.getModifyId());
+            if (Objects.isNull(dto.getMain().getId())) {
+                customer.setCreatorId(dto.getUserId());
+            }
+            customer.setModifyId(dto.getUserId());
         }
         customer.setCorpid(dto.getCorpid());
         return customer;

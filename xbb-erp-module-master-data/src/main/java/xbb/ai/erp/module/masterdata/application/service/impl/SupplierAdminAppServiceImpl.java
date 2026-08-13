@@ -15,11 +15,13 @@ import xbb.ai.erp.module.masterdata.admin.dto.SupplierSubmitSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftListDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftLoadDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.SupplierBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierDraftListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierDraftDetailVO;
+import xbb.ai.erp.module.masterdata.admin.vo.SupplierBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.service.SupplierAdminAppService;
 import xbb.ai.erp.module.masterdata.application.service.draft.SupplierDraftAppService;
 import xbb.ai.erp.module.masterdata.application.service.query.SupplierQueryAppServiceImpl;
@@ -83,5 +85,20 @@ public class SupplierAdminAppServiceImpl implements SupplierAdminAppService {
     @Override
     public void delete(BatchBaseDTO dto) {
         saveService.delete(dto);
+    }
+
+    @Override
+    public List<SupplierBusinessSelectOptionVO> businessSelectQuickSearch(SupplierBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectQuickSearch(dto);
+    }
+
+    @Override
+    public ListBaseVO<SupplierBusinessSelectOptionVO> businessSelectDialogSearch(SupplierBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectDialogSearch(dto);
+    }
+
+    @Override
+    public SupplierBusinessSelectOptionVO businessSelectGetById(SupplierBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectGetById(dto);
     }
 }

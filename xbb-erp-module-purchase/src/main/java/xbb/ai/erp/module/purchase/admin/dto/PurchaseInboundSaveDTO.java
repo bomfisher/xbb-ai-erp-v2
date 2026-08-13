@@ -2,10 +2,12 @@ package xbb.ai.erp.module.purchase.admin.dto;
 
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import java.util.List;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 
 @Data
 @EqualsAndHashCode(callSuper = true)
 public class PurchaseInboundSaveDTO extends BaseDTO {
     private PurchaseInboundMainDTO main;
+    private List<PurchaseInboundItemDTO> items;
 }

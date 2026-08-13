@@ -48,8 +48,13 @@ public class CustomerSaveAppServiceImpl {
         AdminParamValidator.requireCorpid(dto);
         CustomerValidator.validateSave(dto);
         Customer entity = CustomerAdminAssembler.toCustomer(dto);
-        Long customerId = entity.getId() == null ? customerRepository.insert(entity) : entity.getId();
-        if (entity.getId() != null) customerRepository.update(entity);
+        Long customerId;
+        if (entity.getId() == null) {
+            customerId = customerRepository.insert(entity);
+        } else {
+            customerRepository.update(entity);
+            customerId = entity.getId();
+        }
         List<CustomerContact> contacts = CustomerAdminAssembler.toContacts(dto, customerId);
         customerContactRepository.sync(dto.getCorpid(), customerId, contacts);
         Long defaultContactId = contacts.stream().filter(contact -> Integer.valueOf(1).equals(contact.getDefaultFlag())).map(CustomerContact::getId).findFirst().orElse(null);

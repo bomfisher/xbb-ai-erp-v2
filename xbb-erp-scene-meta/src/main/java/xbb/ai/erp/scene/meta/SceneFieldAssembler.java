@@ -1,8 +1,11 @@
 package xbb.ai.erp.scene.meta;
 
 import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.base.common.filed.FieldTypeEnum;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 
 import java.util.List;
+import java.util.Objects;
 
 public final class SceneFieldAssembler {
 
@@ -22,7 +25,11 @@ public final class SceneFieldAssembler {
         entity.setEditable(definition.getEditable());
         entity.setItemList(definition.getItemList());
         entity.setSubField(buildHeadList(definition.getSubFields()));
-        if (definition.getBusinessCode() != null && !definition.getBusinessCode().isBlank()) {
+        if (Objects.equals(definition.getFieldType(), FieldTypeEnum.PRODUCT.getType())) {
+            FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
+            config.setBusinessCode(definition.getBusinessCode());
+            entity.setBusinessSelectConfig(config);
+        } else if (definition.getBusinessCode() != null && !definition.getBusinessCode().isBlank()) {
             FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
             config.setBusinessCode(definition.getBusinessCode());
             entity.setBusinessSelectConfig(config);

@@ -6,15 +6,23 @@ import lombok.Getter;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum PurchaseInboundFieldEnum {
     INBOUND_NO("main.inboundNo", "inbound_no", FieldTypeEnum.TEXT, "inbound_no", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
-    PURCHASE_ORDER_ID("main.purchaseOrderId", "purchase_order_id", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "PURCHASE_ORDER", List.of()),
+//    PURCHASE_ORDER_ID("main.purchaseOrderId", "purchase_order_id", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "PURCHASE_ORDER", List.of()),
     SUPPLIER_ID("main.supplierId", "supplier_id", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "SUPPLIER", List.of()),
     WAREHOUSE_ID("main.warehouseId", "warehouse_id", FieldTypeEnum.BUSINESS, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "WAREHOUSE", List.of()),
+    ITEMS("items", "入库产品", FieldTypeEnum.SUB_ITEM, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of(
+        new SceneFieldMeta("purchaseOrderItemId", "采购订单行", FieldTypeEnum.BUSINESS.getType(), 1, 1, List.of(), "PURCHASE_ORDER", List.of()),
+        new SceneFieldMeta("skuId", "产品", FieldTypeEnum.PRODUCT.getType(), 1, 1, List.of(), BusinessCodeEnum.PRODUCT_SKU.getCode(), List.of()),
+        new SceneFieldMeta("unitName", "单位", FieldTypeEnum.TEXT.getType(), 1, 0),
+        new SceneFieldMeta("qty", "入库数量", FieldTypeEnum.NUM_DOUBLE.getType(), 1, 1),
+        new SceneFieldMeta("unitPrice", "采购单价", FieldTypeEnum.AMOUNT.getType(), 1, 1),
+        new SceneFieldMeta("costUnit", "成本单价", FieldTypeEnum.AMOUNT.getType(), 0, 1))),
     INBOUND_DATE("main.inboundDate", "inbound_date", FieldTypeEnum.DATE, "inbound_date", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     TOTAL_AMOUNT("main.totalAmount", "total_amount", FieldTypeEnum.AMOUNT, "total_amount", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     STATUS("main.status", "status", FieldTypeEnum.COMB, "status", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "1:启用,0:禁用", null, List.of()),

@@ -15,12 +15,14 @@ import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderSubmitSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftLoadDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderBusinessSelectQueryDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDetailVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDraftListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDraftDetailVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderBusinessSelectOptionVO;
 import xbb.ai.erp.module.purchase.application.service.PurchaseOrderAdminAppService;
 import xbb.ai.erp.module.purchase.application.service.draft.PurchaseOrderDraftAppService;
 import xbb.ai.erp.module.purchase.application.service.query.PurchaseOrderQueryAppServiceImpl;
@@ -68,6 +70,21 @@ public class PurchaseOrderAdminAppServiceImpl implements PurchaseOrderAdminAppSe
     @Override
     public PurchaseOrderDraftDetailVO loadDraft(PurchaseOrderDraftLoadDTO dto) {
         return draftService.loadDraft(dto);
+    }
+
+    @Override
+    public List<PurchaseOrderBusinessSelectOptionVO> businessSelectQuickSearch(PurchaseOrderBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectQuickSearch(dto);
+    }
+
+    @Override
+    public ListBaseVO<PurchaseOrderBusinessSelectOptionVO> businessSelectDialogSearch(PurchaseOrderBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectDialogSearch(dto);
+    }
+
+    @Override
+    public PurchaseOrderBusinessSelectOptionVO businessSelectGetById(PurchaseOrderBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectGetById(dto);
     }
 
     @Override

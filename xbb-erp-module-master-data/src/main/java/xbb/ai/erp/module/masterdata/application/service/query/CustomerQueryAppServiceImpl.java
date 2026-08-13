@@ -2,13 +2,16 @@ package xbb.ai.erp.module.masterdata.application.service.query;
 
 import java.util.List;
 import java.util.Map;
+
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
+import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 import xbb.ai.erp.module.common.application.util.ListQueryMapUtil;
 import xbb.ai.erp.scene.meta.SceneFieldAssembler;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
@@ -27,10 +30,16 @@ public class CustomerQueryAppServiceImpl {
     private final CustomerContactRepository customerContactRepository;
     private final CustomerFieldFactory fieldFactory;
     private final CustomerListSchemaProvider schemaProvider;
+    private final ListValueRenderer listValueRenderer;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public CustomerQueryAppServiceImpl(CustomerRepository customerRepository, CustomerContactRepository customerContactRepository, CustomerFieldFactory fieldFactory, CustomerListSchemaProvider schemaProvider) {
-        this.customerRepository = customerRepository; this.customerContactRepository = customerContactRepository; this.fieldFactory = fieldFactory; this.schemaProvider = schemaProvider;
+
+    public CustomerQueryAppServiceImpl(CustomerRepository customerRepository, CustomerContactRepository customerContactRepository, CustomerFieldFactory fieldFactory, CustomerListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+        this.customerRepository = customerRepository;
+        this.customerContactRepository = customerContactRepository;
+        this.fieldFactory = fieldFactory;
+        this.schemaProvider = schemaProvider;
+        this.listValueRenderer = listValueRenderer;
     }
 
     public ListBaseVO<CustomerListItemVO> list(ListBaseDTO dto) {
@@ -39,6 +48,8 @@ public class CustomerQueryAppServiceImpl {
         List<Customer> list = customerRepository.findByCondition(conditionMap);
         Long total = customerRepository.count(conditionMap);
         ListBaseVO<CustomerListItemVO> vo = new ListBaseVO<>();
+        List<CustomerListItemVO> items = list.stream().map(CustomerAdminAssembler::toListItemVO).toList();
+        vo.setList(listValueRenderer.render(dto.getCorpid(), BusinessCodeEnum.CUSTOMER.getCode(), items));
         vo.setList(list.stream().map(CustomerAdminAssembler::toListItemVO).toList());
         vo.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum(), total == null ? 0 : total.intValue()));
         return vo;

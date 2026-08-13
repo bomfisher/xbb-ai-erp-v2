@@ -1,0 +1,37 @@
+moduleDir: inventory
+moduleCode: inventory
+moduleName: 库存
+packageBase: xbb.ai.erp.module.inventory
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregate:
+  aggregateName: StockCostTransaction
+  tableName: stock_cost_transaction
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true }
+    - { name: corpid, column: corpid, javaType: String }
+    - { name: warehouseId, column: warehouse_id, javaType: Long }
+    - { name: skuId, column: sku_id, javaType: Long }
+    - { name: actionType, column: action_type, javaType: String }
+    - { name: businessCode, column: business_code, javaType: String }
+    - { name: sourceId, column: source_id, javaType: Long }
+    - { name: qtyBefore, column: qty_before, javaType: java.math.BigDecimal }
+    - { name: qtyChange, column: qty_change, javaType: java.math.BigDecimal }
+    - { name: qtyAfter, column: qty_after, javaType: java.math.BigDecimal }
+    - { name: totalCostBefore, column: total_cost_before, javaType: java.math.BigDecimal }
+    - { name: totalCostChange, column: total_cost_change, javaType: java.math.BigDecimal }
+    - { name: totalCostAfter, column: total_cost_after, javaType: java.math.BigDecimal }
+    - { name: unitCostBefore, column: unit_cost_before, javaType: java.math.BigDecimal }
+    - { name: unitCost, column: unit_cost, javaType: java.math.BigDecimal }
+    - { name: unitCostAfter, column: unit_cost_after, javaType: java.math.BigDecimal }
+    - { name: tailDifference, column: tail_difference, javaType: java.math.BigDecimal }
+    - { name: reason, column: reason, javaType: String }
+    - { name: idempotencyKey, column: idempotency_key, javaType: String }
+    - { name: operatorId, column: operator_id, javaType: String }
+    - { name: occurredAt, column: occurred_at, javaType: java.time.LocalDateTime }
+    - { name: del, column: del, javaType: Integer }
+    - { name: addTime, column: add_time, javaType: Long }
+    - { name: updateTime, column: update_time, javaType: Long }
+    - { name: creatorId, column: creator_id, javaType: String }
+    - { name: modifyId, column: modify_id, javaType: String }
+generate: { persistence: true }

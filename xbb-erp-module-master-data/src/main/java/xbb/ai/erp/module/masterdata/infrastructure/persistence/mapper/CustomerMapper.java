@@ -18,7 +18,8 @@ public interface CustomerMapper extends BaseMapper<CustomerPO> {
 
     int update(CustomerPO po);
 
-    int updateDefaultContactId(@Param("corpid") String corpid, @Param("id") Long id, @Param("defaultContactId") Long defaultContactId);
+    int updateDefaultContactId(@Param("corpid") String corpid, @Param("id") Long id,
+                               @Param("defaultContactId") Long defaultContactId, @Param("updateTime") Long updateTime);
 
     CustomerPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 

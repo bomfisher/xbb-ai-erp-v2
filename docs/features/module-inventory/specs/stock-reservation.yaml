@@ -1,0 +1,32 @@
+moduleDir: inventory
+moduleCode: inventory
+moduleName: 库存
+packageBase: xbb.ai.erp.module.inventory
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregate:
+  aggregateName: StockReservation
+  tableName: stock_reservation
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true }
+    - { name: corpid, column: corpid, javaType: String }
+    - { name: warehouseId, column: warehouse_id, javaType: Long }
+    - { name: skuId, column: sku_id, javaType: Long }
+    - { name: sourceType, column: source_type, javaType: String }
+    - { name: sourceId, column: source_id, javaType: Long }
+    - { name: sourceLineId, column: source_line_id, javaType: Long }
+    - { name: reservedQty, column: reserved_qty, javaType: java.math.BigDecimal }
+    - { name: outboundQty, column: outbound_qty, javaType: java.math.BigDecimal }
+    - { name: releasedQty, column: released_qty, javaType: java.math.BigDecimal }
+    - { name: remainingQty, column: remaining_qty, javaType: java.math.BigDecimal }
+    - { name: status, column: status, javaType: String }
+    - { name: reservedAt, column: reserved_at, javaType: java.time.LocalDateTime }
+    - { name: releasedAt, column: released_at, javaType: java.time.LocalDateTime }
+    - { name: idempotencyKey, column: idempotency_key, javaType: String }
+    - { name: version, column: version, javaType: Integer }
+    - { name: del, column: del, javaType: Integer }
+    - { name: addTime, column: add_time, javaType: Long }
+    - { name: updateTime, column: update_time, javaType: Long }
+    - { name: creatorId, column: creator_id, javaType: String }
+    - { name: modifyId, column: modify_id, javaType: String }
+generate: { persistence: true }

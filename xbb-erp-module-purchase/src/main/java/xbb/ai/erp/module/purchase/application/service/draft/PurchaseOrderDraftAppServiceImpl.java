@@ -30,6 +30,7 @@ public class PurchaseOrderDraftAppServiceImpl implements PurchaseOrderDraftAppSe
         PurchaseOrderSaveDraftPojo draft = new PurchaseOrderSaveDraftPojo();
         draft.setCorpid(dto.getCorpid());
         draft.setMain(dto.getMain());
+        draft.setItems(dto.getItems());
         draft.setDraftCode(dto.getDraftMeta().getDraftCode());
         draft.setDraftTitle(dto.getDraftMeta().getDraftTitle());
         String code = repository.saveDraft(draft);
@@ -53,7 +54,7 @@ public class PurchaseOrderDraftAppServiceImpl implements PurchaseOrderDraftAppSe
     public PurchaseOrderDraftDetailVO loadDraft(PurchaseOrderDraftLoadDTO dto) {
         PurchaseOrderSaveDraftPojo draft = repository.loadDraft(dto.getCorpid(), dto.getDraftCode());
         PurchaseOrderDraftDetailVO vo = new PurchaseOrderDraftDetailVO();
-        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); }
+        if (draft != null) { vo.setDraftCode(draft.getDraftCode()); vo.setMain(draft.getMain()); vo.setItems(draft.getItems()); }
         return vo;
     }
 }

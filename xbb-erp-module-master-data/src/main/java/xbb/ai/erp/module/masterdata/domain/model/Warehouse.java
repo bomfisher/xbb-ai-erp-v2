@@ -1,9 +1,10 @@
 package xbb.ai.erp.module.masterdata.domain.model;
 
 import lombok.Data;
+import xbb.ai.erp.base.persistence.entity.BaseEntity;
 
 @Data
-public class Warehouse {
+public class Warehouse extends BaseEntity {
     private Long id;
     private String corpid;
     private String warehouseCode;

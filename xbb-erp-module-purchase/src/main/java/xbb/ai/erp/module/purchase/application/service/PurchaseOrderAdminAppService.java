@@ -13,6 +13,7 @@ import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderSubmitSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderDraftLoadDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderBusinessSelectQueryDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDetailVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO;
@@ -20,6 +21,7 @@ import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDraftListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderDraftDetailVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderBusinessSelectOptionVO;
 
 import java.util.List;
 
@@ -37,6 +39,12 @@ public interface PurchaseOrderAdminAppService {
     List<PurchaseOrderDraftListItemVO> draftList(PurchaseOrderDraftListDTO dto);
 
     PurchaseOrderDraftDetailVO loadDraft(PurchaseOrderDraftLoadDTO dto);
+
+    List<PurchaseOrderBusinessSelectOptionVO> businessSelectQuickSearch(PurchaseOrderBusinessSelectQueryDTO dto);
+
+    ListBaseVO<PurchaseOrderBusinessSelectOptionVO> businessSelectDialogSearch(PurchaseOrderBusinessSelectQueryDTO dto);
+
+    PurchaseOrderBusinessSelectOptionVO businessSelectGetById(PurchaseOrderBusinessSelectQueryDTO dto);
 
     Long save(PurchaseOrderSaveDTO dto);
 

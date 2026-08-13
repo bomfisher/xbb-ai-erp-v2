@@ -1,0 +1,30 @@
+moduleDir: purchase
+moduleCode: purchase
+moduleName: 采购入库单行
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+admin: false
+application: false
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: PurchaseInboundItem
+  tableName: purchase_inbound_item
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: purchaseInboundId, column: purchase_inbound_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: purchaseOrderItemId, column: purchase_order_item_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuId, column: sku_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuName, column: sku_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: unitName, column: unit_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: qty, column: qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: unitPrice, column: unit_price, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: costUnit, column: cost_unit, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: costAmount, column: cost_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate: { admin: false, application: false, domain: true, persistence: true, xml: true }

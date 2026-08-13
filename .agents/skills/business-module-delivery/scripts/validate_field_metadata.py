@@ -15,6 +15,8 @@ FILTERABLE_FIELD_TYPES = {
     "NUM_INT", "NUM_DOUBLE", "AMOUNT", "STOCK", "DATE", "TIME",
 }
 NON_FILTERABLE_FIELD_TYPES = {"FILE", "IMAGE", "ADDRESS", "SUB_ITEM", "PRODUCT"}
+FIXED_BUSINESS_CODES = {"USER": "ORG_MEMBER", "DEPT": "ORG_DEPARTMENT"}
+EXPLICIT_BUSINESS_CODE_FIELD_TYPES = {"BUSINESS", "PRODUCT"}
 FILTER_PROTOCOL_TYPES = {
     "TEXT": "TEXT", "USER": "ID", "DEPT": "ID", "BUSINESS": "BUSINESS",
     "COMB": "ENUM", "RADIO_BTN": "ENUM", "SWITCH": "ENUM",
@@ -86,6 +88,13 @@ def validate(metadata: Dict[str, Any]) -> list[str]:
                 errors.append(f"{prefix}.supportedSymbols 必须为 {expected_symbols}")
         if field.get("fieldType") in NON_FILTERABLE_FIELD_TYPES and field.get("filterName") is not None:
             errors.append(f"{prefix}.fieldType 不支持筛选，filterName 必须为 null")
+        expected_business_code = FIXED_BUSINESS_CODES.get(field.get("fieldType"))
+        if expected_business_code and field.get("businessCode") != expected_business_code:
+            errors.append(f"{prefix}.businessCode 必须为 {expected_business_code}")
+        if field.get("fieldType") in EXPLICIT_BUSINESS_CODE_FIELD_TYPES:
+            business_select_code = field.get("businessCode")
+            if not isinstance(business_select_code, str) or not re.fullmatch(r"[A-Z][A-Z0-9_]*", business_select_code):
+                errors.append(f"{prefix}.businessCode 必须是显式的大写枚举值")
         if field.get("fieldType") == "SUB_ITEM":
             sub_fields = field.get("subFields")
             if not isinstance(sub_fields, list):

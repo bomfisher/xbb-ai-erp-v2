@@ -19,15 +19,19 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.module.common.admin.dto.ListCommonQueryDTO;
 import xbb.ai.erp.module.common.application.provider.ListMetaProvider;
 import xbb.ai.erp.module.common.application.provider.ListMetaRegistry;
 
+@Slf4j
 @Service
 public class ListValueRenderer {
   private static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
@@ -144,10 +148,17 @@ public class ListValueRenderer {
   }
 
   private ListReferenceKey referenceKey(RenderField field) {
+    String businessCode = field.businessCode;
     if (field.businessCode() == null || field.businessCode().isBlank()) {
-      return null;
+      if (Objects.equals(field.fieldType, Objects.toString(FieldTypeEnum.USER.getType()))) {
+        businessCode = BusinessCodeEnum.ORG_MEMBER.getCode();
+      } else if (Objects.equals(field.fieldType, Objects.toString(FieldTypeEnum.USER.getType()))) {
+        businessCode = BusinessCodeEnum.ORG_DEPARTMENT.getCode();
+      } else {
+        return null;
+      }
     }
-    return new ListReferenceKey(normalizeReferenceFieldType(field.fieldType()), field.businessCode());
+    return new ListReferenceKey(normalizeReferenceFieldType(field.fieldType()), businessCode);
   }
 
   private String normalizeReferenceFieldType(String fieldType) {
@@ -167,7 +178,7 @@ public class ListValueRenderer {
 
   private String formatTime(Object value, String fieldType) {
     if (value == null) {
-      return null;
+      return "";
     }
     try {
       long timestamp = Long.parseLong(String.valueOf(value));
@@ -279,8 +290,11 @@ public class ListValueRenderer {
 
     void write(Object row, String value) {
       try {
+        log.info(Objects.toString(row));
+        log.info(Objects.toString(value));
         writer.invoke(row, value);
       } catch (ReflectiveOperationException | IllegalArgumentException exception) {
+        log.error("PropertyAccessor", exception);
         throw new BizException("写入列表展示值失败");
       }
     }

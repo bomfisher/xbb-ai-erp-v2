@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseOrderItemMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, purchase_order_id, line_no, sku_id, sku_code, sku_name, specification, unit_name, qty, inbound_qty, unit_price, tax_rate, amount, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.purchaseOrderId != null">
+            and purchase_order_id = #{conditionMap.purchaseOrderId}
+        </if>
+        <if test="conditionMap.lineNo != null">
+            and line_no = #{conditionMap.lineNo}
+        </if>
+        <if test="conditionMap.skuId != null">
+            and sku_id = #{conditionMap.skuId}
+        </if>
+        <if test="conditionMap.skuCode != null and conditionMap.skuCode != ''">
+            and sku_code = #{conditionMap.skuCode}
+        </if>
+        <if test="conditionMap.skuName != null and conditionMap.skuName != ''">
+            and sku_name = #{conditionMap.skuName}
+        </if>
+        <if test="conditionMap.unitName != null and conditionMap.unitName != ''">
+            and unit_name = #{conditionMap.unitName}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_order_item (
+            corpid, purchase_order_id, line_no, sku_id, sku_code, sku_name, specification, unit_name, qty, inbound_qty, unit_price, tax_rate, amount, del, add_time, update_time, creator_id, modify_id
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.purchaseOrderId}, #{item.lineNo}, #{item.skuId}, #{item.skuCode}, #{item.skuName}, #{item.specification}, #{item.unitName}, #{item.qty}, #{item.inboundQty}, #{item.unitPrice}, #{item.taxRate}, #{item.amount}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update purchase_order_item
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update purchase_order_item
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderItemPO">
+        update purchase_order_item
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="purchaseOrderId != null">purchase_order_id = #{purchaseOrderId},</if>
+            <if test="lineNo != null">line_no = #{lineNo},</if>
+            <if test="skuId != null">sku_id = #{skuId},</if>
+            <if test="skuCode != null">sku_code = #{skuCode},</if>
+            <if test="skuName != null">sku_name = #{skuName},</if>
+            <if test="specification != null">specification = #{specification},</if>
+            <if test="unitName != null">unit_name = #{unitName},</if>
+            <if test="qty != null">qty = #{qty},</if>
+            <if test="inboundQty != null">inbound_qty = #{inboundQty},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="taxRate != null">tax_rate = #{taxRate},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            update_time = #{updateTime},
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderItemPO">
+        select <include refid="BaseColumns"/>
+        from purchase_order_item
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderItemPO">
+        select <include refid="BaseColumns"/>
+        from purchase_order_item
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from purchase_order_item
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

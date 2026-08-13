@@ -12,6 +12,7 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSubmitSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundConfirmDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftLoadDTO;
@@ -58,6 +59,11 @@ public class PurchaseInboundAdminAppServiceImpl implements PurchaseInboundAdminA
     @Override
     public BaseVO saveAndSubmit(PurchaseInboundSubmitSaveDTO dto) {
         return saveService.saveAndSubmit(dto);
+    }
+
+    @Override
+    public BaseVO confirmInbound(PurchaseInboundConfirmDTO dto) {
+        return saveService.confirmInbound(dto);
     }
 
     @Override

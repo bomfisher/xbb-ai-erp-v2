@@ -14,6 +14,7 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftListDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.SupplierBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftLoadDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.SupplierSubmitSaveDTO;
@@ -21,6 +22,7 @@ import xbb.ai.erp.module.masterdata.admin.vo.SupplierDraftDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierDraftListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO;
+import xbb.ai.erp.module.masterdata.admin.vo.SupplierBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.service.SupplierAdminAppService;
 
 import java.util.List;
@@ -65,5 +67,23 @@ public class SupplierAdminController {
     @PostMapping("/loadDraft")
     public ResultVO<SupplierDraftDetailVO> loadDraft(@RequestBody SupplierDraftLoadDTO dto) {
         return ResultVO.success(supplierAdminAppService.loadDraft(dto));
+    }
+
+    @PostMapping("/businessSelect/quickSearch")
+    public ResultVO<List<SupplierBusinessSelectOptionVO>> businessSelectQuickSearch(
+        @RequestBody SupplierBusinessSelectQueryDTO dto) {
+        return ResultVO.success(supplierAdminAppService.businessSelectQuickSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/dialogSearch")
+    public ResultVO<ListBaseVO<SupplierBusinessSelectOptionVO>> businessSelectDialogSearch(
+        @RequestBody SupplierBusinessSelectQueryDTO dto) {
+        return ResultVO.success(supplierAdminAppService.businessSelectDialogSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/getById")
+    public ResultVO<SupplierBusinessSelectOptionVO> businessSelectGetById(
+        @RequestBody SupplierBusinessSelectQueryDTO dto) {
+        return ResultVO.success(supplierAdminAppService.businessSelectGetById(dto));
     }
 }

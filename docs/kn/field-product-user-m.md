@@ -1,6 +1,6 @@
 # PRODUCT 与 USER 字段类型前后端 Harness 指导
 
-> **子档容器协议（2026-08-06）**：在主子档表单中，`fieldType="50"` 表示子档容器，而非具体 SKU 选择器。外层 `attr` 与 `data` 中的数组属性动态对齐，列定义位于 `subField`；具体 SKU 选择使用 `fieldType="12"` 与 `businessSelectConfig`，其中 `productType="product-sku"`、`businessCode` 和 `requestPayload` 描述产品选择上下文。本协议优先于本文后续历史 PRODUCT 选择字段说明。
+> **当前协议（2026-08-12）**：`PRODUCT(50)` 是产品专用选择字段，具体 SKU 选择必须使用 `productSelectConfig`。主子档容器使用 `SUB_ITEM(49)` 和 `subField`，不得复用 `PRODUCT(50)`。
 
 ## 1. 适用范围
 
@@ -127,15 +127,15 @@ field.setProductSelectConfig(config);
 
 | 能力 | 接口 | 返回值 |
 | --- | --- | --- |
-| 快捷搜索 | `POST /erp/v1/product/businessSelect/quickSearch` | `data: BusinessSelectOption[]` |
-| 弹窗搜索 | `POST /erp/v1/product/businessSelect/dialogSearch` | `data: { headList, list, pageHelper }` |
-| 按 ID 回显 | `POST /erp/v1/product/businessSelect/getById` | `data: BusinessSelectOption` 或 `null` |
+| 快捷搜索 | `POST /erp/v1/product/businessSelect/quickSearch` | `data: ProductSelectOption[]` |
+| 弹窗搜索 | `POST /erp/v1/product/businessSelect/dialogSearch` | `data: { list, pageHelper }` |
+| 按 ID 回显 | `POST /erp/v1/product/businessSelect/getById` | `data: ProductSelectOption` 或 `null` |
 
 接口规则：
 
-- `corpid` 为必填上下文；`businessCode` 决定单据场景和 `linePatch` 回填内容。
-- 快捷搜索支持产品编码、名称、助记码或条码等领域定义的关键字。
-- 产品候选至少返回 `id`、`code`、`name`、`label`；明细场景按需返回 `linePatch`。
+- `corpid`、`businessCode`、`productType` 均为必填上下文；当前仅支持 `productType = product-sku`。
+- 快捷搜索支持 SKU 编码和 SKU 名称关键字。
+- 产品候选返回 `id`、`code`、`name`、`label`；当前不返回 `linePatch`。
 - 产品过滤条件（启用状态、可采购/可销售、权限等）由产品领域服务负责。
 - `linePatch` 只能回填后端明确允许的字段，前端不得将候选对象任意字段写入表单。
 

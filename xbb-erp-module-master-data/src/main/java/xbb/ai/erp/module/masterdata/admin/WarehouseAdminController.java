@@ -14,6 +14,7 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftListDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.WarehouseBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftLoadDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseSubmitSaveDTO;
@@ -21,6 +22,7 @@ import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDraftDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDraftListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO;
+import xbb.ai.erp.module.masterdata.admin.vo.WarehouseBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.service.WarehouseAdminAppService;
 
 import java.util.List;
@@ -65,5 +67,23 @@ public class WarehouseAdminController {
     @PostMapping("/loadDraft")
     public ResultVO<WarehouseDraftDetailVO> loadDraft(@RequestBody WarehouseDraftLoadDTO dto) {
         return ResultVO.success(warehouseAdminAppService.loadDraft(dto));
+    }
+
+    @PostMapping("/businessSelect/quickSearch")
+    public ResultVO<List<WarehouseBusinessSelectOptionVO>> businessSelectQuickSearch(
+        @RequestBody WarehouseBusinessSelectQueryDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.businessSelectQuickSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/dialogSearch")
+    public ResultVO<ListBaseVO<WarehouseBusinessSelectOptionVO>> businessSelectDialogSearch(
+        @RequestBody WarehouseBusinessSelectQueryDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.businessSelectDialogSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/getById")
+    public ResultVO<WarehouseBusinessSelectOptionVO> businessSelectGetById(
+        @RequestBody WarehouseBusinessSelectQueryDTO dto) {
+        return ResultVO.success(warehouseAdminAppService.businessSelectGetById(dto));
     }
 }

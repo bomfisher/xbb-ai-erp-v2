@@ -42,11 +42,11 @@
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into customer (
-            corpid, customer_code, customer_name, default_contact_id, address, enabled, remark, creator_id, modify_id
+            corpid, customer_code, customer_name, default_contact_id, address, enabled, remark, creator_id, modify_id, del, add_time, update_time
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.customerCode}, #{item.customerName}, #{item.defaultContactId}, #{item.address}, #{item.enabled}, #{item.remark}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.customerCode}, #{item.customerName}, #{item.defaultContactId}, #{item.address}, #{item.enabled}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
         </foreach>
     </insert>
 
@@ -81,6 +81,7 @@
             <if test="remark != null">remark = #{remark},</if>
             <if test="creatorId != null">creator_id = #{creatorId},</if>
             <if test="modifyId != null">modify_id = #{modifyId},</if>
+            update_time = #{updateTime},
         </set>
         where corpid = #{corpid}
           and id = #{id}
@@ -89,7 +90,7 @@
 
     <update id="updateDefaultContactId">
         update customer
-        set default_contact_id = #{defaultContactId}
+        set default_contact_id = #{defaultContactId}, update_time = #{updateTime}
         where corpid = #{corpid}
           and id = #{id}
           and del = 0

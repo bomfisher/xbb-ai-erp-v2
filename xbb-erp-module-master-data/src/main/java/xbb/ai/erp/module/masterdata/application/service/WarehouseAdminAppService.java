@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseSaveDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.WarehouseBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseSubmitSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftListDTO;
@@ -16,6 +17,7 @@ import xbb.ai.erp.module.masterdata.admin.dto.WarehouseDraftLoadDTO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO;
+import xbb.ai.erp.module.masterdata.admin.vo.WarehouseBusinessSelectOptionVO;
 
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.masterdata.admin.vo.WarehouseDraftListItemVO;
@@ -43,4 +45,10 @@ public interface WarehouseAdminAppService {
     WarehouseDetailVO detail(IdBaseDTO dto);
 
     void delete(BatchBaseDTO dto);
+
+    List<WarehouseBusinessSelectOptionVO> businessSelectQuickSearch(WarehouseBusinessSelectQueryDTO dto);
+
+    ListBaseVO<WarehouseBusinessSelectOptionVO> businessSelectDialogSearch(WarehouseBusinessSelectQueryDTO dto);
+
+    WarehouseBusinessSelectOptionVO businessSelectGetById(WarehouseBusinessSelectQueryDTO dto);
 }

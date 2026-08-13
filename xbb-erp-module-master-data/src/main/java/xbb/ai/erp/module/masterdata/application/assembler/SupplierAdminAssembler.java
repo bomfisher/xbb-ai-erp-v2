@@ -7,6 +7,8 @@ import xbb.ai.erp.module.masterdata.admin.vo.SupplierListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO;
 import xbb.ai.erp.module.masterdata.domain.model.Supplier;
 
+import java.util.Objects;
+
 public final class SupplierAdminAssembler {
 
     private SupplierAdminAssembler() {
@@ -29,8 +31,10 @@ public final class SupplierAdminAssembler {
             supplier.setAddress(main.getAddress());
             supplier.setEnabled(main.getEnabled());
             supplier.setRemark(main.getRemark());
-            supplier.setCreatorId(main.getCreatorId());
-            supplier.setModifyId(main.getModifyId());
+            if (Objects.isNull(dto.getMain().getId())) {
+                supplier.setCreatorId(dto.getUserId());
+            }
+            supplier.setModifyId(dto.getUserId());
         }
         supplier.setCorpid(dto.getCorpid());
         return supplier;

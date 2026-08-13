@@ -14,7 +14,7 @@ public enum WarehouseFieldEnum {
     WAREHOUSE_CODE("main.warehouseCode", "仓库编码", FieldTypeEnum.TEXT, "warehouse_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     WAREHOUSE_NAME("main.warehouseName", "仓库名称", FieldTypeEnum.TEXT, "warehouse_name", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     ADDRESS("main.address", "地址", FieldTypeEnum.ADDRESS, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
-    OWNER_ID("main.ownerId", "仓库负责人", FieldTypeEnum.USER, "owner_id", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    OWNER_ID("main.ownerId", "仓库负责人", FieldTypeEnum.USER, "owner_id", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "ORG_MEMBER", List.of()),
     ENABLED("main.enabled", "启用状态", FieldTypeEnum.COMB, "enabled", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "0:禁用,1:启用", null, List.of()),
     REMARK("main.remark", "备注", FieldTypeEnum.TEXT, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     CREATOR_ID("main.creatorId", "创建人", FieldTypeEnum.USER, "creator_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of()),

@@ -1,0 +1,10 @@
+businessCode: PRODUCT_SPU
+fields:
+  - { name: spu_code, attr: main.spuCode, attrName: 产品SPU编码, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: spu_code }
+  - { name: spu_name, attr: main.spuName, attrName: 产品SPU名称, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: spu_name }
+  - { name: category_name, attr: main.categoryName, attrName: 分类名称, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: category_name }
+  - { name: enabled, attr: main.enabled, attrName: 启用状态, fieldType: COMB, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: '1', filterName: enabled, options: '1:启用,0:禁用' }
+  - { name: remark, attr: main.remark, attrName: 备注, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: remark }
+  - { name: creator_id, attr: main.creatorId, attrName: 创建人, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: creator_id, businessCode: USER }
+  - { name: modify_id, attr: main.modifyId, attrName: 修改人, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: modify_id, businessCode: USER }
+listActions: { top: [{ actionCode: ADD, actionName: 新建 }], bottom: [{ actionCode: DELETE, actionName: 删除 }], row: [] }

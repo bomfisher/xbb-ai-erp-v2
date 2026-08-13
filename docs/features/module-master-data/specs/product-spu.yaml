@@ -1,0 +1,28 @@
+moduleDir: master-data
+moduleCode: module_master_data
+moduleApiName: masterData
+businessName: productSpu
+businessCode: PRODUCT_SPU
+moduleName: 主数据
+packageBase: xbb.ai.erp.module.masterdata
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+admin: true
+application: true
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: ProductSpu
+  tableName: product_spu
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: spuCode, column: spu_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: spuName, column: spu_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: categoryName, column: category_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: enabled, column: enabled, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

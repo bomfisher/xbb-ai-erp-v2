@@ -1,0 +1,29 @@
+moduleDir: master-data
+moduleCode: module_master_data
+moduleName: 主数据
+packageBase: xbb.ai.erp.module.masterdata
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+admin: false
+application: false
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: ProductSku
+  tableName: product_sku
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: spuId, column: spu_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuCode, column: sku_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: skuName, column: sku_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: specification, column: specification, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: unitName, column: unit_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: salePrice, column: sale_price, javaType: BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: purchasePrice, column: purchase_price, javaType: BigDecimal, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: enabled, column: enabled, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: false, application: false, domain: true, persistence: true, xml: true }

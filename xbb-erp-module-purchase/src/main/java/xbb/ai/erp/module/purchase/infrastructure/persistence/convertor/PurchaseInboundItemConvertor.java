@@ -20,6 +20,7 @@ public final class PurchaseInboundItemConvertor {
         po.setSkuId(purchaseInboundItem.getSkuId());
         po.setSkuName(purchaseInboundItem.getSkuName());
         po.setUnitName(purchaseInboundItem.getUnitName());
+        po.setWarehouseId(purchaseInboundItem.getWarehouseId());
         po.setQty(purchaseInboundItem.getQty());
         po.setUnitPrice(purchaseInboundItem.getUnitPrice());
         po.setAmount(purchaseInboundItem.getAmount());
@@ -42,6 +43,7 @@ public final class PurchaseInboundItemConvertor {
         purchaseInboundItem.setSkuId(po.getSkuId());
         purchaseInboundItem.setSkuName(po.getSkuName());
         purchaseInboundItem.setUnitName(po.getUnitName());
+        purchaseInboundItem.setWarehouseId(po.getWarehouseId());
         purchaseInboundItem.setQty(po.getQty());
         purchaseInboundItem.setUnitPrice(po.getUnitPrice());
         purchaseInboundItem.setAmount(po.getAmount());

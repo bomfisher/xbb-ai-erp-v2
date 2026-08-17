@@ -23,6 +23,7 @@ public final class PurchaseInboundConvertor {
         po.setInboundDate(purchaseInbound.getInboundDate());
         po.setTotalAmount(purchaseInbound.getTotalAmount());
         po.setStatus(purchaseInbound.getStatus());
+        po.setAuditStatus(purchaseInbound.getAuditStatus());
         po.setRemark(purchaseInbound.getRemark());
         po.setCreatorId(purchaseInbound.getCreatorId());
         po.setModifyId(purchaseInbound.getModifyId());
@@ -47,6 +48,7 @@ public final class PurchaseInboundConvertor {
         purchaseInbound.setInboundDate(po.getInboundDate());
         purchaseInbound.setTotalAmount(po.getTotalAmount());
         purchaseInbound.setStatus(po.getStatus());
+        purchaseInbound.setAuditStatus(po.getAuditStatus());
         purchaseInbound.setRemark(po.getRemark());
         purchaseInbound.setCreatorId(po.getCreatorId());
         purchaseInbound.setModifyId(po.getModifyId());

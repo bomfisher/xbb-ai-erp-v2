@@ -22,6 +22,9 @@ public final class PurchaseOrderConvertor {
         po.setExpectedDate(purchaseOrder.getExpectedDate());
         po.setTotalAmount(purchaseOrder.getTotalAmount());
         po.setStatus(purchaseOrder.getStatus());
+        po.setAuditStatus(purchaseOrder.getAuditStatus());
+        po.setInboundStatus(purchaseOrder.getInboundStatus());
+        po.setPaymentStatus(purchaseOrder.getPaymentStatus());
         po.setRemark(purchaseOrder.getRemark());
         po.setCreatorId(purchaseOrder.getCreatorId());
         po.setModifyId(purchaseOrder.getModifyId());
@@ -45,6 +48,9 @@ public final class PurchaseOrderConvertor {
         purchaseOrder.setExpectedDate(po.getExpectedDate());
         purchaseOrder.setTotalAmount(po.getTotalAmount());
         purchaseOrder.setStatus(po.getStatus());
+        purchaseOrder.setAuditStatus(po.getAuditStatus());
+        purchaseOrder.setInboundStatus(po.getInboundStatus());
+        purchaseOrder.setPaymentStatus(po.getPaymentStatus());
         purchaseOrder.setRemark(po.getRemark());
         purchaseOrder.setCreatorId(po.getCreatorId());
         purchaseOrder.setModifyId(po.getModifyId());

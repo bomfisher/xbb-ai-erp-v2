@@ -13,6 +13,7 @@ CREATE TABLE `purchase_order_item` (
   `unit_price` decimal(18,6) NOT NULL,
   `tax_rate` decimal(8,4) NOT NULL DEFAULT '0.0000',
   `amount` decimal(18,2) NOT NULL,
+  `inbound_status` tinyint(2) DEFAULT NULL COMMENT '入库状态',
   `del` tinyint(2) NOT NULL DEFAULT '0',
   `add_time` bigint(20) NOT NULL,
   `update_time` bigint(20) NOT NULL,

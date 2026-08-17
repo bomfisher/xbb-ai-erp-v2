@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.system.infrastructure.persistence.mapper.BizNoCounterMapper">
+    <insert id="insertIgnore">
+        INSERT IGNORE INTO sys_biz_no_counter (corpid, business_code, period_key, current_value, add_time, update_time)
+        VALUES (#{corpid}, #{businessCode}, #{periodKey}, 0, UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000, UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000)
+    </insert>
+    <update id="reserve">
+        UPDATE sys_biz_no_counter
+        SET current_value = LAST_INSERT_ID(current_value + #{size}), update_time = UNIX_TIMESTAMP(CURRENT_TIMESTAMP(3)) * 1000
+        WHERE corpid = #{corpid} AND business_code = #{businessCode} AND period_key = #{periodKey}
+    </update>
+    <select id="currentReservedValue" resultType="java.lang.Long">SELECT LAST_INSERT_ID()</select>
+</mapper>

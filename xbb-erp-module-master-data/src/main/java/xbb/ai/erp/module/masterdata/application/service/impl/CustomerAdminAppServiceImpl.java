@@ -11,6 +11,7 @@ import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerSaveDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.CustomerBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerSubmitSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftListDTO;
@@ -20,6 +21,7 @@ import xbb.ai.erp.module.masterdata.admin.vo.CustomerListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerSaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDraftListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDraftDetailVO;
+import xbb.ai.erp.module.masterdata.admin.vo.CustomerBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.service.CustomerAdminAppService;
 import xbb.ai.erp.module.masterdata.application.service.draft.CustomerDraftAppService;
 import xbb.ai.erp.module.masterdata.application.service.query.CustomerQueryAppServiceImpl;
@@ -68,6 +70,21 @@ public class CustomerAdminAppServiceImpl implements CustomerAdminAppService {
     @Override
     public CustomerDraftDetailVO loadDraft(CustomerDraftLoadDTO dto) {
         return draftService.loadDraft(dto);
+    }
+
+    @Override
+    public List<CustomerBusinessSelectOptionVO> businessSelectQuickSearch(CustomerBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectQuickSearch(dto);
+    }
+
+    @Override
+    public ListBaseVO<CustomerBusinessSelectOptionVO> businessSelectDialogSearch(CustomerBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectDialogSearch(dto);
+    }
+
+    @Override
+    public CustomerBusinessSelectOptionVO businessSelectGetById(CustomerBusinessSelectQueryDTO dto) {
+        return queryService.businessSelectGetById(dto);
     }
 
     @Override

@@ -58,6 +58,7 @@ public final class PurchaseInboundAdminAssembler {
         vo.setInboundDate(Objects.isNull(purchaseInbound.getInboundDate()) ? "" : String.valueOf(purchaseInbound.getInboundDate()));
         vo.setTotalAmount(purchaseInbound.getTotalAmount());
         vo.setStatus(purchaseInbound.getStatus());
+        vo.setAuditStatus(Objects.isNull(purchaseInbound.getAuditStatus()) ? "" : String.valueOf(purchaseInbound.getAuditStatus()));
         vo.setRemark(purchaseInbound.getRemark());
         vo.setCreatorId(purchaseInbound.getCreatorId());
         vo.setModifyId(purchaseInbound.getModifyId());
@@ -104,6 +105,7 @@ public final class PurchaseInboundAdminAssembler {
         item.setSkuId(dto.getSkuId());
         item.setSkuName(dto.getSkuName());
         item.setUnitName(dto.getUnitName());
+        item.setWarehouseId(dto.getWarehouseId());
         item.setQty(dto.getQty());
         item.setUnitPrice(dto.getUnitPrice());
         item.setAmount(dto.getQty().multiply(dto.getUnitPrice()).setScale(2, RoundingMode.HALF_UP));
@@ -126,6 +128,7 @@ public final class PurchaseInboundAdminAssembler {
             dto.setSkuId(item.getSkuId());
             dto.setSkuName(item.getSkuName());
             dto.setUnitName(item.getUnitName());
+            dto.setWarehouseId(item.getWarehouseId());
             dto.setQty(item.getQty());
             dto.setUnitPrice(item.getUnitPrice());
             dto.setCostUnit(item.getCostUnit());

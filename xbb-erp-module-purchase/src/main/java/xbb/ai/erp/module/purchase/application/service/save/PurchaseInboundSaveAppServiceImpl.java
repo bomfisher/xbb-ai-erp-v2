@@ -14,9 +14,13 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
+import xbb.ai.erp.base.common.enums.InboundStatusEnum;
 import org.springframework.transaction.annotation.Transactional;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.BaseVO;
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
+import xbb.ai.erp.base.common.enums.PurchaseInboundStatusEnum;
+import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundItemDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSubmitSaveDTO;
@@ -36,6 +40,10 @@ import xbb.ai.erp.module.purchase.domain.model.PurchaseInbound;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseInboundRepository;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseInboundItem;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseInboundItemRepository;
+import xbb.ai.erp.module.purchase.domain.model.PurchaseOrder;
+import xbb.ai.erp.module.purchase.domain.model.PurchaseOrderItem;
+import xbb.ai.erp.module.purchase.domain.repository.PurchaseOrderRepository;
+import xbb.ai.erp.module.purchase.domain.repository.PurchaseOrderItemRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -43,6 +51,8 @@ public class PurchaseInboundSaveAppServiceImpl {
 
     private final PurchaseInboundRepository purchaseInboundRepository;
     private final PurchaseInboundItemRepository purchaseInboundItemRepository;
+    private final PurchaseOrderRepository purchaseOrderRepository;
+    private final PurchaseOrderItemRepository purchaseOrderItemRepository;
 
     private final PurchaseInboundDraftRepository draftRepository;
     private final PurchaseInboundSaveProtocolValidator protocolValidator;
@@ -58,8 +68,12 @@ public class PurchaseInboundSaveAppServiceImpl {
         businessValidator.validateForSubmit(dto);
         rejectPostedInboundModification(dto);
         dto.getMain().setTotalAmount(totalAmount(dto.getItems()));
+        dto.getMain().setStatus(PurchaseInboundStatusEnum.SUBMITTED.getCode());
+        List<PurchaseInboundItem> existingItems = existingItems(dto);
         Long purchaseInboundId = save(dto);
-        syncItems(dto, purchaseInboundId);
+        syncItems(dto, purchaseInboundId, existingItems);
+        updatePurchaseOrderInboundProgress(dto.getMain().getPurchaseOrderId(),
+            inboundQtyChanges(existingItems, dto.getItems()), dto.getCorpid(), dto.getUserId());
         if (!approvalPolicy.requiresApproval(dto.getCorpid())) {
             confirmInbound(purchaseInboundId, dto.getCorpid(), dto.getUserId());
         }
@@ -87,22 +101,24 @@ public class PurchaseInboundSaveAppServiceImpl {
         if (inbound == null) {
             throw new BizException("采购入库单不存在");
         }
-        if ("INVENTORY_POSTED".equals(inbound.getStatus())) {
+        if (PurchaseInboundStatusEnum.INVENTORY_POSTED.getCode().equals(inbound.getStatus())) {
             return;
         }
-        if (!"SUBMITTED".equals(inbound.getStatus())) {
+        if (!PurchaseInboundStatusEnum.SUBMITTED.getCode().equals(inbound.getStatus())) {
             throw new BizException("采购入库单尚未提交，不能确认入库");
         }
+        validateAuditStatus(inbound, corpid);
         List<PurchaseInboundItem> items = purchaseInboundItemRepository.findByCondition(
             Map.of("corpid", corpid, "purchaseInboundId", inboundId));
         if (items.isEmpty()) {
             throw new BizException("采购入库单没有可入账的产品明细");
         }
         List<InboundLine> lines = items.stream().map(item -> new InboundLine(
-            inbound.getWarehouseId(), item.getSkuId(), item.getQty(), item.getCostAmount(), item.getId())).toList();
-        inventoryCommandApi.postInbound(new InboundCommand(corpid, "PURCHASE_INBOUND", inboundId, "PURCHASE_INBOUND",
-            lines, userId, occurredAt(inbound.getInboundDate()), "PURCHASE_INBOUND:" + inboundId + ":POST"));
-        inbound.setStatus("INVENTORY_POSTED");
+            item.getWarehouseId(), item.getSkuId(), item.getQty(), item.getCostAmount(), item.getId())).toList();
+        String businessCode = BusinessCodeEnum.PURCHASE_INBOUND.getCode();
+        inventoryCommandApi.postInbound(new InboundCommand(corpid, businessCode, inboundId, businessCode,
+            lines, userId, occurredAt(inbound.getInboundDate()), businessCode + ":" + inboundId + ":POST"));
+        inbound.setStatus(PurchaseInboundStatusEnum.INVENTORY_POSTED.getCode());
         inbound.setModifyId(userId);
         inbound.setUpdateTime(System.currentTimeMillis());
         purchaseInboundRepository.update(inbound);
@@ -113,7 +129,7 @@ public class PurchaseInboundSaveAppServiceImpl {
             return;
         }
         PurchaseInbound existing = purchaseInboundRepository.findById(dto.getCorpid(), dto.getMain().getId());
-        if (existing != null && "INVENTORY_POSTED".equals(existing.getStatus())) {
+        if (existing != null && PurchaseInboundStatusEnum.INVENTORY_POSTED.getCode().equals(existing.getStatus())) {
             throw new BizException("已确认入库的采购单不可修改，请通过冲销或退货流程处理");
         }
     }
@@ -135,9 +151,8 @@ public class PurchaseInboundSaveAppServiceImpl {
             if (entity.getTotalAmount() == null) {
                 entity.setTotalAmount(BigDecimal.ZERO);
             }
-            if (entity.getStatus() == null || entity.getStatus().isBlank()) {
-                entity.setStatus("SUBMITTED");
-            }
+            entity.setStatus(PurchaseInboundStatusEnum.SUBMITTED.getCode());
+            entity.setAuditStatus(AuditStatusEnum.PENDING.getCode());
             return purchaseInboundRepository.insert(entity);
         }
         purchaseInboundRepository.update(entity);
@@ -150,9 +165,15 @@ public class PurchaseInboundSaveAppServiceImpl {
         }
     }
 
-    private void syncItems(PurchaseInboundSaveDTO dto, Long purchaseInboundId) {
-        List<PurchaseInboundItem> existingItems = purchaseInboundItemRepository.findByCondition(
-            Map.of("corpid", dto.getCorpid(), "purchaseInboundId", purchaseInboundId));
+    private List<PurchaseInboundItem> existingItems(PurchaseInboundSaveDTO dto) {
+        if (dto.getMain().getId() == null) {
+            return List.of();
+        }
+        return purchaseInboundItemRepository.findByCondition(
+            Map.of("corpid", dto.getCorpid(), "purchaseInboundId", dto.getMain().getId()));
+    }
+
+    private void syncItems(PurchaseInboundSaveDTO dto, Long purchaseInboundId, List<PurchaseInboundItem> existingItems) {
         Map<Long, PurchaseInboundItem> existingById = new HashMap<>();
         existingItems.forEach(item -> existingById.put(item.getId(), item));
 
@@ -189,6 +210,93 @@ public class PurchaseInboundSaveAppServiceImpl {
     private static BigDecimal totalAmount(List<PurchaseInboundItemDTO> items) {
         return items.stream().map(item -> item.getQty().multiply(item.getUnitPrice()))
             .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+    }
+
+    private void validateAuditStatus(PurchaseInbound inbound, String corpid) {
+        if (approvalPolicy.requiresApproval(corpid)
+            && !AuditStatusEnum.APPROVED.getCode().equals(inbound.getAuditStatus())) {
+            throw new BizException("采购入库单尚未审核通过，不能确认入库");
+        }
+    }
+
+    private void updatePurchaseOrderInboundProgress(Long purchaseOrderId, Map<Long, BigDecimal> inboundQtyChanges,
+                                                    String corpid, String userId) {
+        if (inboundQtyChanges.isEmpty()) {
+            return;
+        }
+        PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(corpid, purchaseOrderId);
+        if (purchaseOrder == null) {
+            throw new BizException("采购订单不存在，不能更新入库进度");
+        }
+        List<PurchaseOrderItem> orderItems = purchaseOrderItemRepository.findByCondition(
+            Map.of("corpid", corpid, "purchaseOrderId", purchaseOrder.getId()));
+        Map<Long, PurchaseOrderItem> orderItemById = new HashMap<>();
+        orderItems.forEach(item -> orderItemById.put(item.getId(), item));
+        long now = System.currentTimeMillis();
+        for (Map.Entry<Long, BigDecimal> entry : inboundQtyChanges.entrySet()) {
+            PurchaseOrderItem orderItem = orderItemById.get(entry.getKey());
+            if (orderItem == null || !purchaseOrder.getId().equals(orderItem.getPurchaseOrderId())) {
+                throw new BizException("入库产品不属于采购订单");
+            }
+            BigDecimal inboundQty = value(orderItem.getInboundQty()).add(entry.getValue());
+            if (inboundQty.signum() < 0 || inboundQty.compareTo(orderItem.getQty()) > 0) {
+                throw new BizException("入库数量超过采购订单待入库数量");
+            }
+            orderItem.setInboundQty(inboundQty);
+            orderItem.setInboundStatus(inboundStatus(inboundQty, orderItem.getQty()));
+            orderItem.setModifyId(userId);
+            purchaseOrderItemRepository.update(orderItem);
+        }
+        purchaseOrder.setInboundStatus(orderInboundStatus(orderItems));
+        purchaseOrder.setModifyId(userId);
+        purchaseOrder.setUpdateTime(now);
+        purchaseOrderRepository.update(purchaseOrder);
+    }
+
+    private static Map<Long, BigDecimal> inboundQtyChanges(List<PurchaseInboundItem> existingItems,
+                                                            List<PurchaseInboundItemDTO> submittedItems) {
+        Map<Long, BigDecimal> changes = new HashMap<>();
+        for (PurchaseInboundItem existingItem : existingItems) {
+            changes.merge(existingItem.getPurchaseOrderItemId(), existingItem.getQty().negate(), BigDecimal::add);
+        }
+        for (PurchaseInboundItemDTO submittedItem : submittedItems) {
+            changes.merge(submittedItem.getPurchaseOrderItemId(), submittedItem.getQty(), BigDecimal::add);
+        }
+        changes.entrySet().removeIf(entry -> entry.getValue().signum() == 0);
+        return changes;
+    }
+
+    private static Integer orderInboundStatus(List<PurchaseOrderItem> orderItems) {
+        boolean hasInbound = false;
+        boolean allFullyInbounded = !orderItems.isEmpty();
+        for (PurchaseOrderItem orderItem : orderItems) {
+            Integer inboundStatus = inboundStatus(value(orderItem.getInboundQty()), orderItem.getQty());
+            if (!InboundStatusEnum.NOT_INBOUNDED.getCode().equals(inboundStatus)) {
+                hasInbound = true;
+            }
+            if (!InboundStatusEnum.FULLY_INBOUNDED.getCode().equals(inboundStatus)) {
+                allFullyInbounded = false;
+            }
+        }
+        if (allFullyInbounded) {
+            return InboundStatusEnum.FULLY_INBOUNDED.getCode();
+        }
+        return hasInbound ? InboundStatusEnum.PARTIALLY_INBOUNDED.getCode()
+            : InboundStatusEnum.NOT_INBOUNDED.getCode();
+    }
+
+    private static Integer inboundStatus(BigDecimal inboundQty, BigDecimal orderedQty) {
+        if (inboundQty.signum() <= 0) {
+            return InboundStatusEnum.NOT_INBOUNDED.getCode();
+        }
+        if (inboundQty.compareTo(orderedQty) >= 0) {
+            return InboundStatusEnum.FULLY_INBOUNDED.getCode();
+        }
+        return InboundStatusEnum.PARTIALLY_INBOUNDED.getCode();
+    }
+
+    private static BigDecimal value(BigDecimal value) {
+        return value == null ? BigDecimal.ZERO : value;
     }
 
     private static LocalDateTime occurredAt(Long inboundDate) {

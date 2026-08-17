@@ -10,6 +10,7 @@ public class PurchaseInboundItemDTO {
     private Long skuId;
     private String skuName;
     private String unitName;
+    private Long warehouseId;
     private BigDecimal qty;
     private BigDecimal unitPrice;
     private BigDecimal costUnit;

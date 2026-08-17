@@ -56,6 +56,9 @@ public final class PurchaseOrderAdminAssembler {
         vo.setExpectedDate(Objects.isNull(purchaseOrder.getExpectedDate()) ? "" : String.valueOf(purchaseOrder.getExpectedDate()));
         vo.setTotalAmount(purchaseOrder.getTotalAmount());
         vo.setStatus(purchaseOrder.getStatus());
+        vo.setAuditStatus(purchaseOrder.getAuditStatus());
+        vo.setInboundStatus(purchaseOrder.getInboundStatus());
+        vo.setPaymentStatus(purchaseOrder.getPaymentStatus());
         vo.setRemark(purchaseOrder.getRemark());
         vo.setCreatorId(purchaseOrder.getCreatorId());
         vo.setModifyId(purchaseOrder.getModifyId());

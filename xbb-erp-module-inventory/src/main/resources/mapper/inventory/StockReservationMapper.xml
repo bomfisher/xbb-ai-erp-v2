@@ -95,6 +95,27 @@
           and del = 0
     </select>
 
+    <select id="findBySource" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockReservationPO">
+        select <include refid="BaseColumns"/>
+        from stock_reservation
+        where corpid = #{corpid}
+          and source_type = #{sourceType}
+          and source_id = #{sourceId}
+          and del = 0
+        order by warehouse_id, sku_id, source_line_id
+    </select>
+
+    <select id="findBySourceForUpdate" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockReservationPO">
+        select <include refid="BaseColumns"/>
+        from stock_reservation
+        where corpid = #{corpid}
+          and source_type = #{sourceType}
+          and source_id = #{sourceId}
+          and del = 0
+        order by warehouse_id, sku_id, source_line_id
+        for update
+    </select>
+
     <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockReservationPO">
         select <include refid="BaseColumns"/>
         from stock_reservation

@@ -16,12 +16,14 @@ import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftListDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftLoadDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundDraftSaveDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSubmitSaveDTO;
+import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSelectionFillDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundConfirmDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundDraftDetailVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundDraftListItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundListItemVO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundSaveItemVO;
+import xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundSelectionFillVO;
 import xbb.ai.erp.module.purchase.application.service.PurchaseInboundAdminAppService;
 
 import java.util.List;
@@ -46,6 +48,11 @@ public class PurchaseInboundAdminController {
     @PostMapping("/updateItem")
     public ResultVO<SaveItemVO<PurchaseInboundSaveItemVO>> updateItem(@RequestBody IdBaseDTO dto) {
         return ResultVO.success(purchaseInboundAdminAppService.updateItem(dto));
+    }
+
+    @PostMapping("/selectionFill")
+    public ResultVO<PurchaseInboundSelectionFillVO> selectionFill(@RequestBody PurchaseInboundSelectionFillDTO dto) {
+        return ResultVO.success(purchaseInboundAdminAppService.selectionFill(dto));
     }
 
     @PostMapping("/saveDraft")

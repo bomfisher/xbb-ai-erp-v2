@@ -138,6 +138,69 @@
       "options": "1:启用,0:禁用"
     },
     {
+      "name": "auditStatus",
+      "attr": "main.auditStatus",
+      "attrName": "audit_status",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "audit_status",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "0:待审核,1:审核中,2:已审核,3:已拒绝"
+    },
+    {
+      "name": "inboundStatus",
+      "attr": "main.inboundStatus",
+      "attrName": "inbound_status",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "inbound_status",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "0:未入库,1:部分入库,2:全部入库"
+    },
+    {
+      "name": "paymentStatus",
+      "attr": "main.paymentStatus",
+      "attrName": "payment_status",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "payment_status",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "0:未付款,1:部分付款,2:全部付款"
+    },
+    {
       "name": "remark",
       "attr": "main.remark",
       "attrName": "remark",
@@ -180,7 +243,8 @@
         "IN",
         "IS_EMPTY",
         "IS_NOT_EMPTY"
-      ]
+      ],
+      "businessCode": "ORG_MEMBER"
     },
     {
       "name": "modifyId",
@@ -201,7 +265,8 @@
         "IN",
         "IS_EMPTY",
         "IS_NOT_EMPTY"
-      ]
+      ],
+      "businessCode": "ORG_MEMBER"
     }
   ],
   "listActions": {

@@ -72,6 +72,30 @@ def write_metadata(path: Path) -> None:
 
 
 class DeliveryScriptsTest(unittest.TestCase):
+    def test_delivery_validator_rejects_form_attr_drift_from_save_dto(self) -> None:
+        verify_spec = importlib.util.spec_from_file_location("verify_module_delivery", SCRIPTS / "verify_module_delivery.py")
+        verify_module = importlib.util.module_from_spec(verify_spec)
+        verify_spec.loader.exec_module(verify_module)
+        metadata = {
+            "fields": [{
+                "name": "orderItems",
+                "attr": "orderItems",
+                "fieldType": "SUB_ITEM",
+                "subFields": [{"attr": "skuId"}],
+            }],
+        }
+        with tempfile.TemporaryDirectory() as temp_dir:
+            source_root = Path(temp_dir)
+            (source_root / "admin/dto").mkdir(parents=True)
+            (source_root / "admin/dto/SalesOrderSaveDTO.java").write_text(
+                "class SalesOrderSaveDTO { private List<SalesOrderItemDTO> items; }", encoding="utf-8"
+            )
+            (source_root / "admin/dto/SalesOrderItemDTO.java").write_text(
+                "class SalesOrderItemDTO { private Long skuId; }", encoding="utf-8"
+            )
+            errors = verify_module.validate_form_attr_contract(source_root, "SalesOrder", metadata)
+            self.assertIn("attr=orderItems 未在 SalesOrderSaveDTO 中声明", "、".join(errors))
+
     def test_module_dir_controls_maven_module_path(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             spec = Path(temp_dir) / "master-data.yaml"
@@ -190,7 +214,72 @@ class DeliveryScriptsTest(unittest.TestCase):
                 self.assertIn("import xbb.ai.erp.base.common.dto.ListBaseDTO;", content)
                 self.assertNotIn("SalesOrderListDTO", content)
 
-    def test_query_form_contract_generator_converts_only_list_date_time_fields_to_strings(self) -> None:
+    def test_query_form_contract_generator_creates_form_sections_only_when_declared(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            root = Path(temp_dir)
+            metadata = root / "field-metadata.json"
+            spec = root / "sales-order.yaml"
+            module_root = root / "xbb-erp-module-sales-management"
+            write_metadata(metadata)
+            metadata_content = json.loads(metadata.read_text(encoding="utf-8"))
+            metadata_content["formSections"] = [{
+                "key": "basic", "title": "基本信息", "order": 10,
+                "fields": ["main.orderNo"],
+            }]
+            metadata.write_text(json.dumps(metadata_content, ensure_ascii=False), encoding="utf-8")
+            write_spec(spec, "ROOT", "SalesOrder", "sales_order", True, True)
+            source_root = module_root / "src/main/java/xbb/ai/erp/module/sales"
+            for path in (source_root / "admin", source_root / "application/service", source_root / "application/service/impl"):
+                path.mkdir(parents=True, exist_ok=True)
+            for path in (
+                source_root / "admin/SalesOrderAdminController.java",
+                source_root / "application/service/SalesOrderAdminAppService.java",
+                source_root / "application/service/impl/SalesOrderAdminAppServiceImpl.java",
+            ):
+                path.write_text("class Placeholder { void list(SalesOrderListDTO request) {} }\n", encoding="utf-8")
+
+            subprocess.run([
+                "python3", str(SCRIPTS / "generate_query_form_contract.py"), str(metadata), str(spec), str(module_root), "--apply",
+            ], check=True)
+
+            query = (source_root / "application/service/query/SalesOrderQueryAppServiceImpl.java").read_text(encoding="utf-8")
+            factory = (source_root / "application/field/SalesOrderFormSectionFactory.java").read_text(encoding="utf-8")
+            self.assertIn("SalesOrderFormSectionFactory.getSections(SceneTypeEnum.CREATE)", query)
+            self.assertIn("SalesOrderFormSectionFactory.getSections(SceneTypeEnum.UPDATE)", query)
+            self.assertIn('section("basic", "基本信息", 10, 2, false, List.of("main.orderNo"))', factory)
+
+    def test_field_design_generator_preserves_form_sections(self) -> None:
+        with tempfile.TemporaryDirectory() as temp_dir:
+            design = Path(temp_dir) / "field-design.yaml"
+            metadata = Path(temp_dir) / "field-metadata.json"
+            design.write_text("""businessCode: SALES_ORDER
+fields:
+  - name: orderNo
+    attr: main.orderNo
+    attrName: 订单编号
+    fieldType: TEXT
+    scenes: [LIST, CREATE, UPDATE]
+    required: true
+    editable: true
+    defaultValue: null
+    filterName: order_no
+formSections:
+  - key: basic
+    title: 基本信息
+    order: 10
+    fields: [main.orderNo]
+listActions:
+  top: []
+  bottom: []
+  row: []
+""", encoding="utf-8")
+            subprocess.run(["ruby", str(SCRIPTS / "generate_field_metadata.rb"), str(design), str(metadata)], check=True)
+            generated = json.loads(metadata.read_text(encoding="utf-8"))
+            self.assertEqual([{
+                "key": "basic", "title": "基本信息", "order": 10, "fields": ["main.orderNo"],
+            }], generated["formSections"])
+
+    def test_query_form_contract_generator_converts_list_string_fields_and_numeric_values(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:
             root = Path(temp_dir)
             metadata = root / "field-metadata.json"
@@ -212,6 +301,18 @@ class DeliveryScriptsTest(unittest.TestCase):
                         "required": False, "editable": True, "defaultValue": None, "filterName": "delivery_time",
                         "filterFieldType": "TIME", "supportedSymbols": ["GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY"],
                     },
+                    {
+                        "name": "enabled", "attr": "main.enabled", "attrName": "启用状态",
+                        "fieldType": "COMB", "scenes": ["LIST", "CREATE", "UPDATE"],
+                        "required": True, "editable": True, "defaultValue": None, "filterName": "enabled",
+                        "filterFieldType": "ENUM", "supportedSymbols": ["CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY"],
+                    },
+                    {
+                        "name": "tags", "attr": "main.tags", "attrName": "标签",
+                        "fieldType": "COMB_MULTI", "scenes": ["LIST", "CREATE", "UPDATE"],
+                        "required": False, "editable": True, "defaultValue": None, "filterName": "tags",
+                        "filterFieldType": "ENUM_MULTI", "supportedSymbols": ["CONTAINS", "NOT_CONTAINS", "CONTAINS_ALL", "NOT_CONTAINS_ALL", "IS_EMPTY", "IS_NOT_EMPTY"],
+                    },
                 ],
                 "listActions": {"top": [], "bottom": [], "row": []},
             }, ensure_ascii=False), encoding="utf-8")
@@ -225,12 +326,12 @@ class DeliveryScriptsTest(unittest.TestCase):
             ):
                 path.mkdir(parents=True, exist_ok=True)
             (source_root / "admin/vo/SalesOrderListItemVO.java").write_text(
-                "class SalesOrderListItemVO { private Long orderDate; private Long deliveryTime; }\n",
+                "class SalesOrderListItemVO { private Long orderDate; private Long deliveryTime; private Integer enabled; private String tags; private java.math.BigDecimal amount; }\n",
                 encoding="utf-8",
             )
             (source_root / "application/assembler/SalesOrderAdminAssembler.java").write_text(
                 "import java.util.Objects; class SalesOrderAdminAssembler { void toListItemVO(SalesOrder salesOrder, SalesOrderListItemVO vo) { "
-                "vo.setOrderDate(salesOrder.getOrderDate()); vo.setDeliveryTime(salesOrder.getDeliveryTime()); } }\n",
+                "vo.setOrderDate(salesOrder.getOrderDate()); vo.setDeliveryTime(salesOrder.getDeliveryTime()); vo.setEnabled(salesOrder.getEnabled()); vo.setTags(salesOrder.getTags()); vo.setAmount(salesOrder.getAmount()); } }\n",
                 encoding="utf-8",
             )
             for path in (
@@ -248,12 +349,18 @@ class DeliveryScriptsTest(unittest.TestCase):
             assembler = (source_root / "application/assembler/SalesOrderAdminAssembler.java").read_text(encoding="utf-8")
             self.assertIn("private String orderDate;", list_item_vo)
             self.assertIn("private String deliveryTime;", list_item_vo)
-            self.assertIn('vo.setOrderDate(Objects.isNull(salesOrder.getOrderDate()) ? "" : String.valueOf(salesOrder.getOrderDate()));', assembler)
-            self.assertIn('vo.setDeliveryTime(Objects.isNull(salesOrder.getDeliveryTime()) ? "" : String.valueOf(salesOrder.getDeliveryTime()));', assembler)
+            self.assertIn("private String enabled;", list_item_vo)
+            self.assertIn("private String tags;", list_item_vo)
+            self.assertIn("private String amount;", list_item_vo)
+            self.assertIn('vo.setOrderDate(Objects.isNull(salesOrder.getOrderDate()) ? "" : Objects.toString(salesOrder.getOrderDate()));', assembler)
+            self.assertIn('vo.setDeliveryTime(Objects.isNull(salesOrder.getDeliveryTime()) ? "" : Objects.toString(salesOrder.getDeliveryTime()));', assembler)
+            self.assertIn('vo.setEnabled(Objects.isNull(salesOrder.getEnabled()) ? "" : Objects.toString(salesOrder.getEnabled()));', assembler)
+            self.assertIn('vo.setTags(Objects.isNull(salesOrder.getTags()) ? "" : Objects.toString(salesOrder.getTags()));', assembler)
+            self.assertIn('vo.setAmount(Objects.isNull(salesOrder.getAmount()) ? "" : Objects.toString(salesOrder.getAmount()));', assembler)
             verify_spec = importlib.util.spec_from_file_location("verify_module_delivery", SCRIPTS / "verify_module_delivery.py")
             verify_module = importlib.util.module_from_spec(verify_spec)
             verify_spec.loader.exec_module(verify_module)
-            self.assertEqual([], verify_module.validate_list_date_time_string_contract(
+            self.assertEqual([], verify_module.validate_list_string_contract(
                 source_root, "SalesOrder", json.loads(metadata.read_text(encoding="utf-8")),
             ))
 

@@ -1,0 +1,35 @@
+moduleDir: sales
+moduleCode: sales
+moduleApiName: sales
+businessName: salesOutbound
+businessCode: SALES_OUTBOUND
+moduleName: 销售
+packageBase: xbb.ai.erp.module.sales
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregateName: SalesOutbound
+tableName: sales_outbound
+admin: true
+application: true
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: SalesOutbound
+  tableName: sales_outbound
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: outboundNo, column: outbound_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: salesOrderId, column: sales_order_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: customerId, column: customer_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: customerName, column: customer_name, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: warehouseId, column: warehouse_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: outboundDate, column: outbound_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: totalAmount, column: total_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: status, column: status, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: auditStatus, column: audit_status, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

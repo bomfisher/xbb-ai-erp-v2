@@ -19,6 +19,8 @@ public enum BusinessCodeEnum {
     PRODUCT_SKU("PRODUCT_SKU"),
     PURCHASE_ORDER("PURCHASE_ORDER"),
     PURCHASE_INBOUND("PURCHASE_INBOUND"),
+    SALES_ORDER("SALES_ORDER"),
+    SALES_OUTBOUND("SALES_OUTBOUND"),
     ;
 
     private final String code;

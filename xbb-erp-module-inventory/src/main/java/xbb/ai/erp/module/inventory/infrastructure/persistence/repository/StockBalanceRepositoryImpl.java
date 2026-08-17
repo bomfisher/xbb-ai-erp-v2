@@ -68,6 +68,13 @@ public class StockBalanceRepositoryImpl implements StockBalanceRepository {
     }
 
     @Override
+    public List<StockBalance> findByWarehouseAndSkuPairsForUpdate(String corpid, List<StockBalance> stockKeys) {
+        List<StockBalancePO> keys = stockKeys.stream().map(StockBalanceConvertor::toPO).toList();
+        return stockBalanceMapper.findByWarehouseAndSkuPairsForUpdate(corpid, keys).stream()
+            .map(StockBalanceConvertor::toDomain).toList();
+    }
+
+    @Override
     public boolean updateWithVersion(StockBalance stockBalance, Integer expectedVersion) {
         return stockBalanceMapper.updateWithVersion(StockBalanceConvertor.toPO(stockBalance), expectedVersion) == 1;
     }

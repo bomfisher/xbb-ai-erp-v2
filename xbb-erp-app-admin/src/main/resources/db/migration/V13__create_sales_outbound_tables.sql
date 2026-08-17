@@ -1,0 +1,42 @@
+CREATE TABLE `sales_outbound` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `corpid` varchar(64) NOT NULL,
+  `outbound_no` varchar(64) NOT NULL,
+  `sales_order_id` bigint(20) NOT NULL,
+  `customer_id` bigint(20) NOT NULL,
+  `customer_name` varchar(128) NOT NULL,
+  `warehouse_id` bigint(20) NOT NULL,
+  `outbound_date` bigint(20) NOT NULL,
+  `total_amount` decimal(18,2) NOT NULL DEFAULT '0.00',
+  `status` varchar(20) NOT NULL DEFAULT 'DRAFT',
+  `remark` varchar(255) DEFAULT NULL,
+  `del` tinyint(2) NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(64) NOT NULL,
+  `modify_id` varchar(64) NOT NULL,
+  `audit_status` tinyint(2) DEFAULT NULL,
+  PRIMARY KEY (`id`), UNIQUE KEY `uk_sales_outbound_no` (`corpid`,`outbound_no`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='销售出库单头';
+
+CREATE TABLE `sales_outbound_item` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `corpid` varchar(64) NOT NULL,
+  `sales_outbound_id` bigint(20) NOT NULL,
+  `sales_order_item_id` bigint(20) NOT NULL,
+  `sku_id` bigint(20) NOT NULL,
+  `sku_name` varchar(128) NOT NULL,
+  `unit_name` varchar(32) NOT NULL,
+  `qty` decimal(18,6) NOT NULL,
+  `unit_price` decimal(18,6) NOT NULL,
+  `amount` decimal(18,2) NOT NULL,
+  `cost_unit` decimal(18,6) NOT NULL,
+  `cost_amount` decimal(18,2) NOT NULL,
+  `del` tinyint(2) NOT NULL DEFAULT '0',
+  `add_time` bigint(20) NOT NULL,
+  `update_time` bigint(20) NOT NULL,
+  `creator_id` varchar(64) NOT NULL,
+  `modify_id` varchar(64) NOT NULL,
+  `outbound_status` tinyint(2) DEFAULT NULL,
+  PRIMARY KEY (`id`), KEY `idx_sales_outbound_item_sku` (`corpid`,`sku_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='销售出库单行';

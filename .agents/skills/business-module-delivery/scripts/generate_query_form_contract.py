@@ -128,6 +128,49 @@ public class {aggregate}FieldFactory {{
 '''
 
 
+def render_form_section_factory(metadata: dict[str, Any], package_base: str, aggregate: str) -> str:
+    sections = metadata.get("formSections", [])
+    section_literals = ",\n            ".join(
+        "section("
+        f"{java_string(section['key'])}, {java_string(section['title'])}, {section['order']}, "
+        f"{section.get('columns', 2)}, {str(section.get('collapsed', False)).lower()}, "
+        f"List.of({', '.join(java_string(attr) for attr in section['fields'])})"
+        ")"
+        for section in sections
+    )
+    return f'''package {package_base}.application.field;
+
+import java.util.List;
+import xbb.ai.erp.base.common.filed.FormSectionEntity;
+import xbb.ai.erp.scene.meta.SceneTypeEnum;
+
+public final class {aggregate}FormSectionFactory {{
+    private {aggregate}FormSectionFactory() {{
+    }}
+
+    public static List<FormSectionEntity> getSections(SceneTypeEnum scene) {{
+        if (scene != SceneTypeEnum.CREATE && scene != SceneTypeEnum.UPDATE) {{
+            return List.of();
+        }}
+        return List.of(
+            {section_literals}
+        );
+    }}
+
+    private static FormSectionEntity section(String key, String title, int order, int columns, boolean collapsed, List<String> fields) {{
+        FormSectionEntity section = new FormSectionEntity();
+        section.setKey(key);
+        section.setTitle(title);
+        section.setOrder(order);
+        section.setColumns(columns);
+        section.setCollapsed(collapsed);
+        section.setFields(fields);
+        return section;
+    }}
+}}
+'''
+
+
 def render_schema(package_base: str, aggregate: str) -> str:
     return f'''package {package_base}.application.schema;
 
@@ -147,8 +190,11 @@ public class {aggregate}ListSchemaProvider {{
 '''
 
 
-def render_query(package_base: str, aggregate: str, business_code: str) -> str:
+def render_query(package_base: str, aggregate: str, business_code: str, has_form_sections: bool) -> str:
     variable = class_variable(aggregate)
+    form_section_import = f"import {package_base}.application.field.{aggregate}FormSectionFactory;\n" if has_form_sections else ""
+    create_form_sections = f"        vo.setFormSections({aggregate}FormSectionFactory.getSections(SceneTypeEnum.CREATE));\n" if has_form_sections else ""
+    update_form_sections = f"        vo.setFormSections({aggregate}FormSectionFactory.getSections(SceneTypeEnum.UPDATE));\n" if has_form_sections else ""
     return f'''package {package_base}.application.service.query;
 
 import java.util.List;
@@ -169,7 +215,7 @@ import {package_base}.admin.vo.{aggregate}DetailVO;
 import {package_base}.admin.vo.{aggregate}ListItemVO;
 import {package_base}.application.assembler.{aggregate}AdminAssembler;
 import {package_base}.application.field.{aggregate}FieldFactory;
-import {package_base}.application.schema.{aggregate}ListSchemaProvider;
+{form_section_import}import {package_base}.application.schema.{aggregate}ListSchemaProvider;
 import {package_base}.domain.model.{aggregate};
 import {package_base}.domain.repository.{aggregate}Repository;
 
@@ -200,6 +246,7 @@ public class {aggregate}QueryAppServiceImpl {{
     public SaveItemVO<{package_base}.admin.vo.{aggregate}SaveItemVO> addItem(BaseDTO dto) {{
         SaveItemVO<{package_base}.admin.vo.{aggregate}SaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
+{create_form_sections}        vo.setData({aggregate}AdminAssembler.buildEmptySaveItemVO());
         vo.setData({aggregate}AdminAssembler.buildEmptySaveItemVO());
         return vo;
     }}
@@ -209,6 +256,7 @@ public class {aggregate}QueryAppServiceImpl {{
         {aggregate} entity = {variable}Repository.findById(dto.getCorpid(), dto.getId());
         SaveItemVO<{package_base}.admin.vo.{aggregate}SaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.UPDATE)));
+{update_form_sections}        vo.setData({aggregate}AdminAssembler.toSaveItemVO(entity));
         vo.setData({aggregate}AdminAssembler.toSaveItemVO(entity));
         return vo;
     }}
@@ -226,23 +274,36 @@ def upper_camel(value: str) -> str:
     return value[:1].upper() + value[1:]
 
 
-def rewrite_list_date_time_contract(source_root: Path, aggregate: str, metadata: dict[str, Any]) -> None:
+STRING_LIST_FIELD_TYPES = {"DATE", "TIME", "COMB", "COMB_MULTI", "CHECKBOX", "CHECK_BOX", "RADIO_BTN"}
+NUMERIC_JAVA_TYPES = {
+    "byte", "short", "int", "long", "float", "double",
+    "Byte", "Short", "Integer", "Long", "Float", "Double",
+    "java.math.BigInteger", "java.math.BigDecimal",
+}
+
+
+def rewrite_list_string_contract(source_root: Path, aggregate: str, metadata: dict[str, Any]) -> None:
     list_fields = [
         field for field in metadata["fields"]
-        if field["fieldType"] in {"DATE", "TIME"} and "LIST" in field["scenes"]
+        if field["fieldType"] in STRING_LIST_FIELD_TYPES and "LIST" in field["scenes"]
     ]
-    if not list_fields:
-        return
     list_item_vo = source_root / "admin" / "vo" / f"{aggregate}ListItemVO.java"
     assembler = source_root / "application" / "assembler" / f"{aggregate}AdminAssembler.java"
     if not list_item_vo.is_file() or not assembler.is_file():
+        if not list_fields:
+            return
         missing = [str(path) for path in (list_item_vo, assembler) if not path.is_file()]
-        raise ValueError("缺少列表 DATE/TIME 转字符串所需骨架：" + "、".join(missing))
+        raise ValueError("缺少列表转字符串所需骨架：" + "、".join(missing))
 
     list_item_content = list_item_vo.read_text(encoding="utf-8")
     assembler_content = assembler.read_text(encoding="utf-8")
     variable = class_variable(aggregate)
-    for field in list_fields:
+    list_fields_by_name = {field["name"]: field for field in list_fields}
+    for declaration in re.finditer(r"private\s+(?P<type>[\w.]+)\s+(?P<name>\w+);", list_item_content):
+        if declaration.group("type") in NUMERIC_JAVA_TYPES:
+            list_fields_by_name.setdefault(declaration.group("name"), {"name": declaration.group("name")})
+
+    for field in list_fields_by_name.values():
         name = field["name"]
         setter = upper_camel(name)
         declaration_pattern = rf"(private\s+)[^;\n]+(\s+{re.escape(name)};)"
@@ -255,13 +316,25 @@ def rewrite_list_date_time_contract(source_root: Path, aggregate: str, metadata:
         if declarations == 0:
             raise ValueError(f"未找到列表 VO 字段：{list_item_vo}#{name}")
         assignment = f"vo.set{setter}({variable}.get{setter}());"
-        replacement = (
-            f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
-            f"String.valueOf({variable}.get{setter}()));"
-        )
-        if assignment not in assembler_content:
+        if field.get("fieldType") == "DATE":
+            replacement = (
+                f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
+                f"java.time.Instant.ofEpochMilli({variable}.get{setter}()).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString());"
+            )
+        elif field.get("fieldType") == "TIME":
+            replacement = (
+                f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
+                f"java.time.Instant.ofEpochMilli({variable}.get{setter}()).atZone(java.time.ZoneId.systemDefault()).toLocalDateTime().toString());"
+            )
+        else:
+            replacement = (
+                f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
+                f"Objects.toString({variable}.get{setter}()));"
+            )
+        if assignment in assembler_content:
+            assembler_content = assembler_content.replace(assignment, replacement, 1)
+        elif f"vo.set{setter}(Objects.isNull({variable}.get{setter}())" not in assembler_content:
             raise ValueError(f"未找到列表装配赋值：{assembler}#{name}")
-        assembler_content = assembler_content.replace(assignment, replacement, 1)
 
     list_item_vo.write_text(list_item_content, encoding="utf-8")
     assembler.write_text(assembler_content, encoding="utf-8")
@@ -319,7 +392,10 @@ def main() -> None:
     aggregate = property_value(args.spec, "aggregateName")
     business_code = property_value(args.spec, "businessCode")
     source_root = args.module_root / "src/main/java" / Path(*package_base.split("."))
+    has_form_sections = bool(metadata.get("formSections"))
     targets = (source_root / "admin" / f"{aggregate}FieldEnum.java", source_root / "application/field" / f"{aggregate}FieldFactory.java", source_root / "application/schema" / f"{aggregate}ListSchemaProvider.java", source_root / "application/service/query" / f"{aggregate}QueryAppServiceImpl.java")
+    if has_form_sections:
+        targets += (source_root / "application/field" / f"{aggregate}FormSectionFactory.java",)
     if not args.apply:
         print("将生成标准表单/查询契约：" + "、".join(str(target) for target in targets))
         return
@@ -328,8 +404,10 @@ def main() -> None:
     targets[0].write_text(render_field_enum(metadata, package_base, aggregate), encoding="utf-8")
     targets[1].write_text(render_field_factory(package_base, aggregate), encoding="utf-8")
     targets[2].write_text(render_schema(package_base, aggregate), encoding="utf-8")
-    targets[3].write_text(render_query(package_base, aggregate, business_code), encoding="utf-8")
-    rewrite_list_date_time_contract(source_root, aggregate, metadata)
+    targets[3].write_text(render_query(package_base, aggregate, business_code, has_form_sections), encoding="utf-8")
+    if has_form_sections:
+        targets[4].write_text(render_form_section_factory(metadata, package_base, aggregate), encoding="utf-8")
+    rewrite_list_string_contract(source_root, aggregate, metadata)
     controller = source_root / "admin" / f"{aggregate}AdminController.java"
     service = source_root / "application/service" / f"{aggregate}AdminAppService.java"
     service_impl = source_root / "application/service/impl" / f"{aggregate}AdminAppServiceImpl.java"

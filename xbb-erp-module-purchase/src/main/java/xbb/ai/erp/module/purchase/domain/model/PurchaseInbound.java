@@ -14,6 +14,7 @@ public class PurchaseInbound {
     private Long inboundDate;
     private java.math.BigDecimal totalAmount;
     private String status;
+    private Integer auditStatus;
     private String remark;
     private String creatorId;
     private String modifyId;

@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.system.infrastructure.persistence.mapper.BizNoRuleMapper">
+    <select id="findByKey" resultType="xbb.ai.erp.module.system.infrastructure.persistence.po.BizNoRulePO">
+        SELECT id, corpid, business_code AS businessCode, prefix, rule_type AS ruleType, del, add_time AS addTime, update_time AS updateTime
+        FROM sys_biz_no_rule
+        WHERE business_code = #{businessCode}
+          AND corpid IN (#{corpid}, '0')
+          AND del = 0
+        ORDER BY CASE WHEN corpid = #{corpid} THEN 0 ELSE 1 END
+        LIMIT 1
+    </select>
+    <select id="findOwnByKey" resultType="xbb.ai.erp.module.system.infrastructure.persistence.po.BizNoRulePO">
+        SELECT id, corpid, business_code AS businessCode, prefix, rule_type AS ruleType, del, add_time AS addTime, update_time AS updateTime
+        FROM sys_biz_no_rule
+        WHERE corpid = #{corpid} AND business_code = #{businessCode} AND del = 0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_biz_no_rule (corpid, business_code, prefix, rule_type, del, add_time, update_time)
+        VALUES (#{corpid}, #{businessCode}, #{prefix}, #{ruleType}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+    <update id="update">
+        UPDATE sys_biz_no_rule SET prefix = #{prefix}, rule_type = #{ruleType}, update_time = #{updateTime} WHERE id = #{id}
+    </update>
+</mapper>

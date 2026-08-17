@@ -15,6 +15,7 @@ public class PurchaseInboundItemPO extends BaseEntity {
     private Long skuId;
     private String skuName;
     private String unitName;
+    private Long warehouseId;
     private java.math.BigDecimal qty;
     private java.math.BigDecimal unitPrice;
     private java.math.BigDecimal amount;

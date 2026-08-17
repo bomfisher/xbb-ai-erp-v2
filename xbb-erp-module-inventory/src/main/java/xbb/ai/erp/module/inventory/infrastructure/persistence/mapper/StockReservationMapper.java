@@ -20,6 +20,12 @@ public interface StockReservationMapper extends BaseMapper<StockReservationPO> {
 
     StockReservationPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
+    List<StockReservationPO> findBySource(@Param("corpid") String corpid, @Param("sourceType") String sourceType,
+                                          @Param("sourceId") Long sourceId);
+
+    List<StockReservationPO> findBySourceForUpdate(@Param("corpid") String corpid, @Param("sourceType") String sourceType,
+                                                    @Param("sourceId") Long sourceId);
+
     List<StockReservationPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);

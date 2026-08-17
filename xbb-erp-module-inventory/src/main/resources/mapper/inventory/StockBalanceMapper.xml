@@ -103,6 +103,16 @@
         </foreach>
     </select>
 
+    <select id="findByWarehouseAndSkuPairsForUpdate" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+        select <include refid="BaseColumns"/> from stock_balance
+        where corpid = #{corpid} and del = 0 and (warehouse_id, sku_id) in
+        <foreach collection="stockKeys" item="key" open="(" separator="," close=")">
+            (#{key.warehouseId}, #{key.skuId})
+        </foreach>
+        order by warehouse_id, sku_id
+        for update
+    </select>
+
     <update id="updateWithVersion">
         update stock_balance set qty = #{po.qty}, locked_qty = #{po.lockedQty}, available_qty = #{po.availableQty},
             total_cost = #{po.totalCost}, unit_cost = #{po.unitCost}, version = #{po.version},
@@ -127,4 +137,12 @@
         from stock_balance
         where <include refid="BaseCondition"/>
     </select>
+    <sql id="StockQueryWhere">b.corpid = #{query.corpid} and b.del = 0
+        <if test="query.showZero == null or query.showZero != 1">and b.qty &lt;&gt; 0</if>
+        <if test="query.skuId != null">and b.sku_id = #{query.skuId}</if><if test="query.warehouseId != null">and b.warehouse_id = #{query.warehouseId}</if>
+        <if test="query.categoryName != null and query.categoryName != ''">and p.category_name = #{query.categoryName}</if><if test="query.specification != null and query.specification != ''">and s.specification like concat('%', #{query.specification}, '%')</if>
+        <if test="query.minQty != null">and b.qty &gt;= #{query.minQty}</if><if test="query.maxQty != null">and b.qty &lt;= #{query.maxQty}</if><if test="query.minAvailableQty != null">and b.available_qty &gt;= #{query.minAvailableQty}</if><if test="query.maxAvailableQty != null">and b.available_qty &lt;= #{query.maxAvailableQty}</if>
+        <if test="query.showDisabled == null or query.showDisabled != 1">and s.enabled = 1 and p.enabled = 1</if></sql>
+    <select id="queryList" resultType="xbb.ai.erp.module.inventory.admin.vo.StockQueryItemVO">select b.id,b.sku_id skuId,s.sku_code skuCode,s.sku_name skuName,p.category_name categoryName,s.specification,b.warehouse_id warehouseId,w.warehouse_code warehouseCode,w.warehouse_name warehouseName,b.qty,b.locked_qty lockedQty,b.available_qty availableQty,b.total_cost totalCost,b.unit_cost unitCost from stock_balance b join product_sku s on s.corpid=b.corpid and s.id=b.sku_id and s.del=0 join product_spu p on p.corpid=b.corpid and p.id=s.spu_id and p.del=0 join warehouse w on w.corpid=b.corpid and w.id=b.warehouse_id and w.del=0 where <include refid="StockQueryWhere"/> order by b.warehouse_id,b.sku_id limit #{offset},#{pageSize}</select>
+    <select id="queryCount" resultType="java.lang.Long">select count(1) from stock_balance b join product_sku s on s.corpid=b.corpid and s.id=b.sku_id and s.del=0 join product_spu p on p.corpid=b.corpid and p.id=s.spu_id and p.del=0 join warehouse w on w.corpid=b.corpid and w.id=b.warehouse_id and w.del=0 where <include refid="StockQueryWhere"/></select>
 </mapper>

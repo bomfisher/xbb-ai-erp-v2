@@ -120,6 +120,48 @@ def validate(metadata: Dict[str, Any]) -> list[str]:
         for index, field in enumerate(fields):
             validate_field(field, f"fields[{index}]")
 
+    form_sections = metadata.get("formSections")
+    if form_sections is not None:
+        if not isinstance(form_sections, list):
+            errors.append("formSections 必须是数组")
+        else:
+            form_attrs = {
+                field.get("attr") for field in fields if isinstance(field, dict)
+                and isinstance(field.get("attr"), str)
+                and any(scene in {"CREATE", "UPDATE"} for scene in field.get("scenes", []))
+            }
+            keys: list[str] = []
+            orders: list[int] = []
+            assigned_attrs: list[str] = []
+            for index, section in enumerate(form_sections):
+                prefix = f"formSections[{index}]"
+                if not isinstance(section, dict):
+                    errors.append(f"{prefix} 必须是对象")
+                    continue
+                for key in ("key", "title"):
+                    require_string(section.get(key), f"{prefix}.{key}", errors)
+                if not isinstance(section.get("order"), int):
+                    errors.append(f"{prefix}.order 必须是整数")
+                if "columns" in section and (not isinstance(section["columns"], int) or section["columns"] <= 0):
+                    errors.append(f"{prefix}.columns 必须是正整数")
+                if "collapsed" in section and not isinstance(section["collapsed"], bool):
+                    errors.append(f"{prefix}.collapsed 必须是布尔值")
+                if not isinstance(section.get("fields"), list) or not section["fields"]:
+                    errors.append(f"{prefix}.fields 必须是非空数组")
+                    continue
+                invalid_attrs = [attr for attr in section["fields"] if not isinstance(attr, str) or attr not in form_attrs]
+                if invalid_attrs:
+                    errors.append(f"{prefix}.fields 只能引用 CREATE/UPDATE 字段 attr：{'、'.join(map(str, invalid_attrs))}")
+                keys.append(section.get("key"))
+                orders.append(section.get("order"))
+                assigned_attrs.extend(section["fields"])
+            if len(keys) != len(set(keys)):
+                errors.append("formSections.key 不能重复")
+            if len(orders) != len(set(orders)):
+                errors.append("formSections.order 不能重复")
+            if len(assigned_attrs) != len(set(assigned_attrs)):
+                errors.append("formSections.fields 不能重复引用同一字段")
+
     actions = metadata.get("listActions")
     if not isinstance(actions, dict):
         errors.append("缺少明确输入：listActions")

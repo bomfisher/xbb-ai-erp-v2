@@ -27,6 +27,7 @@ public final class PurchaseOrderItemConvertor {
         po.setUnitPrice(purchaseOrderItem.getUnitPrice());
         po.setTaxRate(purchaseOrderItem.getTaxRate());
         po.setAmount(purchaseOrderItem.getAmount());
+        po.setInboundStatus(purchaseOrderItem.getInboundStatus());
         po.setCreatorId(purchaseOrderItem.getCreatorId());
         po.setModifyId(purchaseOrderItem.getModifyId());
         return po;
@@ -51,6 +52,7 @@ public final class PurchaseOrderItemConvertor {
         purchaseOrderItem.setUnitPrice(po.getUnitPrice());
         purchaseOrderItem.setTaxRate(po.getTaxRate());
         purchaseOrderItem.setAmount(po.getAmount());
+        purchaseOrderItem.setInboundStatus(po.getInboundStatus());
         purchaseOrderItem.setCreatorId(po.getCreatorId());
         purchaseOrderItem.setModifyId(po.getModifyId());
         return purchaseOrderItem;

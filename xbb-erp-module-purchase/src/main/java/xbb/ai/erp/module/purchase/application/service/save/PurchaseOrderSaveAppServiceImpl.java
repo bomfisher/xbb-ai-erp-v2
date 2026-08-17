@@ -11,6 +11,9 @@ import java.util.Map;
 import java.util.Set;
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
+import xbb.ai.erp.base.common.enums.InboundStatusEnum;
+import xbb.ai.erp.base.common.enums.PaymentStatusEnum;
 import org.springframework.transaction.annotation.Transactional;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.BaseVO;
@@ -66,6 +69,9 @@ public class PurchaseOrderSaveAppServiceImpl {
             if (entity.getSupplierName() == null || entity.getSupplierName().isBlank()) entity.setSupplierName("MOCK");
             if (entity.getTotalAmount() == null) entity.setTotalAmount(BigDecimal.ZERO);
             if (entity.getStatus() == null || entity.getStatus().isBlank()) entity.setStatus("1");
+            entity.setAuditStatus(AuditStatusEnum.PENDING.getCode());
+            entity.setInboundStatus(InboundStatusEnum.NOT_INBOUNDED.getCode());
+            entity.setPaymentStatus(PaymentStatusEnum.NOT_PAID.getCode());
             return purchaseOrderRepository.insert(entity);
         }
         purchaseOrderRepository.update(entity);

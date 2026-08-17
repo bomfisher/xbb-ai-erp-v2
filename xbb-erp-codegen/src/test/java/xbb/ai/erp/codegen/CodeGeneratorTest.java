@@ -10,6 +10,7 @@ import xbb.ai.erp.codegen.generator.DddModuleLayoutPlanner;
 import xbb.ai.erp.codegen.spec.ModuleSpec;
 import xbb.ai.erp.codegen.spec.ModuleSpecLoader;
 import xbb.ai.erp.codegen.spec.SpecValidator;
+import xbb.ai.erp.codegen.template.TemplateRenderer;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -88,7 +89,10 @@ class CodeGeneratorTest {
         assertTrue(repositoryContent.contains("customerList.get(index).setId(poList.get(index).getId());"));
         assertTrue(poContent.contains("extends BaseEntity"));
         String assemblerContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/assembler/CustomerAdminAssembler.java"));
+        String listItemVoContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/admin/vo/CustomerListItemVO.java"));
         assertTrue(assemblerContent.contains("import java.util.Objects;"));
+        assertTrue(listItemVoContent.contains("private String id;"));
+        assertTrue(assemblerContent.contains("vo.setId(Objects.isNull(customer.getId()) ? \"\" : Objects.toString(customer.getId()));"));
         assertTrue(assemblerContent.contains("if (Objects.isNull(main.getId()))"));
         assertTrue(assemblerContent.contains("customer.setCreatorId(dto.getUserId());"));
         assertTrue(assemblerContent.contains("customer.setModifyId(dto.getUserId());"));
@@ -100,6 +104,23 @@ class CodeGeneratorTest {
         assertFalse(controllerContent.contains("@PostMapping(\"/save\")"));
         assertTrue(xmlContent.contains("xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"));
         assertTrue(providerContent.contains("implements ListMetaProvider"));
+    }
+
+    @Test
+    void should_render_temporal_list_values_as_null_safe_strings() throws Exception {
+        ModuleSpec moduleSpec = new ModuleSpecLoader().load(Path.of("src/main/resources/examples/customer-module.yaml"));
+        moduleSpec.getAggregate().getFields().stream()
+            .filter(field -> "customerCode".equals(field.getName()))
+            .findFirst()
+            .orElseThrow()
+            .setJavaType("LocalDateTime");
+
+        TemplateRenderer renderer = new TemplateRenderer();
+        String listItemVo = renderer.renderListItemVO(moduleSpec);
+        String assembler = renderer.renderAdminAssembler(moduleSpec);
+
+        assertTrue(listItemVo.contains("private String customerCode;"));
+        assertTrue(assembler.contains("vo.setCustomerCode(Objects.isNull(customer.getCustomerCode()) ? \"\" : Objects.toString(customer.getCustomerCode()));"));
     }
 
     @Test

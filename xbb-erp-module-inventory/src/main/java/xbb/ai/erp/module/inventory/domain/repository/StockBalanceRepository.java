@@ -22,6 +22,8 @@ public interface StockBalanceRepository {
 
     List<StockBalance> findByWarehouseAndSkuPairs(String corpid, List<StockBalance> stockKeys);
 
+    List<StockBalance> findByWarehouseAndSkuPairsForUpdate(String corpid, List<StockBalance> stockKeys);
+
     boolean updateWithVersion(StockBalance stockBalance, Integer expectedVersion);
 
     List<StockBalance> findByCondition(Map<String, Object> conditionMap);

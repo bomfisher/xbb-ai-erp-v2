@@ -6,6 +6,9 @@ fields:
   - { name: expectedDate, attr: main.expectedDate, attrName: expected_date, fieldType: DATE, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: expected_date }
   - { name: totalAmount, attr: main.totalAmount, attrName: total_amount, fieldType: AMOUNT, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: total_amount }
   - { name: status, attr: main.status, attrName: status, fieldType: COMB, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: status, options: "1:启用,0:禁用" }
+  - { name: auditStatus, attr: main.auditStatus, attrName: audit_status, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: audit_status, options: "0:待审核,1:审核中,2:已审核,3:已拒绝" }
+  - { name: inboundStatus, attr: main.inboundStatus, attrName: inbound_status, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: inbound_status, options: "0:未入库,1:部分入库,2:全部入库" }
+  - { name: paymentStatus, attr: main.paymentStatus, attrName: payment_status, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: payment_status, options: "0:未付款,1:部分付款,2:全部付款" }
   - { name: remark, attr: main.remark, attrName: remark, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: remark }
   - { name: creatorId, attr: main.creatorId, attrName: creator_id, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: creator_id, businessCode: ORG_MEMBER }
   - { name: modifyId, attr: main.modifyId, attrName: modify_id, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: modify_id, businessCode: ORG_MEMBER }

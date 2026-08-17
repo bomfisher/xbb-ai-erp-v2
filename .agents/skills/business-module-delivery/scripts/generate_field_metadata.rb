@@ -101,10 +101,39 @@ actions = design["listActions"]
 fail_with("缺少 listActions") unless actions.is_a?(Hash)
 %w[top bottom row].each { |group| fail_with("缺少 listActions.#{group}") unless actions[group].is_a?(Array) }
 
+form_sections = design["formSections"]
+unless form_sections.nil?
+  fail_with("formSections 必须是数组") unless form_sections.is_a?(Array)
+  form_attrs = normalized_fields.select { |field| (field["scenes"] & %w[CREATE UPDATE]).any? }.map { |field| field["attr"] }
+  keys = []
+  orders = []
+  assigned_attrs = []
+  form_sections.each_with_index do |section, index|
+    path = "formSections[#{index}]"
+    fail_with("#{path} 必须是对象") unless section.is_a?(Hash)
+    %w[key title order fields].each { |key| fail_with("#{path} 缺少 #{key}") unless section.key?(key) }
+    fail_with("#{path}.key 必须是非空字符串") unless section["key"].is_a?(String) && !section["key"].strip.empty?
+    fail_with("#{path}.title 必须是非空字符串") unless section["title"].is_a?(String) && !section["title"].strip.empty?
+    fail_with("#{path}.order 必须是整数") unless section["order"].is_a?(Integer)
+    fail_with("#{path}.fields 必须是非空数组") unless section["fields"].is_a?(Array) && !section["fields"].empty?
+    fail_with("#{path}.columns 必须是正整数") if section.key?("columns") && (!section["columns"].is_a?(Integer) || section["columns"] <= 0)
+    fail_with("#{path}.collapsed 必须是布尔值") if section.key?("collapsed") && ![true, false].include?(section["collapsed"])
+    invalid_attrs = section["fields"].reject { |attr| attr.is_a?(String) && form_attrs.include?(attr) }
+    fail_with("#{path}.fields 只能引用 CREATE/UPDATE 字段 attr：#{invalid_attrs.join('、')}") unless invalid_attrs.empty?
+    keys << section["key"]
+    orders << section["order"]
+    assigned_attrs.concat(section["fields"])
+  end
+  fail_with("formSections.key 不能重复") unless keys.uniq.size == keys.size
+  fail_with("formSections.order 不能重复") unless orders.uniq.size == orders.size
+  fail_with("formSections.fields 不能重复引用同一字段") unless assigned_attrs.uniq.size == assigned_attrs.size
+end
+
 metadata = {
   "businessCode" => business_code,
   "fields" => normalized_fields,
   "listActions" => actions.slice("top", "bottom", "row")
 }
+metadata["formSections"] = form_sections unless form_sections.nil?
 File.write(output_path, JSON.pretty_generate(metadata) + "\n")
 puts "字段元数据已生成：#{output_path}"

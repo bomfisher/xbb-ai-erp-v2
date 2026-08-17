@@ -51,3 +51,12 @@
 - 用途：客户草稿加载
 - 差异点：返回完整编辑态数据与 `sectionState`
 - API 文档：`docs/api/endpoints/customer-load-draft.md`
+
+## 业务选择
+
+### `businessSelect`
+- 接口路径：`POST /erp/v1/masterData/customer/businessSelect/quickSearch|dialogSearch|getById`
+- 用途：为销售订单和销售出库等业务提供客户选择与已有值回显。
+- API：`docs/api/endpoints/master-data-customer-business-select-quick-search.md`
+- API：`docs/api/endpoints/master-data-customer-business-select-dialog-search.md`
+- API：`docs/api/endpoints/master-data-customer-business-select-get-by-id.md`

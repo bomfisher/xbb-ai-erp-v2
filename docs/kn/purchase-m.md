@@ -2,9 +2,9 @@
 
 采购申请和采购订单的新建、编辑表单均通过 `headList + data` 下发。采购合同以 `items` 子档维护产品行，行内产品使用专用 `PRODUCT(50) + productSelectConfig`，仓库使用 `BUSINESS(16)`，库存、单位、数量和单价由采购合同自身字段元数据定义；各业务自行决定产品字段集合与表单渲染，不在产品选择器中硬编码。正式保存时主档与产品行在同一事务内同步，服务端重算订单总额和产品行金额。
 
-采购入库单同样使用 `items` 子档维护入库产品行，行内产品使用专用 `PRODUCT(50) + productSelectConfig`；正式保存时主档与入库产品行同步，并由后端重算采购金额、成本金额和主档总额。
+采购入库单同样使用 `items` 子档维护入库产品行，行内产品使用专用 `PRODUCT(50) + productSelectConfig`。选择采购订单时只检索仍有待入库数量的订单，可按已选供应商进一步筛选；采购入库模块通过统一 `selectionFill` 回填供应商和待入库分录。分录仓库独立持久化，表头仓库变更由前端确认后按需同步。正式保存时主档与入库产品行同步，并由后端重算采购金额、成本金额和主档总额，重新校验订单行待入库数量和快照。
 
-采购入库单提交后由审批策略决定是否自动确认：免审时在提交事务内确认入库；需审时由审核通过调用统一确认入口。确认入库从已持久化的明细读取数量和成本，调用库存 contract 记账，成功后状态变为 `INVENTORY_POSTED`。
+采购入库单正式提交成功后即按本次入库明细的增减差额回写采购订单行的已入库数量和入库状态，并汇总更新采购订单入库状态，不依赖审批是否通过。入库单提交后由审批策略决定是否自动确认：免审时在提交事务内确认入库；需审时由审核通过调用统一确认入口。确认入库从已持久化的明细读取数量和成本，调用库存 contract 记账，成功后将入库单状态变为 `INVENTORY_POSTED`。
 
 - 采购申请新增：[purchase-request-add-item.md](../api/endpoints/purchase-request-add-item.md)
 - 采购申请编辑：[purchase-request-update-item.md](../api/endpoints/purchase-request-update-item.md)
@@ -13,4 +13,6 @@
 - 采购订单业务选择：[purchase-order-business-select.md](../api/endpoints/purchase-order-business-select.md)
 - 采购入库正式保存：[purchase-inbound-save-and-submit.md](../api/endpoints/purchase-inbound-save-and-submit.md)
 - 采购入库确认：[purchase-inbound-confirm-inbound.md](../api/endpoints/purchase-inbound-confirm-inbound.md)
+- 采购入库订单回填：[purchase-inbound-selection-fill.md](../api/endpoints/purchase-inbound-selection-fill.md)
+- 新建页联动说明：[../features/module-purchase/purchase-inbound-linkage.md](../features/module-purchase/purchase-inbound-linkage.md)
 - 字段协议：[field-product-user-m.md](field-product-user-m.md)

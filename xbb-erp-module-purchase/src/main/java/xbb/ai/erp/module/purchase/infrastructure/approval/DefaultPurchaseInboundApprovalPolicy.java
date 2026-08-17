@@ -10,6 +10,6 @@ import xbb.ai.erp.module.purchase.application.port.PurchaseInboundApprovalPolicy
 public class DefaultPurchaseInboundApprovalPolicy implements PurchaseInboundApprovalPolicy {
     @Override
     public boolean requiresApproval(String corpid) {
-        return true;
+        return false;
     }
 }

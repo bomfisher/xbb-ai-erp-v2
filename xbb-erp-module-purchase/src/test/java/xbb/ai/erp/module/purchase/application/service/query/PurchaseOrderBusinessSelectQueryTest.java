@@ -5,16 +5,19 @@ import static org.junit.jupiter.api.Assertions.assertNull;
 
 import java.util.List;
 import java.util.Map;
+import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderBusinessSelectQueryDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderBusinessSelectOptionVO;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseOrder;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseOrderRepository;
+import xbb.ai.erp.module.purchase.domain.model.PurchaseOrderItem;
+import xbb.ai.erp.module.purchase.domain.repository.PurchaseOrderItemRepository;
 
 class PurchaseOrderBusinessSelectQueryTest {
     private final PurchaseOrderQueryAppServiceImpl queryService = new PurchaseOrderQueryAppServiceImpl(
-        new StubPurchaseOrderRepository(), null, null, null, null);
+        new StubPurchaseOrderRepository(), new StubPurchaseOrderItemRepository(), null, null, null, null);
 
     @Test
     void shouldLimitBusinessSelectResultsToCurrentTenantAndKeyword() {
@@ -41,6 +44,17 @@ class PurchaseOrderBusinessSelectQueryTest {
         PurchaseOrderBusinessSelectQueryDTO idDto = query("corp-a");
         idDto.setId(3L);
         assertNull(queryService.businessSelectGetById(idDto));
+    }
+
+    @Test
+    void shouldFilterBusinessSelectOrdersBySupplierWhenProvided() {
+        PurchaseOrderBusinessSelectQueryDTO dto = query("corp-a");
+        dto.setSupplierId(2L);
+
+        List<PurchaseOrderBusinessSelectOptionVO> options = queryService.businessSelectQuickSearch(dto);
+
+        assertEquals(1, options.size());
+        assertEquals(2L, options.getFirst().getId());
     }
 
     private PurchaseOrderBusinessSelectQueryDTO query(String corpid) {
@@ -76,7 +90,29 @@ class PurchaseOrderBusinessSelectQueryTest {
             order.setCorpid(corpid);
             order.setOrderNo(orderNo);
             order.setSupplierName(supplierName);
+            order.setSupplierId(id);
             return order;
         }
+    }
+
+    private static class StubPurchaseOrderItemRepository implements PurchaseOrderItemRepository {
+        @Override
+        public List<PurchaseOrderItem> findByCondition(Map<String, Object> conditionMap) {
+            Long orderId = (Long) conditionMap.get("purchaseOrderId");
+            PurchaseOrderItem item = new PurchaseOrderItem();
+            item.setId(orderId * 10);
+            item.setPurchaseOrderId(orderId);
+            item.setQty(BigDecimal.TEN);
+            item.setInboundQty(orderId.equals(2L) ? BigDecimal.ONE : BigDecimal.ZERO);
+            return List.of(item);
+        }
+
+        @Override public Long insert(PurchaseOrderItem purchaseOrderItem) { throw new UnsupportedOperationException(); }
+        @Override public void insertBatch(List<PurchaseOrderItem> purchaseOrderItemList) { throw new UnsupportedOperationException(); }
+        @Override public void removeById(String corpid, Long id) { throw new UnsupportedOperationException(); }
+        @Override public void removeBatchByIds(String corpid, List<Long> ids) { throw new UnsupportedOperationException(); }
+        @Override public void update(PurchaseOrderItem purchaseOrderItem) { throw new UnsupportedOperationException(); }
+        @Override public PurchaseOrderItem findById(String corpid, Long id) { return null; }
+        @Override public Long count(Map<String, Object> conditionMap) { return 0L; }
     }
 }

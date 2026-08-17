@@ -13,6 +13,7 @@ public class PurchaseInboundListItemVO {
     private String inboundDate;
     private java.math.BigDecimal totalAmount;
     private String status;
+    private String auditStatus;
     private String remark;
     private String creatorId;
     private String modifyId;

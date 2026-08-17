@@ -7,6 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public record ListFilterFieldTypeRule(String protocolFieldType, List<String> supportedSymbols) {
+    private static final List<String> SERIAL_NO_SYMBOLS = List.of("EQ", "NE", "CONTAINS", "NOT_CONTAINS");
     private static final List<String> TEXT_SYMBOLS = List.of("EQ", "NE", "CONTAINS", "NOT_CONTAINS", "IS_EMPTY", "IS_NOT_EMPTY");
     private static final List<String> ID_SYMBOLS = List.of("EQ", "NE", "IN", "IS_EMPTY", "IS_NOT_EMPTY");
     private static final List<String> NUMBER_SYMBOLS = List.of("EQ", "NE", "GE", "LE", "BETWEEN", "IS_EMPTY", "IS_NOT_EMPTY");
@@ -16,6 +17,7 @@ public record ListFilterFieldTypeRule(String protocolFieldType, List<String> sup
     private static final List<String> ENUM_MULTI_SYMBOLS = List.of(
         "CONTAINS", "NOT_CONTAINS", "CONTAINS_ALL", "NOT_CONTAINS_ALL", "IS_EMPTY", "IS_NOT_EMPTY");
     private static final Map<Integer, ListFilterFieldTypeRule> RULES = Map.ofEntries(
+        Map.entry(FieldTypeEnum.SERIAL_NO.getType(), new ListFilterFieldTypeRule("TEXT", SERIAL_NO_SYMBOLS)),
         Map.entry(FieldTypeEnum.TEXT.getType(), new ListFilterFieldTypeRule("TEXT", TEXT_SYMBOLS)),
         Map.entry(FieldTypeEnum.USER.getType(), new ListFilterFieldTypeRule("ID", ID_SYMBOLS)),
         Map.entry(FieldTypeEnum.DEPT.getType(), new ListFilterFieldTypeRule("ID", ID_SYMBOLS)),

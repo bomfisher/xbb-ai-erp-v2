@@ -18,6 +18,10 @@ public interface StockReservationRepository {
 
     StockReservation findById(String corpid, Long id);
 
+    List<StockReservation> findBySource(String corpid, String sourceType, Long sourceId);
+
+    List<StockReservation> findBySourceForUpdate(String corpid, String sourceType, Long sourceId);
+
     List<StockReservation> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

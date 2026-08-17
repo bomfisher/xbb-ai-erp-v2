@@ -58,6 +58,18 @@ public class StockReservationRepositoryImpl implements StockReservationRepositor
     }
 
     @Override
+    public List<StockReservation> findBySource(String corpid, String sourceType, Long sourceId) {
+        return stockReservationMapper.findBySource(corpid, sourceType, sourceId).stream()
+            .map(StockReservationConvertor::toDomain).toList();
+    }
+
+    @Override
+    public List<StockReservation> findBySourceForUpdate(String corpid, String sourceType, Long sourceId) {
+        return stockReservationMapper.findBySourceForUpdate(corpid, sourceType, sourceId).stream()
+            .map(StockReservationConvertor::toDomain).toList();
+    }
+
+    @Override
     public List<StockReservation> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return stockReservationMapper.findByCondition(preparedConditionMap).stream().map(StockReservationConvertor::toDomain).toList();

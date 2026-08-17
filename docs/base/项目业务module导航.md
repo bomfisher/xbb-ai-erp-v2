@@ -56,6 +56,10 @@
 - 不负责什么：不承载业务单号规则
 - 当前依赖与被谁依赖：被三个 `app` 入口复用，后续供业务模块扩展接入
 
+#### xbb-erp-base-bizno
+- 功能定位：业务编号调用契约。
+- 责任范围：`BizNoGenerator` 与编号规则类型；不负责规则存储和发号实现。
+
 #### xbb-erp-base-log
 - 功能定位：统一日志基础模块
 - 责任范围：`logback` 配置、日志上下文基础能力
@@ -76,6 +80,11 @@
 - 当前表范围：`customer`、`supplier`、`warehouse`、`product_spu`、`product_sku`。
 - 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/module_master_data`。
 - 不负责什么：SKU 的页面、列表、草稿或独立 HTTP 接口。
+
+#### xbb-erp-module-system
+- 功能定位：租户级系统配置模块。
+- 责任范围：业务编号规则维护、编号获取入口、主数据持久化号段与 Redis 发号实现。
+- 不负责什么：具体业务聚合的创建和编号字段保存。
 
 #### xbb-erp-module-demo
 - 功能定位：DEMO 主从业务基础模块

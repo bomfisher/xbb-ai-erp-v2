@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInboundMapper">
 
     <sql id="BaseColumns">
-        id, corpid, inbound_no, purchase_order_id, supplier_id, supplier_name, warehouse_id, inbound_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+        id, corpid, inbound_no, purchase_order_id, supplier_id, supplier_name, warehouse_id, inbound_date, total_amount, status, audit_status, remark, del, add_time, update_time, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -35,6 +35,7 @@
         <if test="conditionMap.status != null and conditionMap.status != ''">
             and status = #{conditionMap.status}
         </if>
+        <if test="conditionMap.auditStatus != null">and audit_status = #{conditionMap.auditStatus}</if>
         <if test="conditionMap.remark != null and conditionMap.remark != ''">
             and remark = #{conditionMap.remark}
         </if>
@@ -57,11 +58,11 @@
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into purchase_inbound (
-            corpid, inbound_no, purchase_order_id, supplier_id, supplier_name, warehouse_id, inbound_date, total_amount, status, remark, del, add_time, update_time, creator_id, modify_id
+            corpid, inbound_no, purchase_order_id, supplier_id, supplier_name, warehouse_id, inbound_date, total_amount, status, audit_status, remark, del, add_time, update_time, creator_id, modify_id
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.inboundNo}, #{item.purchaseOrderId}, #{item.supplierId}, #{item.supplierName}, #{item.warehouseId}, #{item.inboundDate}, #{item.totalAmount}, #{item.status}, #{item.remark}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.inboundNo}, #{item.purchaseOrderId}, #{item.supplierId}, #{item.supplierName}, #{item.warehouseId}, #{item.inboundDate}, #{item.totalAmount}, #{item.status}, #{item.auditStatus}, #{item.remark}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
 
@@ -96,6 +97,7 @@
             <if test="inboundDate != null">inbound_date = #{inboundDate},</if>
             <if test="totalAmount != null">total_amount = #{totalAmount},</if>
             <if test="status != null">status = #{status},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="del != null">del = #{del},</if>
             <if test="addTime != null">add_time = #{addTime},</if>

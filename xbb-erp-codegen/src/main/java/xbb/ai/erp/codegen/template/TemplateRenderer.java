@@ -797,7 +797,7 @@ public class TemplateRenderer {
             + "    }\n\n"
             + "    public static " + aggregateName + "ListItemVO toListItemVO(" + aggregateName + " " + variableName + ") {\n"
             + "        " + aggregateName + "ListItemVO vo = new " + aggregateName + "ListItemVO();\n"
-            + copyFieldAssignments(moduleSpec.getAggregate().getFields().stream().filter(field -> Boolean.TRUE.equals(field.getVisibleInList())).toList(), variableName, "vo")
+            + copyListFieldAssignments(moduleSpec.getAggregate().getFields().stream().filter(field -> Boolean.TRUE.equals(field.getVisibleInList())).toList(), variableName, "vo")
             + "        return vo;\n"
             + "    }\n\n"
             + "    public static " + aggregateName + "SaveItemVO toSaveItemVO(" + aggregateName + " " + variableName + ") {\n"
@@ -1135,11 +1135,24 @@ public class TemplateRenderer {
     }
 
     private String renderVisibleListFields(List<FieldSpec> fields) {
-        return fields.stream().filter(field -> Boolean.TRUE.equals(field.getVisibleInList())).map(field -> "    private " + field.getJavaType() + " " + field.getName() + ";\n").collect(Collectors.joining());
+        return fields.stream()
+            .filter(field -> Boolean.TRUE.equals(field.getVisibleInList()))
+            .map(field -> "    private " + (isListStringJavaType(field.getJavaType()) ? "String" : field.getJavaType()) + " " + field.getName() + ";\n")
+            .collect(Collectors.joining());
     }
 
     private String copyFieldAssignments(List<FieldSpec> fields, String source, String target) {
         return fields.stream().map(field -> "        " + target + ".set" + upperCamel(field.getName()) + "(" + source + ".get" + upperCamel(field.getName()) + "());\n").collect(Collectors.joining());
+    }
+
+    private String copyListFieldAssignments(List<FieldSpec> fields, String source, String target) {
+        return fields.stream().map(field -> {
+            String getter = source + ".get" + upperCamel(field.getName()) + "()";
+            if (isListStringJavaType(field.getJavaType())) {
+                return "        " + target + ".set" + upperCamel(field.getName()) + "(Objects.isNull(" + getter + ") ? \"\" : Objects.toString(" + getter + "));\n";
+            }
+            return "        " + target + ".set" + upperCamel(field.getName()) + "(" + getter + ");\n";
+        }).collect(Collectors.joining());
     }
 
     private String copyFieldAssignmentsFromMainDto(List<FieldSpec> fields, String source, String target) {
@@ -1182,6 +1195,24 @@ public class TemplateRenderer {
             || "addTime".equals(fieldName)
             || "updateTime".equals(fieldName)
             || "createTime".equals(fieldName);
+    }
+
+    private boolean isNumericJavaType(String javaType) {
+        return switch (javaType) {
+            case "byte", "short", "int", "long", "float", "double",
+                "Byte", "Short", "Integer", "Long", "Float", "Double",
+                "java.math.BigInteger", "java.math.BigDecimal" -> true;
+            default -> false;
+        };
+    }
+
+    private boolean isListStringJavaType(String javaType) {
+        return isNumericJavaType(javaType) || switch (javaType) {
+            case "LocalDate", "LocalTime", "LocalDateTime",
+                "java.time.LocalDate", "java.time.LocalTime", "java.time.LocalDateTime",
+                "Date", "java.util.Date", "java.sql.Date", "java.sql.Time", "java.sql.Timestamp" -> true;
+            default -> false;
+        };
     }
 
     private boolean hasField(List<FieldSpec> fields, String fieldName) {

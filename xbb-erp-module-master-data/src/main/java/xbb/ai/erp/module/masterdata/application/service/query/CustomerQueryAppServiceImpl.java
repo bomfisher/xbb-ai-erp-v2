@@ -17,6 +17,8 @@ import xbb.ai.erp.scene.meta.SceneFieldAssembler;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerListItemVO;
+import xbb.ai.erp.module.masterdata.admin.dto.CustomerBusinessSelectQueryDTO;
+import xbb.ai.erp.module.masterdata.admin.vo.CustomerBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.assembler.CustomerAdminAssembler;
 import xbb.ai.erp.module.masterdata.application.field.CustomerFieldFactory;
 import xbb.ai.erp.module.masterdata.application.schema.CustomerListSchemaProvider;
@@ -75,5 +77,54 @@ public class CustomerQueryAppServiceImpl {
         AdminParamValidator.validateIdQuery(dto);
         Customer entity = customerRepository.findById(dto.getCorpid(), dto.getId());
         return CustomerAdminAssembler.toDetailVO(CustomerAdminAssembler.toSaveItemVO(entity, customerContactRepository.findByCustomerId(dto.getCorpid(), dto.getId())));
+    }
+
+    public List<CustomerBusinessSelectOptionVO> businessSelectQuickSearch(CustomerBusinessSelectQueryDTO dto) {
+        return findBusinessSelectOptions(dto);
+    }
+
+    public ListBaseVO<CustomerBusinessSelectOptionVO> businessSelectDialogSearch(CustomerBusinessSelectQueryDTO dto) {
+        int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
+        int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
+        List<CustomerBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
+        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
+        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        ListBaseVO<CustomerBusinessSelectOptionVO> vo = new ListBaseVO<>();
+        vo.setList(all.subList(fromIndex, toIndex));
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        return vo;
+    }
+
+    public CustomerBusinessSelectOptionVO businessSelectGetById(CustomerBusinessSelectQueryDTO dto) {
+        if (dto.getId() == null) {
+            return null;
+        }
+        AdminParamValidator.requireCorpid(dto);
+        Customer customer = customerRepository.findById(dto.getCorpid(), dto.getId());
+        return customer == null ? null : toBusinessSelectOption(customer);
+    }
+
+    private List<CustomerBusinessSelectOptionVO> findBusinessSelectOptions(CustomerBusinessSelectQueryDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
+        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
+        return customerRepository.findByCondition(Map.of("corpid", dto.getCorpid())).stream()
+            .filter(customer -> keyword.isEmpty()
+                || (customer.getCustomerCode() != null && customer.getCustomerCode().contains(keyword))
+                || (customer.getCustomerName() != null && customer.getCustomerName().contains(keyword)))
+            .map(this::toBusinessSelectOption)
+            .toList();
+    }
+
+    private CustomerBusinessSelectOptionVO toBusinessSelectOption(Customer customer) {
+        CustomerBusinessSelectOptionVO option = new CustomerBusinessSelectOptionVO();
+        option.setId(customer.getId());
+        option.setCode(customer.getCustomerCode());
+        option.setName(customer.getCustomerName());
+        option.setLabel(customer.getCustomerCode() == null || customer.getCustomerCode().isBlank()
+            ? customer.getCustomerName()
+            : customer.getCustomerName() == null || customer.getCustomerName().isBlank()
+                ? customer.getCustomerCode()
+                : customer.getCustomerCode() + " " + customer.getCustomerName());
+        return option;
     }
 }

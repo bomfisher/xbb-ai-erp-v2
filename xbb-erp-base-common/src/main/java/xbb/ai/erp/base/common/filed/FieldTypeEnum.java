@@ -46,6 +46,7 @@ public enum FieldTypeEnum {
     //开关
     SWITCH(19),
     ADDRESS(20),
+    SERIAL_NO(21),
     //子档
     SUB_ITEM(49),
     //产品

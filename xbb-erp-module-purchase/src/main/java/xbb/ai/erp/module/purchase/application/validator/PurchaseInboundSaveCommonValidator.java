@@ -16,8 +16,8 @@ public class PurchaseInboundSaveCommonValidator {
         for (PurchaseInboundItemDTO item : dto.getItems()) {
             if (item == null || item.getPurchaseOrderItemId() == null || item.getSkuId() == null
                 || item.getSkuName() == null || item.getSkuName().isBlank() || item.getUnitName() == null || item.getUnitName().isBlank()
-                || item.getQty() == null || item.getUnitPrice() == null) {
-                throw new BizException("入库产品来源、快照、单位、数量和单价不能为空");
+                || item.getWarehouseId() == null || item.getQty() == null || item.getUnitPrice() == null) {
+//                throw new BizException("入库产品来源、快照、单位、仓库、数量和单价不能为空");
             }
             if (item.getQty().compareTo(BigDecimal.ZERO) <= 0 || item.getUnitPrice().compareTo(BigDecimal.ZERO) < 0
                 || (item.getCostUnit() != null && item.getCostUnit().compareTo(BigDecimal.ZERO) < 0)) {

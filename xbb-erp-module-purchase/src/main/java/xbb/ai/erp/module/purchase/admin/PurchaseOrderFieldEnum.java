@@ -3,6 +3,10 @@ package xbb.ai.erp.module.purchase.admin;
 import java.util.Arrays;
 import java.util.List;
 import lombok.Getter;
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
+import xbb.ai.erp.base.common.enums.InboundStatusEnum;
+import xbb.ai.erp.base.common.enums.PaymentStatusEnum;
+import xbb.ai.erp.base.common.enums.StatusOptionEnum;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
@@ -11,12 +15,15 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum PurchaseOrderFieldEnum {
-    ORDER_NO("main.orderNo", "order_no", FieldTypeEnum.TEXT, "order_no", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    ORDER_NO("main.orderNo", "order_no", FieldTypeEnum.SERIAL_NO, "order_no", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     SUPPLIER_ID("main.supplierId", "supplier_id", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "SUPPLIER", List.of()),
     ORDER_DATE("main.orderDate", "order_date", FieldTypeEnum.DATE, "order_date", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     EXPECTED_DATE("main.expectedDate", "expected_date", FieldTypeEnum.DATE, "expected_date", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     TOTAL_AMOUNT("main.totalAmount", "total_amount", FieldTypeEnum.AMOUNT, "total_amount", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     STATUS("main.status", "status", FieldTypeEnum.COMB, "status", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "1:启用,0:禁用", null, List.of()),
+    AUDIT_STATUS("main.auditStatus", "audit_status", FieldTypeEnum.COMB, "audit_status", false, false, List.of(SceneTypeEnum.LIST), StatusOptionEnum.options(AuditStatusEnum.values()), null, List.of()),
+    INBOUND_STATUS("main.inboundStatus", "inbound_status", FieldTypeEnum.COMB, "inbound_status", false, false, List.of(SceneTypeEnum.LIST), StatusOptionEnum.options(InboundStatusEnum.values()), null, List.of()),
+    PAYMENT_STATUS("main.paymentStatus", "payment_status", FieldTypeEnum.COMB, "payment_status", false, false, List.of(SceneTypeEnum.LIST), StatusOptionEnum.options(PaymentStatusEnum.values()), null, List.of()),
     REMARK("main.remark", "remark", FieldTypeEnum.TEXT, "remark", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     ITEMS("items", "采购产品", FieldTypeEnum.SUB_ITEM, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of(
         new SceneFieldMeta("skuId", "产品", FieldTypeEnum.PRODUCT.getType(), 1, 1, List.of(), "PRODUCT_SKU", List.of()),

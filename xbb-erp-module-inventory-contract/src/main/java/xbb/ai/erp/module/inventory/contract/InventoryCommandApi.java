@@ -1,6 +1,12 @@
 package xbb.ai.erp.module.inventory.contract;
 
 public interface InventoryCommandApi {
+    PostingResult reserve(ReservationCommand command);
+
+    PostingResult postReservedOutbound(OutboundCommand command);
+
+    void releaseReservation(ReleaseReservationCommand command);
+
     /**
      * 按库存模块当前生效的成本策略执行入库记账。
      */

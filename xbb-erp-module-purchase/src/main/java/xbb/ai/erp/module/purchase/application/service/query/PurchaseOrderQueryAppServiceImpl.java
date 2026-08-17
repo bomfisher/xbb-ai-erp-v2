@@ -1,9 +1,11 @@
 package xbb.ai.erp.module.purchase.application.service.query;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
@@ -23,6 +25,7 @@ import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderBusinessSelectQueryDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderBusinessSelectOptionVO;
 import xbb.ai.erp.module.purchase.application.assembler.PurchaseOrderAdminAssembler;
 import xbb.ai.erp.module.purchase.application.field.PurchaseOrderFieldFactory;
+import xbb.ai.erp.module.purchase.application.field.PurchaseOrderFormSectionFactory;
 import xbb.ai.erp.module.purchase.application.schema.PurchaseOrderListSchemaProvider;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseOrder;
 import xbb.ai.erp.module.purchase.domain.repository.PurchaseOrderRepository;
@@ -35,14 +38,16 @@ public class PurchaseOrderQueryAppServiceImpl {
     private final PurchaseOrderFieldFactory fieldFactory;
     private final PurchaseOrderListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public PurchaseOrderQueryAppServiceImpl(PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderItemRepository purchaseOrderItemRepository, PurchaseOrderFieldFactory fieldFactory, PurchaseOrderListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+    public PurchaseOrderQueryAppServiceImpl(PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderItemRepository purchaseOrderItemRepository, PurchaseOrderFieldFactory fieldFactory, PurchaseOrderListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer, BizNoGenerator bizNoGenerator) {
         this.purchaseOrderRepository = purchaseOrderRepository;
         this.purchaseOrderItemRepository = purchaseOrderItemRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<PurchaseOrderListItemVO> list(ListBaseDTO dto) {
@@ -58,9 +63,15 @@ public class PurchaseOrderQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
-        vo.setData(PurchaseOrderAdminAssembler.buildEmptySaveItemVO());
+        vo.setFormSections(PurchaseOrderFormSectionFactory.getSections(SceneTypeEnum.CREATE));
+        xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO data = PurchaseOrderAdminAssembler.buildEmptySaveItemVO();
+        xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderMainDTO main = new xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderMainDTO();
+        main.setOrderNo(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.PURCHASE_ORDER.getCode()));
+        data.setMain(main);
+        vo.setData(data);
         return vo;
     }
 
@@ -69,6 +80,7 @@ public class PurchaseOrderQueryAppServiceImpl {
         PurchaseOrder entity = purchaseOrderRepository.findById(dto.getCorpid(), dto.getId());
         SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.UPDATE)));
+        vo.setFormSections(PurchaseOrderFormSectionFactory.getSections(SceneTypeEnum.UPDATE));
         vo.setData(toSaveItemVO(dto.getCorpid(), entity));
         return vo;
     }
@@ -106,11 +118,19 @@ public class PurchaseOrderQueryAppServiceImpl {
         AdminParamValidator.requireCorpid(dto);
         String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
         return purchaseOrderRepository.findByCondition(Map.of("corpid", dto.getCorpid())).stream()
+                .filter(purchaseOrder -> dto.getSupplierId() == null || dto.getSupplierId().equals(purchaseOrder.getSupplierId()))
+                .filter(this::hasPendingInboundItems)
                 .filter(purchaseOrder -> keyword.isEmpty()
                         || (purchaseOrder.getOrderNo() != null && purchaseOrder.getOrderNo().contains(keyword))
                         || (purchaseOrder.getSupplierName() != null && purchaseOrder.getSupplierName().contains(keyword)))
                 .map(this::toBusinessSelectOption)
                 .toList();
+    }
+
+    private boolean hasPendingInboundItems(PurchaseOrder purchaseOrder) {
+        return purchaseOrderItemRepository.findByCondition(Map.of("corpid", purchaseOrder.getCorpid(), "purchaseOrderId", purchaseOrder.getId()))
+            .stream()
+            .anyMatch(item -> item.getQty() != null && item.getQty().compareTo(item.getInboundQty() == null ? BigDecimal.ZERO : item.getInboundQty()) > 0);
     }
 
     private PurchaseOrderBusinessSelectOptionVO toBusinessSelectOption(PurchaseOrder purchaseOrder) {

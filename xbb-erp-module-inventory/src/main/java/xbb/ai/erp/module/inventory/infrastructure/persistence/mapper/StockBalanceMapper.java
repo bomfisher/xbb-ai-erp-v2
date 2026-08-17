@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO;
+import xbb.ai.erp.module.inventory.admin.dto.StockQueryDTO;
+import xbb.ai.erp.module.inventory.admin.vo.StockQueryItemVO;
 
 import java.util.List;
 import java.util.Map;
@@ -25,9 +27,14 @@ public interface StockBalanceMapper extends BaseMapper<StockBalancePO> {
 
     List<StockBalancePO> findByWarehouseAndSkuPairs(@Param("corpid") String corpid, @Param("stockKeys") List<StockBalancePO> stockKeys);
 
+    List<StockBalancePO> findByWarehouseAndSkuPairsForUpdate(@Param("corpid") String corpid,
+                                                               @Param("stockKeys") List<StockBalancePO> stockKeys);
+
     int updateWithVersion(@Param("po") StockBalancePO po, @Param("expectedVersion") Integer expectedVersion);
 
     List<StockBalancePO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);
+    List<StockQueryItemVO> queryList(@Param("query") StockQueryDTO query, @Param("offset") int offset, @Param("pageSize") int pageSize);
+    Long queryCount(@Param("query") StockQueryDTO query);
 }

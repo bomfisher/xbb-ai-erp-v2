@@ -82,6 +82,10 @@ public class ProductSelectAppServiceImpl implements ProductSelectAppService {
         option.setCode(sku.getSkuCode());
         option.setName(sku.getSkuName());
         option.setLabel(sku.getSkuCode() + " - " + sku.getSkuName());
+        option.setLinePatch(Map.of(
+            "skuCode", sku.getSkuCode(),
+            "skuName", sku.getSkuName(),
+            "unitName", sku.getUnitName()));
         return option;
     }
 }

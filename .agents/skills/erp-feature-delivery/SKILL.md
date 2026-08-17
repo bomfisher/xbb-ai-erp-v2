@@ -47,6 +47,7 @@ listActions:
 - `DATE`、`TIME` 的筛选和保存传输值统一为 13 位毫秒时间戳；前端仅在控件展示层格式化为日期或年月日时分秒，后端不得要求 ISO 文本日期。
 - `FILE`、`IMAGE`、`ADDRESS`、`SUB_ITEM`、`PRODUCT` 必须 `filterName: null`。子档字段也必须 `filterName: null`。
 - `SUB_ITEM` 必须提供 `subFields`（允许显式为空）；父字段只出现在 `CREATE`/`UPDATE` 的 `headList`，装配为 `FieldEntity.subField`。子档的表名、聚合名、父子关联列、表单属性、Repository 查询和保存同步由 ROOT/CHILD 模块规格声明，禁止由字段 YAML 猜测。
+- 新建/编辑表单需要显式分组时，在字段 YAML 声明可选 `formSections`；每项必须提供唯一 `key`、`title`、唯一整数 `order` 与非空 `fields`，其中 `fields` 只能引用 `CREATE` 或 `UPDATE` 场景字段的 `attr`，且不得跨分组重复。字段元数据脚本必须保留该配置；存在非空 `formSections` 时，生成 `{Aggregate}FormSectionFactory` 并由 `addItem`、`updateItem` 写入 `SaveItemVO.formSections`。未声明或为空时不得生成分组 Factory 或写入分组响应，前端继续按 `headList.attr` 的兼容逻辑布局。
 - `listActions` 必须显式提供 `top`、`bottom`、`row`；无动作写空数组，不得默认添加新增或编辑按钮。
 
 ## 列表查询与持久化
@@ -95,6 +96,7 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 
 1. 先执行 ROOT/CHILD 规格 `dry-run`；确认模块目录只使用短横线、源码路径由 `packageBase` 推导且与 `package` 声明完全一致；再检查 `admin -> application -> domain` 依赖、Repository 边界、事务和子档批量加载。代码生成器会保留已有 Java/XML 文件，不会用新模板覆盖旧骨架；因此每次生成后必须执行交付校验，若发现旧骨架协议缺失，必须人工迁移到当前模板后才能交付。
 2. `addItem` 以 `CREATE` 字段生成空表单与 `headList`；`updateItem` 以 `UPDATE` 字段生成 `headList`，并按明确关联回填主档、子档和 `sectionState`。每个选择数据字段必须在两个场景的 `headList` 中组装只含目标 `businessCode` 的 `businessSelectConfig`；不得下发任何 URL、租户请求体或展示语义。选项字段必须返回非空 `itemList`。
+   字段元数据含 `formSections` 时，两个接口还必须下发由同一元数据生成且按 `order` 排序的 `formSections`；无该配置时禁止为兼容旧页面构造空分组。
 3. 列表筛选必须只接受由 `filterName` 派生的属性/列/操作符白名单，绝不接受前端传入 SQL、列名或操作符；可筛选字段必须返回源 `fieldType` 加协议 `filterFieldType`，`BUSINESS(16)` 的协议类型为 `BUSINESS`，`USER(12)`、`DEPT(14)` 为 `ID`，三者均返回仅含目标编码的 `businessSelectConfig`；选项字段必须复用表单 `itemList`。验证单选/多选 JSON 枚举条件使用 `JSON_CONTAINS`，`DATE`、`TIME` 的白名单严格符合字段元数据脚本生成的操作符集合。
 4. 检查 Controller、Application Service、Query Application Service 的列表签名均为 `ListBaseDTO`；Query Application Service 使用 `ListQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap())`，`findByCondition` 与 `count` 共享结果 Map，Repository 已 import 并调用条件准备工具，字段工厂不保留无意义的 `SceneFieldMeta.class::cast`。
 5. 检查草稿缓存仓储及其基础设施实现、`DraftSaveVO` 返回类型、草稿保存的协议/通用校验、草稿列表缓存读取、业务校验器占位调用，以及正式保存成功后的草稿缓存删除。

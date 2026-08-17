@@ -47,7 +47,7 @@ public final class SupplierAdminAssembler {
         vo.setSupplierName(supplier.getSupplierName());
         vo.setMobile(supplier.getMobile());
         vo.setAddress(supplier.getAddress());
-        vo.setEnabled(supplier.getEnabled());
+        vo.setEnabled(Objects.isNull(supplier.getEnabled()) ? "" : Objects.toString(supplier.getEnabled()));
         vo.setRemark(supplier.getRemark());
         vo.setCreatorId(supplier.getCreatorId());
         vo.setModifyId(supplier.getModifyId());

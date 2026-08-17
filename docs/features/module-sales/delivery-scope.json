@@ -1,0 +1,411 @@
+{
+  "moduleCode": "sales",
+  "root": {
+    "spec": "docs/features/module-sales/specs/sales-order.yaml",
+    "aggregate": "SalesOrder",
+    "table": "sales_order",
+    "role": "ROOT"
+  },
+  "children": [
+    {
+      "spec": "docs/features/module-sales/specs/sales-order-item.yaml",
+      "aggregate": "SalesOrderItem",
+      "table": "sales_order_item",
+      "role": "CHILD"
+    }
+  ],
+  "fieldMetadata": {
+    "businessCode": "SALES_ORDER",
+    "fields": [
+      {
+        "name": "orderNo",
+        "attr": "main.orderNo",
+        "attrName": "订单编号",
+        "fieldType": "TEXT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "order_no",
+        "filterFieldType": "TEXT",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "customerId",
+        "attr": "main.customerId",
+        "attrName": "客户",
+        "fieldType": "BUSINESS",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null,
+        "businessCode": "CUSTOMER",
+        "selectionFill": true
+      },
+      {
+        "name": "orderDate",
+        "attr": "main.orderDate",
+        "attrName": "下单日期",
+        "fieldType": "DATE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "order_date",
+        "filterFieldType": "DATE",
+        "supportedSymbols": [
+          "EQ",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "deliveryDate",
+        "attr": "main.deliveryDate",
+        "attrName": "交货日期",
+        "fieldType": "DATE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "delivery_date",
+        "filterFieldType": "DATE",
+        "supportedSymbols": [
+          "EQ",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "totalAmount",
+        "attr": "main.totalAmount",
+        "attrName": "订单金额",
+        "fieldType": "AMOUNT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "total_amount",
+        "filterFieldType": "AMOUNT",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "remark",
+        "attr": "main.remark",
+        "attrName": "备注",
+        "fieldType": "TEXT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null
+      },
+      {
+        "name": "creatorId",
+        "attr": "main.creatorId",
+        "attrName": "创建人",
+        "fieldType": "USER",
+        "scenes": [
+          "LIST"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "creator_id",
+        "filterFieldType": "ID",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "IN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "businessCode": "ORG_MEMBER"
+      },
+      {
+        "name": "modifyId",
+        "attr": "main.modifyId",
+        "attrName": "修改人",
+        "fieldType": "USER",
+        "scenes": [
+          "LIST"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "modify_id",
+        "filterFieldType": "ID",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "IN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "businessCode": "ORG_MEMBER"
+      },
+      {
+        "name": "auditStatus",
+        "attr": "main.auditStatus",
+        "attrName": "审核状态",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "audit_status",
+        "filterFieldType": "ENUM",
+        "supportedSymbols": [
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "options": "0:待审核,1:审核中,2:已审核,3:已拒绝"
+      },
+      {
+        "name": "outboundStatus",
+        "attr": "main.outboundStatus",
+        "attrName": "出库状态",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "outbound_status",
+        "filterFieldType": "ENUM",
+        "supportedSymbols": [
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "options": "0:未出库,1:部分出库,2:全部出库"
+      },
+      {
+        "name": "receiptStatus",
+        "attr": "main.receiptStatus",
+        "attrName": "收款状态",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "receipt_status",
+        "filterFieldType": "ENUM",
+        "supportedSymbols": [
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "options": "0:未收款,1:部分收款,2:全部收款"
+      },
+      {
+        "name": "salesOrderItem",
+        "attr": "salesOrderItem",
+        "attrName": "销售订单行",
+        "fieldType": "SUB_ITEM",
+        "scenes": [
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null,
+        "subFields": [
+          {
+            "name": "skuId",
+            "attr": "skuId",
+            "attrName": "商品",
+            "fieldType": "PRODUCT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null,
+            "businessCode": "PRODUCT_SKU"
+          },
+          {
+            "name": "specification",
+            "attr": "specification",
+            "attrName": "规格",
+            "fieldType": "TEXT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "unitName",
+            "attr": "unitName",
+            "attrName": "单位",
+            "fieldType": "TEXT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "qty",
+            "attr": "qty",
+            "attrName": "数量",
+            "fieldType": "NUM_DOUBLE",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "deliveredQty",
+            "attr": "deliveredQty",
+            "attrName": "已出库数量",
+            "fieldType": "NUM_DOUBLE",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": false,
+            "defaultValue": 0,
+            "filterName": null
+          },
+          {
+            "name": "unitPrice",
+            "attr": "unitPrice",
+            "attrName": "单价",
+            "fieldType": "NUM_DOUBLE",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "taxRate",
+            "attr": "taxRate",
+            "attrName": "税率",
+            "fieldType": "NUM_DOUBLE",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": true,
+            "defaultValue": 0,
+            "filterName": null
+          },
+          {
+            "name": "amount",
+            "attr": "amount",
+            "attrName": "金额",
+            "fieldType": "AMOUNT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          }
+        ]
+      }
+    ],
+    "listActions": {
+      "top": [
+        {
+          "actionCode": "ADD",
+          "actionName": "新建"
+        }
+      ],
+      "bottom": [],
+      "row": [
+        {
+          "actionCode": "EDIT",
+          "actionName": "编辑"
+        }
+      ]
+    }
+  },
+  "rootEndpoints": [
+    "list",
+    "addItem",
+    "updateItem",
+    "saveDraft",
+    "saveAndSubmit",
+    "draftList",
+    "loadDraft"
+  ]
+}

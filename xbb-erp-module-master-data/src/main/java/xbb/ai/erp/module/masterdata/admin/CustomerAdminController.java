@@ -14,6 +14,7 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.ResultVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftListDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.CustomerBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftLoadDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerSubmitSaveDTO;
@@ -21,6 +22,7 @@ import xbb.ai.erp.module.masterdata.admin.vo.CustomerDraftDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDraftListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerSaveItemVO;
+import xbb.ai.erp.module.masterdata.admin.vo.CustomerBusinessSelectOptionVO;
 import xbb.ai.erp.module.masterdata.application.service.CustomerAdminAppService;
 
 import java.util.List;
@@ -65,5 +67,23 @@ public class CustomerAdminController {
     @PostMapping("/loadDraft")
     public ResultVO<CustomerDraftDetailVO> loadDraft(@RequestBody CustomerDraftLoadDTO dto) {
         return ResultVO.success(customerAdminAppService.loadDraft(dto));
+    }
+
+    @PostMapping("/businessSelect/quickSearch")
+    public ResultVO<List<CustomerBusinessSelectOptionVO>> businessSelectQuickSearch(
+        @RequestBody CustomerBusinessSelectQueryDTO dto) {
+        return ResultVO.success(customerAdminAppService.businessSelectQuickSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/dialogSearch")
+    public ResultVO<ListBaseVO<CustomerBusinessSelectOptionVO>> businessSelectDialogSearch(
+        @RequestBody CustomerBusinessSelectQueryDTO dto) {
+        return ResultVO.success(customerAdminAppService.businessSelectDialogSearch(dto));
+    }
+
+    @PostMapping("/businessSelect/getById")
+    public ResultVO<CustomerBusinessSelectOptionVO> businessSelectGetById(
+        @RequestBody CustomerBusinessSelectQueryDTO dto) {
+        return ResultVO.success(customerAdminAppService.businessSelectGetById(dto));
     }
 }

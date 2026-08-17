@@ -9,7 +9,7 @@ public class SupplierListItemVO {
     private String supplierName;
     private String mobile;
     private String address;
-    private Integer enabled;
+    private String enabled;
     private String remark;
     private String creatorId;
     private String modifyId;

@@ -1,0 +1,40 @@
+businessCode: SALES_ORDER
+fields:
+  - { name: orderNo, attr: main.orderNo, attrName: 订单编号, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: order_no }
+  - { name: customerId, attr: main.customerId, attrName: 客户, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: CUSTOMER, selectionFill: true }
+  - { name: warehouseId, attr: main.warehouseId, attrName: 快捷选择仓库, fieldType: BUSINESS, scenes: [CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null, businessCode: WAREHOUSE }
+  - { name: orderDate, attr: main.orderDate, attrName: 下单日期, fieldType: DATE, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: order_date }
+  - { name: deliveryDate, attr: main.deliveryDate, attrName: 交货日期, fieldType: DATE, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: delivery_date }
+  - { name: totalAmount, attr: main.totalAmount, attrName: 订单金额, fieldType: AMOUNT, scenes: [LIST, CREATE, UPDATE], required: false, editable: false, defaultValue: null, filterName: total_amount }
+  - { name: status, attr: main.status, attrName: 单据状态, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: 0, filterName: status, options: "0:未关闭,1:已关闭,2:手动关闭" }
+  - { name: remark, attr: main.remark, attrName: 备注, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null }
+  - { name: creatorId, attr: main.creatorId, attrName: 创建人, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: creator_id }
+  - { name: modifyId, attr: main.modifyId, attrName: 修改人, fieldType: USER, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: modify_id }
+  - { name: auditStatus, attr: main.auditStatus, attrName: 审核状态, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: audit_status, options: "0:待审核,1:审核中,2:已审核,3:已拒绝" }
+  - { name: outboundStatus, attr: main.outboundStatus, attrName: 出库状态, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: outbound_status, options: "0:未出库,1:部分出库,2:全部出库" }
+  - { name: receiptStatus, attr: main.receiptStatus, attrName: 收款状态, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: receipt_status, options: "0:未收款,1:部分收款,2:全部收款" }
+  - name: salesOrderItem
+    attr: items
+    attrName: 销售订单行
+    fieldType: SUB_ITEM
+    scenes: [CREATE, UPDATE]
+    required: false
+    editable: true
+    defaultValue: null
+    filterName: null
+    subFields:
+      - { name: skuId, attr: skuId, attrName: 商品, fieldType: PRODUCT, scenes: [CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: PRODUCT_SKU }
+      - { name: warehouseId, attr: warehouseId, attrName: 锁库仓库, fieldType: BUSINESS, scenes: [CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null, businessCode: WAREHOUSE }
+      - { name: specification, attr: specification, attrName: 规格, fieldType: TEXT, scenes: [CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null }
+      - { name: unitName, attr: unitName, attrName: 单位, fieldType: TEXT, scenes: [CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null }
+      - { name: qty, attr: qty, attrName: 数量, fieldType: NUM_DOUBLE, scenes: [CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null }
+      - { name: deliveredQty, attr: deliveredQty, attrName: 已出库数量, fieldType: NUM_DOUBLE, scenes: [CREATE, UPDATE], required: false, editable: false, defaultValue: 0, filterName: null }
+      - { name: unitPrice, attr: unitPrice, attrName: 单价, fieldType: NUM_DOUBLE, scenes: [CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null }
+      - { name: taxRate, attr: taxRate, attrName: 税率, fieldType: NUM_DOUBLE, scenes: [CREATE, UPDATE], required: false, editable: true, defaultValue: 0, filterName: null }
+      - { name: amount, attr: amount, attrName: 金额, fieldType: AMOUNT, scenes: [CREATE, UPDATE], required: true, editable: false, defaultValue: null, filterName: null }
+listActions:
+  top:
+    - { actionCode: ADD, actionName: 新建 }
+  bottom: []
+  row:
+    - { actionCode: EDIT, actionName: 编辑 }

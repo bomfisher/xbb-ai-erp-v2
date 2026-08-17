@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInboundItemMapper">
 
     <sql id="BaseColumns">
-        id, corpid, purchase_inbound_id, purchase_order_item_id, sku_id, sku_name, unit_name, qty, unit_price, amount, cost_unit, cost_amount, creator_id, modify_id
+        id, corpid, purchase_inbound_id, purchase_order_item_id, sku_id, sku_name, unit_name, warehouse_id, qty, unit_price, amount, cost_unit, cost_amount, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -29,6 +29,9 @@
         <if test="conditionMap.unitName != null and conditionMap.unitName != ''">
             and unit_name = #{conditionMap.unitName}
         </if>
+        <if test="conditionMap.warehouseId != null">
+            and warehouse_id = #{conditionMap.warehouseId}
+        </if>
     </sql>
 
     <sql id="QueryTail">
@@ -48,18 +51,18 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into purchase_inbound_item (
-            corpid, purchase_inbound_id, purchase_order_item_id, sku_id, sku_name, unit_name, qty, unit_price, amount, cost_unit, cost_amount, del, add_time, update_time, creator_id, modify_id
+            corpid, purchase_inbound_id, purchase_order_item_id, sku_id, sku_name, unit_name, warehouse_id, qty, unit_price, amount, cost_unit, cost_amount, del, add_time, update_time, creator_id, modify_id
         )
-        values (#{corpid}, #{purchaseInboundId}, #{purchaseOrderItemId}, #{skuId}, #{skuName}, #{unitName}, #{qty}, #{unitPrice}, #{amount}, #{costUnit}, #{costAmount}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId})
+        values (#{corpid}, #{purchaseInboundId}, #{purchaseOrderItemId}, #{skuId}, #{skuName}, #{unitName}, #{warehouseId}, #{qty}, #{unitPrice}, #{amount}, #{costUnit}, #{costAmount}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId})
     </insert>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into purchase_inbound_item (
-            corpid, purchase_inbound_id, purchase_order_item_id, sku_id, sku_name, unit_name, qty, unit_price, amount, cost_unit, cost_amount, del, add_time, update_time, creator_id, modify_id
+            corpid, purchase_inbound_id, purchase_order_item_id, sku_id, sku_name, unit_name, warehouse_id, qty, unit_price, amount, cost_unit, cost_amount, del, add_time, update_time, creator_id, modify_id
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.purchaseInboundId}, #{item.purchaseOrderItemId}, #{item.skuId}, #{item.skuName}, #{item.unitName}, #{item.qty}, #{item.unitPrice}, #{item.amount}, #{item.costUnit}, #{item.costAmount}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.purchaseInboundId}, #{item.purchaseOrderItemId}, #{item.skuId}, #{item.skuName}, #{item.unitName}, #{item.warehouseId}, #{item.qty}, #{item.unitPrice}, #{item.amount}, #{item.costUnit}, #{item.costAmount}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
 
@@ -91,6 +94,7 @@
             <if test="skuId != null">sku_id = #{skuId},</if>
             <if test="skuName != null">sku_name = #{skuName},</if>
             <if test="unitName != null">unit_name = #{unitName},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
             <if test="qty != null">qty = #{qty},</if>
             <if test="unitPrice != null">unit_price = #{unitPrice},</if>
             <if test="amount != null">amount = #{amount},</if>

@@ -128,18 +128,21 @@ def validate_list_contract(source_root: Path, aggregate: str) -> list[str]:
     return errors
 
 
-def validate_list_date_time_string_contract(source_root: Path, aggregate: str, metadata: dict) -> list[str]:
+STRING_LIST_FIELD_TYPES = {"DATE", "TIME", "COMB", "COMB_MULTI", "CHECKBOX", "CHECK_BOX", "RADIO_BTN"}
+
+
+def validate_list_string_contract(source_root: Path, aggregate: str, metadata: dict) -> list[str]:
     errors = []
     list_fields = [
         field for field in metadata["fields"]
-        if field["fieldType"] in {"DATE", "TIME"} and "LIST" in field["scenes"]
+        if field["fieldType"] in STRING_LIST_FIELD_TYPES and "LIST" in field["scenes"]
     ]
     if not list_fields:
         return errors
     list_item_vo = source_root / "admin" / "vo" / f"{aggregate}ListItemVO.java"
     assembler = source_root / "application" / "assembler" / f"{aggregate}AdminAssembler.java"
     if not list_item_vo.is_file() or not assembler.is_file():
-        return ["列表 DATE/TIME 字段缺少 ListItemVO 或 AdminAssembler"]
+        return ["列表转字符串字段缺少 ListItemVO 或 AdminAssembler"]
     list_item_content = list_item_vo.read_text(encoding="utf-8")
     assembler_content = assembler.read_text(encoding="utf-8")
     variable = aggregate[:1].lower() + aggregate[1:]
@@ -150,7 +153,7 @@ def validate_list_date_time_string_contract(source_root: Path, aggregate: str, m
             errors.append(f"列表 {field['fieldType']} 字段 {name} 必须在 ListItemVO 中声明为 String")
         expected_assignment = (
             f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
-            f"String.valueOf({variable}.get{setter}()));"
+            f"Objects.toString({variable}.get{setter}()));"
         )
         if expected_assignment not in assembler_content:
             errors.append(f"列表 {field['fieldType']} 字段 {name} 必须在 toListItemVO 中转换为 String")
@@ -263,6 +266,63 @@ def validate_save_assembler_audit_contract(source_root: Path, aggregate: str) ->
     return []
 
 
+def java_fields(source_file: Path) -> dict[str, str]:
+    if not source_file.is_file():
+        return {}
+    return {
+        name: field_type
+        for field_type, name in re.findall(
+            r"\bprivate\s+([\w.<>, ?]+?)\s+(\w+)(?:\s*=\s*[^;]+)?\s*;",
+            source_file.read_text(encoding="utf-8"),
+        )
+    }
+
+
+def validate_form_attr_contract(source_root: Path, aggregate: str, metadata: dict) -> list[str]:
+    save_dto = source_root / "admin/dto" / f"{aggregate}SaveDTO.java"
+    save_item_vo = source_root / "admin/vo" / f"{aggregate}SaveItemVO.java"
+    if not save_dto.is_file():
+        return []
+    save_fields = java_fields(save_dto)
+    save_item_fields = java_fields(save_item_vo)
+    errors = []
+    main_type = save_fields.get("main")
+    main_fields = java_fields(source_root / "admin/dto" / f"{main_type}.java") if main_type else {}
+    for field in metadata["fields"]:
+        attr = field["attr"]
+        if attr.startswith("main."):
+            path = attr.split(".")
+            if len(path) != 2 or path[0] not in save_fields or path[1] not in main_fields:
+                errors.append(f"字段 {field['name']} 的 attr={attr} 无法映射到 {aggregate}SaveDTO.main")
+            if path[0] not in save_item_fields:
+                errors.append(f"字段 {field['name']} 的 attr={attr} 未在 {aggregate}SaveItemVO 中声明主档路径")
+            continue
+        if "." in attr:
+            errors.append(f"字段 {field['name']} 的 attr={attr} 不是可校验的保存 DTO 路径")
+            continue
+        if attr not in save_fields:
+            errors.append(f"字段 {field['name']} 的 attr={attr} 未在 {aggregate}SaveDTO 中声明")
+            continue
+        if attr not in save_item_fields:
+            errors.append(f"字段 {field['name']} 的 attr={attr} 未在 {aggregate}SaveItemVO 中声明")
+            continue
+        if field["fieldType"] != "SUB_ITEM":
+            continue
+        list_type = save_fields[attr]
+        child_match = re.search(r"List\s*<\s*([\w.]+)\s*>", list_type)
+        if not child_match:
+            errors.append(f"子表字段 {field['name']} 的 DTO 属性 {attr} 必须是 List<T>")
+            continue
+        child_type = child_match.group(1).split(".")[-1]
+        child_fields = java_fields(source_root / "admin/dto" / f"{child_type}.java")
+        for sub_field in field.get("subFields", []):
+            if sub_field["attr"] not in child_fields:
+                errors.append(
+                    f"子表字段 {field['name']} 的 subField attr={sub_field['attr']} 未在 {child_type} 中声明"
+                )
+    return errors
+
+
 def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata: dict) -> list[str]:
     package_root = module_root / "src/main/java"
     source_roots = list(package_root.glob("**/module/**"))
@@ -298,9 +358,10 @@ def validate_root(module_root: Path, aggregate: str, skip_tests: bool, metadata:
         errors.append("RepositoryImpl 必须声明模块级显式 Spring Bean 名，避免跨模块同名聚合冲突")
     errors.extend(validate_field_delivery(module_root, source_root, aggregate, metadata))
     errors.extend(validate_list_contract(source_root, aggregate))
-    errors.extend(validate_list_date_time_string_contract(source_root, aggregate, metadata))
+    errors.extend(validate_list_string_contract(source_root, aggregate, metadata))
     errors.extend(validate_auto_increment_insert_contract(module_root, source_root, aggregate))
     errors.extend(validate_save_assembler_audit_contract(source_root, aggregate))
+    errors.extend(validate_form_attr_contract(source_root, aggregate, metadata))
     return errors
 
 

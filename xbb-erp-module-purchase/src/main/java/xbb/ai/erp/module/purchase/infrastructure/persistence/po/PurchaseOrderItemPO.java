@@ -22,6 +22,7 @@ public class PurchaseOrderItemPO extends BaseEntity {
     private java.math.BigDecimal unitPrice;
     private java.math.BigDecimal taxRate;
     private java.math.BigDecimal amount;
+    private Integer inboundStatus;
     private String creatorId;
     private String modifyId;
 }

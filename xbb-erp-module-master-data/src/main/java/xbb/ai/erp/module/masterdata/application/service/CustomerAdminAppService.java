@@ -9,6 +9,7 @@ import xbb.ai.erp.base.common.vo.BaseVO;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerSaveDTO;
+import xbb.ai.erp.module.masterdata.admin.dto.CustomerBusinessSelectQueryDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerSubmitSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftSaveDTO;
 import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftListDTO;
@@ -16,6 +17,7 @@ import xbb.ai.erp.module.masterdata.admin.dto.CustomerDraftLoadDTO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDetailVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerListItemVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerSaveItemVO;
+import xbb.ai.erp.module.masterdata.admin.vo.CustomerBusinessSelectOptionVO;
 
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDraftListItemVO;
@@ -37,6 +39,12 @@ public interface CustomerAdminAppService {
     List<CustomerDraftListItemVO> draftList(CustomerDraftListDTO dto);
 
     CustomerDraftDetailVO loadDraft(CustomerDraftLoadDTO dto);
+
+    List<CustomerBusinessSelectOptionVO> businessSelectQuickSearch(CustomerBusinessSelectQueryDTO dto);
+
+    ListBaseVO<CustomerBusinessSelectOptionVO> businessSelectDialogSearch(CustomerBusinessSelectQueryDTO dto);
+
+    CustomerBusinessSelectOptionVO businessSelectGetById(CustomerBusinessSelectQueryDTO dto);
 
     Long save(CustomerSaveDTO dto);
 

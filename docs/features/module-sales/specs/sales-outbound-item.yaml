@@ -1,0 +1,33 @@
+moduleDir: sales
+moduleCode: sales
+moduleName: 销售
+packageBase: xbb.ai.erp.module.sales
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregateName: SalesOutboundItem
+tableName: sales_outbound_item
+admin: false
+application: false
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: SalesOutboundItem
+  tableName: sales_outbound_item
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: salesOutboundId, column: sales_outbound_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: salesOrderItemId, column: sales_order_item_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: skuId, column: sku_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: skuName, column: sku_name, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: unitName, column: unit_name, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: qty, column: qty, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: unitPrice, column: unit_price, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: costUnit, column: cost_unit, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: costAmount, column: cost_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: outboundStatus, column: outbound_status, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate: { admin: false, application: false, domain: true, persistence: true, xml: true }

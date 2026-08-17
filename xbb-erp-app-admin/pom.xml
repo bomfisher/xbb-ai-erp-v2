@@ -25,6 +25,11 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-system</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -50,6 +55,11 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-sales</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-inventory</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -60,6 +70,16 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testcontainers</groupId>
+            <artifactId>mysql</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

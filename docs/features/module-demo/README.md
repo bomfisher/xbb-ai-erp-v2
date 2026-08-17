@@ -17,6 +17,12 @@
 - CHILD：`specs/demo-item.yaml`、`specs/demo-sub.yaml`
 - 字段元数据：`specs/field-metadata.json`
 
+## 字段设计器
+
+- `index.html` 支持非分组和分组管理两种模式；分组模式会输出 `formSections`，非分组模式仅输出字段与列表动作。
+- 启用分组后，所有字段默认归入“基本信息”；可新增、重命名、上移或下移分组，并通过字段卡片的“所属分组”下拉框快速迁移字段。
+- 切换到非分组模式不会删除内存中的分组映射，切回分组管理可恢复之前的分组、字段归属和排序。
+
 ## 验收入口
 
 - 模块校验：`python3 .agents/skills/business-module-delivery/scripts/verify_module_delivery.py xbb-erp-module-demo Demo --field-metadata docs/features/module-demo/specs/field-metadata.json --child DemoItem --child DemoSub`

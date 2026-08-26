@@ -42,6 +42,7 @@ public final class SalesOrderAdminAssembler {
             salesOrder.setAuditStatus(main.getAuditStatus());
             salesOrder.setOutboundStatus(main.getOutboundStatus());
             salesOrder.setReceiptStatus(main.getReceiptStatus());
+            salesOrder.setInvoiceStatus(main.getInvoiceStatus());
             salesOrder.setCreatorId(main.getCreatorId());
             salesOrder.setModifyId(main.getModifyId());
             if (Objects.isNull(main.getId())) {
@@ -61,11 +62,12 @@ public final class SalesOrderAdminAssembler {
         vo.setOrderDate(Objects.isNull(salesOrder.getOrderDate()) ? "" : Objects.toString(salesOrder.getOrderDate()));
         vo.setDeliveryDate(Objects.isNull(salesOrder.getDeliveryDate()) ? "" : Objects.toString(salesOrder.getDeliveryDate()));
         vo.setTotalAmount(Objects.isNull(salesOrder.getTotalAmount()) ? "" : Objects.toString(salesOrder.getTotalAmount()));
-        vo.setStatus(salesOrder.getStatus());
+        vo.setStatus(Objects.isNull(salesOrder.getStatus()) ? "" : Objects.toString(salesOrder.getStatus()));
         vo.setRemark(salesOrder.getRemark());
         vo.setAuditStatus(Objects.isNull(salesOrder.getAuditStatus()) ? "" : Objects.toString(salesOrder.getAuditStatus()));
         vo.setOutboundStatus(Objects.isNull(salesOrder.getOutboundStatus()) ? "" : Objects.toString(salesOrder.getOutboundStatus()));
         vo.setReceiptStatus(Objects.isNull(salesOrder.getReceiptStatus()) ? "" : Objects.toString(salesOrder.getReceiptStatus()));
+        vo.setInvoiceStatus(Objects.isNull(salesOrder.getInvoiceStatus()) ? "" : Objects.toString(salesOrder.getInvoiceStatus()));
         vo.setCreatorId(salesOrder.getCreatorId());
         vo.setModifyId(salesOrder.getModifyId());
         return vo;
@@ -94,6 +96,7 @@ public final class SalesOrderAdminAssembler {
         main.setAuditStatus(salesOrder.getAuditStatus());
         main.setOutboundStatus(salesOrder.getOutboundStatus());
         main.setReceiptStatus(salesOrder.getReceiptStatus());
+        main.setInvoiceStatus(salesOrder.getInvoiceStatus());
         main.setCreatorId(salesOrder.getCreatorId());
         main.setModifyId(salesOrder.getModifyId());
         vo.setMain(main);

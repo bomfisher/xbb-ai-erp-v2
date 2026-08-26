@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.sales.infrastructure.persistence.mapper.SalesInvoiceLineSourceMapper">
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_invoice_line_source (corpid, sales_invoice_line_id, source_type, source_id, source_line_id, quantity, untaxed_amount, tax_amount, amount, creator_id, modify_id, del, add_time, update_time)
+        values <foreach collection="list" item="item" separator=",">(#{item.corpid}, #{item.salesInvoiceLineId}, #{item.sourceType}, #{item.sourceId}, #{item.sourceLineId}, #{item.quantity}, #{item.untaxedAmount}, #{item.taxAmount}, #{item.amount}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})</foreach>
+    </insert>
+    <update id="removeByInvoiceLineIds">
+        update sales_invoice_line_source set del = 1 where corpid = #{corpid} and del = 0 and sales_invoice_line_id in <foreach collection="invoiceLineIds" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </update>
+    <select id="findByInvoiceLineIds" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoiceLineSourcePO">
+        select id, corpid, sales_invoice_line_id, source_type, source_id, source_line_id,
+               quantity, untaxed_amount, tax_amount, amount, creator_id, modify_id
+        from sales_invoice_line_source
+        where corpid = #{corpid}
+          and del = 0
+          and sales_invoice_line_id in
+        <foreach collection="invoiceLineIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <select id="findByCondition" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoiceLineSourcePO">
+        select id, corpid, sales_invoice_line_id, source_type, source_id, source_line_id, quantity, untaxed_amount, tax_amount, amount, creator_id, modify_id
+        from sales_invoice_line_source where corpid = #{conditionMap.corpid} and del = 0
+        <if test="conditionMap.sourceType != null">and source_type = #{conditionMap.sourceType}</if>
+        <if test="conditionMap.sourceLineId != null">and source_line_id = #{conditionMap.sourceLineId}</if>
+    </select>
+    <select id="sumPostedQuantity" resultType="java.math.BigDecimal">
+        select coalesce(sum(source.quantity), 0)
+        from sales_invoice_line_source source
+        join sales_invoice_line invoice_line
+          on invoice_line.id = source.sales_invoice_line_id
+         and invoice_line.corpid = source.corpid
+         and invoice_line.del = 0
+        join sales_invoice invoice
+          on invoice.id = invoice_line.sales_invoice_id
+         and invoice.corpid = source.corpid
+         and invoice.del = 0
+          and invoice.status &lt;&gt; 'VOIDED'
+        where source.corpid = #{corpid}
+          and source.del = 0
+          and source.source_type = #{sourceType}
+          and source.source_line_id = #{sourceLineId}
+        <if test="excludedInvoiceId != null">
+          and invoice.id &lt;&gt; #{excludedInvoiceId}
+        </if>
+    </select>
+    <select id="sumPostedQuantityBySalesOrderItem" resultType="java.math.BigDecimal">
+        select coalesce(sum(source.quantity), 0)
+        from sales_invoice_line_source source
+        join sales_invoice_line invoice_line
+          on invoice_line.id = source.sales_invoice_line_id
+         and invoice_line.corpid = source.corpid
+         and invoice_line.del = 0
+        join sales_invoice invoice
+          on invoice.id = invoice_line.sales_invoice_id
+         and invoice.corpid = source.corpid
+         and invoice.del = 0
+         and invoice.status &lt;&gt; 'VOIDED'
+        where source.corpid = #{corpid}
+          and source.del = 0
+          and (
+                (source.source_type = 'SALES_ORDER'
+                 and source.source_line_id = #{salesOrderItemId})
+                or
+                (source.source_type = 'SALES_OUTBOUND'
+                 and source.source_line_id in (
+                     select outbound_item.id
+                     from sales_outbound_item outbound_item
+                     where outbound_item.corpid = #{corpid}
+                       and outbound_item.del = 0
+                       and outbound_item.sales_order_item_id = #{salesOrderItemId}
+                 ))
+              )
+        <if test="excludedInvoiceId != null">
+          and invoice.id &lt;&gt; #{excludedInvoiceId}
+        </if>
+    </select>
+</mapper>

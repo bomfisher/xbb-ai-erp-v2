@@ -20,7 +20,7 @@
 
 - 同一事务内先保存采购订单主档，再以主档 ID 新增、更新或逻辑删除产品行。
 - 已有明细按 `id` 校验归属；重复 ID 或跨订单 ID 会被拒绝。
-- 后端按 `qty × unitPrice` 重算行 `amount`，并汇总回写主档 `totalAmount`，不信任前端金额。
+- 后端按 `qty × unitPrice` 重算并按两位小数落库每行 `amount`，再将各行 `amount` 合计回写主档 `totalAmount`；忽略前端传入的 `main.totalAmount`。
 - 新增行的 `inboundQty` 初始化为零；更新时保留既有入库数量。
 - 被本次请求移除且已存在入库数量的产品行不可删除。
 - 正式保存全部成功后才删除指定草稿。

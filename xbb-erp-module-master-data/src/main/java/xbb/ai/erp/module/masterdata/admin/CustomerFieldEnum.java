@@ -11,7 +11,7 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum CustomerFieldEnum {
-    CUSTOMER_CODE("main.customerCode", "客户编码", FieldTypeEnum.TEXT, "customer_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    CUSTOMER_CODE("main.customerCode", "对接编号", FieldTypeEnum.SERIAL_NO, "customer_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     CUSTOMER_NAME("main.customerName", "客户名称", FieldTypeEnum.TEXT, "customer_name", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     CONTACTS("contacts", "联系人", FieldTypeEnum.SUB_ITEM, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of(new SceneFieldMeta("name", "联系人名称", FieldTypeEnum.TEXT.getType(), 0, 1), new SceneFieldMeta("mobile", "手机号", FieldTypeEnum.TEXT.getType(), 0, 1), new SceneFieldMeta("defaultFlag", "默认联系人", FieldTypeEnum.SWITCH.getType(), 0, 1))),
     ADDRESS("main.address", "地址", FieldTypeEnum.ADDRESS, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),

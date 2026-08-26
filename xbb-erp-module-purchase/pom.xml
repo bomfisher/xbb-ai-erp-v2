@@ -8,6 +8,8 @@
     </parent>
     <artifactId>xbb-erp-module-purchase</artifactId>
     <dependencies>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-purchase-contract</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-system-contract</artifactId><version>${project.version}</version></dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-inventory-contract</artifactId>

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
@@ -13,6 +14,7 @@ import xbb.ai.erp.base.common.vo.ListBaseVO;
 import xbb.ai.erp.base.common.vo.SaveItemVO;
 import xbb.ai.erp.module.common.application.render.ListValueRenderer;
 import xbb.ai.erp.module.common.application.util.ListQueryMapUtil;
+import xbb.ai.erp.module.masterdata.admin.vo.CustomerSaveItemVO;
 import xbb.ai.erp.scene.meta.SceneFieldAssembler;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 import xbb.ai.erp.module.masterdata.admin.vo.CustomerDetailVO;
@@ -33,15 +35,17 @@ public class CustomerQueryAppServiceImpl {
     private final CustomerFieldFactory fieldFactory;
     private final CustomerListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
 
-    public CustomerQueryAppServiceImpl(CustomerRepository customerRepository, CustomerContactRepository customerContactRepository, CustomerFieldFactory fieldFactory, CustomerListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+    public CustomerQueryAppServiceImpl(CustomerRepository customerRepository, CustomerContactRepository customerContactRepository, CustomerFieldFactory fieldFactory, CustomerListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer, BizNoGenerator bizNoGenerator) {
         this.customerRepository = customerRepository;
         this.customerContactRepository = customerContactRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<CustomerListItemVO> list(ListBaseDTO dto) {
@@ -58,9 +62,12 @@ public class CustomerQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.CustomerSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.CustomerSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
-        vo.setData(CustomerAdminAssembler.buildEmptySaveItemVO());
+        CustomerSaveItemVO data = CustomerAdminAssembler.buildEmptySaveItemVO();
+        data.getMain().setCustomerCode(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.CUSTOMER.getCode()));
+        vo.setData(data);
         return vo;
     }
 
@@ -80,18 +87,17 @@ public class CustomerQueryAppServiceImpl {
     }
 
     public List<CustomerBusinessSelectOptionVO> businessSelectQuickSearch(CustomerBusinessSelectQueryDTO dto) {
-        return findBusinessSelectOptions(dto);
+        return findBusinessSelectOptions(dto, 0, 5);
     }
 
     public ListBaseVO<CustomerBusinessSelectOptionVO> businessSelectDialogSearch(CustomerBusinessSelectQueryDTO dto) {
         int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
-        List<CustomerBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
-        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
-        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        List<CustomerBusinessSelectOptionVO> options = findBusinessSelectOptions(dto, (pageNum - 1) * pageSize, pageSize);
+        Long total = customerRepository.count(businessSelectConditions(dto, null, null));
         ListBaseVO<CustomerBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setList(all.subList(fromIndex, toIndex));
-        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        vo.setList(options);
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, total == null ? 0 : total.intValue()));
         return vo;
     }
 
@@ -104,15 +110,26 @@ public class CustomerQueryAppServiceImpl {
         return customer == null ? null : toBusinessSelectOption(customer);
     }
 
-    private List<CustomerBusinessSelectOptionVO> findBusinessSelectOptions(CustomerBusinessSelectQueryDTO dto) {
+    private List<CustomerBusinessSelectOptionVO> findBusinessSelectOptions(CustomerBusinessSelectQueryDTO dto,
+                                                                             Integer offset, Integer pageSize) {
         AdminParamValidator.requireCorpid(dto);
-        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
-        return customerRepository.findByCondition(Map.of("corpid", dto.getCorpid())).stream()
-            .filter(customer -> keyword.isEmpty()
-                || (customer.getCustomerCode() != null && customer.getCustomerCode().contains(keyword))
-                || (customer.getCustomerName() != null && customer.getCustomerName().contains(keyword)))
+        return customerRepository.findByCondition(businessSelectConditions(dto, offset, pageSize)).stream()
             .map(this::toBusinessSelectOption)
             .toList();
+    }
+
+    private static Map<String, Object> businessSelectConditions(CustomerBusinessSelectQueryDTO dto,
+                                                                  Integer offset, Integer pageSize) {
+        Map<String, Object> conditions = new java.util.HashMap<>();
+        conditions.put("corpid", dto.getCorpid());
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
+        return conditions;
     }
 
     private CustomerBusinessSelectOptionVO toBusinessSelectOption(Customer customer) {

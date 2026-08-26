@@ -6,8 +6,8 @@ import lombok.Data;
 public class PurchaseInboundListItemVO {
     private Long id;
     private String inboundNo;
-    private Long purchaseOrderId;
-    private Long supplierId;
+    private String purchaseOrderId;
+    private String supplierId;
     private String supplierName;
     private Long warehouseId;
     private String inboundDate;

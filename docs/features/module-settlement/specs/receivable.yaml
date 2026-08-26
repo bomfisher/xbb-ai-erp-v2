@@ -1,0 +1,37 @@
+moduleDir: settlement
+moduleCode: module_settlement
+moduleApiName: settlement
+businessName: receivable
+businessCode: RECEIVABLE
+moduleName: 结算管理
+packageBase: xbb.ai.erp.module.settlement
+pathStrategy: ddd-mybatis-plus
+aggregateName: Receivable
+tableName: receivable
+aggregateRole: ROOT
+admin: true
+application: true
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: Receivable
+  tableName: receivable
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: receivableNo, column: receivable_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: customerId, column: customer_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: sourceType, column: source_type, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: sourceInvoiceId, column: source_invoice_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: openingBatchId, column: opening_batch_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: receivableDate, column: receivable_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: dueDate, column: due_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: writtenOffAmount, column: written_off_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remainingAmount, column: remaining_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: status, column: status, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

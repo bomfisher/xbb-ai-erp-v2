@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseOrderItemMapper">
 
     <sql id="BaseColumns">
-        id, corpid, purchase_order_id, line_no, sku_id, sku_code, sku_name, specification, unit_name, qty, inbound_qty, unit_price, tax_rate, amount, inbound_status, creator_id, modify_id
+        id, corpid, purchase_order_id, line_no, sku_id, sku_code, sku_name, specification, unit_name, qty, inbound_qty, unit_price, tax_rate, amount, inbound_status, creator_id, modify_id, warehouse_id
     </sql>
 
     <sql id="BaseCondition">
@@ -51,11 +51,11 @@
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into purchase_order_item (
-            corpid, purchase_order_id, line_no, sku_id, sku_code, sku_name, specification, unit_name, qty, inbound_qty, unit_price, tax_rate, amount, inbound_status, del, add_time, update_time, creator_id, modify_id
+            corpid, purchase_order_id, line_no, sku_id, sku_code, sku_name, specification, unit_name, qty, inbound_qty, unit_price, tax_rate, amount, inbound_status, del, add_time, update_time, creator_id, modify_id, warehouse_id
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.purchaseOrderId}, #{item.lineNo}, #{item.skuId}, #{item.skuCode}, #{item.skuName}, #{item.specification}, #{item.unitName}, #{item.qty}, #{item.inboundQty}, #{item.unitPrice}, #{item.taxRate}, #{item.amount}, #{item.inboundStatus}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.purchaseOrderId}, #{item.lineNo}, #{item.skuId}, #{item.skuCode}, #{item.skuName}, #{item.specification}, #{item.unitName}, #{item.qty}, #{item.inboundQty}, #{item.unitPrice}, #{item.taxRate}, #{item.amount}, #{item.inboundStatus}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId}, #{item.warehouseId})
         </foreach>
     </insert>
 
@@ -98,6 +98,7 @@
             update_time = #{updateTime},
             <if test="creatorId != null">creator_id = #{creatorId},</if>
             <if test="modifyId != null">modify_id = #{modifyId},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
         </set>
         where corpid = #{corpid}
           and id = #{id}

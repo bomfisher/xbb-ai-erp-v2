@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.settlement.infrastructure.persistence.mapper.ReceiptWriteOffMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into receipt_writeoff (corpid, writeoff_no, receipt_id, receivable_id, writeoff_date, amount, status, remark,
+            creator_id, modify_id, del, add_time, update_time)
+        values (#{corpid}, #{writeoffNo}, #{receiptId}, #{receivableId}, #{writeoffDate}, #{amount}, 1, #{remark},
+            #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+    <select id="findById" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.ReceiptWriteOffPO">
+        select w.id, w.corpid, r.customer_id, w.writeoff_no, w.receipt_id, w.receivable_id, w.writeoff_date,
+            w.amount, w.status, w.reversed_time, w.remark, w.creator_id, w.modify_id
+        from receipt_writeoff w join receipt r on r.id = w.receipt_id and r.corpid = w.corpid
+        where w.corpid = #{corpid} and w.id = #{id} and w.del = 0
+    </select>
+    <select id="findActiveByReceiptId" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.ReceiptWriteOffPO">
+        select id, corpid, writeoff_no, receipt_id, receivable_id, writeoff_date, amount, status, reversed_time,
+            remark, creator_id, modify_id
+        from receipt_writeoff
+        where corpid = #{corpid}
+          and receipt_id = #{receiptId}
+          and del = 0
+          and status = 1
+    </select>
+    <select id="findByCondition" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.ReceiptWriteOffPO">
+        select w.id, w.corpid, r.customer_id, w.writeoff_no, w.receipt_id, w.receivable_id, w.writeoff_date,
+            w.amount, w.status, w.reversed_time, w.remark, w.creator_id, w.modify_id
+        from receipt_writeoff w join receipt r on r.id = w.receipt_id and r.corpid = w.corpid
+        where w.corpid = #{conditionMap.corpid} and w.del = 0
+        <if test="conditionMap.receiptId != null">and receipt_id = #{conditionMap.receiptId}</if>
+        <if test="conditionMap.receivableId != null">and receivable_id = #{conditionMap.receivableId}</if>
+        order by id desc
+        limit #{conditionMap.offset}, #{conditionMap.limit}
+    </select>
+    <select id="count" resultType="long">
+        select count(1) from receipt_writeoff where corpid = #{conditionMap.corpid} and del = 0
+    </select>
+    <update id="reverse">
+        update receipt_writeoff
+        set status = 0, reversed_time = #{reversedTime}, modify_id = #{userId}, update_time = #{reversedTime}
+        where corpid = #{corpid} and id = #{id} and del = 0 and status = 1
+    </update>
+</mapper>

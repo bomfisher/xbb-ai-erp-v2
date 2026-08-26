@@ -14,6 +14,7 @@ import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftSaveDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftListDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftLoadDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderBusinessSelectQueryDTO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOrderItemStockQueryDTO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDetailVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO;
@@ -22,6 +23,7 @@ import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDraftListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDraftDetailVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderBusinessSelectOptionVO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOrderItemStockVO;
 
 import java.util.List;
 
@@ -46,9 +48,15 @@ public interface SalesOrderAdminAppService {
 
     SalesOrderBusinessSelectOptionVO businessSelectGetById(SalesOrderBusinessSelectQueryDTO dto);
 
+    SalesOrderItemStockVO queryItemStock(SalesOrderItemStockQueryDTO dto);
+
     Long save(SalesOrderSaveDTO dto);
 
     SalesOrderDetailVO detail(IdBaseDTO dto);
 
     void delete(BatchBaseDTO dto);
+
+    BaseVO audit(IdBaseDTO dto);
+
+    BaseVO unaudit(IdBaseDTO dto);
 }

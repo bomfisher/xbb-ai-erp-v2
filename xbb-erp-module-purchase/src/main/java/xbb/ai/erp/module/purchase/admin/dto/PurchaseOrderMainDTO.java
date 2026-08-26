@@ -12,7 +12,7 @@ public class PurchaseOrderMainDTO {
     private Long orderDate;
     private Long expectedDate;
     private java.math.BigDecimal totalAmount;
-    private String status;
+    private Integer invoiceStatus;
     private String remark;
     private String creatorId;
     private String modifyId;

@@ -76,8 +76,8 @@
 
 #### xbb-erp-module-master-data
 - 功能定位：主数据管理模块。
-- 责任范围：客户、供应商、仓库、产品 SPU 主档的页面接口及产品 SKU 的持久化聚合。
-- 当前表范围：`customer`、`supplier`、`warehouse`、`product_spu`、`product_sku`。
+- 责任范围：客户、供应商、仓库、资金账户、产品 SPU 主档的页面接口及产品 SKU 的持久化聚合。
+- 当前表范围：`customer`、`supplier`、`warehouse`、`fund_account`、`product_spu`、`product_sku`。
 - 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/module_master_data`。
 - 不负责什么：SKU 的页面、列表、草稿或独立 HTTP 接口。
 
@@ -85,6 +85,11 @@
 - 功能定位：租户级系统配置模块。
 - 责任范围：业务编号规则维护、编号获取入口、主数据持久化号段与 Redis 发号实现。
 - 不负责什么：具体业务聚合的创建和编号字段保存。
+
+#### xbb-erp-module-approval
+- 功能定位：审批流程设置与后续审批运行能力的 ERP 适配模块。
+- 责任范围：流程定义、版本、节点和审批人规则的页面接口与持久化；未来作为 ERP 页面网关对接独立审批中台。
+- 不负责什么：不直接创建或更新销售、采购、库存、结算等业务对象；不直接依赖业务单据表。
 
 #### xbb-erp-module-demo
 - 功能定位：DEMO 主从业务基础模块
@@ -113,6 +118,23 @@
 - 当前表范围：`stock_balance`、`stock_transaction`、`stock_cost_transaction`、`stock_reservation`。
 - 当前代码落位：`domain`、`infrastructure/persistence`、`src/main/resources/mapper/inventory`。
 - 不负责什么：不提供库存业务操作、锁库策略、成本计算或 HTTP 接口；这些由后续库存用例实现。
+
+#### xbb-erp-module-settlement
+- 功能定位：客户收款结算模块。
+- 责任范围：客户普通收款、预收和期初收款的列表、动态表单、草稿及正式保存。
+- 当前表范围：`receipt`。
+- 当前代码落位：`admin`、`application`、`domain`、`infrastructure/persistence`、`src/main/resources/mapper/module_settlement`。
+- 不负责什么：本期不维护资金账户主数据，也不实现收款核销单据。
+
+#### xbb-erp-module-sales
+- 功能定位：销售订单、出库与发票业务模块。
+- 责任范围：销售业务聚合及其对外查询适配；注册销售订单和销售合同的审批字段目录。
+- 不负责什么：不承载审批流程定义、实例或审批条件解释。
+
+#### xbb-erp-module-sales-contract
+- 功能定位：销售领域对外稳定契约模块。
+- 责任范围：提供跨模块使用的销售查询契约；当前包含 `SalesContractApprovalQueryApi` 和销售合同审批快照。
+- 不负责什么：不承载销售合同的持久化、审批流程或 HTTP 接口实现。
 
 
 

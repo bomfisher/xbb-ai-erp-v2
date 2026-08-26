@@ -1,0 +1,174 @@
+{
+  "businessCode": "RECEIPT_WRITEOFF",
+  "fields": [
+    {
+      "name": "writeoff_no",
+      "attr": "main.writeoffNo",
+      "attrName": "核销批次号",
+      "fieldType": "SERIAL_NO",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "receipt_id",
+      "attr": "main.receiptId",
+      "attrName": "收款单",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "RECEIPT"
+    },
+    {
+      "name": "receivable_id",
+      "attr": "main.receivableId",
+      "attrName": "应收开放项",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "RECEIVABLE"
+    },
+    {
+      "name": "writeoff_date",
+      "attr": "main.writeoffDate",
+      "attrName": "核销日期",
+      "fieldType": "DATE",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "writeoff_date",
+      "filterFieldType": "DATE",
+      "supportedSymbols": [
+        "EQ",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "amount",
+      "attr": "main.amount",
+      "attrName": "本次核销金额",
+      "fieldType": "AMOUNT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "amount",
+      "filterFieldType": "AMOUNT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "remark",
+      "attr": "main.remark",
+      "attrName": "备注",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "creator_id",
+      "attr": "main.creatorId",
+      "attrName": "创建人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "creator_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "ORG_MEMBER"
+    },
+    {
+      "name": "modify_id",
+      "attr": "main.modifyId",
+      "attrName": "修改人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "modify_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "ORG_MEMBER"
+    }
+  ],
+  "listActions": {
+    "top": [
+      {
+        "actionCode": "ADD",
+        "actionName": "新建"
+      }
+    ],
+    "bottom": [
+
+    ],
+    "row": [
+
+    ]
+  }
+}

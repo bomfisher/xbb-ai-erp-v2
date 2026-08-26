@@ -1,0 +1,202 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.sales.infrastructure.persistence.mapper.SalesInvoiceMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, invoice_no, customer_id, invoice_date, due_date, payment_term, untaxed_amount, tax_amount, amount, receivable_opened_amount, receivable_available_amount, invoice_type, original_invoice_id, status, audit_status, audit_time, posted_time, remark, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.invoiceNo != null and conditionMap.invoiceNo != ''">
+            and invoice_no = #{conditionMap.invoiceNo}
+        </if>
+        <if test="conditionMap.customerId != null">
+            and customer_id = #{conditionMap.customerId}
+        </if>
+        <if test="conditionMap.invoiceDate != null">
+            and invoice_date = #{conditionMap.invoiceDate}
+        </if>
+        <if test="conditionMap.dueDate != null">
+            and due_date = #{conditionMap.dueDate}
+        </if>
+        <if test="conditionMap.paymentTerm != null and conditionMap.paymentTerm != ''">
+            and payment_term = #{conditionMap.paymentTerm}
+        </if>
+        <if test="conditionMap.untaxedAmount != null">
+            and untaxed_amount = #{conditionMap.untaxedAmount}
+        </if>
+        <if test="conditionMap.taxAmount != null">
+            and tax_amount = #{conditionMap.taxAmount}
+        </if>
+        <if test="conditionMap.amount != null">
+            and amount = #{conditionMap.amount}
+        </if>
+        <if test="conditionMap.invoiceType != null and conditionMap.invoiceType != ''">
+            and invoice_type = #{conditionMap.invoiceType}
+        </if>
+        <if test="conditionMap.originalInvoiceId != null">
+            and original_invoice_id = #{conditionMap.originalInvoiceId}
+        </if>
+        <if test="conditionMap.status != null and conditionMap.status != ''">
+            and status = #{conditionMap.status}
+        </if>
+        <if test="conditionMap.auditStatus != null">
+            and audit_status = #{conditionMap.auditStatus}
+        </if>
+        <if test="conditionMap.auditTime != null">
+            and audit_time = #{conditionMap.auditTime}
+        </if>
+        <if test="conditionMap.postedTime != null">
+            and posted_time = #{conditionMap.postedTime}
+        </if>
+        <if test="conditionMap.businessSelectKeyword != null and conditionMap.businessSelectKeyword != ''">
+            and invoice_no like concat('%', #{conditionMap.businessSelectKeyword}, '%')
+        </if>
+        <if test="conditionMap.businessSelectAuditStatuses != null and conditionMap.businessSelectAuditStatuses.size() > 0">
+            and audit_status in
+            <foreach collection="conditionMap.businessSelectAuditStatuses" item="auditStatus" open="(" separator="," close=")">
+                #{auditStatus}
+            </foreach>
+        </if>
+        <if test="conditionMap.businessSelectOnlyOpen != null and conditionMap.businessSelectOnlyOpen">
+            and receivable_available_amount > 0
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_invoice (
+            corpid, invoice_no, customer_id, invoice_date, due_date, payment_term, untaxed_amount, tax_amount, amount, receivable_opened_amount, receivable_available_amount, invoice_type, original_invoice_id, status, audit_status, audit_time, posted_time, remark, creator_id, modify_id, del, add_time, update_time
+        )
+        values (#{corpid}, #{invoiceNo}, #{customerId}, #{invoiceDate}, #{dueDate}, #{paymentTerm}, #{untaxedAmount}, #{taxAmount}, #{amount}, #{receivableOpenedAmount}, #{receivableAvailableAmount}, #{invoiceType}, #{originalInvoiceId}, #{status}, #{auditStatus}, #{auditTime}, #{postedTime}, #{remark}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_invoice (
+            corpid, invoice_no, customer_id, invoice_date, due_date, payment_term, untaxed_amount, tax_amount, amount, receivable_opened_amount, receivable_available_amount, invoice_type, original_invoice_id, status, audit_status, audit_time, posted_time, remark, creator_id, modify_id, del, add_time, update_time
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.invoiceNo}, #{item.customerId}, #{item.invoiceDate}, #{item.dueDate}, #{item.paymentTerm}, #{item.untaxedAmount}, #{item.taxAmount}, #{item.amount}, #{item.receivableOpenedAmount}, #{item.receivableAvailableAmount}, #{item.invoiceType}, #{item.originalInvoiceId}, #{item.status}, #{item.auditStatus}, #{item.auditTime}, #{item.postedTime}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update sales_invoice
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update sales_invoice
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoicePO">
+        update sales_invoice
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="invoiceNo != null">invoice_no = #{invoiceNo},</if>
+            <if test="customerId != null">customer_id = #{customerId},</if>
+            <if test="invoiceDate != null">invoice_date = #{invoiceDate},</if>
+            <if test="dueDate != null">due_date = #{dueDate},</if>
+            <if test="paymentTerm != null">payment_term = #{paymentTerm},</if>
+            <if test="untaxedAmount != null">untaxed_amount = #{untaxedAmount},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="receivableOpenedAmount != null">receivable_opened_amount = #{receivableOpenedAmount},</if>
+            <if test="receivableAvailableAmount != null">receivable_available_amount = #{receivableAvailableAmount},</if>
+            <if test="invoiceType != null">invoice_type = #{invoiceType},</if>
+            <if test="originalInvoiceId != null">original_invoice_id = #{originalInvoiceId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="auditTime != null">audit_time = #{auditTime},</if>
+            <if test="postedTime != null">posted_time = #{postedTime},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="changeReceivableOpenedAmount">
+        update sales_invoice
+        set receivable_opened_amount = receivable_opened_amount + #{delta},
+            receivable_available_amount = receivable_available_amount - #{delta},
+            modify_id = #{userId},
+            update_time = unix_timestamp(current_timestamp(3)) * 1000
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+          and receivable_opened_amount + #{delta} >= 0
+          and receivable_available_amount - #{delta} >= 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoicePO">
+        select <include refid="BaseColumns"/>
+        from sales_invoice
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByIds" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoicePO">
+        select <include refid="BaseColumns"/>
+        from sales_invoice
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoicePO">
+        select <include refid="BaseColumns"/>
+        from sales_invoice
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from sales_invoice
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
@@ -31,13 +32,15 @@ public class ProductSpuQueryAppServiceImpl {
     private final ProductSpuFieldFactory fieldFactory;
     private final ProductSpuListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public ProductSpuQueryAppServiceImpl(ProductSpuRepository productSpuRepository, ProductSpuFieldFactory fieldFactory, ProductSpuListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+    public ProductSpuQueryAppServiceImpl(ProductSpuRepository productSpuRepository, ProductSpuFieldFactory fieldFactory, ProductSpuListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer, BizNoGenerator bizNoGenerator) {
         this.productSpuRepository = productSpuRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<ProductSpuListItemVO> list(ListBaseDTO dto) {
@@ -53,9 +56,12 @@ public class ProductSpuQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.ProductSpuSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.ProductSpuSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
-        vo.setData(ProductSpuAdminAssembler.buildEmptySaveItemVO());
+        xbb.ai.erp.module.masterdata.admin.vo.ProductSpuSaveItemVO data = ProductSpuAdminAssembler.buildEmptySaveItemVO();
+        data.getMain().setSpuCode(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.PRODUCT_SPU.getCode()));
+        vo.setData(data);
         return vo;
     }
 

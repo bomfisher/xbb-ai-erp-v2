@@ -1,14 +1,17 @@
 package xbb.ai.erp.module.purchase.application.service.query;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
@@ -44,9 +47,10 @@ public class PurchaseInboundQueryAppServiceImpl {
     private final PurchaseInboundFieldFactory fieldFactory;
     private final PurchaseInboundListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public PurchaseInboundQueryAppServiceImpl(PurchaseInboundRepository purchaseInboundRepository, PurchaseInboundItemRepository purchaseInboundItemRepository, PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderItemRepository purchaseOrderItemRepository, PurchaseInboundFieldFactory fieldFactory, PurchaseInboundListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+    public PurchaseInboundQueryAppServiceImpl(PurchaseInboundRepository purchaseInboundRepository, PurchaseInboundItemRepository purchaseInboundItemRepository, PurchaseOrderRepository purchaseOrderRepository, PurchaseOrderItemRepository purchaseOrderItemRepository, PurchaseInboundFieldFactory fieldFactory, PurchaseInboundListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer, BizNoGenerator bizNoGenerator) {
         this.purchaseInboundRepository = purchaseInboundRepository;
         this.purchaseInboundItemRepository = purchaseInboundItemRepository;
         this.purchaseOrderRepository = purchaseOrderRepository;
@@ -54,6 +58,7 @@ public class PurchaseInboundQueryAppServiceImpl {
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<PurchaseInboundListItemVO> list(ListBaseDTO dto) {
@@ -69,10 +74,13 @@ public class PurchaseInboundQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(buildFormHeadList(SceneTypeEnum.CREATE));
         vo.setLinkageConfig(buildFormLinkageConfig());
-        vo.setData(PurchaseInboundAdminAssembler.buildEmptySaveItemVO());
+        xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundSaveItemVO data = PurchaseInboundAdminAssembler.buildEmptySaveItemVO();
+        data.getMain().setInboundNo(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.PURCHASE_INBOUND.getCode()));
+        vo.setData(data);
         return vo;
     }
 
@@ -98,13 +106,13 @@ public class PurchaseInboundQueryAppServiceImpl {
             throw new BizException("采购订单回填字段或来源数据不合法");
         }
         PurchaseOrder order = purchaseOrderRepository.findById(dto.getCorpid(), dto.getReferenceId());
-        if (order == null) {
+        if (order == null || !AuditStatusEnum.allowsDownstream(order.getAuditStatus())) {
             throw new BizException("采购订单不存在或不可用");
         }
         List<PurchaseInboundItemDTO> items = purchaseOrderItemRepository.findByCondition(
-                Map.of("corpid", dto.getCorpid(), "purchaseOrderId", order.getId())).stream()
+            Map.of("corpid", dto.getCorpid(), "purchaseOrderId", order.getId())).stream()
             .filter(this::hasPendingInboundQuantity)
-            .map(item -> toInboundItem(item, null))
+            .map(item -> toInboundItem(item, item.getWarehouseId()))
             .toList();
         if (items.isEmpty()) {
             throw new BizException("采购订单已全部入库");
@@ -113,6 +121,7 @@ public class PurchaseInboundQueryAppServiceImpl {
         patch.put("main.purchaseOrderId", order.getId());
         patch.put("main.supplierId", order.getSupplierId());
         patch.put("main.supplierName", order.getSupplierName());
+        patch.put("main.totalAmount", totalAmount(items));
         patch.put("items", items);
         PurchaseInboundSelectionFillVO vo = new PurchaseInboundSelectionFillVO();
         vo.setReferenceId(order.getId());
@@ -164,6 +173,13 @@ public class PurchaseInboundQueryAppServiceImpl {
         item.setUnitPrice(orderItem.getUnitPrice());
         item.setCostUnit(orderItem.getUnitPrice());
         return item;
+    }
+
+    private BigDecimal totalAmount(List<PurchaseInboundItemDTO> items) {
+        return items.stream()
+            .map(item -> item.getQty().multiply(item.getUnitPrice()))
+            .reduce(BigDecimal.ZERO, BigDecimal::add)
+            .setScale(2, RoundingMode.HALF_UP);
     }
 
     private xbb.ai.erp.module.purchase.admin.vo.PurchaseInboundSaveItemVO toSaveItemVO(String corpid, PurchaseInbound entity) {

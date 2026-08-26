@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.sales.infrastructure.persistence.mapper.SalesOutboundItemMapper">
 
     <sql id="BaseColumns">
-        id, corpid, sales_outbound_id, sales_order_item_id, sku_id, sku_name, unit_name, qty, unit_price, amount, cost_unit, cost_amount, outbound_status, creator_id, modify_id
+        id, corpid, sales_outbound_id, sales_order_item_id, sku_id, sku_name, warehouse_id, unit_name, qty, unit_price, amount, cost_unit, cost_amount, outbound_status, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -42,18 +42,18 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into sales_outbound_item (
-            corpid, sales_outbound_id, sales_order_item_id, sku_id, sku_name, unit_name, qty, unit_price, amount, cost_unit, cost_amount, outbound_status, creator_id, modify_id
+            corpid, sales_outbound_id, sales_order_item_id, sku_id, sku_name, warehouse_id, unit_name, qty, unit_price, amount, cost_unit, cost_amount, outbound_status, creator_id, modify_id, del, add_time, update_time
         )
-        values (#{corpid}, #{salesOutboundId}, #{salesOrderItemId}, #{skuId}, #{skuName}, #{unitName}, #{qty}, #{unitPrice}, #{amount}, #{costUnit}, #{costAmount}, #{outboundStatus}, #{creatorId}, #{modifyId})
+        values (#{corpid}, #{salesOutboundId}, #{salesOrderItemId}, #{skuId}, #{skuName}, #{warehouseId}, #{unitName}, #{qty}, #{unitPrice}, #{amount}, #{costUnit}, #{costAmount}, #{outboundStatus}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
     </insert>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into sales_outbound_item (
-            corpid, sales_outbound_id, sales_order_item_id, sku_id, sku_name, unit_name, qty, unit_price, amount, cost_unit, cost_amount, outbound_status, creator_id, modify_id
+            corpid, sales_outbound_id, sales_order_item_id, sku_id, sku_name, warehouse_id, unit_name, qty, unit_price, amount, cost_unit, cost_amount, outbound_status, creator_id, modify_id, del, add_time, update_time
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.salesOutboundId}, #{item.salesOrderItemId}, #{item.skuId}, #{item.skuName}, #{item.unitName}, #{item.qty}, #{item.unitPrice}, #{item.amount}, #{item.costUnit}, #{item.costAmount}, #{item.outboundStatus}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.salesOutboundId}, #{item.salesOrderItemId}, #{item.skuId}, #{item.skuName}, #{item.warehouseId}, #{item.unitName}, #{item.qty}, #{item.unitPrice}, #{item.amount}, #{item.costUnit}, #{item.costAmount}, #{item.outboundStatus}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
         </foreach>
     </insert>
 
@@ -84,6 +84,7 @@
             <if test="salesOrderItemId != null">sales_order_item_id = #{salesOrderItemId},</if>
             <if test="skuId != null">sku_id = #{skuId},</if>
             <if test="skuName != null">sku_name = #{skuName},</if>
+            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
             <if test="unitName != null">unit_name = #{unitName},</if>
             <if test="qty != null">qty = #{qty},</if>
             <if test="unitPrice != null">unit_price = #{unitPrice},</if>
@@ -105,6 +106,15 @@
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
+    </select>
+
+    <select id="findByIdForUpdate" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesOutboundItemPO">
+        select <include refid="BaseColumns"/>
+        from sales_outbound_item
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+        for update
     </select>
 
     <select id="findByCondition" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesOutboundItemPO">

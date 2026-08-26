@@ -36,6 +36,10 @@ public interface PurchaseOrderAdminAppService {
 
     BaseVO saveAndSubmit(PurchaseOrderSubmitSaveDTO dto);
 
+    BaseVO audit(IdBaseDTO dto);
+
+    BaseVO unaudit(IdBaseDTO dto);
+
     List<PurchaseOrderDraftListItemVO> draftList(PurchaseOrderDraftListDTO dto);
 
     PurchaseOrderDraftDetailVO loadDraft(PurchaseOrderDraftLoadDTO dto);

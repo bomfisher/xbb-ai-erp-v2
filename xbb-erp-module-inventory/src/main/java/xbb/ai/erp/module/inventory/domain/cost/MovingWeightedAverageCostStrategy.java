@@ -35,6 +35,7 @@ public final class MovingWeightedAverageCostStrategy implements CostCalculationS
         BigDecimal quantityAfter = context.quantityBefore().subtract(context.quantity());
         BigDecimal totalCostChange = context.unitCostBefore().multiply(context.quantity()).setScale(2, RoundingMode.HALF_UP).negate();
         BigDecimal totalCostAfter = context.totalCostBefore().add(totalCostChange);
-        return new CostCalculationResult(quantityAfter, totalCostChange, totalCostAfter, context.unitCostBefore());
+        BigDecimal unitCostAfter = quantityAfter.signum() == 0 ? BigDecimal.ZERO : context.unitCostBefore();
+        return new CostCalculationResult(quantityAfter, totalCostChange, totalCostAfter, unitCostAfter);
     }
 }

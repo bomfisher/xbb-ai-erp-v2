@@ -58,7 +58,12 @@ public class SalesOrderListMetaProvider implements ListMetaProvider {
     @Override
     public ListMetaBundlePojo buildTopButtonMeta(ListCommonQueryDTO dto) {
         ListMetaBundlePojo bundle = new ListMetaBundlePojo();
-        bundle.setTopButtonList(List.of(new ListButtonItemPojo("ADD", "新建", 10, "ADD")));
+        bundle.setTopButtonList(List.of(
+            new ListButtonItemPojo("ADD", "新建", 10, "ADD"),
+            new ListButtonItemPojo("SALES_OUTBOUND", "销售出库", 20, "SALES_OUTBOUND"),
+            new ListButtonItemPojo("GENERATE_INVOICE", "生成发票", 30, "GENERATE_INVOICE"),
+            new ListButtonItemPojo("AUDIT", "审核/反审核", 40, "AUDIT")
+        ));
         return bundle;
     }
 

@@ -1,0 +1,46 @@
+moduleDir: settlement
+moduleCode: settlement
+moduleApiName: settlement
+businessName: payment
+businessCode: PAYMENT
+moduleName: 付款
+packageBase: xbb.ai.erp.module.settlement
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregateName: Payment
+tableName: payment
+aggregate:
+  aggregateName: Payment
+  tableName: payment
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: paymentNo, column: payment_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: supplierId, column: supplier_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: paymentDate, column: payment_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: writtenOffAmount, column: written_off_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remainingAmount, column: remaining_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: paymentType, column: payment_type, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: paymentMethod, column: payment_method, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: bankAccountId, column: bank_account_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: bankTransactionNo, column: bank_transaction_no, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: status, column: status, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+children:
+  - aggregateName: PaymentDetail
+    tableName: payment_detail
+    parentColumn: payment_id
+    repositoryMethod: replaceDetails
+    fields:
+      - { name: bankAccountId, column: bank_account_id, javaType: Long, required: true }
+      - { name: paymentMethod, column: payment_method, javaType: String, required: true }
+      - { name: amount, column: amount, javaType: java.math.BigDecimal, required: true }
+      - { name: transactionNo, column: transaction_no, javaType: String, required: false }
+      - { name: remark, column: remark, javaType: String, required: false }
+notes:
+  - 付款明细正式持久化于 payment_detail，明细金额合计必须等于 payment.amount。
+  - 收款侧继续使用 receipt_payment，付款侧不重命名收款表。
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

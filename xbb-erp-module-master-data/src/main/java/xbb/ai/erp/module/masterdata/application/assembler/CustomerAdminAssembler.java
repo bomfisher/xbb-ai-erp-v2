@@ -20,6 +20,7 @@ public final class CustomerAdminAssembler {
 
     public static CustomerSaveItemVO buildEmptySaveItemVO() {
         CustomerSaveItemVO vo = new CustomerSaveItemVO();
+        vo.setMain(new CustomerMainDTO());
         vo.setContacts(new ArrayList<>(List.of(new CustomerContactDTO())));
         return vo;
     }
@@ -51,7 +52,7 @@ public final class CustomerAdminAssembler {
         vo.setCustomerCode(customer.getCustomerCode());
         vo.setCustomerName(customer.getCustomerName());
         vo.setAddress(customer.getAddress());
-        vo.setEnabled(customer.getEnabled());
+        vo.setEnabled(Objects.isNull(customer.getEnabled()) ? "" : Objects.toString(customer.getEnabled()));
         vo.setRemark(customer.getRemark());
         vo.setCreatorId(customer.getCreatorId());
         vo.setModifyId(customer.getModifyId());

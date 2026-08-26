@@ -10,6 +10,7 @@ import java.util.Map;
 
 @Mapper
 public interface ProductSpuMapper extends BaseMapper<ProductSpuPO> {
+    List<ProductSpuPO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
     int insertBatch(@Param("list") List<ProductSpuPO> poList);
 
     int removeById(@Param("corpid") String corpid, @Param("id") Long id);

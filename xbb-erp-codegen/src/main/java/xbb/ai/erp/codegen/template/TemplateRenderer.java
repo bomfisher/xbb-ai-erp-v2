@@ -835,7 +835,18 @@ public class TemplateRenderer {
     public String renderSaveCommonValidator(ModuleSpec moduleSpec) {
         String aggregateName = aggregateName(moduleSpec);
         String packageName = moduleSpec.getPackageBase() + ".application.validator";
-        return "package " + packageName + ";\n\nimport org.springframework.stereotype.Component;\nimport " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n@Component\npublic class " + aggregateName + "SaveCommonValidator {\n    public void validateForDraft(" + aggregateName + "SaveDTO dto) {}\n    public void validateForSubmit(" + aggregateName + "SaveDTO dto) {}\n}\n";
+        return "package " + packageName + ";\n\n"
+            + "import org.springframework.stereotype.Component;\n"
+            + "import xbb.ai.erp.base.common.filed.FieldValidateModeEnum;\n"
+            + "import xbb.ai.erp.base.common.filed.FieldValueValidator;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin." + aggregateName + "FieldEnum;\n"
+            + "import " + moduleSpec.getPackageBase() + ".admin.dto." + aggregateName + "SaveDTO;\n\n"
+            + "@Component\npublic class " + aggregateName + "SaveCommonValidator {\n"
+            + "    private final FieldValueValidator fieldValueValidator = new FieldValueValidator();\n\n"
+            + "    public void validateForDraft(" + aggregateName + "SaveDTO dto) {}\n"
+            + "    public void validateForSubmit(" + aggregateName + "SaveDTO dto) {\n"
+            + "        fieldValueValidator.validate(" + aggregateName + "FieldEnum.fieldRules(), dto, FieldValidateModeEnum.SUBMIT);\n"
+            + "    }\n}\n";
     }
 
     public String renderSaveBusinessValidator(ModuleSpec moduleSpec) { return renderSaveValidator(moduleSpec, "SaveBusinessValidator", "validateForSubmit", ""); }
@@ -985,8 +996,6 @@ public class TemplateRenderer {
         String tableName = moduleSpec.getAggregate().getTableName();
         List<FieldSpec> fields = moduleSpec.getAggregate().getFields();
         String baseColumns = fields.stream().map(FieldSpec::getColumn).collect(Collectors.joining(", "));
-        String insertColumns = fields.stream().map(FieldSpec::getColumn).collect(Collectors.joining(", "));
-        String insertValues = fields.stream().map(field -> "#{item." + field.getName() + "}").collect(Collectors.joining(", "));
         String updateSet = fields.stream()
             .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()))
             .map(field -> "            <if test=\"" + field.getName() + " != null\">" + field.getColumn() + " = #{" + field.getName() + "},</if>")
@@ -1106,17 +1115,24 @@ public class TemplateRenderer {
     }
 
     private String insertColumnsWithoutId(List<FieldSpec> fields) {
-        return fields.stream()
-            .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()))
+        String columns = fields.stream()
+            .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()) && !isBaseEntityField(field))
             .map(FieldSpec::getColumn)
             .collect(Collectors.joining(", "));
+        return columns + ", del, add_time, update_time";
     }
 
     private String insertValuesWithoutId(List<FieldSpec> fields) {
-        return fields.stream()
-            .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()))
+        String values = fields.stream()
+            .filter(field -> !Boolean.TRUE.equals(field.getPrimaryKey()) && !isBaseEntityField(field))
             .map(field -> "#{item." + field.getName() + "}")
             .collect(Collectors.joining(", "));
+        return values + ", #{item.del}, #{item.addTime}, #{item.updateTime}";
+    }
+
+    private boolean isBaseEntityField(FieldSpec field) {
+        return "del".equals(field.getName()) || "deleted".equals(field.getName())
+            || "addTime".equals(field.getName()) || "updateTime".equals(field.getName());
     }
 
     private String renderField(FieldSpec field, boolean persistenceMode) {

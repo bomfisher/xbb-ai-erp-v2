@@ -20,6 +20,8 @@ public interface SupplierMapper extends BaseMapper<SupplierPO> {
 
     SupplierPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
+    List<SupplierPO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
+
     List<SupplierPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);

@@ -55,6 +55,9 @@ public class FieldValueValidator {
         Object next = readSegmentValue(current, segments[index]);
         if (next instanceof List<?> list) {
             if (list.isEmpty()) {
+                if (index + 1 >= segments.length) {
+                    validateValue(fieldRule, null, mode);
+                }
                 return;
             }
             for (Object item : list) {

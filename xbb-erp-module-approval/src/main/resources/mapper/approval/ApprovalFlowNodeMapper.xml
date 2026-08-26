@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.approval.infrastructure.persistence.mapper.ApprovalFlowNodeMapper">
+    <resultMap id="NodeMap" type="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalFlowNodePO">
+        <id property="id" column="id"/>
+        <result property="flowDefinitionId" column="flow_definition_id"/>
+        <result property="nodeNo" column="node_no"/>
+        <result property="nodeName" column="node_name"/>
+        <result property="approvalMode" column="approval_mode"/>
+    </resultMap>
+    <select id="findByDefinitionId" resultMap="NodeMap">
+        select * from approval_flow_node where flow_definition_id = #{flowDefinitionId} and del = 0 order by node_no
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into approval_flow_node (flow_definition_id, node_no, node_name, approval_mode, del, add_time, update_time)
+        values (#{flowDefinitionId}, #{nodeNo}, #{nodeName}, #{approvalMode}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+    <update id="removeByDefinitionId">
+        update approval_flow_node set del = 1, update_time = #{updateTime} where flow_definition_id = #{flowDefinitionId} and del = 0
+    </update>
+</mapper>

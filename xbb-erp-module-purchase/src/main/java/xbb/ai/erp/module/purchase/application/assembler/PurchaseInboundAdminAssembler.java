@@ -21,6 +21,7 @@ public final class PurchaseInboundAdminAssembler {
 
     public static PurchaseInboundSaveItemVO buildEmptySaveItemVO() {
         PurchaseInboundSaveItemVO vo = new PurchaseInboundSaveItemVO();
+        vo.setMain(new PurchaseInboundMainDTO());
         vo.setItems(List.of());
         return vo;
     }
@@ -51,8 +52,8 @@ public final class PurchaseInboundAdminAssembler {
         PurchaseInboundListItemVO vo = new PurchaseInboundListItemVO();
         vo.setId(purchaseInbound.getId());
         vo.setInboundNo(purchaseInbound.getInboundNo());
-        vo.setPurchaseOrderId(purchaseInbound.getPurchaseOrderId());
-        vo.setSupplierId(purchaseInbound.getSupplierId());
+        vo.setPurchaseOrderId(Objects.isNull(purchaseInbound.getPurchaseOrderId()) ? "" : String.valueOf(purchaseInbound.getPurchaseOrderId()));
+        vo.setSupplierId(Objects.isNull(purchaseInbound.getSupplierId()) ? "" : String.valueOf(purchaseInbound.getSupplierId()));
         vo.setSupplierName(purchaseInbound.getSupplierName());
         vo.setWarehouseId(purchaseInbound.getWarehouseId());
         vo.setInboundDate(Objects.isNull(purchaseInbound.getInboundDate()) ? "" : String.valueOf(purchaseInbound.getInboundDate()));

@@ -5,6 +5,11 @@ import java.math.RoundingMode;
 import java.util.List;
 import java.util.Objects;
 
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
+import xbb.ai.erp.base.common.enums.DocumentStatusEnum;
+import xbb.ai.erp.base.common.enums.InboundStatusEnum;
+import xbb.ai.erp.base.common.enums.InvoiceStatusEnum;
+import xbb.ai.erp.base.common.enums.PaymentStatusEnum;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderMainDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderItemDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderSaveDTO;
@@ -37,7 +42,11 @@ public final class PurchaseOrderAdminAssembler {
             purchaseOrder.setOrderDate(main.getOrderDate());
             purchaseOrder.setExpectedDate(main.getExpectedDate());
             purchaseOrder.setTotalAmount(main.getTotalAmount());
-            purchaseOrder.setStatus(main.getStatus());
+            purchaseOrder.setStatus(DocumentStatusEnum.OPEN.getCode());
+            purchaseOrder.setAuditStatus(AuditStatusEnum.PENDING.getCode());
+            purchaseOrder.setInboundStatus(InboundStatusEnum.NOT_INBOUNDED.getCode());
+            purchaseOrder.setPaymentStatus(PaymentStatusEnum.NOT_PAID.getCode());
+            purchaseOrder.setInvoiceStatus(InvoiceStatusEnum.NOT_INVOICED.getCode());
             purchaseOrder.setRemark(main.getRemark());
             purchaseOrder.setCreatorId(main.getCreatorId());
             purchaseOrder.setModifyId(main.getModifyId());
@@ -50,15 +59,17 @@ public final class PurchaseOrderAdminAssembler {
         PurchaseOrderListItemVO vo = new PurchaseOrderListItemVO();
         vo.setId(purchaseOrder.getId());
         vo.setOrderNo(purchaseOrder.getOrderNo());
-        vo.setSupplierId(purchaseOrder.getSupplierId());
+        vo.setSupplierId(Objects.isNull(purchaseOrder.getSupplierId()) ? "" : String.valueOf(purchaseOrder.getSupplierId()));
         vo.setSupplierName(purchaseOrder.getSupplierName());
         vo.setOrderDate(Objects.isNull(purchaseOrder.getOrderDate()) ? "" : String.valueOf(purchaseOrder.getOrderDate()));
         vo.setExpectedDate(Objects.isNull(purchaseOrder.getExpectedDate()) ? "" : String.valueOf(purchaseOrder.getExpectedDate()));
         vo.setTotalAmount(purchaseOrder.getTotalAmount());
-        vo.setStatus(purchaseOrder.getStatus());
-        vo.setAuditStatus(purchaseOrder.getAuditStatus());
-        vo.setInboundStatus(purchaseOrder.getInboundStatus());
-        vo.setPaymentStatus(purchaseOrder.getPaymentStatus());
+
+        vo.setStatus(Objects.isNull(purchaseOrder.getStatus()) ? "" : String.valueOf(purchaseOrder.getStatus()));
+        vo.setAuditStatus(Objects.isNull(purchaseOrder.getAuditStatus()) ? "" : String.valueOf(purchaseOrder.getAuditStatus()));
+        vo.setInboundStatus(Objects.isNull(purchaseOrder.getInboundStatus()) ? "" : String.valueOf(purchaseOrder.getInboundStatus()));
+        vo.setPaymentStatus(Objects.isNull(purchaseOrder.getPaymentStatus()) ? "" : String.valueOf(purchaseOrder.getPaymentStatus()));
+        vo.setInvoiceStatus(Objects.isNull(purchaseOrder.getInvoiceStatus()) ? "" : String.valueOf(purchaseOrder.getInvoiceStatus()));
         vo.setRemark(purchaseOrder.getRemark());
         vo.setCreatorId(purchaseOrder.getCreatorId());
         vo.setModifyId(purchaseOrder.getModifyId());
@@ -79,7 +90,7 @@ public final class PurchaseOrderAdminAssembler {
         main.setOrderDate(purchaseOrder.getOrderDate());
         main.setExpectedDate(purchaseOrder.getExpectedDate());
         main.setTotalAmount(purchaseOrder.getTotalAmount());
-        main.setStatus(purchaseOrder.getStatus());
+        main.setInvoiceStatus(purchaseOrder.getInvoiceStatus());
         main.setRemark(purchaseOrder.getRemark());
         main.setCreatorId(purchaseOrder.getCreatorId());
         main.setModifyId(purchaseOrder.getModifyId());
@@ -110,10 +121,16 @@ public final class PurchaseOrderAdminAssembler {
         item.setInboundQty(BigDecimal.ZERO);
         item.setUnitPrice(dto.getUnitPrice());
         item.setTaxRate(dto.getTaxRate() == null ? BigDecimal.ZERO : dto.getTaxRate());
-        item.setAmount(dto.getQty().multiply(dto.getUnitPrice()).setScale(2, RoundingMode.HALF_UP));
+        item.setAmount(calculateItemAmount(dto));
+        item.setInboundStatus(InboundStatusEnum.NOT_INBOUNDED.getCode());
         item.setCreatorId(userId);
         item.setModifyId(userId);
+        item.setWarehouseId(dto.getWarehouseId());
         return item;
+    }
+
+    public static BigDecimal calculateItemAmount(PurchaseOrderItemDTO dto) {
+        return dto.getQty().multiply(dto.getUnitPrice()).setScale(2, RoundingMode.HALF_UP);
     }
 
     public static List<PurchaseOrderItemDTO> toPurchaseOrderItemDTOs(List<PurchaseOrderItem> items) {

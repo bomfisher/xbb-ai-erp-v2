@@ -15,6 +15,7 @@ import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftListDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftLoadDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftSaveDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderBusinessSelectQueryDTO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOrderItemStockQueryDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderSubmitSaveDTO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDraftDetailVO;
@@ -23,6 +24,7 @@ import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderBusinessSelectOptionVO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOrderItemStockVO;
 import xbb.ai.erp.module.sales.application.service.SalesOrderAdminAppService;
 
 import java.util.List;
@@ -85,5 +87,20 @@ public class SalesOrderAdminController {
     public ResultVO<SalesOrderBusinessSelectOptionVO> businessSelectGetById(
         @RequestBody SalesOrderBusinessSelectQueryDTO dto) {
         return ResultVO.success(salesOrderAdminAppService.businessSelectGetById(dto));
+    }
+
+    @PostMapping("/itemStock")
+    public ResultVO<SalesOrderItemStockVO> queryItemStock(@RequestBody SalesOrderItemStockQueryDTO dto) {
+        return ResultVO.success(salesOrderAdminAppService.queryItemStock(dto));
+    }
+
+    @PostMapping("/audit")
+    public ResultVO<BaseVO> audit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(salesOrderAdminAppService.audit(dto));
+    }
+
+    @PostMapping("/unaudit")
+    public ResultVO<BaseVO> unaudit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(salesOrderAdminAppService.unaudit(dto));
     }
 }

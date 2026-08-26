@@ -41,6 +41,10 @@ public interface PurchaseInboundAdminAppService {
 
     BaseVO confirmInbound(PurchaseInboundConfirmDTO dto);
 
+    BaseVO audit(IdBaseDTO dto);
+
+    BaseVO unaudit(IdBaseDTO dto);
+
     List<PurchaseInboundDraftListItemVO> draftList(PurchaseInboundDraftListDTO dto);
 
     PurchaseInboundDraftDetailVO loadDraft(PurchaseInboundDraftLoadDTO dto);

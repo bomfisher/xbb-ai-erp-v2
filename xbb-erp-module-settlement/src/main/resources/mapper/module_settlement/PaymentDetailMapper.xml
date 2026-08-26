@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.settlement.infrastructure.persistence.mapper.PaymentDetailMapper">
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into payment_detail (
+            corpid, payment_id, bank_account_id, payment_method, amount, handling_fee,
+            transaction_no, remark, sort_no, creator_id, modify_id, del, add_time, update_time
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.paymentId}, #{item.bankAccountId}, #{item.paymentMethod},
+             #{item.amount}, #{item.handlingFee}, #{item.transactionNo}, #{item.remark},
+             #{item.sortNo}, #{item.creatorId}, #{item.modifyId}, #{item.del},
+             #{item.addTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <update id="removeByPaymentId">
+        update payment_detail
+        set del = 1
+        where corpid = #{corpid}
+          and payment_id = #{paymentId}
+          and del = 0
+    </update>
+
+    <select id="findByPaymentId" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.PaymentDetailPO">
+        select id, corpid, payment_id, bank_account_id, payment_method, amount, handling_fee,
+               transaction_no, remark, sort_no, creator_id, modify_id
+        from payment_detail
+        where corpid = #{corpid}
+          and payment_id = #{paymentId}
+          and del = 0
+        order by sort_no asc, id asc
+    </select>
+</mapper>

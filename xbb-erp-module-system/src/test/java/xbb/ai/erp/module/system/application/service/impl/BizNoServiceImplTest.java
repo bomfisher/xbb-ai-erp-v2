@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import xbb.ai.erp.base.bizno.BizNoGenerator;
@@ -13,6 +14,7 @@ import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.module.system.admin.dto.BizNoNextDTO;
 import xbb.ai.erp.module.system.admin.dto.BizNoRuleSaveDTO;
 import xbb.ai.erp.module.system.domain.model.BizNoRule;
+import xbb.ai.erp.module.system.domain.model.BizNoSerialModeEnum;
 import xbb.ai.erp.module.system.domain.repository.BizNoRuleRepository;
 
 class BizNoServiceImplTest {
@@ -32,6 +34,46 @@ class BizNoServiceImplTest {
         service.saveRule(dto);
 
         verify(ruleRepository).save(new BizNoRule("corp-a", "PRODUCT_SPU", "SPU", BizNoRuleTypeEnum.MASTER_DATA));
+    }
+
+    @Test
+    void should_save_all_number_rule_settings_for_current_company() {
+        BizNoRuleSaveDTO dto = new BizNoRuleSaveDTO();
+        dto.setCorpid("corp-a");
+        dto.setBusinessCode("CUSTOMER");
+        dto.setPrefix("CUS");
+        dto.setIncludeDate(1);
+        dto.setSuffixLength(8);
+        dto.setSerialMode("DAILY");
+
+        service.saveRule(dto);
+
+        verify(ruleRepository).save(new BizNoRule("corp-a", "CUSTOMER", "CUS", 1, 8,
+            BizNoSerialModeEnum.DAILY, BizNoRuleTypeEnum.DOCUMENT));
+    }
+
+    @Test
+    void should_mark_default_rule_as_not_overridden_in_business_tree() {
+        when(ruleRepository.findAvailable("corp-a"))
+            .thenReturn(List.of(new BizNoRule("0", "CUSTOMER", "CUS", BizNoRuleTypeEnum.MASTER_DATA)));
+
+        var tree = service.businessTree("corp-a");
+
+        assertEquals(1, tree.size());
+        assertEquals("基础资料", tree.getFirst().getBusinessName());
+        assertEquals("CUSTOMER", tree.getFirst().getChildren().getFirst().getBusinessCode());
+        assertEquals("客户", tree.getFirst().getChildren().getFirst().getBusinessName());
+        assertEquals(0, tree.getFirst().getChildren().getFirst().getOverridden());
+    }
+
+    @Test
+    void should_fall_back_to_business_code_when_rule_is_not_in_business_code_enum() {
+        when(ruleRepository.findAvailable("corp-a"))
+            .thenReturn(List.of(new BizNoRule("0", "LEGACY_DOCUMENT", "LEG", BizNoRuleTypeEnum.DOCUMENT)));
+
+        var tree = service.businessTree("corp-a");
+
+        assertEquals("LEGACY_DOCUMENT", tree.getFirst().getChildren().getFirst().getBusinessName());
     }
 
     @Test

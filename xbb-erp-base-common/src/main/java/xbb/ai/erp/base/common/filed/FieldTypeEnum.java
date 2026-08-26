@@ -51,6 +51,9 @@ public enum FieldTypeEnum {
     SUB_ITEM(49),
     //产品
     PRODUCT(50),
+    //资金账户
+    FUND_ACCOUNT(51),
+    INVOICE_SOURCE(52),
     ;
 
     private Integer type;

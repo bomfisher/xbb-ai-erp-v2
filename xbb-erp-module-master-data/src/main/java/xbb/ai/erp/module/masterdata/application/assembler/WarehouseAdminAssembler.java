@@ -46,7 +46,7 @@ public final class WarehouseAdminAssembler {
         vo.setWarehouseName(warehouse.getWarehouseName());
         vo.setAddress(warehouse.getAddress());
         vo.setOwnerId(warehouse.getOwnerId());
-        vo.setEnabled(warehouse.getEnabled());
+        vo.setEnabled(Objects.isNull(warehouse.getEnabled()) ? "" : Objects.toString(warehouse.getEnabled()));
         vo.setRemark(warehouse.getRemark());
         vo.setCreatorId(warehouse.getCreatorId());
         vo.setModifyId(warehouse.getModifyId());

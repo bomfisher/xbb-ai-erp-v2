@@ -66,6 +66,14 @@ public class CustomerRepositoryImpl implements CustomerRepository {
     }
 
     @Override
+    public List<Customer> findByIds(String corpid, java.util.Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return customerMapper.findByIds(corpid, ids).stream().map(CustomerConvertor::toDomain).toList();
+    }
+
+    @Override
     public List<Customer> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return customerMapper.findByCondition(preparedConditionMap).stream().map(CustomerConvertor::toDomain).toList();

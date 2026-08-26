@@ -11,7 +11,7 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum ProductSpuFieldEnum {
-    SPU_CODE("main.spuCode", "产品SPU编码", FieldTypeEnum.TEXT, "spu_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    SPU_CODE("main.spuCode", "对接编号", FieldTypeEnum.SERIAL_NO, "spu_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     SPU_NAME("main.spuName", "产品SPU名称", FieldTypeEnum.TEXT, "spu_name", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     CATEGORY_NAME("main.categoryName", "分类名称", FieldTypeEnum.TEXT, "category_name", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     ENABLED("main.enabled", "启用状态", FieldTypeEnum.COMB, "enabled", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "1:启用,0:禁用", null, List.of()),

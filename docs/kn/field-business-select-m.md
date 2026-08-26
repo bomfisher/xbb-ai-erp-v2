@@ -104,6 +104,12 @@ config.setMultiple(false);
 - `docs/api/endpoints/sales-order-business-select-dialog-search.md`
 - `docs/api/endpoints/sales-order-business-select-get-by-id.md`
 
+相关销售发票接口事实文档：
+
+- `docs/api/endpoints/sales-invoice-business-select-quick-search.md`
+- `docs/api/endpoints/sales-invoice-business-select-dialog-search.md`
+- `docs/api/endpoints/sales-invoice-business-select-get-by-id.md`
+
 ## 4. Product 类型边界
 
 产品 Product 是专用字段类型，不属于通用 `BUSINESS`：

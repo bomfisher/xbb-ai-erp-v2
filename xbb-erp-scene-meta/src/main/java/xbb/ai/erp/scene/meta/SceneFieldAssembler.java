@@ -29,6 +29,14 @@ public final class SceneFieldAssembler {
             FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
             config.setBusinessCode(definition.getBusinessCode());
             entity.setBusinessSelectConfig(config);
+            FieldEntity.ProductSelectConfig productSelectConfig = new FieldEntity.ProductSelectConfig();
+            productSelectConfig.setProductType("product-sku");
+            productSelectConfig.setBusinessCode(definition.getBusinessCode());
+            if (definition.getProductSelectSourceMode() != null) {
+                productSelectConfig.setSourceMode(definition.getProductSelectSourceMode().getCode());
+                productSelectConfig.setDefaultSource(definition.getProductSelectSourceMode().getDefaultSource());
+            }
+            entity.setProductSelectConfig(productSelectConfig);
         } else if (definition.getBusinessCode() != null && !definition.getBusinessCode().isBlank()) {
             FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
             config.setBusinessCode(definition.getBusinessCode());

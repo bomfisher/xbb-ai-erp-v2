@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.sales.infrastructure.persistence.mapper.SalesInvoiceLineMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, sales_invoice_id, line_no, product_id, product_name, specification, unit_id, quantity, unit_price, tax_rate, untaxed_amount, tax_amount, amount, remark, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.salesInvoiceId != null">
+            and sales_invoice_id = #{conditionMap.salesInvoiceId}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_invoice_line (
+            corpid, sales_invoice_id, line_no, product_id, product_name, specification, unit_id, quantity, unit_price, tax_rate, untaxed_amount, tax_amount, amount, remark, creator_id, modify_id, del, add_time, update_time
+        )
+        values (#{corpid}, #{salesInvoiceId}, #{lineNo}, #{productId}, #{productName}, #{specification}, #{unitId}, #{quantity}, #{unitPrice}, #{taxRate}, #{untaxedAmount}, #{taxAmount}, #{amount}, #{remark}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into sales_invoice_line (
+            corpid, sales_invoice_id, line_no, product_id, product_name, specification, unit_id, quantity, unit_price, tax_rate, untaxed_amount, tax_amount, amount, remark, creator_id, modify_id, del, add_time, update_time
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.salesInvoiceId}, #{item.lineNo}, #{item.productId}, #{item.productName}, #{item.specification}, #{item.unitId}, #{item.quantity}, #{item.unitPrice}, #{item.taxRate}, #{item.untaxedAmount}, #{item.taxAmount}, #{item.amount}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update sales_invoice_line
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update sales_invoice_line
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoiceLinePO">
+        update sales_invoice_line
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="salesInvoiceId != null">sales_invoice_id = #{salesInvoiceId},</if>
+            <if test="lineNo != null">line_no = #{lineNo},</if>
+            <if test="productId != null">product_id = #{productId},</if>
+            <if test="productName != null">product_name = #{productName},</if>
+            <if test="specification != null">specification = #{specification},</if>
+            <if test="unitId != null">unit_id = #{unitId},</if>
+            <if test="quantity != null">quantity = #{quantity},</if>
+            <if test="unitPrice != null">unit_price = #{unitPrice},</if>
+            <if test="taxRate != null">tax_rate = #{taxRate},</if>
+            <if test="untaxedAmount != null">untaxed_amount = #{untaxedAmount},</if>
+            <if test="taxAmount != null">tax_amount = #{taxAmount},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoiceLinePO">
+        select <include refid="BaseColumns"/>
+        from sales_invoice_line
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesInvoiceLinePO">
+        select <include refid="BaseColumns"/>
+        from sales_invoice_line
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from sales_invoice_line
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

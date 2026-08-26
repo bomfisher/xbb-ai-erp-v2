@@ -1,0 +1,31 @@
+moduleDir: settlement
+moduleCode: module_settlement
+moduleApiName: settlement
+businessName: receiptWriteoff
+businessCode: RECEIPT_WRITEOFF
+moduleName: 结算管理
+packageBase: xbb.ai.erp.module.settlement
+pathStrategy: ddd-mybatis-plus
+aggregateName: ReceiptWriteOff
+tableName: receipt_writeoff
+aggregateRole: ROOT
+admin: true
+application: true
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: ReceiptWriteOff
+  tableName: receipt_writeoff
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: writeoffNo, column: writeoff_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: receiptId, column: receipt_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: receivableId, column: receivable_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: writeoffDate, column: writeoff_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

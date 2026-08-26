@@ -18,6 +18,8 @@ public interface PurchaseOrderRepository {
 
     PurchaseOrder findById(String corpid, Long id);
 
+    List<PurchaseOrder> findByIds(String corpid, java.util.Collection<Long> ids);
+
     List<PurchaseOrder> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

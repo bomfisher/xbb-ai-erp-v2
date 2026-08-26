@@ -16,6 +16,7 @@ import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftSaveDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftListDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderDraftLoadDTO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderBusinessSelectQueryDTO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOrderItemStockQueryDTO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDetailVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO;
@@ -23,6 +24,7 @@ import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDraftListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDraftDetailVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderBusinessSelectOptionVO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOrderItemStockVO;
 import xbb.ai.erp.module.sales.application.service.SalesOrderAdminAppService;
 import xbb.ai.erp.module.sales.application.service.draft.SalesOrderDraftAppService;
 import xbb.ai.erp.module.sales.application.service.query.SalesOrderQueryAppServiceImpl;
@@ -88,6 +90,11 @@ public class SalesOrderAdminAppServiceImpl implements SalesOrderAdminAppService 
     }
 
     @Override
+    public SalesOrderItemStockVO queryItemStock(SalesOrderItemStockQueryDTO dto) {
+        return queryService.queryItemStock(dto);
+    }
+
+    @Override
     public Long save(SalesOrderSaveDTO dto) {
         return saveService.save(dto);
     }
@@ -100,5 +107,15 @@ public class SalesOrderAdminAppServiceImpl implements SalesOrderAdminAppService 
     @Override
     public void delete(BatchBaseDTO dto) {
         saveService.delete(dto);
+    }
+
+    @Override
+    public BaseVO audit(IdBaseDTO dto) {
+        return saveService.audit(dto);
+    }
+
+    @Override
+    public BaseVO unaudit(IdBaseDTO dto) {
+        return saveService.unaudit(dto);
     }
 }

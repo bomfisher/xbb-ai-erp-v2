@@ -108,6 +108,15 @@
           and del = 0
     </select>
 
+    <select id="findByIdForUpdate" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesOrderItemPO">
+        select <include refid="BaseColumns"/>
+        from sales_order_item
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+        for update
+    </select>
+
     <select id="findByCondition" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesOrderItemPO">
         select <include refid="BaseColumns"/>
         from sales_order_item

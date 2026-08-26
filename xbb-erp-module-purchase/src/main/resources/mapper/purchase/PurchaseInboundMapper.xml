@@ -41,6 +41,13 @@
         </if>
     </sql>
 
+    <select id="findByIds" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInboundPO">
+        select <include refid="BaseColumns"/>
+        from purchase_inbound
+        where corpid = #{corpid} and del = 0 and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
+
     <sql id="QueryTail">
         <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
             group by ${conditionMap.groupByStr}

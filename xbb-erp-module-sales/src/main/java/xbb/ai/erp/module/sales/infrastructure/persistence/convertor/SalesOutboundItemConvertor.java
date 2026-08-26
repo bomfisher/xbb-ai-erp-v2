@@ -19,6 +19,7 @@ public final class SalesOutboundItemConvertor {
         po.setSalesOrderItemId(salesOutboundItem.getSalesOrderItemId());
         po.setSkuId(salesOutboundItem.getSkuId());
         po.setSkuName(salesOutboundItem.getSkuName());
+        po.setWarehouseId(salesOutboundItem.getWarehouseId());
         po.setUnitName(salesOutboundItem.getUnitName());
         po.setQty(salesOutboundItem.getQty());
         po.setUnitPrice(salesOutboundItem.getUnitPrice());
@@ -42,6 +43,7 @@ public final class SalesOutboundItemConvertor {
         salesOutboundItem.setSalesOrderItemId(po.getSalesOrderItemId());
         salesOutboundItem.setSkuId(po.getSkuId());
         salesOutboundItem.setSkuName(po.getSkuName());
+        salesOutboundItem.setWarehouseId(po.getWarehouseId());
         salesOutboundItem.setUnitName(po.getUnitName());
         salesOutboundItem.setQty(po.getQty());
         salesOutboundItem.setUnitPrice(po.getUnitPrice());

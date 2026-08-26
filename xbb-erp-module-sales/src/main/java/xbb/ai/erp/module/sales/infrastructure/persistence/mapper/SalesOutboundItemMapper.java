@@ -21,6 +21,8 @@ public interface SalesOutboundItemMapper {
 
     SalesOutboundItemPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
+    SalesOutboundItemPO findByIdForUpdate(@Param("corpid") String corpid, @Param("id") Long id);
+
     List<SalesOutboundItemPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);

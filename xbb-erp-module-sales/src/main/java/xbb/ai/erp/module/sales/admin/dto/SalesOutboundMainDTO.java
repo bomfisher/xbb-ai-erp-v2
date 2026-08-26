@@ -10,6 +10,7 @@ public class SalesOutboundMainDTO {
     private Long salesOrderId;
     private Long customerId;
     private String customerName;
+    private String customerLabel;
     private Long warehouseId;
     private Long outboundDate;
     private java.math.BigDecimal totalAmount;

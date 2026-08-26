@@ -21,4 +21,5 @@ public class PurchaseOrderItem {
     private Integer inboundStatus;
     private String creatorId;
     private String modifyId;
+    private Long warehouseId;
 }

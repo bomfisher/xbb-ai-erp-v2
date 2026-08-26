@@ -20,6 +20,8 @@ public interface CustomerRepository {
 
     Customer findById(String corpid, Long id);
 
+    List<Customer> findByIds(String corpid, java.util.Collection<Long> ids);
+
     List<Customer> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

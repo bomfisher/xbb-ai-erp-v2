@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
@@ -33,13 +34,15 @@ public class SupplierQueryAppServiceImpl {
     private final SupplierFieldFactory fieldFactory;
     private final SupplierListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public SupplierQueryAppServiceImpl(SupplierRepository supplierRepository, SupplierFieldFactory fieldFactory, SupplierListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+    public SupplierQueryAppServiceImpl(SupplierRepository supplierRepository, SupplierFieldFactory fieldFactory, SupplierListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer, BizNoGenerator bizNoGenerator) {
         this.supplierRepository = supplierRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<SupplierListItemVO> list(ListBaseDTO dto) {
@@ -55,9 +58,12 @@ public class SupplierQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
-        vo.setData(SupplierAdminAssembler.buildEmptySaveItemVO());
+        xbb.ai.erp.module.masterdata.admin.vo.SupplierSaveItemVO data = SupplierAdminAssembler.buildEmptySaveItemVO();
+        data.getMain().setSupplierCode(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.SUPPLIER.getCode()));
+        vo.setData(data);
         return vo;
     }
 
@@ -77,18 +83,17 @@ public class SupplierQueryAppServiceImpl {
     }
 
     public List<SupplierBusinessSelectOptionVO> businessSelectQuickSearch(SupplierBusinessSelectQueryDTO dto) {
-        return findBusinessSelectOptions(dto);
+        return findBusinessSelectOptions(dto, 0, 5);
     }
 
     public ListBaseVO<SupplierBusinessSelectOptionVO> businessSelectDialogSearch(SupplierBusinessSelectQueryDTO dto) {
         int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
-        List<SupplierBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
-        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
-        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        List<SupplierBusinessSelectOptionVO> options = findBusinessSelectOptions(dto, (pageNum - 1) * pageSize, pageSize);
+        Long total = supplierRepository.count(businessSelectConditions(dto, null, null));
         ListBaseVO<SupplierBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setList(all.subList(fromIndex, toIndex));
-        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        vo.setList(options);
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, total == null ? 0 : total.intValue()));
         return vo;
     }
 
@@ -101,17 +106,35 @@ public class SupplierQueryAppServiceImpl {
         return supplier == null ? null : toBusinessSelectOption(supplier);
     }
 
-    private List<SupplierBusinessSelectOptionVO> findBusinessSelectOptions(SupplierBusinessSelectQueryDTO dto) {
+    private List<SupplierBusinessSelectOptionVO> findBusinessSelectOptions(SupplierBusinessSelectQueryDTO dto,
+                                                                             Integer offset, Integer pageSize) {
         AdminParamValidator.requireCorpid(dto);
         Map<String, Object> conditions = new java.util.HashMap<>();
         conditions.put("corpid", dto.getCorpid());
-        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
         return supplierRepository.findByCondition(conditions).stream()
-                .filter(supplier -> keyword.isEmpty()
-                        || (supplier.getSupplierCode() != null && supplier.getSupplierCode().contains(keyword))
-                        || (supplier.getSupplierName() != null && supplier.getSupplierName().contains(keyword)))
                 .map(this::toBusinessSelectOption)
                 .toList();
+    }
+
+    private static Map<String, Object> businessSelectConditions(SupplierBusinessSelectQueryDTO dto,
+                                                                  Integer offset, Integer pageSize) {
+        Map<String, Object> conditions = new java.util.HashMap<>();
+        conditions.put("corpid", dto.getCorpid());
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
+        return conditions;
     }
 
     private SupplierBusinessSelectOptionVO toBusinessSelectOption(Supplier supplier) {

@@ -17,7 +17,7 @@ public class SalesOutboundPO extends BaseEntity {
     private Long warehouseId;
     private Long outboundDate;
     private java.math.BigDecimal totalAmount;
-    private String status;
+    private Integer status;
     private String remark;
     private Integer auditStatus;
     private String creatorId;

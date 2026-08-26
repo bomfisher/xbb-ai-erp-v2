@@ -4,7 +4,10 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.enums.DocumentStatusEnum;
-import xbb.ai.erp.base.common.exception.BizException;
+import xbb.ai.erp.base.common.enums.ApprovalStatusEnum;
+import xbb.ai.erp.base.common.enums.OutboundStatusEnum;
+import xbb.ai.erp.base.common.enums.ReceiptStatusEnum;
+import xbb.ai.erp.base.common.enums.InvoiceStatusEnum;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import org.springframework.transaction.annotation.Transactional;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
@@ -17,6 +20,9 @@ import xbb.ai.erp.module.sales.application.port.SalesOrderDraftRepository;
 import xbb.ai.erp.module.sales.application.validator.SalesOrderSaveProtocolValidator;
 import xbb.ai.erp.module.sales.application.validator.SalesOrderSaveCommonValidator;
 import xbb.ai.erp.module.sales.application.validator.SalesOrderSaveBusinessValidator;
+import xbb.ai.erp.module.sales.application.approval.SalesOrderApprovalSubmitService;
+import xbb.ai.erp.module.approval.contract.ApprovalStatus;
+import xbb.ai.erp.module.approval.contract.ApprovalSubmission;
 import xbb.ai.erp.module.sales.domain.model.SalesOrder;
 import xbb.ai.erp.module.sales.domain.repository.SalesOrderRepository;
 import xbb.ai.erp.module.sales.domain.repository.SalesOrderItemRepository;
@@ -43,31 +49,48 @@ public class SalesOrderSaveAppServiceImpl {
     private final SalesOrderSaveProtocolValidator protocolValidator;
     private final SalesOrderSaveCommonValidator commonValidator;
     private final SalesOrderSaveBusinessValidator businessValidator;
+    private final SalesOrderApprovalSubmitService approvalSubmitService;
 
     @Transactional
     public BaseVO saveAndSubmit(SalesOrderSubmitSaveDTO dto) {
         protocolValidator.validate(dto);
         commonValidator.validateForSubmit(dto);
         businessValidator.validateForSubmit(dto);
-        if (dto.getItems() == null || dto.getItems().isEmpty()) {
-            throw new BizException("销售订单明细不能为空");
-        }
         dto.getMain().setTotalAmount(calculateTotalAmount(dto.getItems()));
         Long orderId = save(dto);
         List<SalesOrderItem> items = IntStream.range(0, dto.getItems().size())
             .mapToObj(index -> toItem(dto.getItems().get(index), dto, orderId, index + 1))
             .toList();
         salesOrderItemRepository.insertBatch(items);
-        List<ReservationLine> reservationLines = items.stream()
-            .filter(item -> item.getWarehouseId() != null)
-            .map(item -> new ReservationLine(item.getWarehouseId(), item.getSkuId(), item.getQty(), item.getId()))
-            .toList();
-        if (!reservationLines.isEmpty()) {
-            inventoryCommandApi.reserve(new ReservationCommand(dto.getCorpid(), BusinessCodeEnum.SALES_ORDER.getCode(), orderId,
-                BusinessCodeEnum.SALES_ORDER.getCode(), reservationLines, dto.getUserId(), LocalDateTime.now(), "sales-order-" + orderId));
+        ApprovalSubmission submission = approvalSubmitService.submitCreate(orderId, dto);
+        updateApprovalStatus(dto.getCorpid(), orderId, submission.status());
+        if (submission.status() == ApprovalStatus.NO_APPROVAL) {
+            reserveOrderStock(dto.getCorpid(), orderId, dto.getUserId());
         }
         if (dto.getDraftMeta() != null && dto.getDraftMeta().getDraftCode() != null) draftRepository.removeDraft(dto.getCorpid(), dto.getDraftMeta().getDraftCode());
         return new BaseVO();
+    }
+
+    @Transactional
+    public void activateApprovedOrder(String corpid, Long orderId, String instanceId) {
+        SalesOrder order = requireOrder(corpid, orderId);
+        if (ApprovalStatusEnum.APPROVED.getCode().equals(order.getAuditStatus())) {
+            return;
+        }
+        order.setAuditStatus(ApprovalStatusEnum.APPROVED.getCode());
+        order.setModifyId(instanceId);
+        salesOrderRepository.update(order);
+        reserveOrderStock(corpid, orderId, instanceId);
+    }
+
+    @Transactional
+    public void finishUnapprovedOrder(String corpid, Long orderId) {
+        SalesOrder order = requireOrder(corpid, orderId);
+        if (ApprovalStatusEnum.PENDING.getCode().equals(order.getAuditStatus())
+            || ApprovalStatusEnum.PROCESSING.getCode().equals(order.getAuditStatus())) {
+            order.setAuditStatus(ApprovalStatusEnum.REJECTED.getCode());
+            salesOrderRepository.update(order);
+        }
     }
 
     public Long save(SalesOrderSaveDTO dto) {
@@ -76,6 +99,10 @@ public class SalesOrderSaveAppServiceImpl {
         SalesOrder entity = SalesOrderAdminAssembler.toSalesOrder(dto);
         if (entity.getId() == null) {
             entity.setStatus(DocumentStatusEnum.OPEN.getCode());
+            entity.setAuditStatus(ApprovalStatusEnum.PENDING.getCode());
+            entity.setOutboundStatus(OutboundStatusEnum.NOT_OUTBOUNDED.getCode());
+            entity.setReceiptStatus(ReceiptStatusEnum.NOT_RECEIVED.getCode());
+            entity.setInvoiceStatus(InvoiceStatusEnum.NOT_INVOICED.getCode());
             return salesOrderRepository.insert(entity);
         }
         salesOrderRepository.update(entity);
@@ -85,6 +112,86 @@ public class SalesOrderSaveAppServiceImpl {
     public void delete(BatchBaseDTO dto) {
         if (dto.getIdList() != null && !dto.getIdList().isEmpty()) {
             salesOrderRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
+        }
+    }
+
+    @Transactional
+    public BaseVO audit(xbb.ai.erp.base.common.dto.IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
+        SalesOrder order = requireOrder(dto.getCorpid(), dto.getId());
+        Integer currentStatus = order.getAuditStatus();
+        if (!ApprovalStatusEnum.PENDING.getCode().equals(currentStatus)
+            && !ApprovalStatusEnum.REJECTED.getCode().equals(currentStatus)) {
+            throw new xbb.ai.erp.base.common.exception.BizException("当前销售订单不可审核");
+        }
+        order.setAuditStatus(ApprovalStatusEnum.APPROVED.getCode());
+        order.setModifyId(dto.getUserId());
+        salesOrderRepository.update(order);
+        return new BaseVO();
+    }
+
+    @Transactional
+    public BaseVO unaudit(xbb.ai.erp.base.common.dto.IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
+        SalesOrder order = requireOrder(dto.getCorpid(), dto.getId());
+        if (!ApprovalStatusEnum.APPROVED.getCode().equals(order.getAuditStatus())) {
+            throw new xbb.ai.erp.base.common.exception.BizException("当前销售订单不可反审核");
+        }
+        if (!OutboundStatusEnum.NOT_OUTBOUNDED.getCode().equals(order.getOutboundStatus())
+            || !ReceiptStatusEnum.NOT_RECEIVED.getCode().equals(order.getReceiptStatus())) {
+            throw new xbb.ai.erp.base.common.exception.BizException("销售订单已有出库或收款下游单据，不能反审核");
+        }
+        boolean hasDeliveredItem = salesOrderItemRepository.findByCondition(
+                java.util.Map.of("corpid", order.getCorpid(), "salesOrderId", order.getId())).stream()
+            .anyMatch(item -> item.getDeliveredQty() != null && item.getDeliveredQty().signum() > 0);
+        if (hasDeliveredItem) {
+            throw new xbb.ai.erp.base.common.exception.BizException("销售订单已有出库下游单据，不能反审核");
+        }
+        order.setAuditStatus(ApprovalStatusEnum.PENDING.getCode());
+        order.setModifyId(dto.getUserId());
+        salesOrderRepository.update(order);
+        return new BaseVO();
+    }
+
+    private SalesOrder requireOrder(String corpid, Long id) {
+        SalesOrder order = salesOrderRepository.findById(corpid, id);
+        if (order == null) {
+            throw new xbb.ai.erp.base.common.exception.BizException("销售订单不存在");
+        }
+        return order;
+    }
+
+    private void updateApprovalStatus(String corpid, Long orderId, ApprovalStatus approvalStatus) {
+        SalesOrder order = requireOrder(corpid, orderId);
+        if (approvalStatus == ApprovalStatus.NO_APPROVAL) {
+            order.setAuditStatus(ApprovalStatusEnum.NO_NEED_APPROVED.getCode());
+        } else if (approvalStatus == ApprovalStatus.APPROVED) {
+            order.setAuditStatus(ApprovalStatusEnum.APPROVED.getCode());
+        } else {
+            order.setAuditStatus(ApprovalStatusEnum.PENDING.getCode());
+        }
+        salesOrderRepository.update(order);
+    }
+
+    @Transactional
+    public void markOrderApprovalProcessing(String corpid, Long orderId, String instanceId) {
+        SalesOrder order = requireOrder(corpid, orderId);
+        if (ApprovalStatusEnum.PENDING.getCode().equals(order.getAuditStatus())) {
+            order.setAuditStatus(ApprovalStatusEnum.PROCESSING.getCode());
+            order.setModifyId(instanceId);
+            salesOrderRepository.update(order);
+        }
+    }
+
+    private void reserveOrderStock(String corpid, Long orderId, String operatorId) {
+        List<ReservationLine> reservationLines = salesOrderItemRepository.findByCondition(
+                java.util.Map.of("corpid", corpid, "salesOrderId", orderId)).stream()
+            .filter(item -> item.getWarehouseId() != null)
+            .map(item -> new ReservationLine(item.getWarehouseId(), item.getSkuId(), item.getQty(), item.getId()))
+            .toList();
+        if (!reservationLines.isEmpty()) {
+            inventoryCommandApi.reserve(new ReservationCommand(corpid, BusinessCodeEnum.SALES_ORDER.getCode(), orderId,
+                BusinessCodeEnum.SALES_ORDER.getCode(), reservationLines, operatorId, LocalDateTime.now(), "sales-order-" + orderId));
         }
     }
 

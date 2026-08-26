@@ -70,6 +70,16 @@ public class PurchaseInboundAdminController {
         return ResultVO.success(purchaseInboundAdminAppService.confirmInbound(dto));
     }
 
+    @PostMapping("/audit")
+    public ResultVO<BaseVO> audit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseInboundAdminAppService.audit(dto));
+    }
+
+    @PostMapping("/unaudit")
+    public ResultVO<BaseVO> unaudit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseInboundAdminAppService.unaudit(dto));
+    }
+
     @PostMapping("/draftList")
     public ResultVO<List<PurchaseInboundDraftListItemVO>> draftList(@RequestBody PurchaseInboundDraftListDTO dto) {
         return ResultVO.success(purchaseInboundAdminAppService.draftList(dto));

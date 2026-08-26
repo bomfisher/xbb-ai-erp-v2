@@ -10,11 +10,12 @@ public class SalesOrderListItemVO {
     private String orderDate;
     private String deliveryDate;
     private String totalAmount;
-    private Integer status;
+    private String status;
     private String remark;
     private String auditStatus;
     private String outboundStatus;
     private String receiptStatus;
+    private String invoiceStatus;
     private String creatorId;
     private String modifyId;
 }

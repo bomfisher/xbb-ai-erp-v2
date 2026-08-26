@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.settlement.infrastructure.persistence.mapper.PaymentWriteOffMapper">
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into payment_writeoff (corpid, supplier_id, writeoff_no, payment_id, payable_id, writeoff_date,
+            amount, status, remark, creator_id, modify_id, del, add_time, update_time)
+        values (#{corpid}, #{supplierId}, #{writeoffNo}, #{paymentId}, #{payableId}, #{writeoffDate}, #{amount},
+            1, #{remark}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+
+    <select id="findById" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.PaymentWriteOffPO">
+        select id, corpid, supplier_id, writeoff_no, payment_id, payable_id, writeoff_date, amount, status,
+            reversed_time, remark, creator_id, modify_id
+        from payment_writeoff
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <update id="reverse">
+        update payment_writeoff
+        set status = 0,
+            reversed_time = #{reversedTime},
+            modify_id = #{userId},
+            update_time = #{reversedTime}
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+          and status = 1
+    </update>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.PaymentWriteOffPO">
+        select id, corpid, supplier_id, writeoff_no, payment_id, payable_id, writeoff_date, amount, status,
+            reversed_time, remark, creator_id, modify_id
+        from payment_writeoff
+        where corpid = #{conditionMap.corpid}
+          and del = 0
+        order by id desc
+        limit #{conditionMap.offset}, #{conditionMap.limit}
+    </select>
+
+    <select id="count" resultType="long">
+        select count(1)
+        from payment_writeoff
+        where corpid = #{conditionMap.corpid}
+          and del = 0
+    </select>
+</mapper>

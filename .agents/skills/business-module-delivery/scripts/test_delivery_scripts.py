@@ -641,6 +641,8 @@ listActions:
             field_enum = (module_root / "src/main/java/xbb/ai/erp/module/sales/admin/SalesOrderFieldEnum.java").read_text(encoding="utf-8")
             self.assertIn('OWNER_ID("main.ownerId", "负责人", FieldTypeEnum.USER, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "ORG_MEMBER"', field_enum)
             self.assertIn('DEPARTMENT_ID("main.departmentId", "所属部门", FieldTypeEnum.DEPT, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "ORG_DEPARTMENT"', field_enum)
+            self.assertIn("public static List<FieldRule> fieldRules()", field_enum)
+            self.assertIn("import xbb.ai.erp.base.common.filed.FieldRule;", field_enum)
 
     def test_field_design_generator_preserves_type_specific_configuration(self) -> None:
         with tempfile.TemporaryDirectory() as temp_dir:

@@ -4,7 +4,7 @@
     {
       "name": "outboundNo",
       "attr": "main.outboundNo",
-      "attrName": "出库单号",
+      "attrName": "对接编号",
       "fieldType": "TEXT",
       "scenes": [
         "LIST",
@@ -67,7 +67,7 @@
         "CREATE",
         "UPDATE"
       ],
-      "required": true,
+      "required": false,
       "editable": true,
       "defaultValue": null,
       "filterName": null,
@@ -166,11 +166,40 @@
             "CREATE",
             "UPDATE"
           ],
-          "required": false,
+          "required": true,
           "editable": true,
           "defaultValue": null,
           "filterName": null,
           "businessCode": "PRODUCT_SKU"
+        },
+        {
+          "name": "warehouse_id",
+          "attr": "warehouseId",
+          "attrName": "出库仓库",
+          "fieldType": "BUSINESS",
+          "scenes": [
+            "CREATE",
+            "UPDATE"
+          ],
+          "required": true,
+          "editable": true,
+          "defaultValue": null,
+          "filterName": null,
+          "businessCode": "WAREHOUSE"
+        },
+        {
+          "name": "stock_qty",
+          "attr": "stockQty",
+          "attrName": "即时库存",
+          "fieldType": "STOCK",
+          "scenes": [
+            "CREATE",
+            "UPDATE"
+          ],
+          "required": false,
+          "editable": false,
+          "defaultValue": null,
+          "filterName": null
         },
         {
           "name": "unit_name",
@@ -181,8 +210,8 @@
             "CREATE",
             "UPDATE"
           ],
-          "required": false,
-          "editable": true,
+          "required": true,
+          "editable": false,
           "defaultValue": null,
           "filterName": null
         },
@@ -195,7 +224,7 @@
             "CREATE",
             "UPDATE"
           ],
-          "required": false,
+          "required": true,
           "editable": true,
           "defaultValue": null,
           "filterName": null
@@ -204,13 +233,13 @@
           "name": "unit_price",
           "attr": "unitPrice",
           "attrName": "unit_price",
-          "fieldType": "NUM_DOUBLE",
+          "fieldType": "AMOUNT",
           "scenes": [
             "CREATE",
             "UPDATE"
           ],
-          "required": false,
-          "editable": true,
+          "required": true,
+          "editable": false,
           "defaultValue": null,
           "filterName": null
         },
@@ -224,7 +253,7 @@
             "UPDATE"
           ],
           "required": false,
-          "editable": true,
+          "editable": false,
           "defaultValue": null,
           "filterName": null
         },

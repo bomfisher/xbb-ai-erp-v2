@@ -58,6 +58,14 @@ public class PurchaseOrderRepositoryImpl implements PurchaseOrderRepository {
     }
 
     @Override
+    public List<PurchaseOrder> findByIds(String corpid, java.util.Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return purchaseOrderMapper.findByIds(corpid, ids).stream().map(PurchaseOrderConvertor::toDomain).toList();
+    }
+
+    @Override
     public List<PurchaseOrder> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return purchaseOrderMapper.findByCondition(preparedConditionMap).stream().map(PurchaseOrderConvertor::toDomain).toList();

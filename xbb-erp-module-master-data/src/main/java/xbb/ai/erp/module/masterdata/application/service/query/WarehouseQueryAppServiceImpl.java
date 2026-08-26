@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
@@ -33,13 +34,15 @@ public class WarehouseQueryAppServiceImpl {
     private final WarehouseFieldFactory fieldFactory;
     private final WarehouseListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public WarehouseQueryAppServiceImpl(WarehouseRepository warehouseRepository, WarehouseFieldFactory fieldFactory, WarehouseListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
+    public WarehouseQueryAppServiceImpl(WarehouseRepository warehouseRepository, WarehouseFieldFactory fieldFactory, WarehouseListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer, BizNoGenerator bizNoGenerator) {
         this.warehouseRepository = warehouseRepository;
         this.fieldFactory = fieldFactory;
         this.schemaProvider = schemaProvider;
         this.listValueRenderer = listValueRenderer;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<WarehouseListItemVO> list(ListBaseDTO dto) {
@@ -55,9 +58,14 @@ public class WarehouseQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
-        vo.setData(WarehouseAdminAssembler.buildEmptySaveItemVO());
+        xbb.ai.erp.module.masterdata.admin.vo.WarehouseSaveItemVO data = WarehouseAdminAssembler.buildEmptySaveItemVO();
+        xbb.ai.erp.module.masterdata.admin.dto.WarehouseMainDTO main = new xbb.ai.erp.module.masterdata.admin.dto.WarehouseMainDTO();
+        main.setWarehouseCode(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.WAREHOUSE.getCode()));
+        data.setMain(main);
+        vo.setData(data);
         return vo;
     }
 
@@ -77,18 +85,17 @@ public class WarehouseQueryAppServiceImpl {
     }
 
     public List<WarehouseBusinessSelectOptionVO> businessSelectQuickSearch(WarehouseBusinessSelectQueryDTO dto) {
-        return findBusinessSelectOptions(dto);
+        return findBusinessSelectOptions(dto, 0, 5);
     }
 
     public ListBaseVO<WarehouseBusinessSelectOptionVO> businessSelectDialogSearch(WarehouseBusinessSelectQueryDTO dto) {
         int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
-        List<WarehouseBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
-        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
-        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        List<WarehouseBusinessSelectOptionVO> options = findBusinessSelectOptions(dto, (pageNum - 1) * pageSize, pageSize);
+        Long total = warehouseRepository.count(businessSelectConditions(dto, null, null));
         ListBaseVO<WarehouseBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setList(all.subList(fromIndex, toIndex));
-        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        vo.setList(options);
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, total == null ? 0 : total.intValue()));
         return vo;
     }
 
@@ -101,17 +108,35 @@ public class WarehouseQueryAppServiceImpl {
         return warehouse == null ? null : toBusinessSelectOption(warehouse);
     }
 
-    private List<WarehouseBusinessSelectOptionVO> findBusinessSelectOptions(WarehouseBusinessSelectQueryDTO dto) {
+    private List<WarehouseBusinessSelectOptionVO> findBusinessSelectOptions(WarehouseBusinessSelectQueryDTO dto,
+                                                                               Integer offset, Integer pageSize) {
         AdminParamValidator.requireCorpid(dto);
         Map<String, Object> conditions = new java.util.HashMap<>();
         conditions.put("corpid", dto.getCorpid());
-        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
         return warehouseRepository.findByCondition(conditions).stream()
-                .filter(warehouse -> keyword.isEmpty()
-                        || (warehouse.getWarehouseCode() != null && warehouse.getWarehouseCode().contains(keyword))
-                        || (warehouse.getWarehouseName() != null && warehouse.getWarehouseName().contains(keyword)))
                 .map(this::toBusinessSelectOption)
                 .toList();
+    }
+
+    private static Map<String, Object> businessSelectConditions(WarehouseBusinessSelectQueryDTO dto,
+                                                                  Integer offset, Integer pageSize) {
+        Map<String, Object> conditions = new java.util.HashMap<>();
+        conditions.put("corpid", dto.getCorpid());
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
+        return conditions;
     }
 
     private WarehouseBusinessSelectOptionVO toBusinessSelectOption(Warehouse warehouse) {

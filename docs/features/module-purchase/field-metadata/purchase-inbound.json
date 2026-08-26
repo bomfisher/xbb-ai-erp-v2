@@ -4,7 +4,7 @@
     {
       "name": "inboundNo",
       "attr": "main.inboundNo",
-      "attrName": "inbound_no",
+      "attrName": "对接编号",
       "fieldType": "TEXT",
       "scenes": [
         "LIST",

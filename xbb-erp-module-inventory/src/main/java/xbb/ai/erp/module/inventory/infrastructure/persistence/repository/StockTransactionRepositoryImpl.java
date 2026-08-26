@@ -3,6 +3,8 @@ package xbb.ai.erp.module.inventory.infrastructure.persistence.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import xbb.ai.erp.module.inventory.domain.model.StockTransaction;
+import xbb.ai.erp.module.inventory.admin.dto.StockTransactionQueryDTO;
+import xbb.ai.erp.module.inventory.domain.pojo.StockTransactionQueryPojo;
 import xbb.ai.erp.module.inventory.domain.repository.StockTransactionRepository;
 import xbb.ai.erp.module.inventory.infrastructure.persistence.convertor.StockTransactionConvertor;
 import xbb.ai.erp.module.inventory.infrastructure.persistence.mapper.StockTransactionMapper;
@@ -16,6 +18,16 @@ import java.util.Map;
 public class StockTransactionRepositoryImpl implements StockTransactionRepository {
 
     private final StockTransactionMapper stockTransactionMapper;
+
+    @Override
+    public List<StockTransactionQueryPojo> queryList(StockTransactionQueryDTO query, int offset, int pageSize) {
+        return stockTransactionMapper.queryList(query, offset, pageSize);
+    }
+
+    @Override
+    public Long queryCount(StockTransactionQueryDTO query) {
+        return stockTransactionMapper.queryCount(query);
+    }
 
     @Override
     public Long insert(StockTransaction stockTransaction) {

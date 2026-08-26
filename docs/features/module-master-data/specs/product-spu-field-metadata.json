@@ -4,7 +4,7 @@
     {
       "name": "spu_code",
       "attr": "main.spuCode",
-      "attrName": "产品SPU编码",
+      "attrName": "对接编号",
       "fieldType": "TEXT",
       "scenes": [
         "LIST",
@@ -139,7 +139,8 @@
         "IN",
         "IS_EMPTY",
         "IS_NOT_EMPTY"
-      ]
+      ],
+      "businessCode": "ORG_MEMBER"
     },
     {
       "name": "modify_id",
@@ -160,7 +161,8 @@
         "IN",
         "IS_EMPTY",
         "IS_NOT_EMPTY"
-      ]
+      ],
+      "businessCode": "ORG_MEMBER"
     }
   ],
   "listActions": {

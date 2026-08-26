@@ -60,6 +60,11 @@ public class SalesOrderItemRepositoryImpl implements SalesOrderItemRepository {
     }
 
     @Override
+    public SalesOrderItem findByIdForUpdate(String corpid, Long id) {
+        return SalesOrderItemConvertor.toDomain(salesOrderItemMapper.findByIdForUpdate(corpid, id));
+    }
+
+    @Override
     public List<SalesOrderItem> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return salesOrderItemMapper.findByCondition(preparedConditionMap).stream().map(SalesOrderItemConvertor::toDomain).toList();

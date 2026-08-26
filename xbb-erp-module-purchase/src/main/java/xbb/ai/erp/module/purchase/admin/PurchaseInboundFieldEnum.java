@@ -2,38 +2,41 @@ package xbb.ai.erp.module.purchase.admin;
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
+
 import lombok.Getter;
 import xbb.ai.erp.base.common.enums.AuditStatusEnum;
 import xbb.ai.erp.base.common.enums.StatusOptionEnum;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.filed.FieldEntity;
+import xbb.ai.erp.base.common.filed.FieldRule;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
+import xbb.ai.erp.base.common.filed.ProductSelectSourceModeEnum;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.scene.meta.SceneFieldMeta;
 import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum PurchaseInboundFieldEnum {
-    INBOUND_NO("main.inboundNo", "inbound_no", FieldTypeEnum.TEXT, "inbound_no", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    INBOUND_NO("main.inboundNo", "采购入库编号", FieldTypeEnum.SERIAL_NO, "对接编号", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     PURCHASE_ORDER_ID("main.purchaseOrderId", "采购订单", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "PURCHASE_ORDER", List.of()),
-    SUPPLIER_ID("main.supplierId", "supplier_id", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "SUPPLIER", List.of()),
-    WAREHOUSE_ID("main.warehouseId", "warehouse_id", FieldTypeEnum.BUSINESS, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "WAREHOUSE", List.of()),
+    SUPPLIER_ID("main.supplierId", "供应商", FieldTypeEnum.BUSINESS, null, true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "SUPPLIER", List.of()),
+    WAREHOUSE_ID("main.warehouseId", "仓库", FieldTypeEnum.BUSINESS, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "WAREHOUSE", List.of()),
     ITEMS("items", "入库产品", FieldTypeEnum.SUB_ITEM, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of(
-        new SceneFieldMeta("purchaseOrderItemId", "采购订单行", FieldTypeEnum.BUSINESS.getType(), 1, 1, List.of(), "PURCHASE_ORDER", List.of()),
-        new SceneFieldMeta("skuId", "产品", FieldTypeEnum.PRODUCT.getType(), 1, 1, List.of(), BusinessCodeEnum.PRODUCT_SKU.getCode(), List.of()),
+        new SceneFieldMeta("skuId", "产品", FieldTypeEnum.PRODUCT.getType(), 1, 1, List.of(), BusinessCodeEnum.PRODUCT_SKU.getCode(), List.of(), ProductSelectSourceModeEnum.UPSTREAM_ONLY),
         new SceneFieldMeta("unitName", "单位", FieldTypeEnum.TEXT.getType(), 1, 0),
         new SceneFieldMeta("warehouseId", "入库仓库", FieldTypeEnum.BUSINESS.getType(), 1, 1, List.of(), "WAREHOUSE", List.of()),
         new SceneFieldMeta("qty", "入库数量", FieldTypeEnum.NUM_DOUBLE.getType(), 1, 1),
         new SceneFieldMeta("unitPrice", "采购单价", FieldTypeEnum.AMOUNT.getType(), 1, 1),
         new SceneFieldMeta("amount", "入库金额", FieldTypeEnum.AMOUNT.getType(), 0, 0),
         new SceneFieldMeta("costUnit", "成本单价", FieldTypeEnum.AMOUNT.getType(), 0, 1))),
-    INBOUND_DATE("main.inboundDate", "inbound_date", FieldTypeEnum.DATE, "inbound_date", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
-    TOTAL_AMOUNT("main.totalAmount", "total_amount", FieldTypeEnum.AMOUNT, "total_amount", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
-    STATUS("main.status", "status", FieldTypeEnum.COMB, "status", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "1:启用,0:禁用", null, List.of()),
+    INBOUND_DATE("main.inboundDate", "入库日期", FieldTypeEnum.DATE, "inbound_date", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    TOTAL_AMOUNT("main.totalAmount", "成交金额", FieldTypeEnum.AMOUNT, "total_amount", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    STATUS("main.status", "订单状态", FieldTypeEnum.COMB, "status", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), "1:启用,0:禁用", null, List.of()),
     AUDIT_STATUS("main.auditStatus", "audit_status", FieldTypeEnum.COMB, "audit_status", false, false, List.of(SceneTypeEnum.LIST), StatusOptionEnum.options(AuditStatusEnum.values()), null, List.of()),
-    REMARK("main.remark", "remark", FieldTypeEnum.TEXT, "remark", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
-    CREATOR_ID("main.creatorId", "creator_id", FieldTypeEnum.USER, "creator_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of()),
-    MODIFY_ID("main.modifyId", "modify_id", FieldTypeEnum.USER, "modify_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of());
+    REMARK("main.remark", "备注", FieldTypeEnum.TEXT, "remark", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    CREATOR_ID("main.creatorId", "创建人", FieldTypeEnum.USER, "creator_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of()),
+    MODIFY_ID("main.modifyId", "修改人", FieldTypeEnum.USER, "modify_id", false, false, List.of(SceneTypeEnum.LIST), null, null, List.of());
 
     private final String attr;
     private final String attrName;
@@ -73,5 +76,23 @@ public enum PurchaseInboundFieldEnum {
         FieldEntity.BusinessSelectConfig config = new FieldEntity.BusinessSelectConfig();
         config.setBusinessCode(businessCode);
         return config;
+    }
+
+    public static List<FieldRule> fieldRules() {
+        return Arrays.stream(values())
+                .flatMap(field -> field.fieldType == FieldTypeEnum.SUB_ITEM
+                        ? Stream.concat(
+                        Stream.of(fieldRule(field.attr, field.attrName, field.fieldType.getType(), field.required)),
+                        field.subFields.stream().map(subField -> fieldRule(
+                                field.attr + "." + subField.getAttr(), subField.getAttrName(), subField.getFieldType(),
+                                Integer.valueOf(1).equals(subField.getRequired())
+                        ))
+                )
+                        : Stream.of(fieldRule(field.attr, field.attrName, field.fieldType.getType(), field.required)))
+                .toList();
+    }
+
+    private static FieldRule fieldRule(String attr, String attrName, Integer fieldType, boolean required) {
+        return new FieldRule(attr, attrName, fieldType, null, required ? 1 : 0);
     }
 }

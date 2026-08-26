@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -85,6 +87,67 @@ class InventoryPostingServiceReservationTest {
         assertEquals(new BigDecimal("10"), balance.getAvailableQty());
         assertEquals(StockReservationStatusEnum.RELEASED.name(), reservation.getStatus());
         verify(reservationRepository).update(reservation);
+    }
+
+    @Test
+    void outboundShouldRejectWhenLockedQuantityIsLessThanOutboundQuantity() {
+        StockBalanceRepository balanceRepository = mock(StockBalanceRepository.class);
+        StockReservationRepository reservationRepository = mock(StockReservationRepository.class);
+        StockCostTransactionRepository costTransactionRepository = mock(StockCostTransactionRepository.class);
+        StockBalance balance = balance("2", "0", "2");
+        StockReservation reservation = reservation("3", StockReservationStatusEnum.RESERVED);
+        when(balanceRepository.findByWarehouseAndSkuPairsForUpdate(anyString(), anyList())).thenReturn(List.of(balance));
+        when(reservationRepository.findBySourceForUpdate(anyString(), anyString(), anyLong())).thenReturn(List.of(reservation));
+        when(costTransactionRepository.findByIdempotencyKeys(anyString(), anyList())).thenReturn(List.of());
+
+        assertThrows(xbb.ai.erp.base.common.exception.BizException.class, () ->
+            service(balanceRepository, reservationRepository, costTransactionRepository).postReservedOutbound(
+                new OutboundCommand("c1", "SALES_OUTBOUND", 1L, "SALES_ORDER",
+                    List.of(new OutboundLine(1L, 1L, new BigDecimal("3"), 11L)),
+                    "u1", LocalDateTime.now(), "outbound-insufficient-1")));
+    }
+
+    @Test
+    void outboundWithoutReservationShouldRejectWhenAvailableQuantityIsInsufficient() {
+        StockBalanceRepository balanceRepository = mock(StockBalanceRepository.class);
+        StockReservationRepository reservationRepository = mock(StockReservationRepository.class);
+        StockCostTransactionRepository costTransactionRepository = mock(StockCostTransactionRepository.class);
+        StockBalance balance = balance("2", "0", "2");
+        when(balanceRepository.findByWarehouseAndSkuPairsForUpdate(anyString(), anyList())).thenReturn(List.of(balance));
+        when(reservationRepository.findBySourceForUpdate(anyString(), anyString(), anyLong())).thenReturn(List.of());
+        when(costTransactionRepository.findByIdempotencyKeys(anyString(), anyList())).thenReturn(List.of());
+
+        assertThrows(xbb.ai.erp.base.common.exception.BizException.class, () ->
+            service(balanceRepository, reservationRepository, costTransactionRepository).postReservedOutbound(
+                new OutboundCommand("c1", "SALES_OUTBOUND", 1L, "SALES_ORDER",
+                    List.of(new OutboundLine(1L, 1L, new BigDecimal("3"), 11L)),
+                    "u1", LocalDateTime.now(), "outbound-no-reservation-1")));
+    }
+
+    @Test
+    void outboundShouldReturnAllAvailableQuantityShortages() {
+        StockBalanceRepository balanceRepository = mock(StockBalanceRepository.class);
+        StockReservationRepository reservationRepository = mock(StockReservationRepository.class);
+        StockCostTransactionRepository costTransactionRepository = mock(StockCostTransactionRepository.class);
+        StockBalance firstBalance = balance("2", "0", "2");
+        StockBalance secondBalance = balance("1", "0", "1");
+        secondBalance.setSkuId(2L);
+        when(balanceRepository.findByWarehouseAndSkuPairsForUpdate(anyString(), anyList()))
+            .thenReturn(List.of(firstBalance, secondBalance));
+        when(reservationRepository.findBySourceForUpdate(anyString(), anyString(), anyLong())).thenReturn(List.of());
+        when(costTransactionRepository.findByIdempotencyKeys(anyString(), anyList())).thenReturn(List.of());
+
+        xbb.ai.erp.base.common.exception.BizException exception = assertThrows(
+            xbb.ai.erp.base.common.exception.BizException.class,
+            () -> service(balanceRepository, reservationRepository, costTransactionRepository).postReservedOutbound(
+                new OutboundCommand("c1", "SALES_OUTBOUND", 1L, "SALES_ORDER",
+                    List.of(
+                        new OutboundLine(1L, 1L, new BigDecimal("3"), 11L),
+                        new OutboundLine(1L, 2L, new BigDecimal("2"), 12L)),
+                    "u1", LocalDateTime.now(), "outbound-multiple-shortages-1")));
+
+        assertTrue(exception.getMessage().contains("产品ID=1"));
+        assertTrue(exception.getMessage().contains("产品ID=2"));
     }
 
     private static InventoryPostingService service(StockBalanceRepository balanceRepository,

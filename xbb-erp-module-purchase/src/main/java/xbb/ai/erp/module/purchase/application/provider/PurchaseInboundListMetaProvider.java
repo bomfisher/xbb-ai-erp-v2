@@ -58,7 +58,11 @@ public class PurchaseInboundListMetaProvider implements ListMetaProvider {
     @Override
     public ListMetaBundlePojo buildTopButtonMeta(ListCommonQueryDTO dto) {
         ListMetaBundlePojo bundle = new ListMetaBundlePojo();
-        bundle.setTopButtonList(List.of(new ListButtonItemPojo("ADD", "新建", 10, "ADD")));
+        bundle.setTopButtonList(List.of(
+            new ListButtonItemPojo("ADD", "新建", 10, "ADD"),
+            new ListButtonItemPojo("AUDIT", "审核", 20, "AUDIT"),
+            new ListButtonItemPojo("UNAUDIT", "反审核", 30, "UNAUDIT")
+        ));
         return bundle;
     }
 

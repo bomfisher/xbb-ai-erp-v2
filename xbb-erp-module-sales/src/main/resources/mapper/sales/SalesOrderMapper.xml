@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.sales.infrastructure.persistence.mapper.SalesOrderMapper">
 
     <sql id="BaseColumns">
-        id, corpid, order_no, customer_id, warehouse_id, order_date, delivery_date, total_amount, status, remark, audit_status, outbound_status, receipt_status, creator_id, modify_id
+        id, corpid, order_no, customer_id, warehouse_id, order_date, delivery_date, total_amount, status, remark, audit_status, outbound_status, receipt_status, invoice_status, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -41,6 +41,24 @@
         <if test="conditionMap.receiptStatus != null">
             and receipt_status = #{conditionMap.receiptStatus}
         </if>
+        <if test="conditionMap.invoiceStatus != null">
+            and invoice_status = #{conditionMap.invoiceStatus}
+        </if>
+        <if test="conditionMap.businessSelectKeyword != null and conditionMap.businessSelectKeyword != ''">
+            and order_no like concat('%', #{conditionMap.businessSelectKeyword}, '%')
+        </if>
+        <if test="conditionMap.businessSelectAuditStatuses != null and conditionMap.businessSelectAuditStatuses.size() > 0">
+            and audit_status in
+            <foreach collection="conditionMap.businessSelectAuditStatuses" item="auditStatus" open="(" separator="," close=")">
+                #{auditStatus}
+            </foreach>
+        </if>
+        <if test="conditionMap.businessVisibleApprovalStatuses != null and conditionMap.businessVisibleApprovalStatuses.size() > 0">
+            and audit_status in
+            <foreach collection="conditionMap.businessVisibleApprovalStatuses" item="approvalStatus" open="(" separator="," close=")">
+                #{approvalStatus}
+            </foreach>
+        </if>
     </sql>
 
     <sql id="QueryTail">
@@ -60,9 +78,9 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into sales_order (
-            corpid, order_no, customer_id, warehouse_id, order_date, delivery_date, total_amount, status, remark, audit_status, outbound_status, receipt_status, creator_id, modify_id, del, add_time, update_time
+            corpid, order_no, customer_id, warehouse_id, order_date, delivery_date, total_amount, status, remark, audit_status, outbound_status, receipt_status, invoice_status, creator_id, modify_id, del, add_time, update_time
         )
-        values (#{corpid}, #{orderNo}, #{customerId}, #{warehouseId}, #{orderDate}, #{deliveryDate}, #{totalAmount}, #{status}, #{remark}, #{auditStatus}, #{outboundStatus}, #{receiptStatus}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
+        values (#{corpid}, #{orderNo}, #{customerId}, #{warehouseId}, #{orderDate}, #{deliveryDate}, #{totalAmount}, #{status}, #{remark}, #{auditStatus}, #{outboundStatus}, #{receiptStatus}, #{invoiceStatus}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
     </insert>
 
     <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
@@ -71,7 +89,7 @@
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.orderNo}, #{item.customerId}, #{item.warehouseId}, #{item.orderDate}, #{item.deliveryDate}, #{item.totalAmount}, #{item.status}, #{item.remark}, #{item.auditStatus}, #{item.outboundStatus}, #{item.receiptStatus}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
+            (#{item.corpid}, #{item.orderNo}, #{item.customerId}, #{item.warehouseId}, #{item.orderDate}, #{item.deliveryDate}, #{item.totalAmount}, #{item.status}, #{item.remark}, #{item.auditStatus}, #{item.outboundStatus}, #{item.receiptStatus}, #{item.invoiceStatus}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
         </foreach>
     </insert>
 
@@ -109,6 +127,7 @@
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="outboundStatus != null">outbound_status = #{outboundStatus},</if>
             <if test="receiptStatus != null">receipt_status = #{receiptStatus},</if>
+            <if test="invoiceStatus != null">invoice_status = #{invoiceStatus},</if>
             <if test="creatorId != null">creator_id = #{creatorId},</if>
             <if test="modifyId != null">modify_id = #{modifyId},</if>
             update_time = #{updateTime},
@@ -124,6 +143,17 @@
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
+    </select>
+
+    <select id="findByIds" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesOrderPO">
+        select <include refid="BaseColumns"/>
+        from sales_order
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <select id="findByCondition" resultType="xbb.ai.erp.module.sales.infrastructure.persistence.po.SalesOrderPO">

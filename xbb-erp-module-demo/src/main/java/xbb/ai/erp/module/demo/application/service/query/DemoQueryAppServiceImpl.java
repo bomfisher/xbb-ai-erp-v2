@@ -91,18 +91,17 @@ public class DemoQueryAppServiceImpl {
     }
 
     public List<DemoBusinessSelectOptionVO> businessSelectQuickSearch(DemoBusinessSelectQueryDTO dto) {
-        return findBusinessSelectOptions(dto);
+        return findBusinessSelectOptions(dto, 0, 5);
     }
 
     public ListBaseVO<DemoBusinessSelectOptionVO> businessSelectDialogSearch(DemoBusinessSelectQueryDTO dto) {
         int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
-        List<DemoBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
-        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
-        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        List<DemoBusinessSelectOptionVO> options = findBusinessSelectOptions(dto, (pageNum - 1) * pageSize, pageSize);
+        Long total = demoRepository.count(businessSelectConditions(dto, null, null));
         ListBaseVO<DemoBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setList(all.subList(fromIndex, toIndex));
-        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        vo.setList(options);
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, total == null ? 0 : total.intValue()));
         return vo;
     }
 
@@ -114,17 +113,28 @@ public class DemoQueryAppServiceImpl {
         return demo == null ? null : toBusinessSelectOption(demo);
     }
 
-    private List<DemoBusinessSelectOptionVO> findBusinessSelectOptions(DemoBusinessSelectQueryDTO dto) {
+    private List<DemoBusinessSelectOptionVO> findBusinessSelectOptions(DemoBusinessSelectQueryDTO dto,
+                                                                         Integer offset, Integer pageSize) {
+        return demoRepository.findByCondition(businessSelectConditions(dto, offset, pageSize)).stream()
+            .map(this::toBusinessSelectOption)
+            .toList();
+    }
+
+    private static Map<String, Object> businessSelectConditions(DemoBusinessSelectQueryDTO dto,
+                                                                  Integer offset, Integer pageSize) {
         Map<String, Object> conditions = new HashMap<>();
         conditions.put("corpid", dto.getCorpid());
         if (dto.getId() != null) {
             conditions.put("id", dto.getId());
         }
-        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
-        return demoRepository.findByCondition(conditions).stream()
-            .filter(item -> keyword.isEmpty() || (item.getName() != null && item.getName().contains(keyword)))
-            .map(this::toBusinessSelectOption)
-            .toList();
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
+        return conditions;
     }
 
     private DemoBusinessSelectOptionVO toBusinessSelectOption(Demo demo) {

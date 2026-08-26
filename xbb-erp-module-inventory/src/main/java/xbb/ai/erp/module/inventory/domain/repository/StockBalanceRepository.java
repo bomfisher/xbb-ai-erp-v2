@@ -1,11 +1,16 @@
 package xbb.ai.erp.module.inventory.domain.repository;
 
 import xbb.ai.erp.module.inventory.domain.model.StockBalance;
+import xbb.ai.erp.module.inventory.admin.dto.StockQueryDTO;
+import xbb.ai.erp.module.inventory.domain.pojo.StockBalanceQueryPojo;
+import java.util.List;
 
 import java.util.List;
 import java.util.Map;
 
 public interface StockBalanceRepository {
+    List<StockBalanceQueryPojo> queryList(StockQueryDTO query, int offset, int pageSize);
+    Long queryCount(StockQueryDTO query);
     Long insert(StockBalance stockBalance);
 
     void insertBatch(List<StockBalance> stockBalanceList);
@@ -19,6 +24,8 @@ public interface StockBalanceRepository {
     StockBalance findById(String corpid, Long id);
 
     StockBalance findByWarehouseAndSku(String corpid, Long warehouseId, Long skuId);
+
+    List<StockBalance> findBySku(String corpid, Long skuId);
 
     List<StockBalance> findByWarehouseAndSkuPairs(String corpid, List<StockBalance> stockKeys);
 

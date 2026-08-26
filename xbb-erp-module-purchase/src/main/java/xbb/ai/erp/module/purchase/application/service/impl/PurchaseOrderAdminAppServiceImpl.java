@@ -63,6 +63,16 @@ public class PurchaseOrderAdminAppServiceImpl implements PurchaseOrderAdminAppSe
     }
 
     @Override
+    public BaseVO audit(IdBaseDTO dto) {
+        return saveService.audit(dto);
+    }
+
+    @Override
+    public BaseVO unaudit(IdBaseDTO dto) {
+        return saveService.unaudit(dto);
+    }
+
+    @Override
     public List<PurchaseOrderDraftListItemVO> draftList(PurchaseOrderDraftListDTO dto) {
         return draftService.draftList(dto);
     }

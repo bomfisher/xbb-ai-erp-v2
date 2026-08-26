@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.approval.infrastructure.persistence.mapper.ApprovalNodeApproverMapper">
+    <resultMap id="ApproverMap" type="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalNodeApproverPO">
+        <id property="id" column="id"/>
+        <result property="flowNodeId" column="flow_node_id"/>
+        <result property="approverType" column="approver_type"/>
+        <result property="approverValue" column="approver_value"/>
+        <result property="superiorLevel" column="superior_level"/>
+    </resultMap>
+    <select id="findByNodeIds" resultMap="ApproverMap">
+        select * from approval_node_approver where del = 0 and flow_node_id in
+        <foreach collection="nodeIds" item="nodeId" open="(" separator="," close=")">#{nodeId}</foreach>
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into approval_node_approver (flow_node_id, approver_type, approver_value, superior_level, del, add_time, update_time)
+        values (#{flowNodeId}, #{approverType}, #{approverValue}, #{superiorLevel}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+    <update id="removeByNodeIds">
+        update approval_node_approver set del = 1, update_time = #{updateTime} where del = 0 and flow_node_id in
+        <foreach collection="nodeIds" item="nodeId" open="(" separator="," close=")">#{nodeId}</foreach>
+    </update>
+</mapper>

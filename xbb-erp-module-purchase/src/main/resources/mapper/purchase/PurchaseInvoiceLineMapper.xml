@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInvoiceLineMapper">
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_invoice_line (corpid, purchase_invoice_id, line_no, product_id, product_name, specification, unit_name, quantity, unit_price, tax_rate, untaxed_amount, tax_amount, amount, remark, creator_id, modify_id, del, add_time, update_time)
+        values <foreach collection="list" item="item" separator=",">(#{item.corpid}, #{item.purchaseInvoiceId}, #{item.lineNo}, #{item.productId}, #{item.productName}, #{item.specification}, #{item.unitName}, #{item.quantity}, #{item.unitPrice}, #{item.taxRate}, #{item.untaxedAmount}, #{item.taxAmount}, #{item.amount}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})</foreach>
+    </insert>
+    <update id="removeByInvoiceId">update purchase_invoice_line set del = 1 where corpid = #{corpid} and purchase_invoice_id = #{invoiceId} and del = 0</update>
+    <select id="findByInvoiceId" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInvoiceLinePO">select id, corpid, purchase_invoice_id, line_no, product_id, product_name, specification, unit_name, quantity, unit_price, tax_rate, untaxed_amount, tax_amount, amount, remark, creator_id, modify_id from purchase_invoice_line where corpid = #{corpid} and purchase_invoice_id = #{invoiceId} and del = 0 order by line_no asc, id asc</select>
+</mapper>

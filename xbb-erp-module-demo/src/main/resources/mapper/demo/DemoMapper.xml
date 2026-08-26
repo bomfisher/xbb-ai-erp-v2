@@ -11,6 +11,9 @@
     <sql id="BaseCondition">
         corpid = #{conditionMap.corpid}
         and del = 0
+        <if test="conditionMap.businessSelectKeyword != null and conditionMap.businessSelectKeyword != ''">
+            and name like concat('%', #{conditionMap.businessSelectKeyword}, '%')
+        </if>
     </sql>
 
     <sql id="QueryTail">

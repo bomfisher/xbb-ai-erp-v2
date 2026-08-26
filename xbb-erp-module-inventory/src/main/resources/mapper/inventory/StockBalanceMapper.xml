@@ -1,35 +1,29 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="xbb.ai.erp.module.inventory.infrastructure.persistence.mapper.StockBalanceMapper">
-
-    <sql id="BaseColumns">
+  <sql id="BaseColumns">
         id, corpid, warehouse_id, sku_id, qty, locked_qty, available_qty, total_cost, unit_cost, version, del, add_time, update_time, creator_id, modify_id
     </sql>
-
-    <sql id="BaseCondition">
+  <sql id="BaseCondition">
         corpid = #{conditionMap.corpid}
         and del = 0
 
     </sql>
-
-    <sql id="QueryTail">
-        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+  <sql id="QueryTail">
+    <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
             group by ${conditionMap.groupByStr}
         </if>
-        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+    <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
             order by ${conditionMap.orderByStr}
         </if>
-        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+    <if test="conditionMap.pageSize != null and conditionMap.pageSize &gt; 0 and conditionMap.offset != null">
             limit #{conditionMap.offset}, #{conditionMap.pageSize}
         </if>
-        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+    <if test="conditionMap.pageSize != null and conditionMap.pageSize &gt; 0 and conditionMap.offset == null">
             limit #{conditionMap.pageSize}
         </if>
-    </sql>
-
-    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+  </sql>
+  <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into stock_balance (
             corpid, warehouse_id, sku_id, qty, locked_qty, available_qty, total_cost, unit_cost, version, del, add_time, update_time, creator_id, modify_id
         )
@@ -38,16 +32,14 @@
             (#{item.corpid}, #{item.warehouseId}, #{item.skuId}, #{item.qty}, #{item.lockedQty}, #{item.availableQty}, #{item.totalCost}, #{item.unitCost}, #{item.version}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
-
-    <update id="removeById">
+  <update id="removeById">
         update stock_balance
         set del = 1
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
     </update>
-
-    <update id="removeBatchByIds">
+  <update id="removeBatchByIds">
         update stock_balance
         set del = 1
         where corpid = #{corpid}
@@ -57,53 +49,38 @@
             #{id}
         </foreach>
     </update>
-
-    <update id="update" parameterType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+  <update id="update" parameterType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
         update stock_balance
-        <set>
-            <if test="corpid != null">corpid = #{corpid},</if>
-            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
-            <if test="skuId != null">sku_id = #{skuId},</if>
-            <if test="qty != null">qty = #{qty},</if>
-            <if test="lockedQty != null">locked_qty = #{lockedQty},</if>
-            <if test="availableQty != null">available_qty = #{availableQty},</if>
-            <if test="totalCost != null">total_cost = #{totalCost},</if>
-            <if test="unitCost != null">unit_cost = #{unitCost},</if>
-            <if test="version != null">version = #{version},</if>
-            <if test="del != null">del = #{del},</if>
-            <if test="addTime != null">add_time = #{addTime},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="creatorId != null">creator_id = #{creatorId},</if>
-            <if test="modifyId != null">modify_id = #{modifyId},</if>
-        </set>
+        <set><if test="corpid != null">corpid = #{corpid},</if><if test="warehouseId != null">warehouse_id = #{warehouseId},</if><if test="skuId != null">sku_id = #{skuId},</if><if test="qty != null">qty = #{qty},</if><if test="lockedQty != null">locked_qty = #{lockedQty},</if><if test="availableQty != null">available_qty = #{availableQty},</if><if test="totalCost != null">total_cost = #{totalCost},</if><if test="unitCost != null">unit_cost = #{unitCost},</if><if test="version != null">version = #{version},</if><if test="del != null">del = #{del},</if><if test="addTime != null">add_time = #{addTime},</if><if test="updateTime != null">update_time = #{updateTime},</if><if test="creatorId != null">creator_id = #{creatorId},</if><if test="modifyId != null">modify_id = #{modifyId},</if></set>
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
     </update>
-
-    <select id="findById" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+  <select id="findById" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
         select <include refid="BaseColumns"/>
         from stock_balance
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
     </select>
-
-    <select id="findByWarehouseAndSku" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+  <select id="findByWarehouseAndSku" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
         select <include refid="BaseColumns"/>
         from stock_balance
         where corpid = #{corpid} and warehouse_id = #{warehouseId} and sku_id = #{skuId} and del = 0
     </select>
-
-    <select id="findByWarehouseAndSkuPairs" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+  <select id="findBySku" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+        select <include refid="BaseColumns"/>
+        from stock_balance
+        where corpid = #{corpid} and sku_id = #{skuId} and del = 0
+    </select>
+  <select id="findByWarehouseAndSkuPairs" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
         select <include refid="BaseColumns"/> from stock_balance
         where corpid = #{corpid} and del = 0 and (warehouse_id, sku_id) in
         <foreach collection="stockKeys" item="key" open="(" separator="," close=")">
             (#{key.warehouseId}, #{key.skuId})
         </foreach>
     </select>
-
-    <select id="findByWarehouseAndSkuPairsForUpdate" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+  <select id="findByWarehouseAndSkuPairsForUpdate" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
         select <include refid="BaseColumns"/> from stock_balance
         where corpid = #{corpid} and del = 0 and (warehouse_id, sku_id) in
         <foreach collection="stockKeys" item="key" open="(" separator="," close=")">
@@ -112,37 +89,35 @@
         order by warehouse_id, sku_id
         for update
     </select>
-
-    <update id="updateWithVersion">
+  <update id="updateWithVersion">
         update stock_balance set qty = #{po.qty}, locked_qty = #{po.lockedQty}, available_qty = #{po.availableQty},
             total_cost = #{po.totalCost}, unit_cost = #{po.unitCost}, version = #{po.version},
             update_time = #{po.updateTime}, modify_id = #{po.modifyId}
         where corpid = #{po.corpid} and id = #{po.id} and version = #{expectedVersion} and del = 0
     </update>
-
-    <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
+  <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO">
         select <include refid="BaseColumns"/>
         from stock_balance
         where <include refid="BaseCondition"/>
-        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
-            <foreach collection="conditionMap.conditions" item="c">
-                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
-            </foreach>
-        </if>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() &gt; 0"><foreach collection="conditionMap.conditions" item="c"><include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/></foreach></if>
         <include refid="QueryTail"/>
     </select>
-
-    <select id="count" resultType="java.lang.Long">
+  <select id="count" resultType="java.lang.Long">
         select count(1)
         from stock_balance
         where <include refid="BaseCondition"/>
     </select>
-    <sql id="StockQueryWhere">b.corpid = #{query.corpid} and b.del = 0
+  <sql id="StockQueryWhere">b.corpid = #{query.corpid} and b.del = 0
         <if test="query.showZero == null or query.showZero != 1">and b.qty &lt;&gt; 0</if>
         <if test="query.skuId != null">and b.sku_id = #{query.skuId}</if><if test="query.warehouseId != null">and b.warehouse_id = #{query.warehouseId}</if>
-        <if test="query.categoryName != null and query.categoryName != ''">and p.category_name = #{query.categoryName}</if><if test="query.specification != null and query.specification != ''">and s.specification like concat('%', #{query.specification}, '%')</if>
-        <if test="query.minQty != null">and b.qty &gt;= #{query.minQty}</if><if test="query.maxQty != null">and b.qty &lt;= #{query.maxQty}</if><if test="query.minAvailableQty != null">and b.available_qty &gt;= #{query.minAvailableQty}</if><if test="query.maxAvailableQty != null">and b.available_qty &lt;= #{query.maxAvailableQty}</if>
-        <if test="query.showDisabled == null or query.showDisabled != 1">and s.enabled = 1 and p.enabled = 1</if></sql>
-    <select id="queryList" resultType="xbb.ai.erp.module.inventory.admin.vo.StockQueryItemVO">select b.id,b.sku_id skuId,s.sku_code skuCode,s.sku_name skuName,p.category_name categoryName,s.specification,b.warehouse_id warehouseId,w.warehouse_code warehouseCode,w.warehouse_name warehouseName,b.qty,b.locked_qty lockedQty,b.available_qty availableQty,b.total_cost totalCost,b.unit_cost unitCost from stock_balance b join product_sku s on s.corpid=b.corpid and s.id=b.sku_id and s.del=0 join product_spu p on p.corpid=b.corpid and p.id=s.spu_id and p.del=0 join warehouse w on w.corpid=b.corpid and w.id=b.warehouse_id and w.del=0 where <include refid="StockQueryWhere"/> order by b.warehouse_id,b.sku_id limit #{offset},#{pageSize}</select>
-    <select id="queryCount" resultType="java.lang.Long">select count(1) from stock_balance b join product_sku s on s.corpid=b.corpid and s.id=b.sku_id and s.del=0 join product_spu p on p.corpid=b.corpid and p.id=s.spu_id and p.del=0 join warehouse w on w.corpid=b.corpid and w.id=b.warehouse_id and w.del=0 where <include refid="StockQueryWhere"/></select>
+        <if test="query.minQty != null">and b.qty &gt;= #{query.minQty}</if><if test="query.maxQty != null">and b.qty &lt;= #{query.maxQty}</if><if test="query.minAvailableQty != null">and b.available_qty &gt;= #{query.minAvailableQty}</if><if test="query.maxAvailableQty != null">and b.available_qty &lt;= #{query.maxAvailableQty}</if></sql>
+  <select id="queryList" resultType="xbb.ai.erp.module.inventory.domain.pojo.StockBalanceQueryPojo">
+    select b.id, b.sku_id as skuId, b.warehouse_id as warehouseId, b.qty, b.locked_qty as lockedQty,
+           b.available_qty as availableQty, b.total_cost as totalCost, b.unit_cost as unitCost
+    from stock_balance b where <include refid="StockQueryWhere"/>
+    order by b.warehouse_id, b.sku_id limit #{offset}, #{pageSize}
+  </select>
+  <select id="queryCount" resultType="java.lang.Long">
+    select count(1) from stock_balance b where <include refid="StockQueryWhere"/>
+  </select>
 </mapper>

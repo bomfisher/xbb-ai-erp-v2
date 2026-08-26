@@ -18,6 +18,8 @@ public interface SalesOrderItemRepository {
 
     SalesOrderItem findById(String corpid, Long id);
 
+    SalesOrderItem findByIdForUpdate(String corpid, Long id);
+
     List<SalesOrderItem> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

@@ -1,9 +1,9 @@
 businessCode: SALES_OUTBOUND
 fields:
-  - { name: outboundNo, attr: main.outboundNo, attrName: 出库单号, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: outbound_no }
+  - { name: outboundNo, attr: main.outboundNo, attrName: 对接编号, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: outbound_no }
   - { name: salesOrderId, attr: main.salesOrderId, attrName: 销售订单, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: SALES_ORDER }
   - { name: customerId, attr: main.customerId, attrName: 客户, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: CUSTOMER }
-  - { name: warehouseId, attr: main.warehouseId, attrName: 出库仓库, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: WAREHOUSE }
+  - { name: warehouseId, attr: main.warehouseId, attrName: 出库仓库, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null, businessCode: WAREHOUSE }
   - { name: outboundDate, attr: main.outboundDate, attrName: 出库日期, fieldType: DATE, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: outbound_date }
   - { name: totalAmount, attr: main.totalAmount, attrName: 出库金额, fieldType: AMOUNT, scenes: [LIST, CREATE, UPDATE], required: false, editable: false, defaultValue: null, filterName: total_amount }
   - { name: auditStatus, attr: main.auditStatus, attrName: 审核状态, fieldType: COMB, scenes: [LIST], required: false, editable: false, defaultValue: null, filterName: audit_status, options: "0:待审核,1:审核中,2:已审核,3:已拒绝" }
@@ -22,18 +22,37 @@ fields:
         attrName: sku_id
         fieldType: PRODUCT
         scenes: [CREATE, UPDATE]
-        required: false
+        required: true
         editable: true
         defaultValue: null
         filterName: null
         businessCode: PRODUCT_SKU
+      - name: warehouse_id
+        attr: warehouseId
+        attrName: 出库仓库
+        fieldType: BUSINESS
+        scenes: [CREATE, UPDATE]
+        required: true
+        editable: true
+        defaultValue: null
+        filterName: null
+        businessCode: WAREHOUSE
+      - name: stock_qty
+        attr: stockQty
+        attrName: 即时库存
+        fieldType: STOCK
+        scenes: [CREATE, UPDATE]
+        required: false
+        editable: false
+        defaultValue: null
+        filterName: null
       - name: unit_name
         attr: unitName
         attrName: unit_name
         fieldType: TEXT
         scenes: [CREATE, UPDATE]
-        required: false
-        editable: true
+        required: true
+        editable: false
         defaultValue: null
         filterName: null
       - name: qty
@@ -41,17 +60,17 @@ fields:
         attrName: qty
         fieldType: NUM_DOUBLE
         scenes: [CREATE, UPDATE]
-        required: false
+        required: true
         editable: true
         defaultValue: null
         filterName: null
       - name: unit_price
         attr: unitPrice
         attrName: unit_price
-        fieldType: NUM_DOUBLE
+        fieldType: AMOUNT
         scenes: [CREATE, UPDATE]
-        required: false
-        editable: true
+        required: true
+        editable: false
         defaultValue: null
         filterName: null
       - name: amount
@@ -60,7 +79,7 @@ fields:
         fieldType: AMOUNT
         scenes: [CREATE, UPDATE]
         required: false
-        editable: true
+        editable: false
         defaultValue: null
         filterName: null
       - name: cost_unit

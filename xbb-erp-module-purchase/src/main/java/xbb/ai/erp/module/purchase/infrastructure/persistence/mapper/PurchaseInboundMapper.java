@@ -10,6 +10,7 @@ import java.util.Map;
 
 @Mapper
 public interface PurchaseInboundMapper extends BaseMapper<PurchaseInboundPO> {
+    List<PurchaseInboundPO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
     int insertBatch(@Param("list") List<PurchaseInboundPO> poList);
 
     int removeById(@Param("corpid") String corpid, @Param("id") Long id);

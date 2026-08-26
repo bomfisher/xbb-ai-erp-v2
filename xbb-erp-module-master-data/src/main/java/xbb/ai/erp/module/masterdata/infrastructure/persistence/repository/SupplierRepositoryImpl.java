@@ -60,6 +60,14 @@ public class SupplierRepositoryImpl implements SupplierRepository {
     }
 
     @Override
+    public List<Supplier> findByIds(String corpid, java.util.Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return supplierMapper.findByIds(corpid, ids).stream().map(SupplierConvertor::toDomain).toList();
+    }
+
+    @Override
     public List<Supplier> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return supplierMapper.findByCondition(preparedConditionMap).stream().map(SupplierConvertor::toDomain).toList();

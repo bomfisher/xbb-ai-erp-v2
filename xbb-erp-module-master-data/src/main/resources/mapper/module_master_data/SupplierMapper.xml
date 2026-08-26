@@ -26,6 +26,10 @@
         <if test="conditionMap.remark != null and conditionMap.remark != ''">
             and remark = #{conditionMap.remark}
         </if>
+        <if test="conditionMap.businessSelectKeyword != null and conditionMap.businessSelectKeyword != ''">
+            and (supplier_code like concat('%', #{conditionMap.businessSelectKeyword}, '%')
+                or supplier_name like concat('%', #{conditionMap.businessSelectKeyword}, '%'))
+        </if>
     </sql>
 
     <sql id="QueryTail">
@@ -98,6 +102,17 @@
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
+    </select>
+
+    <select id="findByIds" resultType="xbb.ai.erp.module.masterdata.infrastructure.persistence.po.SupplierPO">
+        select <include refid="BaseColumns"/>
+        from supplier
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <select id="findByCondition" resultType="xbb.ai.erp.module.masterdata.infrastructure.persistence.po.SupplierPO">

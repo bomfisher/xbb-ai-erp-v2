@@ -15,7 +15,9 @@ public final class ProductSpuAdminAssembler {
     }
 
     public static ProductSpuSaveItemVO buildEmptySaveItemVO() {
-        return new ProductSpuSaveItemVO();
+        ProductSpuSaveItemVO vo = new ProductSpuSaveItemVO();
+        vo.setMain(new ProductSpuMainDTO());
+        return vo;
     }
 
     public static ProductSpu toProductSpu(ProductSpuSaveDTO dto) {
@@ -44,7 +46,7 @@ public final class ProductSpuAdminAssembler {
         vo.setSpuCode(productSpu.getSpuCode());
         vo.setSpuName(productSpu.getSpuName());
         vo.setCategoryName(productSpu.getCategoryName());
-        vo.setEnabled(productSpu.getEnabled());
+        vo.setEnabled(Objects.isNull(productSpu.getEnabled()) ? "" : Objects.toString(productSpu.getEnabled()));
         vo.setRemark(productSpu.getRemark());
         vo.setCreatorId(productSpu.getCreatorId());
         vo.setModifyId(productSpu.getModifyId());

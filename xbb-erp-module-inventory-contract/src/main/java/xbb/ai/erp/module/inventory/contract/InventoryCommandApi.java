@@ -1,6 +1,8 @@
 package xbb.ai.erp.module.inventory.contract;
 
 public interface InventoryCommandApi {
+    void validateOutbound(OutboundCommand command);
+
     PostingResult reserve(ReservationCommand command);
 
     PostingResult postReservedOutbound(OutboundCommand command);

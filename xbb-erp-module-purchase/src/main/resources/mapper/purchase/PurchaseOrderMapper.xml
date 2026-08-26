@@ -5,7 +5,7 @@
 <mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseOrderMapper">
 
     <sql id="BaseColumns">
-        id, corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, audit_status, inbound_status, payment_status, remark, del, add_time, update_time, creator_id, modify_id
+        id, corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, audit_status, inbound_status, payment_status, invoice_status, remark, del, add_time, update_time, creator_id, modify_id
     </sql>
 
     <sql id="BaseCondition">
@@ -35,8 +35,28 @@
         <if test="conditionMap.auditStatus != null">and audit_status = #{conditionMap.auditStatus}</if>
         <if test="conditionMap.inboundStatus != null">and inbound_status = #{conditionMap.inboundStatus}</if>
         <if test="conditionMap.paymentStatus != null">and payment_status = #{conditionMap.paymentStatus}</if>
+        <if test="conditionMap.invoiceStatus != null">and invoice_status = #{conditionMap.invoiceStatus}</if>
         <if test="conditionMap.remark != null and conditionMap.remark != ''">
             and remark = #{conditionMap.remark}
+        </if>
+        <if test="conditionMap.businessSelectKeyword != null and conditionMap.businessSelectKeyword != ''">
+            and (order_no like concat('%', #{conditionMap.businessSelectKeyword}, '%')
+                or supplier_name like concat('%', #{conditionMap.businessSelectKeyword}, '%'))
+        </if>
+        <if test="conditionMap.businessSelectAuditStatuses != null and conditionMap.businessSelectAuditStatuses.size() > 0">
+            and audit_status in
+            <foreach collection="conditionMap.businessSelectAuditStatuses" item="auditStatus" open="(" separator="," close=")">
+                #{auditStatus}
+            </foreach>
+        </if>
+        <if test="conditionMap.businessSelectPendingInbound != null and conditionMap.businessSelectPendingInbound">
+            and exists (
+                select 1 from purchase_order_item item
+                where item.purchase_order_id = id
+                  and item.corpid = corpid
+                  and item.del = 0
+                  and item.qty > coalesce(item.inbound_qty, 0)
+            )
         </if>
     </sql>
 
@@ -57,10 +77,10 @@
 
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
         insert into purchase_order (
-            corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, audit_status, inbound_status, payment_status, remark, del, add_time, update_time, creator_id, modify_id
+            corpid, order_no, supplier_id, supplier_name, order_date, expected_date, total_amount, status, audit_status, inbound_status, payment_status, invoice_status, remark, del, add_time, update_time, creator_id, modify_id
         )
         values (
-            #{corpid}, #{orderNo}, #{supplierId}, #{supplierName}, #{orderDate}, #{expectedDate}, #{totalAmount}, #{status}, #{auditStatus}, #{inboundStatus}, #{paymentStatus}, #{remark}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId}
+            #{corpid}, #{orderNo}, #{supplierId}, #{supplierName}, #{orderDate}, #{expectedDate}, #{totalAmount}, #{status}, #{auditStatus}, #{inboundStatus}, #{paymentStatus}, #{invoiceStatus}, #{remark}, #{del}, #{addTime}, #{updateTime}, #{creatorId}, #{modifyId}
         )
     </insert>
 
@@ -70,7 +90,7 @@
         )
         values
         <foreach collection="list" item="item" separator=",">
-            (#{item.corpid}, #{item.orderNo}, #{item.supplierId}, #{item.supplierName}, #{item.orderDate}, #{item.expectedDate}, #{item.totalAmount}, #{item.status}, #{item.auditStatus}, #{item.inboundStatus}, #{item.paymentStatus}, #{item.remark}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
+            (#{item.corpid}, #{item.orderNo}, #{item.supplierId}, #{item.supplierName}, #{item.orderDate}, #{item.expectedDate}, #{item.totalAmount}, #{item.status}, #{item.auditStatus}, #{item.inboundStatus}, #{item.paymentStatus}, #{item.invoiceStatus}, #{item.remark}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
 
@@ -107,6 +127,7 @@
             <if test="auditStatus != null">audit_status = #{auditStatus},</if>
             <if test="inboundStatus != null">inbound_status = #{inboundStatus},</if>
             <if test="paymentStatus != null">payment_status = #{paymentStatus},</if>
+            <if test="invoiceStatus != null">invoice_status = #{invoiceStatus},</if>
             <if test="remark != null">remark = #{remark},</if>
             <if test="del != null">del = #{del},</if>
             <if test="addTime != null">add_time = #{addTime},</if>
@@ -125,6 +146,17 @@
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
+    </select>
+
+    <select id="findByIds" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderPO">
+        select <include refid="BaseColumns"/>
+        from purchase_order
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
     </select>
 
     <select id="findByCondition" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseOrderPO">

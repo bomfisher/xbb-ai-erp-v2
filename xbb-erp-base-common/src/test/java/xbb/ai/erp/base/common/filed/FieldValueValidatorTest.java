@@ -107,6 +107,19 @@ class FieldValueValidatorTest {
         );
     }
 
+    @Test
+    void should_reject_empty_required_list_on_submit_mode() {
+        DemoContext context = new DemoContext();
+        context.setContacts(List.of());
+
+        BizException ex = assertThrows(
+            BizException.class,
+            () -> validator.validate(List.of(new FieldRule("contacts", "联系人", FieldTypeEnum.SUB_ITEM.getType(), null, 1)), context, FieldValidateModeEnum.SUBMIT)
+        );
+
+        assertEquals("联系人不能为空", ex.getMessage());
+    }
+
     static class DemoPojo {
         private String name;
         private String count;

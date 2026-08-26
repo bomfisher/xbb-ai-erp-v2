@@ -12,10 +12,11 @@ public class PurchaseOrder {
     private Long orderDate;
     private Long expectedDate;
     private java.math.BigDecimal totalAmount;
-    private String status;
+    private Integer status;
     private Integer auditStatus;
     private Integer inboundStatus;
     private Integer paymentStatus;
+    private Integer invoiceStatus;
     private String remark;
     private String creatorId;
     private String modifyId;

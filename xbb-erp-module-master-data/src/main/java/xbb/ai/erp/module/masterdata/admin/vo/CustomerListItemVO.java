@@ -8,7 +8,7 @@ public class CustomerListItemVO {
     private String customerCode;
     private String customerName;
     private String address;
-    private Integer enabled;
+    private String enabled;
     private String remark;
     private String creatorId;
     private String modifyId;

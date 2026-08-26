@@ -21,6 +21,11 @@ import xbb.ai.erp.module.sales.admin.vo.SalesOutboundDraftListItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOutboundListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSaveItemVO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOutboundSelectionFillDTO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSelectionFillVO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOutboundSourceProductQueryDTO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSourceProductOptionVO;
+import java.util.List;
 import xbb.ai.erp.module.sales.application.service.SalesOutboundAdminAppService;
 
 import java.util.List;
@@ -47,6 +52,33 @@ public class SalesOutboundAdminController {
         return ResultVO.success(salesOutboundAdminAppService.updateItem(dto));
     }
 
+    @PostMapping("/selectionFill")
+    public ResultVO<SalesOutboundSelectionFillVO> selectionFill(@RequestBody SalesOutboundSelectionFillDTO dto) {
+        return ResultVO.success(salesOutboundAdminAppService.selectionFill(dto));
+    }
+
+    @PostMapping("/sourceProductSelect/quickSearch")
+    public ResultVO<List<SalesOutboundSourceProductOptionVO>> sourceProductQuickSearch(
+        @RequestBody SalesOutboundSourceProductQueryDTO dto) {
+        return ResultVO.success(salesOutboundAdminAppService.sourceProductQuickSearch(dto));
+    }
+
+    @PostMapping("/sourceProductSelect/dialogSearch")
+    public ResultVO<ListBaseVO<SalesOutboundSourceProductOptionVO>> sourceProductDialogSearch(
+        @RequestBody SalesOutboundSourceProductQueryDTO dto) {
+        List<SalesOutboundSourceProductOptionVO> options = salesOutboundAdminAppService.sourceProductQuickSearch(dto);
+        ListBaseVO<SalesOutboundSourceProductOptionVO> result = new ListBaseVO<>();
+        result.setList(options);
+        result.setPageHelper(new ListBaseVO.PageHelper(dto.getPageNum() == null ? 1 : dto.getPageNum(), options.size()));
+        return ResultVO.success(result);
+    }
+
+    @PostMapping("/sourceProductSelect/getById")
+    public ResultVO<SalesOutboundSourceProductOptionVO> sourceProductGetById(
+        @RequestBody SalesOutboundSourceProductQueryDTO dto) {
+        return ResultVO.success(salesOutboundAdminAppService.sourceProductQuickSearch(dto).stream().findFirst().orElse(null));
+    }
+
     @PostMapping("/saveDraft")
     public ResultVO<DraftSaveVO> saveDraft(@RequestBody SalesOutboundDraftSaveDTO dto) {
         return ResultVO.success(salesOutboundAdminAppService.saveDraft(dto));
@@ -55,6 +87,16 @@ public class SalesOutboundAdminController {
     @PostMapping("/saveAndSubmit")
     public ResultVO<BaseVO> saveAndSubmit(@RequestBody SalesOutboundSubmitSaveDTO dto) {
         return ResultVO.success(salesOutboundAdminAppService.saveAndSubmit(dto));
+    }
+
+    @PostMapping("/audit")
+    public ResultVO<BaseVO> audit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(salesOutboundAdminAppService.audit(dto));
+    }
+
+    @PostMapping("/unaudit")
+    public ResultVO<BaseVO> unaudit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(salesOutboundAdminAppService.unaudit(dto));
     }
 
     @PostMapping("/draftList")

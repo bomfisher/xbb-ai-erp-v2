@@ -69,6 +69,9 @@ class CodeGeneratorTest {
         assertFalse(mapperContent.contains("BaseMapper"));
         assertTrue(mapperContent.contains("int insert(CustomerPO po);"));
         assertTrue(xmlContent.contains("<insert id=\"insert\" useGeneratedKeys=\"true\" keyProperty=\"id\">"));
+        assertTrue(xmlContent.contains("del, add_time, update_time"));
+        assertTrue(xmlContent.contains("#{del}, #{addTime}, #{updateTime}"));
+        assertTrue(xmlContent.contains("#{item.del}, #{item.addTime}, #{item.updateTime}"));
         String repositoryContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/repository/CustomerRepositoryImpl.java"));
         String poContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/infrastructure/persistence/po/CustomerPO.java"));
         assertTrue(repositoryContent.contains("@Repository(\"xbbAiErpModuleCustomerCustomerRepositoryImpl\")"));
@@ -101,6 +104,9 @@ class CodeGeneratorTest {
         assertTrue(controllerContent.contains("@PostMapping(\"/draftList\")"));
         assertTrue(controllerContent.contains("@PostMapping(\"/loadDraft\")"));
         assertTrue(controllerContent.contains("ResultVO.success"));
+        String commonValidatorContent = Files.readString(moduleRootDir.resolve("src/main/java/xbb/ai/erp/module/customer/application/validator/CustomerSaveCommonValidator.java"));
+        assertTrue(commonValidatorContent.contains("FieldValueValidator"));
+        assertTrue(commonValidatorContent.contains("CustomerFieldEnum.fieldRules()"));
         assertFalse(controllerContent.contains("@PostMapping(\"/save\")"));
         assertTrue(xmlContent.contains("xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"));
         assertTrue(providerContent.contains("implements ListMetaProvider"));

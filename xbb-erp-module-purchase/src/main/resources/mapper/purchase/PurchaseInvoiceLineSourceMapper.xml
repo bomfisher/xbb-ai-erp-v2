@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.purchase.infrastructure.persistence.mapper.PurchaseInvoiceLineSourceMapper">
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into purchase_invoice_line_source (corpid, purchase_invoice_line_id, source_type, source_id, source_line_id, quantity, untaxed_amount, tax_amount, amount, creator_id, modify_id, del, add_time, update_time)
+        values <foreach collection="list" item="item" separator=",">(#{item.corpid}, #{item.purchaseInvoiceLineId}, #{item.sourceType}, #{item.sourceId}, #{item.sourceLineId}, #{item.quantity}, #{item.untaxedAmount}, #{item.taxAmount}, #{item.amount}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})</foreach>
+    </insert>
+    <update id="removeByInvoiceLineIds">update purchase_invoice_line_source set del = 1 where corpid = #{corpid} and purchase_invoice_line_id in <foreach collection="lineIds" item="id" open="(" separator="," close=")">#{id}</foreach> and del = 0</update>
+    <select id="findByInvoiceLineIds" resultType="xbb.ai.erp.module.purchase.infrastructure.persistence.po.PurchaseInvoiceLineSourcePO">select id, corpid, purchase_invoice_line_id, source_type, source_id, source_line_id, quantity, untaxed_amount, tax_amount, amount, creator_id, modify_id from purchase_invoice_line_source where corpid = #{corpid} and del = 0 and purchase_invoice_line_id in <foreach collection="lineIds" item="id" open="(" separator="," close=")">#{id}</foreach></select>
+    <select id="sumInvoiceQuantityByPurchaseOrderItem" resultType="java.math.BigDecimal">
+        select coalesce(sum(source.quantity), 0)
+        from purchase_invoice_line_source source
+        join purchase_invoice_line invoice_line
+          on invoice_line.id = source.purchase_invoice_line_id
+         and invoice_line.corpid = source.corpid
+         and invoice_line.del = 0
+        join purchase_invoice invoice
+          on invoice.id = invoice_line.purchase_invoice_id
+         and invoice.corpid = source.corpid
+         and invoice.del = 0
+         and invoice.status &lt;&gt; 'VOIDED'
+        where source.corpid = #{corpid}
+          and source.del = 0
+          and (
+                (source.source_type = 'PURCHASE_ORDER'
+                 and source.source_line_id = #{purchaseOrderItemId})
+                or
+                (source.source_type = 'PURCHASE_INBOUND'
+                 and source.source_line_id in (
+                     select inbound_item.id
+                     from purchase_inbound_item inbound_item
+                     where inbound_item.corpid = #{corpid}
+                       and inbound_item.del = 0
+                       and inbound_item.purchase_order_item_id = #{purchaseOrderItemId}
+                 ))
+              )
+    </select>
+</mapper>

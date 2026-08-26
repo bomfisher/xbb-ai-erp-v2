@@ -13,6 +13,9 @@
             <artifactId>xbb-erp-module-inventory-contract</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-master-data-contract</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-purchase-contract</artifactId><version>${project.version}</version></dependency>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-sales-contract</artifactId><version>${project.version}</version></dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-base-common</artifactId>

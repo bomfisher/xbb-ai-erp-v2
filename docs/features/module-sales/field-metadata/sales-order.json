@@ -4,7 +4,7 @@
     {
       "name": "orderNo",
       "attr": "main.orderNo",
-      "attrName": "订单编号",
+      "attrName": "对接编号",
       "fieldType": "TEXT",
       "scenes": [
         "LIST",
@@ -211,27 +211,6 @@
       "businessCode": "ORG_MEMBER"
     },
     {
-      "name": "auditStatus",
-      "attr": "main.auditStatus",
-      "attrName": "审核状态",
-      "fieldType": "COMB",
-      "scenes": [
-        "LIST"
-      ],
-      "required": false,
-      "editable": false,
-      "defaultValue": null,
-      "filterName": "audit_status",
-      "filterFieldType": "ENUM",
-      "supportedSymbols": [
-        "CONTAINS",
-        "NOT_CONTAINS",
-        "IS_EMPTY",
-        "IS_NOT_EMPTY"
-      ],
-      "options": "0:待审核,1:审核中,2:已审核,3:已拒绝"
-    },
-    {
       "name": "outboundStatus",
       "attr": "main.outboundStatus",
       "attrName": "出库状态",
@@ -282,7 +261,7 @@
         "CREATE",
         "UPDATE"
       ],
-      "required": false,
+      "required": true,
       "editable": true,
       "defaultValue": null,
       "filterName": null,
@@ -327,7 +306,7 @@
             "UPDATE"
           ],
           "required": false,
-          "editable": true,
+          "editable": false,
           "defaultValue": null,
           "filterName": null
         },
@@ -341,8 +320,22 @@
             "UPDATE"
           ],
           "required": true,
-          "editable": true,
+          "editable": false,
           "defaultValue": null,
+          "filterName": null
+        },
+        {
+          "name": "stockQty",
+          "attr": "stockQty",
+          "attrName": "即时库存",
+          "fieldType": "STOCK",
+          "scenes": [
+            "CREATE",
+            "UPDATE"
+          ],
+          "required": false,
+          "editable": false,
+          "defaultValue": 0,
           "filterName": null
         },
         {
@@ -357,20 +350,6 @@
           "required": true,
           "editable": true,
           "defaultValue": null,
-          "filterName": null
-        },
-        {
-          "name": "deliveredQty",
-          "attr": "deliveredQty",
-          "attrName": "已出库数量",
-          "fieldType": "NUM_DOUBLE",
-          "scenes": [
-            "CREATE",
-            "UPDATE"
-          ],
-          "required": false,
-          "editable": false,
-          "defaultValue": 0,
           "filterName": null
         },
         {
@@ -400,20 +379,6 @@
           "editable": true,
           "defaultValue": 0,
           "filterName": null
-        },
-        {
-          "name": "amount",
-          "attr": "amount",
-          "attrName": "金额",
-          "fieldType": "AMOUNT",
-          "scenes": [
-            "CREATE",
-            "UPDATE"
-          ],
-          "required": true,
-          "editable": false,
-          "defaultValue": null,
-          "filterName": null
         }
       ]
     }
@@ -423,6 +388,18 @@
       {
         "actionCode": "ADD",
         "actionName": "新建"
+      },
+      {
+        "actionCode": "SALES_OUTBOUND",
+        "actionName": "销售出库"
+      },
+      {
+        "actionCode": "GENERATE_INVOICE",
+        "actionName": "生成发票"
+      },
+      {
+        "actionCode": "AUDIT",
+        "actionName": "审核/反审核"
       }
     ],
     "bottom": [

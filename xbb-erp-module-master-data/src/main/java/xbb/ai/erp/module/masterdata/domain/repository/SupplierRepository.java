@@ -18,6 +18,8 @@ public interface SupplierRepository {
 
     Supplier findById(String corpid, Long id);
 
+    List<Supplier> findByIds(String corpid, java.util.Collection<Long> ids);
+
     List<Supplier> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

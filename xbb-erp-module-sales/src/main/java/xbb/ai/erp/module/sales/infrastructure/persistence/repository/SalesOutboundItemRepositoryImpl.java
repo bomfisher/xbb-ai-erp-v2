@@ -59,6 +59,11 @@ public class SalesOutboundItemRepositoryImpl implements SalesOutboundItemReposit
     }
 
     @Override
+    public SalesOutboundItem findByIdForUpdate(String corpid, Long id) {
+        return SalesOutboundItemConvertor.toDomain(salesOutboundItemMapper.findByIdForUpdate(corpid, id));
+    }
+
+    @Override
     public List<SalesOutboundItem> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return salesOutboundItemMapper.findByCondition(preparedConditionMap).stream().map(SalesOutboundItemConvertor::toDomain).toList();

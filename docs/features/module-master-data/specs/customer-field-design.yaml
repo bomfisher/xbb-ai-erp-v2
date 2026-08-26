@@ -1,6 +1,6 @@
 businessCode: CUSTOMER
 fields:
-  - { name: customer_code, attr: main.customerCode, attrName: 客户编码, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: customer_code }
+  - { name: customer_code, attr: main.customerCode, attrName: 对接编号, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: customer_code }
   - { name: customer_name, attr: main.customerName, attrName: 客户名称, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: customer_name }
   - name: contacts
     attr: contacts

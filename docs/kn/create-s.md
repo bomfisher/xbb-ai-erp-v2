@@ -14,6 +14,13 @@
 - 业务文档：`docs/kn/supplier-m.md`
 - API 文档：`docs/api/endpoints/supplier-add-item.md`
 
+## 仓库
+- 接口：`POST /erp/v1/masterData/warehouse/addItem`
+- 用途：仓库新增表单初始化
+- 差异点：仓库编码使用 `SERIAL_NO(21)`，由 `WAREHOUSE` 业务编号规则按“前缀 + 自增后缀”生成
+- 业务文档：`docs/kn/warehouse-m.md`
+- API 文档：`docs/api/endpoints/master-data-warehouse-add-item.md`
+
 ## 采购
 - 接口：`POST /erp/v1/purchase/request/addItem`、`POST /erp/v1/purchase/order/addItem`
 - 用途：采购申请、采购订单新增表单初始化

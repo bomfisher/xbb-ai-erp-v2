@@ -18,6 +18,8 @@ public interface SalesOutboundItemRepository {
 
     SalesOutboundItem findById(String corpid, Long id);
 
+    SalesOutboundItem findByIdForUpdate(String corpid, Long id);
+
     List<SalesOutboundItem> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

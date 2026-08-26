@@ -11,4 +11,5 @@ public class SalesOrderBusinessSelectQueryDTO extends BaseDTO {
     private Integer pageNum;
     private Integer pageSize;
     private Long id;
+    private Long customerId;
 }

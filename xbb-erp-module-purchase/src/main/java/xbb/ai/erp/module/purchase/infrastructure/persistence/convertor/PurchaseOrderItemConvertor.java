@@ -30,6 +30,7 @@ public final class PurchaseOrderItemConvertor {
         po.setInboundStatus(purchaseOrderItem.getInboundStatus());
         po.setCreatorId(purchaseOrderItem.getCreatorId());
         po.setModifyId(purchaseOrderItem.getModifyId());
+        po.setWarehouseId(purchaseOrderItem.getWarehouseId());
         return po;
     }
 
@@ -55,6 +56,7 @@ public final class PurchaseOrderItemConvertor {
         purchaseOrderItem.setInboundStatus(po.getInboundStatus());
         purchaseOrderItem.setCreatorId(po.getCreatorId());
         purchaseOrderItem.setModifyId(po.getModifyId());
+        purchaseOrderItem.setWarehouseId(po.getWarehouseId());
         return purchaseOrderItem;
     }
 }

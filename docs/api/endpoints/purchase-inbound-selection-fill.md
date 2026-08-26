@@ -37,6 +37,7 @@
       "main.purchaseOrderId": 90001,
       "main.supplierId": 10001,
       "main.supplierName": "供应商 A",
+      "main.totalAmount": 1000.00,
       "items": []
     }
   }
@@ -49,10 +50,11 @@
 | --- | --- | --- |
 | `referenceId` | 是 | 已校验的采购订单 ID |
 | `patch` | 是 | 仅包含采购入库表单可写路径 |
+| `patch.main.totalAmount` | 是 | 所有待入库产品行的数量乘采购单价之和 |
 | `patch.items` | 是 | 每行为未完成入库的订单行，数量为待入库数量 |
 
 ## 规则说明
 
 - 仅采购入库模块启用的 `main.purchaseOrderId` 可以调用本接口；其他字段或空 ID 均拒绝。
 - 所选订单必须属于当前租户，并至少存在一行 `qty > inboundQty` 的待入库产品。
-- 回填供应商、订单行 SKU、单位、待入库数量、采购单价和成本单价；前端只应用 `patch`，不得自行拼装订单明细。
+- 回填供应商、采购金额，以及订单行 SKU、单位、仓库、待入库数量、采购单价和成本单价；前端只应用 `patch`，不得自行拼装订单明细。

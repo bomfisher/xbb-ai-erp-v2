@@ -21,6 +21,7 @@ public class SalesOrderPO extends BaseEntity {
     private Integer auditStatus;
     private Integer outboundStatus;
     private Integer receiptStatus;
+    private Integer invoiceStatus;
     private String creatorId;
     private String modifyId;
 }

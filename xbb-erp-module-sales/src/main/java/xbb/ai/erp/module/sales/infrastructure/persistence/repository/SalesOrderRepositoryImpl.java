@@ -60,6 +60,14 @@ public class SalesOrderRepositoryImpl implements SalesOrderRepository {
     }
 
     @Override
+    public List<SalesOrder> findByIds(String corpid, java.util.Collection<Long> ids) {
+        if (ids == null || ids.isEmpty()) {
+            return List.of();
+        }
+        return salesOrderMapper.findByIds(corpid, ids).stream().map(SalesOrderConvertor::toDomain).toList();
+    }
+
+    @Override
     public List<SalesOrder> findByCondition(Map<String, Object> conditionMap) {
         Map<String, Object> preparedConditionMap = ConditionMapHelper.prepare(conditionMap);
         return salesOrderMapper.findByCondition(preparedConditionMap).stream().map(SalesOrderConvertor::toDomain).toList();

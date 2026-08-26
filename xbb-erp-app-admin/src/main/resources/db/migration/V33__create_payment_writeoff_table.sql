@@ -1,0 +1,20 @@
+CREATE TABLE `payment_writeoff` (
+    `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT '主键',
+    `corpid` varchar(64) NOT NULL COMMENT '租户ID',
+    `supplier_id` bigint(20) NOT NULL COMMENT '供应商ID',
+    `writeoff_no` varchar(64) NOT NULL COMMENT '核销批次号',
+    `payment_id` bigint(20) NOT NULL COMMENT '预付款ID',
+    `payable_id` bigint(20) NOT NULL COMMENT '应付款ID',
+    `writeoff_date` bigint(20) NOT NULL COMMENT '核销日期',
+    `amount` decimal(18,2) NOT NULL COMMENT '核销金额',
+    `remark` varchar(255) DEFAULT NULL COMMENT '备注',
+    `del` tinyint(2) NOT NULL DEFAULT '0',
+    `add_time` bigint(20) NOT NULL,
+    `update_time` bigint(20) NOT NULL,
+    `creator_id` varchar(64) NOT NULL,
+    `modify_id` varchar(64) NOT NULL,
+    PRIMARY KEY (`id`),
+    UNIQUE KEY `uk_payment_writeoff_no` (`corpid`, `writeoff_no`, `payment_id`, `payable_id`),
+    KEY `idx_payment_writeoff_payment` (`corpid`, `payment_id`),
+    KEY `idx_payment_writeoff_payable` (`corpid`, `payable_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='付款核销明细';

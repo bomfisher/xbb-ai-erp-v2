@@ -7,7 +7,7 @@
 
 ## 请求要点
 
-除主档 `main` 与通用租户、操作人、草稿字段外，提交 `items` 入库产品数组。每行包含 `id`、`purchaseOrderItemId`、`skuId`、`skuName`、`unitName`、`warehouseId`、`qty`、`unitPrice` 和可选 `costUnit`。
+除主档 `main` 与通用租户、操作人、草稿字段外，提交 `items` 入库产品数组。每行包含内部来源关联 `purchaseOrderItemId`、`skuId`、`skuName`、`unitName`、`warehouseId`、`qty`、`unitPrice` 和可选 `costUnit`。`purchaseOrderItemId` 由选择采购订单回填并由服务端使用，不作为入库产品表格的可见编辑字段。
 
 正式保存至少需要一行产品；来源采购订单行、SKU、SKU 名称、单位、仓库、数量和采购单价不能为空。数量必须大于零，采购单价和成本单价不能小于零。
 

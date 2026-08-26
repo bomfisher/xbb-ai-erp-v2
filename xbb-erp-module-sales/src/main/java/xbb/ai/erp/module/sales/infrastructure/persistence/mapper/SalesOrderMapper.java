@@ -21,6 +21,8 @@ public interface SalesOrderMapper {
 
     SalesOrderPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
+    List<SalesOrderPO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
+
     List<SalesOrderPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);

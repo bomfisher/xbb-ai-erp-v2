@@ -73,7 +73,7 @@ public class PurchaseInboundSaveAppServiceImpl {
         Long purchaseInboundId = save(dto);
         syncItems(dto, purchaseInboundId, existingItems);
         updatePurchaseOrderInboundProgress(dto.getMain().getPurchaseOrderId(),
-            inboundQtyChanges(existingItems, dto.getItems()), dto.getCorpid(), dto.getUserId());
+        inboundQtyChanges(existingItems, dto.getItems()), dto.getCorpid(), dto.getUserId());
         if (!approvalPolicy.requiresApproval(dto.getCorpid())) {
             confirmInbound(purchaseInboundId, dto.getCorpid(), dto.getUserId());
         }
@@ -96,11 +96,43 @@ public class PurchaseInboundSaveAppServiceImpl {
         return new BaseVO();
     }
 
-    private void confirmInbound(Long inboundId, String corpid, String userId) {
-        PurchaseInbound inbound = purchaseInboundRepository.findById(corpid, inboundId);
-        if (inbound == null) {
-            throw new BizException("采购入库单不存在");
+    @Transactional
+    public BaseVO audit(xbb.ai.erp.base.common.dto.IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
+        PurchaseInbound inbound = requireInbound(dto.getCorpid(), dto.getId());
+        if (!PurchaseInboundStatusEnum.SUBMITTED.getCode().equals(inbound.getStatus())) {
+            throw new BizException("当前采购入库单不可审核");
         }
+        if (AuditStatusEnum.APPROVED.getCode().equals(inbound.getAuditStatus())) {
+            throw new BizException("当前采购入库单已审核");
+        }
+        inbound.setAuditStatus(AuditStatusEnum.APPROVED.getCode());
+        inbound.setModifyId(dto.getUserId());
+        inbound.setUpdateTime(System.currentTimeMillis());
+        purchaseInboundRepository.update(inbound);
+        confirmInbound(inbound.getId(), inbound.getCorpid(), dto.getUserId());
+        return new BaseVO();
+    }
+
+    @Transactional
+    public BaseVO unaudit(xbb.ai.erp.base.common.dto.IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
+        PurchaseInbound inbound = requireInbound(dto.getCorpid(), dto.getId());
+        if (!AuditStatusEnum.APPROVED.getCode().equals(inbound.getAuditStatus())) {
+            throw new BizException("当前采购入库单不可反审核");
+        }
+        if (!PurchaseInboundStatusEnum.SUBMITTED.getCode().equals(inbound.getStatus())) {
+            throw new BizException("采购入库单已确认入库，不能反审核");
+        }
+        inbound.setAuditStatus(AuditStatusEnum.PENDING.getCode());
+        inbound.setModifyId(dto.getUserId());
+        inbound.setUpdateTime(System.currentTimeMillis());
+        purchaseInboundRepository.update(inbound);
+        return new BaseVO();
+    }
+
+    private void confirmInbound(Long inboundId, String corpid, String userId) {
+        PurchaseInbound inbound = requireInbound(corpid, inboundId);
         if (PurchaseInboundStatusEnum.INVENTORY_POSTED.getCode().equals(inbound.getStatus())) {
             return;
         }
@@ -122,6 +154,14 @@ public class PurchaseInboundSaveAppServiceImpl {
         inbound.setModifyId(userId);
         inbound.setUpdateTime(System.currentTimeMillis());
         purchaseInboundRepository.update(inbound);
+    }
+
+    private PurchaseInbound requireInbound(String corpid, Long id) {
+        PurchaseInbound inbound = purchaseInboundRepository.findById(corpid, id);
+        if (inbound == null) {
+            throw new BizException("采购入库单不存在");
+        }
+        return inbound;
     }
 
     private void rejectPostedInboundModification(PurchaseInboundSubmitSaveDTO dto) {
@@ -214,7 +254,7 @@ public class PurchaseInboundSaveAppServiceImpl {
 
     private void validateAuditStatus(PurchaseInbound inbound, String corpid) {
         if (approvalPolicy.requiresApproval(corpid)
-            && !AuditStatusEnum.APPROVED.getCode().equals(inbound.getAuditStatus())) {
+            && !AuditStatusEnum.allowsDownstream(inbound.getAuditStatus())) {
             throw new BizException("采购入库单尚未审核通过，不能确认入库");
         }
     }
@@ -227,6 +267,9 @@ public class PurchaseInboundSaveAppServiceImpl {
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(corpid, purchaseOrderId);
         if (purchaseOrder == null) {
             throw new BizException("采购订单不存在，不能更新入库进度");
+        }
+        if (!AuditStatusEnum.allowsDownstream(purchaseOrder.getAuditStatus())) {
+            throw new BizException("采购订单尚未审核通过，不能更新入库进度");
         }
         List<PurchaseOrderItem> orderItems = purchaseOrderItemRepository.findByCondition(
             Map.of("corpid", corpid, "purchaseOrderId", purchaseOrder.getId()));

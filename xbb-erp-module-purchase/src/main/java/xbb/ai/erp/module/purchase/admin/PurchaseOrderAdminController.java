@@ -59,6 +59,16 @@ public class PurchaseOrderAdminController {
         return ResultVO.success(purchaseOrderAdminAppService.saveAndSubmit(dto));
     }
 
+    @PostMapping("/audit")
+    public ResultVO<BaseVO> audit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.audit(dto));
+    }
+
+    @PostMapping("/unaudit")
+    public ResultVO<BaseVO> unaudit(@RequestBody IdBaseDTO dto) {
+        return ResultVO.success(purchaseOrderAdminAppService.unaudit(dto));
+    }
+
     @PostMapping("/draftList")
     public ResultVO<List<PurchaseOrderDraftListItemVO>> draftList(@RequestBody PurchaseOrderDraftListDTO dto) {
         return ResultVO.success(purchaseOrderAdminAppService.draftList(dto));

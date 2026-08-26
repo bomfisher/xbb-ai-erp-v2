@@ -21,6 +21,11 @@ import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSaveItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOutboundDraftListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOutboundDraftDetailVO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOutboundSelectionFillDTO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSelectionFillVO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOutboundSourceProductQueryDTO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSourceProductOptionVO;
+import java.util.List;
 import xbb.ai.erp.module.sales.application.service.SalesOutboundAdminAppService;
 import xbb.ai.erp.module.sales.application.service.draft.SalesOutboundDraftAppService;
 import xbb.ai.erp.module.sales.application.service.query.SalesOutboundQueryAppServiceImpl;
@@ -51,6 +56,16 @@ public class SalesOutboundAdminAppServiceImpl implements SalesOutboundAdminAppSe
     }
 
     @Override
+    public SalesOutboundSelectionFillVO selectionFill(SalesOutboundSelectionFillDTO dto) {
+        return queryService.selectionFill(dto);
+    }
+
+    @Override
+    public List<SalesOutboundSourceProductOptionVO> sourceProductQuickSearch(SalesOutboundSourceProductQueryDTO dto) {
+        return queryService.sourceProductQuickSearch(dto);
+    }
+
+    @Override
     public DraftSaveVO saveDraft(SalesOutboundDraftSaveDTO dto) {
         return draftService.saveDraft(dto);
     }
@@ -58,6 +73,16 @@ public class SalesOutboundAdminAppServiceImpl implements SalesOutboundAdminAppSe
     @Override
     public BaseVO saveAndSubmit(SalesOutboundSubmitSaveDTO dto) {
         return saveService.saveAndSubmit(dto);
+    }
+
+    @Override
+    public BaseVO audit(IdBaseDTO dto) {
+        return saveService.audit(dto);
+    }
+
+    @Override
+    public BaseVO unaudit(IdBaseDTO dto) {
+        return saveService.unaudit(dto);
     }
 
     @Override

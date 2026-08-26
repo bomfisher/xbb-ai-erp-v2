@@ -26,6 +26,7 @@ public final class SalesOrderConvertor {
         po.setAuditStatus(salesOrder.getAuditStatus());
         po.setOutboundStatus(salesOrder.getOutboundStatus());
         po.setReceiptStatus(salesOrder.getReceiptStatus());
+        po.setInvoiceStatus(salesOrder.getInvoiceStatus());
         po.setCreatorId(salesOrder.getCreatorId());
         po.setModifyId(salesOrder.getModifyId());
         return po;
@@ -49,6 +50,7 @@ public final class SalesOrderConvertor {
         salesOrder.setAuditStatus(po.getAuditStatus());
         salesOrder.setOutboundStatus(po.getOutboundStatus());
         salesOrder.setReceiptStatus(po.getReceiptStatus());
+        salesOrder.setInvoiceStatus(po.getInvoiceStatus());
         salesOrder.setCreatorId(po.getCreatorId());
         salesOrder.setModifyId(po.getModifyId());
         return salesOrder;

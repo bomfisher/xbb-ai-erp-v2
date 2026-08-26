@@ -1,6 +1,6 @@
 # 采购
 
-采购申请和采购订单的新建、编辑表单均通过 `headList + data` 下发。采购合同以 `items` 子档维护产品行，行内产品使用专用 `PRODUCT(50) + productSelectConfig`，仓库使用 `BUSINESS(16)`，库存、单位、数量和单价由采购合同自身字段元数据定义；各业务自行决定产品字段集合与表单渲染，不在产品选择器中硬编码。正式保存时主档与产品行在同一事务内同步，服务端重算订单总额和产品行金额。
+采购申请和采购订单的新建、编辑表单均通过 `headList + data` 下发。采购订单以 `items` 子档维护产品行，行内产品使用专用 `PRODUCT(50) + productSelectConfig`，仓库使用 `BUSINESS(16)`，库存、单位、数量和单价由采购订单自身字段元数据定义。采购订单通过 `linkageConfig.itemStock` 声明当前库存字段，产品或仓库变化时调用库存公共接口刷新；`linkageConfig.rowAmount` 与 `aggregateAmount` 则按数量乘单价实时汇总采购金额。该联动属于动态表单能力，不在产品选择器中硬编码。正式保存时主档与产品行在同一事务内同步，服务端重算订单总额和产品行金额。
 
 采购入库单同样使用 `items` 子档维护入库产品行，行内产品使用专用 `PRODUCT(50) + productSelectConfig`。选择采购订单时只检索仍有待入库数量的订单，可按已选供应商进一步筛选；采购入库模块通过统一 `selectionFill` 回填供应商和待入库分录。分录仓库独立持久化，表头仓库变更由前端确认后按需同步。正式保存时主档与入库产品行同步，并由后端重算采购金额、成本金额和主档总额，重新校验订单行待入库数量和快照。
 
@@ -11,8 +11,25 @@
 - 采购订单新增：[purchase-order-add-item.md](../api/endpoints/purchase-order-add-item.md)
 - 采购订单编辑：[purchase-order-update-item.md](../api/endpoints/purchase-order-update-item.md)
 - 采购订单业务选择：[purchase-order-business-select.md](../api/endpoints/purchase-order-business-select.md)
+- 采购订单审核：[purchase-order-audit.md](../api/endpoints/purchase-order-audit.md)
+- 采购订单反审核：[purchase-order-unaudit.md](../api/endpoints/purchase-order-unaudit.md)
 - 采购入库正式保存：[purchase-inbound-save-and-submit.md](../api/endpoints/purchase-inbound-save-and-submit.md)
 - 采购入库确认：[purchase-inbound-confirm-inbound.md](../api/endpoints/purchase-inbound-confirm-inbound.md)
+- 采购入库审核：[purchase-inbound-audit.md](../api/endpoints/purchase-inbound-audit.md)
+- 采购入库反审核：[purchase-inbound-unaudit.md](../api/endpoints/purchase-inbound-unaudit.md)
 - 采购入库订单回填：[purchase-inbound-selection-fill.md](../api/endpoints/purchase-inbound-selection-fill.md)
 - 新建页联动说明：[../features/module-purchase/purchase-inbound-linkage.md](../features/module-purchase/purchase-inbound-linkage.md)
 - 字段协议：[field-product-user-m.md](field-product-user-m.md)
+采购订单增加统一的开票状态字段：`0 未开票`、`1 部分开票`、`2 全部开票`。当前采购发票来源尚未接入，采购订单新建时初始化为未开票。
+
+采购发票维护“已开应付金额”和“可开应付金额”。同一张已审核、已过账采购发票可拆分创建多张应付；应付的新增、编辑、删除均按金额差额回写发票余额，且供应商必须一致。采购发票业务选择接口只返回仍有可开应付金额的发票，编辑回显可查询已耗尽的原发票。
+
+采购发票支持行操作过账、作废和红冲：仅已审核草稿可过账，已审核单据须先反审核才能作废；红冲会为正常已过账单据生成一张独立的负数 `CREDIT_NOTE`，并复制负数明细与来源关联。
+
+- 采购发票过账：[purchase-invoice-post.md](../api/endpoints/purchase-invoice-post.md)
+- 采购发票作废：[purchase-invoice-void.md](../api/endpoints/purchase-invoice-void.md)
+- 采购发票红冲：[purchase-invoice-red-flush.md](../api/endpoints/purchase-invoice-red-flush.md)
+- 采购发票快捷选择：[purchase-invoice-business-select-quick-search.md](../api/endpoints/purchase-invoice-business-select-quick-search.md)
+- 采购发票弹窗选择：[purchase-invoice-business-select-dialog-search.md](../api/endpoints/purchase-invoice-business-select-dialog-search.md)
+- 采购发票选择回显：[purchase-invoice-business-select-get-by-id.md](../api/endpoints/purchase-invoice-business-select-get-by-id.md)
+- 应付采购发票回填：[settlement-payable-selection-fill.md](../api/endpoints/settlement-payable-selection-fill.md)

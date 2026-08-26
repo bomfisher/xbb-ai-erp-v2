@@ -3,6 +3,8 @@ package xbb.ai.erp.module.inventory.infrastructure.persistence.repository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 import xbb.ai.erp.module.inventory.domain.model.StockBalance;
+import xbb.ai.erp.module.inventory.admin.dto.StockQueryDTO;
+import xbb.ai.erp.module.inventory.domain.pojo.StockBalanceQueryPojo;
 import xbb.ai.erp.module.inventory.domain.repository.StockBalanceRepository;
 import xbb.ai.erp.module.inventory.infrastructure.persistence.convertor.StockBalanceConvertor;
 import xbb.ai.erp.module.inventory.infrastructure.persistence.mapper.StockBalanceMapper;
@@ -16,6 +18,16 @@ import java.util.Map;
 public class StockBalanceRepositoryImpl implements StockBalanceRepository {
 
     private final StockBalanceMapper stockBalanceMapper;
+
+    @Override
+    public List<StockBalanceQueryPojo> queryList(StockQueryDTO query, int offset, int pageSize) {
+        return stockBalanceMapper.queryList(query, offset, pageSize);
+    }
+
+    @Override
+    public Long queryCount(StockQueryDTO query) {
+        return stockBalanceMapper.queryCount(query);
+    }
 
     @Override
     public Long insert(StockBalance stockBalance) {
@@ -59,6 +71,11 @@ public class StockBalanceRepositoryImpl implements StockBalanceRepository {
 
     public StockBalance findByWarehouseAndSku(String corpid, Long warehouseId, Long skuId) {
         return StockBalanceConvertor.toDomain(stockBalanceMapper.findByWarehouseAndSku(corpid, warehouseId, skuId));
+    }
+
+    @Override
+    public List<StockBalance> findBySku(String corpid, Long skuId) {
+        return stockBalanceMapper.findBySku(corpid, skuId).stream().map(StockBalanceConvertor::toDomain).toList();
     }
 
     @Override

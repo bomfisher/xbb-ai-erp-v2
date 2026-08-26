@@ -9,7 +9,7 @@ public class WarehouseListItemVO {
     private String warehouseName;
     private String address;
     private String ownerId;
-    private Integer enabled;
+    private String enabled;
     private String remark;
     private String creatorId;
     private String modifyId;

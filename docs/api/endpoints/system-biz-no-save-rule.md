@@ -1,4 +1,4 @@
-# 保存业务编号规则
+# 保存编号规则
 
 ## 接口
 
@@ -6,12 +6,15 @@
 
 ## 请求
 
-请求体为 `BizNoRuleSaveDTO`，继承 `BaseDTO`，包含 `corpid`、`userId`、`businessCode`、`prefix` 与 `ruleType`。
+请求体为 `BizNoRuleSaveDTO`，继承 `BaseDTO`，包含 `corpid`、`userId`、`businessCode`、`prefix`、`includeDate`、`suffixLength` 与 `serialMode`。
 
-`ruleType` 仅允许：
+新页面使用的字段：
 
-- `MASTER_DATA`：生成 `前缀-五位序号`，例如 `SKU-00001`。
-- `DOCUMENT`：生成 `前缀-yyyyMMdd-五位序号`，例如 `PO-20260813-00001`。
+- `includeDate`：`0` 表示不包含时间编码，`1` 表示包含 `yyyyMMdd`；
+- `suffixLength`：自增后缀位数，范围为 `1` 到 `18`；
+- `serialMode`：`CONTINUOUS` 连续递增，`DAILY` 按日递增。
+
+兼容旧调用方：未传新字段时仍可传 `ruleType`。`MASTER_DATA` 映射为不含时间编码、五位、连续递增；`DOCUMENT` 映射为含时间编码、五位、按日递增。
 
 ## 响应
 
@@ -19,4 +22,4 @@
 
 ## 规则
 
-规则以 `corpid + businessCode` 唯一。编号前缀和规则类型不能为空，保存后供发号入口与业务模块调用。
+规则以 `corpid + businessCode` 唯一。保存时只查询并更新当前 `corpid` 的记录：当前公司首次保存默认规则时创建一条公司覆盖记录；后续保存始终更新该公司记录，不会重复初始化，也不会更新 `corpid='0'` 默认规则。

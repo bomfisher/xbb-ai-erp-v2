@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.approval.infrastructure.persistence.mapper.ApprovalInstanceMapper">
+    <select id="findById" resultType="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalInstancePO">
+        SELECT *
+        FROM approval_instance
+        WHERE corpid = #{corpid}
+          AND instance_id = #{instanceId}
+          AND del = 0
+    </select>
+
+    <select id="findByRequestId" resultType="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalInstancePO">
+        SELECT *
+        FROM approval_instance
+        WHERE corpid = #{corpid}
+          AND request_id = #{requestId}
+          AND del = 0
+    </select>
+
+    <select id="findTasks" resultType="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalInstanceTaskPO">
+        SELECT *
+        FROM approval_instance_task
+        WHERE instance_id = #{instanceId}
+          AND del = 0
+        <if test="nodeNo != null">
+            AND node_no = #{nodeNo}
+        </if>
+        ORDER BY id
+    </select>
+
+    <select id="findByApprovalCenter" resultType="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalInstancePO">
+        SELECT DISTINCT instance.*
+        FROM approval_instance instance
+        <if test="view == 'TODO'">
+            INNER JOIN approval_instance_task task
+                ON task.instance_id = instance.instance_id
+                AND task.assignee_id = #{userId}
+                AND task.status = 'PENDING'
+                AND task.del = 0
+        </if>
+        WHERE instance.corpid = #{corpid}
+          AND instance.del = 0
+        <choose>
+            <when test="view == 'TODO'">
+                AND instance.status IN ('PENDING_APPROVAL', 'IN_APPROVAL')
+            </when>
+            <when test="view == 'SUBMITTED'">
+                AND instance.submitter_id = #{userId}
+            </when>
+            <when test="view == 'COMPLETED'">
+                AND instance.status IN ('APPROVED', 'REJECTED', 'WITHDRAWN')
+                AND (
+                    instance.submitter_id = #{userId}
+                    OR EXISTS (
+                        SELECT 1
+                        FROM approval_instance_task completed_task
+                        WHERE completed_task.instance_id = instance.instance_id
+                          AND completed_task.assignee_id = #{userId}
+                          AND completed_task.del = 0
+                    )
+                )
+            </when>
+        </choose>
+        <if test="status != null and status != ''">
+            AND instance.status = #{status}
+        </if>
+        <if test="businessCode != null and businessCode != ''">
+            AND instance.business_code = #{businessCode}
+        </if>
+        <if test="keyword != null and keyword != ''">
+            AND (instance.subject_summary LIKE CONCAT('%', #{keyword}, '%')
+                OR instance.submitter_id LIKE CONCAT('%', #{keyword}, '%'))
+        </if>
+        ORDER BY instance.submitted_at DESC, instance.id DESC
+    </select>
+
+    <select id="findActionLogs" resultType="xbb.ai.erp.module.approval.infrastructure.persistence.po.ApprovalInstanceActionLogPO">
+        SELECT *
+        FROM approval_instance_action_log
+        WHERE instance_id = #{instanceId}
+        ORDER BY id
+    </select>
+
+    <select id="countApprovalCenterAccess" resultType="int">
+        SELECT COUNT(1)
+        FROM approval_instance instance
+        WHERE instance.corpid = #{corpid}
+          AND instance.instance_id = #{instanceId}
+          AND instance.del = 0
+          AND (
+            instance.submitter_id = #{userId}
+            OR EXISTS (
+                SELECT 1
+                FROM approval_instance_task task
+                WHERE task.instance_id = instance.instance_id
+                  AND task.assignee_id = #{userId}
+                  AND task.del = 0
+            )
+          )
+    </select>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO approval_instance (
+            instance_id, corpid, flow_definition_id, flow_code, flow_version,
+            business_code, approval_scene, subject_id, request_id, submitter_id,
+            subject_summary, subject_snapshot_json, flow_snapshot_json, status,
+            current_node_no, submitted_at, completed_at, del, add_time, update_time
+        ) VALUES (
+            #{instanceId}, #{corpid}, #{flowDefinitionId}, #{flowCode}, #{flowVersion},
+            #{businessCode}, #{approvalScene}, #{subjectId}, #{requestId}, #{submitterId},
+            #{subjectSummary}, #{subjectSnapshotJson}, #{flowSnapshotJson}, #{status},
+            #{currentNodeNo}, #{submittedAt}, #{completedAt}, #{del}, #{addTime}, #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertTask" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO approval_instance_task (
+            instance_id, node_no, assignee_id, status, comment, handled_at, del, add_time, update_time
+        ) VALUES (
+            #{instanceId}, #{nodeNo}, #{assigneeId}, #{status}, #{comment}, #{handledAt},
+            #{del}, #{addTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE approval_instance
+        SET status = #{status},
+            current_node_no = #{currentNodeNo},
+            completed_at = #{completedAt},
+            update_time = #{updateTime}
+        WHERE instance_id = #{instanceId}
+          AND del = 0
+    </update>
+
+    <update id="updateTask">
+        UPDATE approval_instance_task
+        SET status = #{status},
+            comment = #{comment},
+            handled_at = #{handledAt},
+            update_time = #{updateTime}
+        WHERE id = #{id}
+          AND status = 'PENDING'
+          AND del = 0
+    </update>
+
+    <update id="activateTasks">
+        UPDATE approval_instance_task
+        SET status = 'PENDING',
+            update_time = #{activatedAt}
+        WHERE instance_id = #{instanceId}
+          AND node_no = #{nodeNo}
+          AND status = 'WAITING'
+          AND del = 0
+    </update>
+
+    <update id="cancelTasks">
+        UPDATE approval_instance_task
+        SET status = 'CANCELLED',
+            handled_at = #{handledAt},
+            update_time = #{handledAt}
+        WHERE instance_id = #{instanceId}
+          AND node_no = #{nodeNo}
+          AND status = 'PENDING'
+          AND del = 0
+    </update>
+
+    <insert id="appendAction">
+        INSERT INTO approval_instance_action_log (
+            instance_id, node_no, operator_id, action, comment, operated_at
+        ) VALUES (
+            #{instanceId}, #{nodeNo}, #{operatorId}, #{action}, #{comment}, #{operatedAt}
+        )
+    </insert>
+
+    <select id="countActiveByFlowDefinitionId" resultType="int">
+        SELECT COUNT(1)
+        FROM approval_instance
+        WHERE corpid = #{corpid}
+          AND flow_definition_id = #{flowDefinitionId}
+          AND status IN ('PENDING_APPROVAL', 'IN_APPROVAL')
+          AND del = 0
+    </select>
+</mapper>

@@ -1,6 +1,6 @@
 businessCode: PURCHASE_INBOUND
 fields:
-  - { name: inboundNo, attr: main.inboundNo, attrName: inbound_no, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: inbound_no }
+  - { name: inboundNo, attr: main.inboundNo, attrName: 对接编号, fieldType: TEXT, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: inbound_no }
   - { name: purchaseOrderId, attr: main.purchaseOrderId, attrName: purchase_order_id, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: PURCHASE_ORDER, selectionFill: true }
   - { name: supplierId, attr: main.supplierId, attrName: supplier_id, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: true, editable: true, defaultValue: null, filterName: null, businessCode: SUPPLIER }
   - { name: warehouseId, attr: main.warehouseId, attrName: warehouse_id, fieldType: BUSINESS, scenes: [LIST, CREATE, UPDATE], required: false, editable: true, defaultValue: null, filterName: null, businessCode: WAREHOUSE }

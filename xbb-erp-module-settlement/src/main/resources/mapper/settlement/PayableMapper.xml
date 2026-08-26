@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.settlement.infrastructure.persistence.mapper.PayableMapper">
+
+    <sql id="BaseColumns">
+        id, corpid, payable_no, supplier_id, source_type, source_invoice_id, payable_date, due_date, amount, written_off_amount, remaining_amount, status, audit_status, remark, creator_id, modify_id
+    </sql>
+
+    <sql id="BaseCondition">
+        corpid = #{conditionMap.corpid}
+        and del = 0
+        <if test="conditionMap.id != null">
+            and id = #{conditionMap.id}
+        </if>
+        <if test="conditionMap.payableNo != null and conditionMap.payableNo != ''">
+            and payable_no = #{conditionMap.payableNo}
+        </if>
+        <if test="conditionMap.supplierId != null">
+            and supplier_id = #{conditionMap.supplierId}
+        </if>
+        <if test="conditionMap.sourceType != null and conditionMap.sourceType != ''">
+            and source_type = #{conditionMap.sourceType}
+        </if>
+        <if test="conditionMap.sourceInvoiceId != null">
+            and source_invoice_id = #{conditionMap.sourceInvoiceId}
+        </if>
+        <if test="conditionMap.payableDate != null">
+            and payable_date = #{conditionMap.payableDate}
+        </if>
+        <if test="conditionMap.dueDate != null">
+            and due_date = #{conditionMap.dueDate}
+        </if>
+        <if test="conditionMap.amount != null">
+            and amount = #{conditionMap.amount}
+        </if>
+        <if test="conditionMap.writtenOffAmount != null">
+            and written_off_amount = #{conditionMap.writtenOffAmount}
+        </if>
+        <if test="conditionMap.remainingAmount != null">
+            and remaining_amount = #{conditionMap.remainingAmount}
+        </if>
+        <if test="conditionMap.status != null">
+            and status = #{conditionMap.status}
+        </if>
+        <if test="conditionMap.auditStatus != null">
+            and audit_status = #{conditionMap.auditStatus}
+        </if>
+    </sql>
+
+    <sql id="QueryTail">
+        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+            group by ${conditionMap.groupByStr}
+        </if>
+        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+            order by ${conditionMap.orderByStr}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+            limit #{conditionMap.offset}, #{conditionMap.pageSize}
+        </if>
+        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+            limit #{conditionMap.pageSize}
+        </if>
+    </sql>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into payable (
+            corpid, payable_no, supplier_id, source_type, source_invoice_id, payable_date, due_date, amount, written_off_amount, remaining_amount, status, audit_status, remark, creator_id, modify_id, del, add_time, update_time
+        )
+        values (#{corpid}, #{payableNo}, #{supplierId}, #{sourceType}, #{sourceInvoiceId}, #{payableDate}, #{dueDate}, #{amount}, #{writtenOffAmount}, #{remainingAmount}, #{status}, #{auditStatus}, #{remark}, #{creatorId}, #{modifyId}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+
+    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+        insert into payable (
+            corpid, payable_no, supplier_id, source_type, source_invoice_id, payable_date, due_date, amount, written_off_amount, remaining_amount, status, audit_status, remark, creator_id, modify_id, del, add_time, update_time
+        )
+        values
+        <foreach collection="list" item="item" separator=",">
+            (#{item.corpid}, #{item.payableNo}, #{item.supplierId}, #{item.sourceType}, #{item.sourceInvoiceId}, #{item.payableDate}, #{item.dueDate}, #{item.amount}, #{item.writtenOffAmount}, #{item.remainingAmount}, #{item.status}, #{item.auditStatus}, #{item.remark}, #{item.creatorId}, #{item.modifyId}, #{item.del}, #{item.addTime}, #{item.updateTime})
+        </foreach>
+    </insert>
+
+    <update id="removeById">
+        update payable
+        set del = 1
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <update id="removeBatchByIds">
+        update payable
+        set del = 1
+        where corpid = #{corpid}
+          and del = 0
+          and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <update id="update" parameterType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.PayablePO">
+        update payable
+        <set>
+            <if test="corpid != null">corpid = #{corpid},</if>
+            <if test="payableNo != null">payable_no = #{payableNo},</if>
+            <if test="supplierId != null">supplier_id = #{supplierId},</if>
+            <if test="sourceType != null">source_type = #{sourceType},</if>
+            <if test="sourceInvoiceId != null">source_invoice_id = #{sourceInvoiceId},</if>
+            <if test="payableDate != null">payable_date = #{payableDate},</if>
+            <if test="dueDate != null">due_date = #{dueDate},</if>
+            <if test="amount != null">amount = #{amount},</if>
+            <if test="writtenOffAmount != null">written_off_amount = #{writtenOffAmount},</if>
+            <if test="remainingAmount != null">remaining_amount = #{remainingAmount},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="auditStatus != null">audit_status = #{auditStatus},</if>
+            <if test="remark != null">remark = #{remark},</if>
+            <if test="creatorId != null">creator_id = #{creatorId},</if>
+            <if test="modifyId != null">modify_id = #{modifyId},</if>
+        </set>
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </update>
+
+    <select id="findById" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.PayablePO">
+        select <include refid="BaseColumns"/>
+        from payable
+        where corpid = #{corpid}
+          and id = #{id}
+          and del = 0
+    </select>
+
+    <select id="findByCondition" resultType="xbb.ai.erp.module.settlement.infrastructure.persistence.po.PayablePO">
+        select <include refid="BaseColumns"/>
+        from payable
+        where <include refid="BaseCondition"/>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
+            <foreach collection="conditionMap.conditions" item="c">
+                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
+            </foreach>
+        </if>
+        <include refid="QueryTail"/>
+    </select>
+
+    <select id="count" resultType="java.lang.Long">
+        select count(1)
+        from payable
+        where <include refid="BaseCondition"/>
+    </select>
+</mapper>

@@ -3,13 +3,21 @@ package xbb.ai.erp.module.purchase.application.validator;
 import org.springframework.stereotype.Component;
 import java.math.BigDecimal;
 import xbb.ai.erp.base.common.exception.BizException;
+import xbb.ai.erp.base.common.filed.FieldValidateModeEnum;
+import xbb.ai.erp.base.common.filed.FieldValueValidator;
+import xbb.ai.erp.module.purchase.admin.PurchaseInboundFieldEnum;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundItemDTO;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseInboundSaveDTO;
 
 @Component
 public class PurchaseInboundSaveCommonValidator {
+    private final FieldValueValidator fieldValueValidator = new FieldValueValidator();
+
+
     public void validateForDraft(PurchaseInboundSaveDTO dto) {}
     public void validateForSubmit(PurchaseInboundSaveDTO dto) {
+        fieldValueValidator.validate(PurchaseInboundFieldEnum.fieldRules(), dto, FieldValidateModeEnum.SUBMIT);
+
         if (dto.getItems() == null || dto.getItems().isEmpty()) {
             throw new BizException("入库产品不能为空");
         }

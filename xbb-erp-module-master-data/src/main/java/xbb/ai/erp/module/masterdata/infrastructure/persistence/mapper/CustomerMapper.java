@@ -23,6 +23,8 @@ public interface CustomerMapper extends BaseMapper<CustomerPO> {
 
     CustomerPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
+    List<CustomerPO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
+
     List<CustomerPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);

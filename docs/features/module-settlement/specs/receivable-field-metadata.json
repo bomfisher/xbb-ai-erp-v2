@@ -1,0 +1,323 @@
+{
+  "businessCode": "RECEIVABLE",
+  "fields": [
+    {
+      "name": "receivable_no",
+      "attr": "main.receivableNo",
+      "attrName": "应收开放项编号",
+      "fieldType": "SERIAL_NO",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "customer_id",
+      "attr": "main.customerId",
+      "attrName": "客户",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "CUSTOMER"
+    },
+    {
+      "name": "source_type",
+      "attr": "main.sourceType",
+      "attrName": "来源类型",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": "MANUAL_ADJUSTMENT",
+      "filterName": "source_type",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "SALES_INVOICE:销售发票,OPENING_BALANCE:期初余额,MANUAL_ADJUSTMENT:手工调整"
+    },
+    {
+      "name": "source_invoice_id",
+      "attr": "main.sourceInvoiceId",
+      "attrName": "来源销售发票",
+      "fieldType": "BUSINESS",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null,
+      "businessCode": "SALES_INVOICE"
+    },
+    {
+      "name": "opening_batch_id",
+      "attr": "main.openingBatchId",
+      "attrName": "期初导入批次",
+      "fieldType": "NUM_INT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "receivable_date",
+      "attr": "main.receivableDate",
+      "attrName": "应收确认日期",
+      "fieldType": "DATE",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "receivable_date",
+      "filterFieldType": "DATE",
+      "supportedSymbols": [
+        "EQ",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "due_date",
+      "attr": "main.dueDate",
+      "attrName": "到期日",
+      "fieldType": "DATE",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "due_date",
+      "filterFieldType": "DATE",
+      "supportedSymbols": [
+        "EQ",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "amount",
+      "attr": "main.amount",
+      "attrName": "初始应收金额",
+      "fieldType": "AMOUNT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "amount",
+      "filterFieldType": "AMOUNT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "written_off_amount",
+      "attr": "main.writtenOffAmount",
+      "attrName": "已核销金额",
+      "fieldType": "AMOUNT",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": "0.00",
+      "filterName": "written_off_amount",
+      "filterFieldType": "AMOUNT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "remaining_amount",
+      "attr": "main.remainingAmount",
+      "attrName": "未核销应收余额",
+      "fieldType": "AMOUNT",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": "0.00",
+      "filterName": "remaining_amount",
+      "filterFieldType": "AMOUNT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "GE",
+        "LE",
+        "BETWEEN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "status",
+      "attr": "main.status",
+      "attrName": "核销状态",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": "0",
+      "filterName": "status",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "0:未核销,1:部分核销,2:已核销,3:已关闭"
+    },
+    {
+      "name": "remark",
+      "attr": "main.remark",
+      "attrName": "备注",
+      "fieldType": "TEXT",
+      "scenes": [
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "creator_id",
+      "attr": "main.creatorId",
+      "attrName": "创建人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "creator_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "ORG_MEMBER"
+    },
+    {
+      "name": "modify_id",
+      "attr": "main.modifyId",
+      "attrName": "修改人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "modify_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "ORG_MEMBER"
+    }
+  ],
+  "listActions": {
+    "top": [
+      {
+        "actionCode": "ADD",
+        "actionName": "新建"
+      }
+    ],
+    "bottom": [
+
+    ],
+    "row": [
+      {
+        "actionCode": "EDIT",
+        "actionName": "编辑"
+      }
+    ]
+  },
+  "formSections": [
+    {
+      "key": "basic",
+      "title": "基本信息",
+      "order": 10,
+      "fields": [
+        "main.receivableNo",
+        "main.customerId",
+        "main.sourceType",
+        "main.sourceInvoiceId",
+        "main.openingBatchId",
+        "main.receivableDate",
+        "main.dueDate",
+        "main.amount",
+        "main.remark"
+      ]
+    }
+  ]
+}

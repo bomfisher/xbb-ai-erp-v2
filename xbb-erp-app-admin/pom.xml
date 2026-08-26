@@ -30,6 +30,11 @@
         </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-approval</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-common</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -61,6 +66,11 @@
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-inventory</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-settlement</artifactId>
             <version>${project.version}</version>
         </dependency>
         <dependency>

@@ -2,7 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="xbb.ai.erp.module.system.infrastructure.persistence.mapper.BizNoRuleMapper">
     <select id="findByKey" resultType="xbb.ai.erp.module.system.infrastructure.persistence.po.BizNoRulePO">
-        SELECT id, corpid, business_code AS businessCode, prefix, rule_type AS ruleType, del, add_time AS addTime, update_time AS updateTime
+        SELECT id, corpid, business_code AS businessCode, prefix, include_date AS includeDate,
+               suffix_length AS suffixLength, serial_mode AS serialMode, rule_type AS ruleType,
+               del, add_time AS addTime, update_time AS updateTime
         FROM sys_biz_no_rule
         WHERE business_code = #{businessCode}
           AND corpid IN (#{corpid}, '0')
@@ -11,15 +13,38 @@
         LIMIT 1
     </select>
     <select id="findOwnByKey" resultType="xbb.ai.erp.module.system.infrastructure.persistence.po.BizNoRulePO">
-        SELECT id, corpid, business_code AS businessCode, prefix, rule_type AS ruleType, del, add_time AS addTime, update_time AS updateTime
+        SELECT id, corpid, business_code AS businessCode, prefix, include_date AS includeDate,
+               suffix_length AS suffixLength, serial_mode AS serialMode, rule_type AS ruleType,
+               del, add_time AS addTime, update_time AS updateTime
         FROM sys_biz_no_rule
         WHERE corpid = #{corpid} AND business_code = #{businessCode} AND del = 0
     </select>
+    <select id="findAvailableByCorpid" resultType="xbb.ai.erp.module.system.infrastructure.persistence.po.BizNoRulePO">
+        SELECT current_rule.id, current_rule.corpid, current_rule.business_code AS businessCode, current_rule.prefix,
+               current_rule.include_date AS includeDate, current_rule.suffix_length AS suffixLength,
+               current_rule.serial_mode AS serialMode, current_rule.rule_type AS ruleType, current_rule.del,
+               current_rule.add_time AS addTime, current_rule.update_time AS updateTime
+        FROM sys_biz_no_rule current_rule
+        WHERE current_rule.corpid IN (#{corpid}, '0')
+          AND current_rule.del = 0
+          AND NOT EXISTS (
+              SELECT 1
+              FROM sys_biz_no_rule own_rule
+              WHERE own_rule.corpid = #{corpid}
+                AND own_rule.business_code = current_rule.business_code
+                AND own_rule.del = 0
+                AND current_rule.corpid = '0'
+          )
+        ORDER BY current_rule.rule_type, current_rule.business_code
+    </select>
     <insert id="insert" useGeneratedKeys="true" keyProperty="id">
-        INSERT INTO sys_biz_no_rule (corpid, business_code, prefix, rule_type, del, add_time, update_time)
-        VALUES (#{corpid}, #{businessCode}, #{prefix}, #{ruleType}, #{del}, #{addTime}, #{updateTime})
+        INSERT INTO sys_biz_no_rule (corpid, business_code, prefix, include_date, suffix_length, serial_mode, rule_type, del, add_time, update_time)
+        VALUES (#{corpid}, #{businessCode}, #{prefix}, #{includeDate}, #{suffixLength}, #{serialMode}, #{ruleType}, #{del}, #{addTime}, #{updateTime})
     </insert>
     <update id="update">
-        UPDATE sys_biz_no_rule SET prefix = #{prefix}, rule_type = #{ruleType}, update_time = #{updateTime} WHERE id = #{id}
+        UPDATE sys_biz_no_rule
+        SET prefix = #{prefix}, include_date = #{includeDate}, suffix_length = #{suffixLength},
+            serial_mode = #{serialMode}, rule_type = #{ruleType}, update_time = #{updateTime}
+        WHERE id = #{id}
     </update>
 </mapper>

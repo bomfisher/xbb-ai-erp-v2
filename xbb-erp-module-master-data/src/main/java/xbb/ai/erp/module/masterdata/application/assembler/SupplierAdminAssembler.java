@@ -15,7 +15,9 @@ public final class SupplierAdminAssembler {
     }
 
     public static SupplierSaveItemVO buildEmptySaveItemVO() {
-        return new SupplierSaveItemVO();
+        SupplierSaveItemVO vo = new SupplierSaveItemVO();
+        vo.setMain(new SupplierMainDTO());
+        return vo;
     }
 
     public static Supplier toSupplier(SupplierSaveDTO dto) {

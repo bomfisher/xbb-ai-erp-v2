@@ -1,0 +1,62 @@
+moduleDir: purchase
+moduleCode: purchase
+moduleApiName: purchase
+businessName: purchaseInvoice
+businessCode: PURCHASE_INVOICE
+moduleName: 采购发票
+packageBase: xbb.ai.erp.module.purchase
+pathStrategy: ddd-mybatis-plus
+aggregateRole: ROOT
+aggregateName: PurchaseInvoice
+tableName: purchase_invoice
+aggregate:
+  aggregateName: PurchaseInvoice
+  tableName: purchase_invoice
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: invoiceNo, column: invoice_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: supplierInvoiceNo, column: supplier_invoice_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: supplierId, column: supplier_id, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: invoiceDate, column: invoice_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: dueDate, column: due_date, javaType: Long, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: paymentTerm, column: payment_term, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: untaxedAmount, column: untaxed_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: taxAmount, column: tax_amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: invoiceType, column: invoice_type, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: status, column: status, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: auditStatus, column: audit_status, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: auditTime, column: audit_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: postedTime, column: posted_time, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: originalInvoiceId, column: original_invoice_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: sourceType, column: source_type, javaType: String, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: sourceId, column: source_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: manualReason, column: manual_reason, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+children:
+  - aggregateName: PurchaseInvoiceLine
+    tableName: purchase_invoice_line
+    parentColumn: purchase_invoice_id
+    fields:
+      - { name: productId, column: product_id, javaType: Long }
+      - { name: productName, column: product_name, javaType: String, required: true }
+      - { name: specification, column: specification, javaType: String }
+      - { name: unitName, column: unit_name, javaType: String }
+      - { name: quantity, column: quantity, javaType: java.math.BigDecimal, required: true }
+      - { name: unitPrice, column: unit_price, javaType: java.math.BigDecimal, required: true }
+      - { name: taxRate, column: tax_rate, javaType: java.math.BigDecimal, required: true }
+      - { name: untaxedAmount, column: untaxed_amount, javaType: java.math.BigDecimal }
+      - { name: taxAmount, column: tax_amount, javaType: java.math.BigDecimal }
+      - { name: amount, column: amount, javaType: java.math.BigDecimal }
+      - { name: remark, column: remark, javaType: String }
+notes:
+  - 采购发票明细与销售发票明细使用同样的主从保存协议。
+  - 来源单据行保存到 purchase_invoice_line_source，采购订单和采购入库均可带入明细。
+notes:
+  - 新建采购发票编号由 PURCHASE_INVOICE 业务编号规则生成并回填。
+  - 开票来源支持 PURCHASE_INBOUND、PURCHASE_ORDER、MANUAL；手工来源必须填写 manualReason。
+  - 表单分组由后端 formSections 返回，包含基本信息、开票来源和金额汇总。
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

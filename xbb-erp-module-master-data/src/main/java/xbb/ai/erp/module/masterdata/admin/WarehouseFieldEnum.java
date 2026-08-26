@@ -11,7 +11,7 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum WarehouseFieldEnum {
-    WAREHOUSE_CODE("main.warehouseCode", "仓库编码", FieldTypeEnum.TEXT, "warehouse_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    WAREHOUSE_CODE("main.warehouseCode", "仓库编码", FieldTypeEnum.SERIAL_NO, "warehouse_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     WAREHOUSE_NAME("main.warehouseName", "仓库名称", FieldTypeEnum.TEXT, "warehouse_name", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     ADDRESS("main.address", "地址", FieldTypeEnum.ADDRESS, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     OWNER_ID("main.ownerId", "仓库负责人", FieldTypeEnum.USER, "owner_id", false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, "ORG_MEMBER", List.of()),

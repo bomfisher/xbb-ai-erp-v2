@@ -1,6 +1,6 @@
 package xbb.ai.erp.module.purchase.application.service.query;
 
-import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +9,7 @@ import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
@@ -67,6 +68,7 @@ public class PurchaseOrderQueryAppServiceImpl {
         SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
         vo.setFormSections(PurchaseOrderFormSectionFactory.getSections(SceneTypeEnum.CREATE));
+        vo.setLinkageConfig(linkageConfig());
         xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO data = PurchaseOrderAdminAssembler.buildEmptySaveItemVO();
         xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderMainDTO main = new xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderMainDTO();
         main.setOrderNo(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.PURCHASE_ORDER.getCode()));
@@ -81,6 +83,7 @@ public class PurchaseOrderQueryAppServiceImpl {
         SaveItemVO<xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.UPDATE)));
         vo.setFormSections(PurchaseOrderFormSectionFactory.getSections(SceneTypeEnum.UPDATE));
+        vo.setLinkageConfig(linkageConfig());
         vo.setData(toSaveItemVO(dto.getCorpid(), entity));
         return vo;
     }
@@ -92,18 +95,19 @@ public class PurchaseOrderQueryAppServiceImpl {
     }
 
     public List<PurchaseOrderBusinessSelectOptionVO> businessSelectQuickSearch(PurchaseOrderBusinessSelectQueryDTO dto) {
-        return findBusinessSelectOptions(dto);
+        return findBusinessSelectOptions(dto, 0, 5);
     }
 
     public ListBaseVO<PurchaseOrderBusinessSelectOptionVO> businessSelectDialogSearch(PurchaseOrderBusinessSelectQueryDTO dto) {
         int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
-        List<PurchaseOrderBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
-        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
-        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        Map<String, Object> conditions = businessSelectConditions(dto, (pageNum - 1) * pageSize, pageSize);
+        List<PurchaseOrderBusinessSelectOptionVO> options = purchaseOrderRepository.findByCondition(conditions).stream()
+            .map(this::toBusinessSelectOption).toList();
+        Long total = purchaseOrderRepository.count(businessSelectConditions(dto, null, null));
         ListBaseVO<PurchaseOrderBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setList(all.subList(fromIndex, toIndex));
-        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        vo.setList(options);
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, total == null ? 0 : total.intValue()));
         return vo;
     }
 
@@ -111,26 +115,34 @@ public class PurchaseOrderQueryAppServiceImpl {
         if (dto.getId() == null) return null;
         AdminParamValidator.requireCorpid(dto);
         PurchaseOrder purchaseOrder = purchaseOrderRepository.findById(dto.getCorpid(), dto.getId());
-        return purchaseOrder == null ? null : toBusinessSelectOption(purchaseOrder);
+        return purchaseOrder == null || !AuditStatusEnum.allowsDownstream(purchaseOrder.getAuditStatus())
+                ? null : toBusinessSelectOption(purchaseOrder);
     }
 
-    private List<PurchaseOrderBusinessSelectOptionVO> findBusinessSelectOptions(PurchaseOrderBusinessSelectQueryDTO dto) {
+    private List<PurchaseOrderBusinessSelectOptionVO> findBusinessSelectOptions(PurchaseOrderBusinessSelectQueryDTO dto,
+                                                                                  Integer offset, Integer pageSize) {
         AdminParamValidator.requireCorpid(dto);
-        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
-        return purchaseOrderRepository.findByCondition(Map.of("corpid", dto.getCorpid())).stream()
-                .filter(purchaseOrder -> dto.getSupplierId() == null || dto.getSupplierId().equals(purchaseOrder.getSupplierId()))
-                .filter(this::hasPendingInboundItems)
-                .filter(purchaseOrder -> keyword.isEmpty()
-                        || (purchaseOrder.getOrderNo() != null && purchaseOrder.getOrderNo().contains(keyword))
-                        || (purchaseOrder.getSupplierName() != null && purchaseOrder.getSupplierName().contains(keyword)))
+        return purchaseOrderRepository.findByCondition(businessSelectConditions(dto, offset, pageSize)).stream()
                 .map(this::toBusinessSelectOption)
                 .toList();
     }
 
-    private boolean hasPendingInboundItems(PurchaseOrder purchaseOrder) {
-        return purchaseOrderItemRepository.findByCondition(Map.of("corpid", purchaseOrder.getCorpid(), "purchaseOrderId", purchaseOrder.getId()))
-            .stream()
-            .anyMatch(item -> item.getQty() != null && item.getQty().compareTo(item.getInboundQty() == null ? BigDecimal.ZERO : item.getInboundQty()) > 0);
+    private static Map<String, Object> businessSelectConditions(PurchaseOrderBusinessSelectQueryDTO dto,
+                                                                  Integer offset, Integer pageSize) {
+        Map<String, Object> conditions = new HashMap<>();
+        conditions.put("corpid", dto.getCorpid());
+        conditions.put("supplierId", dto.getSupplierId());
+        conditions.put("businessSelectPendingInbound", Boolean.TRUE);
+        conditions.put("businessSelectAuditStatuses", List.of(AuditStatusEnum.APPROVED.getCode(),
+            AuditStatusEnum.NO_NEED_APPROVED.getCode()));
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
+        return conditions;
     }
 
     private PurchaseOrderBusinessSelectOptionVO toBusinessSelectOption(PurchaseOrder purchaseOrder) {
@@ -144,6 +156,28 @@ public class PurchaseOrderQueryAppServiceImpl {
                         ? purchaseOrder.getOrderNo()
                         : purchaseOrder.getOrderNo() + " " + purchaseOrder.getSupplierName());
         return option;
+    }
+
+    private static Map<String, Object> linkageConfig() {
+        return Map.of(
+            "rowAmount", Map.of(
+                "tableAttr", "items",
+                "quantityAttr", "qty",
+                "unitPriceAttr", "unitPrice",
+                "amountAttr", "amount"
+            ),
+            "aggregateAmount", Map.of(
+                "tableAttr", "items",
+                "amountAttr", "amount",
+                "targetAttr", "main.totalAmount"
+            ),
+            "itemStock", Map.of(
+                "tableAttr", "items",
+                "skuAttr", "skuId",
+                "warehouseAttr", "warehouseId",
+                "stockAttr", "currentStock"
+            )
+        );
     }
 
     private xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderSaveItemVO toSaveItemVO(String corpid, PurchaseOrder entity) {

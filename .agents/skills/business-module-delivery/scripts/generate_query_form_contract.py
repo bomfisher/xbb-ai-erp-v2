@@ -52,7 +52,9 @@ def render_field_enum(metadata: dict[str, Any], package_base: str, aggregate: st
 
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.Getter;
+import xbb.ai.erp.base.common.filed.FieldRule;
 import xbb.ai.erp.base.common.filed.FieldItem;
 import xbb.ai.erp.base.common.filed.FieldEntity;
 import xbb.ai.erp.base.common.filed.FieldTypeEnum;
@@ -94,6 +96,24 @@ public enum {aggregate}FieldEnum {{
             String[] parts = option.split(":", 2); FieldItem item = new FieldItem(); item.setValue(parts[0].trim());
             item.setText(parts.length == 2 ? parts[1].trim() : parts[0].trim()); return item;
         }}).toList();
+    }}
+
+    public static List<FieldRule> fieldRules() {{
+        return Arrays.stream(values())
+            .flatMap(field -> field.fieldType == FieldTypeEnum.SUB_ITEM
+                ? Stream.concat(
+                    Stream.of(fieldRule(field.attr, field.attrName, field.fieldType.getType(), field.required)),
+                    field.subFields.stream().map(subField -> fieldRule(
+                        field.attr + "." + subField.getAttr(), subField.getAttrName(), subField.getFieldType(),
+                        Integer.valueOf(1).equals(subField.getRequired())
+                    ))
+                )
+                : Stream.of(fieldRule(field.attr, field.attrName, field.fieldType.getType(), field.required)))
+            .toList();
+    }}
+
+    private static FieldRule fieldRule(String attr, String attrName, Integer fieldType, boolean required) {{
+        return new FieldRule(attr, attrName, fieldType, null, required ? 1 : 0);
     }}
 
     public FieldEntity.BusinessSelectConfig businessSelectConfig() {{
@@ -271,7 +291,7 @@ public class {aggregate}QueryAppServiceImpl {{
 
 
 def upper_camel(value: str) -> str:
-    return value[:1].upper() + value[1:]
+    return "".join(part[:1].upper() + part[1:] for part in value.split("_"))
 
 
 STRING_LIST_FIELD_TYPES = {"DATE", "TIME", "COMB", "COMB_MULTI", "CHECKBOX", "CHECK_BOX", "RADIO_BTN"}
@@ -305,8 +325,12 @@ def rewrite_list_string_contract(source_root: Path, aggregate: str, metadata: di
 
     for field in list_fields_by_name.values():
         name = field["name"]
+        property_name = "".join(
+            part if index == 0 else upper_camel(part)
+            for index, part in enumerate(name.split("_"))
+        )
         setter = upper_camel(name)
-        declaration_pattern = rf"(private\s+)[^;\n]+(\s+{re.escape(name)};)"
+        declaration_pattern = rf"(private\s+)[^;\n]+(\s+{re.escape(property_name)};)"
         list_item_content, declarations = re.subn(
             declaration_pattern,
             r"\1String\2",
@@ -314,7 +338,7 @@ def rewrite_list_string_contract(source_root: Path, aggregate: str, metadata: di
             count=1,
         )
         if declarations == 0:
-            raise ValueError(f"未找到列表 VO 字段：{list_item_vo}#{name}")
+            raise ValueError(f"未找到列表 VO 字段：{list_item_vo}#{property_name}")
         assignment = f"vo.set{setter}({variable}.get{setter}());"
         if field.get("fieldType") == "DATE":
             replacement = (

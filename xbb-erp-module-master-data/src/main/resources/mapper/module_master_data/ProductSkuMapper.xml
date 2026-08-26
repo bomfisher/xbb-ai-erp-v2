@@ -130,4 +130,8 @@
             </foreach>
         </if>
     </select>
+    <select id="findByIds" resultType="xbb.ai.erp.module.masterdata.infrastructure.persistence.po.ProductSkuPO">
+        select <include refid="BaseColumns"/> from product_sku where corpid = #{corpid} and del = 0 and id in
+        <foreach collection="ids" item="id" open="(" separator="," close=")">#{id}</foreach>
+    </select>
 </mapper>

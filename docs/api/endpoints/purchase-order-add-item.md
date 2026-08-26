@@ -35,3 +35,5 @@
 - `main.orderNo` 由服务端生成并写入新建数据。
 - `items` 是 `SUB_ITEM(49)`，其列定义由 `headList[].subField` 下发。
 - `formSections[].fields` 只引用 `headList[].attr`；未被引用的字段不能丢失，应由前端放入兼容的其他信息分组。
+- `linkageConfig.itemStock` 指定产品行的 `skuId`、`warehouseId` 和 `currentStock` 字段；前端在选择产品或改变仓库时通过库存公共接口刷新当前库存数量。
+- `linkageConfig.rowAmount` 指定产品行的 `qty × unitPrice` 计算结果写入临时 `amount` 字段；`linkageConfig.aggregateAmount` 将所有产品行金额合计回写到只读的 `main.totalAmount`。

@@ -74,6 +74,16 @@ public class PurchaseInboundAdminAppServiceImpl implements PurchaseInboundAdminA
     }
 
     @Override
+    public BaseVO audit(IdBaseDTO dto) {
+        return saveService.audit(dto);
+    }
+
+    @Override
+    public BaseVO unaudit(IdBaseDTO dto) {
+        return saveService.unaudit(dto);
+    }
+
+    @Override
     public List<PurchaseInboundDraftListItemVO> draftList(PurchaseInboundDraftListDTO dto) {
         return draftService.draftList(dto);
     }

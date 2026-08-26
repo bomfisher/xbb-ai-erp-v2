@@ -79,6 +79,7 @@ python3 .agents/skills/business-module-delivery/scripts/validate_field_metadata.
 - `saveDraft` 固定返回 `xbb.ai.erp.base.common.vo.DraftSaveVO`。流程固定为：DTO 转草稿保存上下文 → 协议校验 → `CommonValidator.validateForDraft` → 转草稿 Pojo → 缓存仓储保存 → 回写 `draftMeta.draftCode` → 返回 `DraftSaveVO.draftCode`。
 - `draftList` 只能从草稿缓存读取，不查询正式业务表；按 `corpid` 和明确上限读取后转换为草稿列表 VO。`loadDraft` 也只能经草稿缓存按租户和草稿编码读取。
 - `saveAndSubmit` 固定按“协议校验 → 通用校验 → 业务校验 → 事务内正式保存 → 成功后删除来源草稿缓存”执行。每个模块必须生成 `*SaveBusinessValidator` 及 `validateForSubmit` 方法；暂未定义的领域规则可保留空占位方法，但不得跳过调用。
+- `*SaveCommonValidator` 必须调用公共 `FieldValueValidator`，以同一 `*FieldEnum.fieldRules()` 派生 `SUBMIT` 必填与格式校验；字段枚举需要同时覆盖主档字段、必填子档集合及其子字段。禁止在各业务 `CommonValidator` 重写字段级空值校验。
 - 所有生成的 `*PO` 必须继承 `BaseEntity`。生成的 `*RepositoryImpl` 必须提供 `initializeForInsert(BaseEntity po)`，在 `insert` 和 `insertBatch` 中调用，并统一初始化 `id=null`、`del=0`、`addTime` 与 `updateTime`（同一 `now`）。
 - 所有生成的 `*Mapper` 禁止继承 MyBatis-Plus `BaseMapper`，必须声明显式的 `int insert(*PO po)`，Mapper XML 必须生成对应的单条 `<insert id="insert">`；单条和批量插入均使用数据库自增主键回填。
 - `*AdminAssembler#to*` 保存装配必须维护审计人：当 `dto.getMain().getId()` 为 `null` 时设置 `creatorId=dto.userId`，每次保存均设置 `modifyId=dto.userId`。持久化领域模型、DTO、转换器与 Mapper 参数统一使用属性名 `del`，禁止业务层使用兼容别名 `deleted`，数据库列仍为 `del`。

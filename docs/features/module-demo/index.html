@@ -117,7 +117,7 @@
     (() => {
       const FILTERABLE = new Set(['TEXT','USER','DEPT','COMB','NUM_INT','NUM_DOUBLE','AMOUNT','DATE','TIME']);
       const NON_FILTERABLE = new Set(['FILE','IMAGE','ADDRESS','SUB_ITEM','PRODUCT','COMB_MULTI','CHECKBOX','RADIO_BTN','USER_MULTI','DEPT_MULTI','BUSINESS']);
-      const TYPES = ['TEXT','NUM_INT','NUM_DOUBLE','AMOUNT','DATE','TIME','COMB','COMB_MULTI','CHECKBOX','RADIO_BTN','USER','USER_MULTI','DEPT','DEPT_MULTI','BUSINESS','FILE','IMAGE','ADDRESS','SUB_ITEM','PRODUCT'];
+      const TYPES = ['TEXT','SERIAL_NO','NUM_INT','NUM_DOUBLE','AMOUNT','DATE','TIME','COMB','COMB_MULTI','CHECKBOX','RADIO_BTN','USER','USER_MULTI','DEPT','DEPT_MULTI','BUSINESS','FILE','IMAGE','ADDRESS','SUB_ITEM','PRODUCT'];
       const OPTION_TYPES = new Set(['COMB','COMB_MULTI','CHECKBOX','RADIO_BTN']);
       const COMB_ENUM_PRESETS = [
         { className:'AuditStatusEnum', label:'审核状态' },
@@ -157,6 +157,7 @@
       const defaultStatusOptions = () => DEFAULT_STATUS_OPTIONS.map(item => ({ ...item }));
       const inferType = (name, dbType) => {
         const lower = name.toLowerCase(); const type = dbType.toLowerCase();
+        if (lower.endsWith('_no')) return 'SERIAL_NO';
         if (lower.endsWith('amount')) return 'AMOUNT';
         if (lower.endsWith('status')) return 'COMB';
         if (['user_id','create_id','creator_id','modify_id','modifier_id'].includes(lower)) return 'USER';

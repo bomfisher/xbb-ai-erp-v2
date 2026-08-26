@@ -8,7 +8,7 @@ public class ProductSpuListItemVO {
     private String spuCode;
     private String spuName;
     private String categoryName;
-    private Integer enabled;
+    private String enabled;
     private String remark;
     private String creatorId;
     private String modifyId;

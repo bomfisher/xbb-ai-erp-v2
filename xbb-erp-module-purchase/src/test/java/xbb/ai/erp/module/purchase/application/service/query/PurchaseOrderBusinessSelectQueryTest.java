@@ -8,6 +8,7 @@ import java.util.Map;
 import java.math.BigDecimal;
 import org.junit.jupiter.api.Test;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
+import xbb.ai.erp.base.common.enums.AuditStatusEnum;
 import xbb.ai.erp.module.purchase.admin.dto.PurchaseOrderBusinessSelectQueryDTO;
 import xbb.ai.erp.module.purchase.admin.vo.PurchaseOrderBusinessSelectOptionVO;
 import xbb.ai.erp.module.purchase.domain.model.PurchaseOrder;
@@ -64,12 +65,21 @@ class PurchaseOrderBusinessSelectQueryTest {
     }
 
     private static class StubPurchaseOrderRepository implements PurchaseOrderRepository {
-        private final List<PurchaseOrder> orders = List.of(order(1L, "corp-a", "PO-001", "宁波供应商"),
-            order(2L, "corp-a", "PO-002", "杭州供应商"), order(3L, "corp-b", "PO-003", "上海供应商"));
+        private final List<PurchaseOrder> orders = List.of(
+            order(1L, "corp-a", "PO-001", "宁波供应商", AuditStatusEnum.NO_NEED_APPROVED.getCode()),
+            order(2L, "corp-a", "PO-002", "杭州供应商", AuditStatusEnum.APPROVED.getCode()),
+            order(3L, "corp-b", "PO-003", "上海供应商", AuditStatusEnum.PENDING.getCode()));
 
         @Override
         public PurchaseOrder findById(String corpid, Long id) {
             return orders.stream().filter(order -> order.getCorpid().equals(corpid) && order.getId().equals(id)).findFirst().orElse(null);
+        }
+
+        @Override
+        public List<PurchaseOrder> findByIds(String corpid, java.util.Collection<Long> ids) {
+            return orders.stream()
+                .filter(order -> order.getCorpid().equals(corpid) && ids.contains(order.getId()))
+                .toList();
         }
 
         @Override
@@ -84,13 +94,14 @@ class PurchaseOrderBusinessSelectQueryTest {
         @Override public void update(PurchaseOrder purchaseOrder) { throw new UnsupportedOperationException(); }
         @Override public Long count(Map<String, Object> conditionMap) { return 0L; }
 
-        private static PurchaseOrder order(Long id, String corpid, String orderNo, String supplierName) {
+        private static PurchaseOrder order(Long id, String corpid, String orderNo, String supplierName, Integer auditStatus) {
             PurchaseOrder order = new PurchaseOrder();
             order.setId(id);
             order.setCorpid(corpid);
             order.setOrderNo(orderNo);
             order.setSupplierName(supplierName);
             order.setSupplierId(id);
+            order.setAuditStatus(auditStatus);
             return order;
         }
     }

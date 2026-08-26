@@ -55,14 +55,18 @@ public class InventoryPostingService implements InventoryCommandApi {
     private final CostCalculationStrategy costStrategy = new MovingWeightedAverageCostStrategy();
 
     @Override
+    @Transactional(readOnly = true)
+    public void validateOutbound(OutboundCommand command) {
+        validate(command);
+        validateOutboundAvailability(command, sortedDistinctLines(command));
+    }
+
+    @Override
     @Transactional
     public PostingResult reserve(ReservationCommand command) {
         validate(command);
         List<ReservationLine> lines = sortedDistinctLines(command);
         Map<String, StockBalance> balances = lockedReservationLineBalances(command.corpid(), lines);
-        if (balances.size() != lines.size()) {
-            throw new BizException("库存余额不存在");
-        }
         List<StockReservation> existingReservations = reservationRepository.findBySourceForUpdate(
             command.corpid(), command.sourceType(), command.sourceId());
         if (!existingReservations.isEmpty()) {
@@ -71,12 +75,7 @@ public class InventoryPostingService implements InventoryCommandApi {
             }
             throw new BizException("该来源单据已存在锁库记录");
         }
-        for (ReservationLine line : lines) {
-            StockBalance balance = balances.get(balanceKey(line.warehouseId(), line.skuId()));
-            if (value(balance.getAvailableQty()).compareTo(line.quantity()) < 0) {
-                throw new BizException("可用库存不足");
-            }
-        }
+        validateReservationAvailability(balances, lines);
         long now = System.currentTimeMillis();
         List<StockReservation> reservations = new ArrayList<>();
         for (ReservationLine line : lines) {
@@ -104,26 +103,11 @@ public class InventoryPostingService implements InventoryCommandApi {
             return new PostingResult(command.idempotencyKey(), BigDecimal.ZERO, 0);
         }
         Map<String, StockBalance> balances = lockedOutboundLineBalances(command.corpid(), pendingLines);
-        if (balances.size() != pendingLines.size()) {
-            throw new BizException("库存余额不存在");
-        }
         List<StockReservation> reservations = reservationRepository.findBySourceForUpdate(
             command.corpid(), command.sourceType(), command.sourceId());
         Map<Long, StockReservation> reservationsByLineId = new HashMap<>();
         reservations.forEach(reservation -> reservationsByLineId.put(reservation.getSourceLineId(), reservation));
-        for (OutboundLine line : pendingLines) {
-            StockReservation reservation = reservationsByLineId.get(line.sourceLineId());
-            if (reservation == null || reservation.getWarehouseId().longValue() != line.warehouseId()
-                || reservation.getSkuId().longValue() != line.skuId()
-                || !StockReservationStatusEnum.require(reservation.getStatus()).canConsume()
-                || value(reservation.getRemainingQty()).compareTo(line.quantity()) < 0) {
-                throw new BizException("锁库记录不可出库");
-            }
-            StockBalance balance = balances.get(balanceKey(line.warehouseId(), line.skuId()));
-            if (value(balance.getLockedQty()).compareTo(line.quantity()) < 0) {
-                throw new BizException("锁定库存不足");
-            }
-        }
+        validateOutboundAvailability(balances, reservationsByLineId, pendingLines);
         List<StockTransaction> quantityTransactions = new ArrayList<>();
         List<StockCostTransaction> costTransactions = new ArrayList<>();
         BigDecimal totalCost = BigDecimal.ZERO;
@@ -136,9 +120,13 @@ public class InventoryPostingService implements InventoryCommandApi {
             BigDecimal beforeUnit = value(balance.getUnitCost());
             CostCalculationResult result = costStrategy.outbound(new CostCalculationContext(line.quantity(), BigDecimal.ZERO,
                 beforeQty, beforeCost, beforeUnit));
-            balance.setLockedQty(value(balance.getLockedQty()).subtract(line.quantity()));
+            if (reservation != null) {
+                balance.setLockedQty(value(balance.getLockedQty()).subtract(line.quantity()));
+            }
             applyResult(balance, command.operatorId(), now, result);
-            consumeReservation(reservation, line.quantity(), command.operatorId(), now);
+            if (reservation != null) {
+                consumeReservation(reservation, line.quantity(), command.operatorId(), now);
+            }
             String key = lineKey(command, line);
             quantityTransactions.add(quantityTransaction(command, line, key, beforeQty, result.quantityAfter(), now));
             costTransactions.add(costTransaction(command, line, key, beforeQty, beforeCost, beforeUnit, result, now));
@@ -149,6 +137,93 @@ public class InventoryPostingService implements InventoryCommandApi {
         transactionRepository.insertBatch(quantityTransactions);
         costTransactionRepository.insertBatch(costTransactions);
         return new PostingResult(command.idempotencyKey(), totalCost, pendingLines.size());
+    }
+
+    private void validateOutboundAvailability(OutboundCommand command, List<OutboundLine> lines) {
+        Map<String, StockBalance> balances = lockedOutboundLineBalances(command.corpid(), lines);
+        List<StockReservation> reservations = reservationRepository.findBySourceForUpdate(
+            command.corpid(), command.sourceType(), command.sourceId());
+        Map<Long, StockReservation> reservationsByLineId = new HashMap<>();
+        reservations.forEach(reservation -> reservationsByLineId.put(reservation.getSourceLineId(), reservation));
+        validateOutboundAvailability(balances, reservationsByLineId, lines);
+    }
+
+    private void validateOutboundAvailability(Map<String, StockBalance> balances,
+                                              Map<Long, StockReservation> reservationsByLineId,
+                                              List<OutboundLine> lines) {
+        List<String> validationErrors = new ArrayList<>();
+        for (OutboundLine line : lines) {
+            StockReservation reservation = reservationsByLineId.get(line.sourceLineId());
+            StockBalance balance = balances.get(balanceKey(line.warehouseId(), line.skuId()));
+            if (balance == null) {
+                validationErrors.add("仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId() + "：库存余额不存在");
+                continue;
+            }
+            if (reservation == null) {
+                if (value(balance.getAvailableQty()).compareTo(line.quantity()) < 0) {
+                    validationErrors.add(formatAvailableQuantityShortage(line, balance));
+                }
+                continue;
+            }
+            if (reservation.getWarehouseId().longValue() != line.warehouseId()
+                || reservation.getSkuId().longValue() != line.skuId()
+                || !StockReservationStatusEnum.require(reservation.getStatus()).canConsume()
+                || value(reservation.getRemainingQty()).compareTo(line.quantity()) < 0) {
+                validationErrors.add("仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId() + "：锁库记录不可出库");
+                continue;
+            }
+            if (value(balance.getLockedQty()).compareTo(line.quantity()) < 0) {
+                validationErrors.add("仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId()
+                    + "：锁定库存不足（锁定=" + value(balance.getLockedQty()) + "，需出库=" + line.quantity() + "）");
+            }
+        }
+        throwIfInventoryValidationFailed(validationErrors);
+    }
+
+    private String formatAvailableQuantityShortage(OutboundLine line, StockBalance balance) {
+        BigDecimal availableQty = value(balance.getAvailableQty());
+        return "仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId()
+            + "：可用库存不足（可用=" + availableQty + "，需出库=" + line.quantity()
+            + "，缺少=" + line.quantity().subtract(availableQty) + "）";
+    }
+
+    private void validateReservationAvailability(Map<String, StockBalance> balances, List<ReservationLine> lines) {
+        List<String> validationErrors = new ArrayList<>();
+        for (ReservationLine line : lines) {
+            StockBalance balance = balances.get(balanceKey(line.warehouseId(), line.skuId()));
+            if (balance == null) {
+                validationErrors.add("仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId() + "：库存余额不存在");
+                continue;
+            }
+            BigDecimal availableQty = value(balance.getAvailableQty());
+            if (availableQty.compareTo(line.quantity()) < 0) {
+                validationErrors.add("仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId()
+                    + "：可用库存不足（可用=" + availableQty + "，需锁库=" + line.quantity()
+                    + "，缺少=" + line.quantity().subtract(availableQty) + "）");
+            }
+        }
+        throwIfInventoryValidationFailed(validationErrors);
+    }
+
+    private void validateDirectOutboundAvailability(Map<String, StockBalance> balances, List<OutboundLine> lines) {
+        List<String> validationErrors = new ArrayList<>();
+        for (OutboundLine line : lines) {
+            StockBalance balance = balances.get(balanceKey(line.warehouseId(), line.skuId()));
+            if (balance == null) {
+                validationErrors.add("仓库ID=" + line.warehouseId() + "，产品ID=" + line.skuId() + "：库存余额不存在");
+                continue;
+            }
+            if (value(balance.getAvailableQty()).compareTo(line.quantity()) < 0) {
+                validationErrors.add(formatAvailableQuantityShortage(line, balance));
+            }
+        }
+        throwIfInventoryValidationFailed(validationErrors);
+    }
+
+    private void throwIfInventoryValidationFailed(List<String> validationErrors) {
+        if (!validationErrors.isEmpty()) {
+            throw new BizException("库存校验失败：" + String.join("；", validationErrors));
+        }
     }
 
     @Override
@@ -290,9 +365,7 @@ public class InventoryPostingService implements InventoryCommandApi {
             return new PostingResult(command.idempotencyKey(), BigDecimal.ZERO, 0);
         }
         Map<String, StockBalance> existing = existingBalancesForOutbound(command.corpid(), pendingLines);
-        if (existing.size() != pendingLines.size()) {
-            throw new BizException("库存余额不存在");
-        }
+        validateDirectOutboundAvailability(existing, pendingLines);
         List<StockTransaction> quantityTransactions = new ArrayList<>();
         List<StockCostTransaction> costTransactions = new ArrayList<>();
         BigDecimal totalCost = BigDecimal.ZERO;
@@ -302,9 +375,6 @@ public class InventoryPostingService implements InventoryCommandApi {
             BigDecimal beforeQty = value(balance.getQty());
             BigDecimal beforeCost = value(balance.getTotalCost());
             BigDecimal beforeUnit = value(balance.getUnitCost());
-            if (value(balance.getAvailableQty()).compareTo(line.quantity()) < 0) {
-                throw new BizException("可用库存不足");
-            }
             CostCalculationResult result = costStrategy.outbound(new CostCalculationContext(line.quantity(), BigDecimal.ZERO, beforeQty, beforeCost, beforeUnit));
             applyResult(balance, command.operatorId(), now, result);
             String key = lineKey(command, line);

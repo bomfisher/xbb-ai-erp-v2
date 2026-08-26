@@ -3,9 +3,12 @@ package xbb.ai.erp.module.sales.application.service.query;
 import java.util.List;
 import java.util.Map;
 import org.springframework.stereotype.Service;
+import xbb.ai.erp.base.bizno.BizNoGenerator;
 import xbb.ai.erp.base.common.dto.BaseDTO;
 import xbb.ai.erp.base.common.dto.IdBaseDTO;
 import xbb.ai.erp.base.common.dto.ListBaseDTO;
+import xbb.ai.erp.base.common.enums.ApprovalStatusEnum;
+import xbb.ai.erp.base.common.exception.BizException;
 import xbb.ai.erp.base.common.module.BusinessCodeEnum;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.ListBaseVO;
@@ -17,7 +20,9 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderDetailVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderListItemVO;
 import xbb.ai.erp.module.sales.admin.dto.SalesOrderBusinessSelectQueryDTO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOrderItemStockQueryDTO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOrderBusinessSelectOptionVO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOrderItemStockVO;
 import xbb.ai.erp.module.sales.application.assembler.SalesOrderAdminAssembler;
 import xbb.ai.erp.module.sales.application.field.SalesOrderFieldFactory;
 import xbb.ai.erp.module.sales.application.field.SalesOrderFormSectionFactory;
@@ -25,6 +30,7 @@ import xbb.ai.erp.module.sales.application.schema.SalesOrderListSchemaProvider;
 import xbb.ai.erp.module.sales.domain.model.SalesOrder;
 import xbb.ai.erp.module.sales.domain.repository.SalesOrderRepository;
 import xbb.ai.erp.module.sales.domain.repository.SalesOrderItemRepository;
+import xbb.ai.erp.module.inventory.contract.InventoryStockQueryApi;
 
 @Service
 public class SalesOrderQueryAppServiceImpl {
@@ -33,15 +39,32 @@ public class SalesOrderQueryAppServiceImpl {
     private final SalesOrderFieldFactory fieldFactory;
     private final SalesOrderListSchemaProvider schemaProvider;
     private final ListValueRenderer listValueRenderer;
+    private final InventoryStockQueryApi inventoryStockQueryApi;
+    private final BizNoGenerator bizNoGenerator;
     private final ListQueryMapUtil listQueryMapUtil = new ListQueryMapUtil();
 
-    public SalesOrderQueryAppServiceImpl(SalesOrderRepository salesOrderRepository, SalesOrderItemRepository salesOrderItemRepository, SalesOrderFieldFactory fieldFactory, SalesOrderListSchemaProvider schemaProvider, ListValueRenderer listValueRenderer) {
-        this.salesOrderRepository = salesOrderRepository; this.salesOrderItemRepository = salesOrderItemRepository; this.fieldFactory = fieldFactory; this.schemaProvider = schemaProvider; this.listValueRenderer = listValueRenderer;
+    public SalesOrderQueryAppServiceImpl(
+        SalesOrderRepository salesOrderRepository,
+        SalesOrderItemRepository salesOrderItemRepository,
+        SalesOrderFieldFactory fieldFactory,
+        SalesOrderListSchemaProvider schemaProvider,
+        ListValueRenderer listValueRenderer,
+        InventoryStockQueryApi inventoryStockQueryApi,
+        BizNoGenerator bizNoGenerator) {
+        this.salesOrderRepository = salesOrderRepository;
+        this.salesOrderItemRepository = salesOrderItemRepository;
+        this.fieldFactory = fieldFactory;
+        this.schemaProvider = schemaProvider;
+        this.listValueRenderer = listValueRenderer;
+        this.inventoryStockQueryApi = inventoryStockQueryApi;
+        this.bizNoGenerator = bizNoGenerator;
     }
 
     public ListBaseVO<SalesOrderListItemVO> list(ListBaseDTO dto) {
         AdminParamValidator.requireCorpid(dto);
         Map<String, Object> conditionMap = listQueryMapUtil.gen(dto, schemaProvider.conditionMetaMap());
+        conditionMap.put("businessVisibleApprovalStatuses", List.of(ApprovalStatusEnum.APPROVED.getCode(),
+            ApprovalStatusEnum.NO_NEED_APPROVED.getCode()));
         List<SalesOrder> list = salesOrderRepository.findByCondition(conditionMap);
         Long total = salesOrderRepository.count(conditionMap);
         ListBaseVO<SalesOrderListItemVO> vo = new ListBaseVO<>();
@@ -52,11 +75,14 @@ public class SalesOrderQueryAppServiceImpl {
     }
 
     public SaveItemVO<xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO> addItem(BaseDTO dto) {
+        AdminParamValidator.requireCorpid(dto);
         SaveItemVO<xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO> vo = new SaveItemVO<>();
         vo.setHeadList(SceneFieldAssembler.buildHeadList(fieldFactory.getFields(SceneTypeEnum.CREATE)));
         vo.setFormSections(SalesOrderFormSectionFactory.getSections(SceneTypeEnum.CREATE));
         vo.setLinkageConfig(linkageConfig());
-        vo.setData(SalesOrderAdminAssembler.buildEmptySaveItemVO());
+        xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO data = SalesOrderAdminAssembler.buildEmptySaveItemVO();
+        data.getMain().setOrderNo(bizNoGenerator.next(dto.getCorpid(), BusinessCodeEnum.SALES_ORDER.getCode()));
+        vo.setData(data);
         return vo;
     }
 
@@ -78,18 +104,19 @@ public class SalesOrderQueryAppServiceImpl {
     }
 
     public List<SalesOrderBusinessSelectOptionVO> businessSelectQuickSearch(SalesOrderBusinessSelectQueryDTO dto) {
-        return findBusinessSelectOptions(dto);
+        return findBusinessSelectOptions(dto, 0, 5);
     }
 
     public ListBaseVO<SalesOrderBusinessSelectOptionVO> businessSelectDialogSearch(SalesOrderBusinessSelectQueryDTO dto) {
         int pageNum = dto.getPageNum() == null || dto.getPageNum() < 1 ? 1 : dto.getPageNum();
         int pageSize = dto.getPageSize() == null || dto.getPageSize() < 1 ? 20 : dto.getPageSize();
-        List<SalesOrderBusinessSelectOptionVO> all = findBusinessSelectOptions(dto);
-        int fromIndex = Math.min((pageNum - 1) * pageSize, all.size());
-        int toIndex = Math.min(fromIndex + pageSize, all.size());
+        Map<String, Object> conditions = businessSelectConditions(dto, (pageNum - 1) * pageSize, pageSize);
+        List<SalesOrderBusinessSelectOptionVO> options = salesOrderRepository.findByCondition(conditions).stream()
+            .map(this::toBusinessSelectOption).toList();
+        Long total = salesOrderRepository.count(businessSelectConditions(dto, null, null));
         ListBaseVO<SalesOrderBusinessSelectOptionVO> vo = new ListBaseVO<>();
-        vo.setList(all.subList(fromIndex, toIndex));
-        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, Math.max((all.size() + pageSize - 1) / pageSize, 1)));
+        vo.setList(options);
+        vo.setPageHelper(new ListBaseVO.PageHelper(pageNum, total == null ? 0 : total.intValue()));
         return vo;
     }
 
@@ -99,17 +126,43 @@ public class SalesOrderQueryAppServiceImpl {
         }
         AdminParamValidator.requireCorpid(dto);
         SalesOrder salesOrder = salesOrderRepository.findById(dto.getCorpid(), dto.getId());
-        return salesOrder == null ? null : toBusinessSelectOption(salesOrder);
+        return salesOrder == null || !ApprovalStatusEnum.allowsDownstream(salesOrder.getAuditStatus())
+            ? null : toBusinessSelectOption(salesOrder);
     }
 
-    private List<SalesOrderBusinessSelectOptionVO> findBusinessSelectOptions(SalesOrderBusinessSelectQueryDTO dto) {
+    public SalesOrderItemStockVO queryItemStock(SalesOrderItemStockQueryDTO dto) {
         AdminParamValidator.requireCorpid(dto);
-        String keyword = dto.getKeyword() == null ? "" : dto.getKeyword().trim();
-        return salesOrderRepository.findByCondition(Map.of("corpid", dto.getCorpid())).stream()
-            .filter(salesOrder -> keyword.isEmpty()
-                || (salesOrder.getOrderNo() != null && salesOrder.getOrderNo().contains(keyword)))
+        if (dto.getSkuId() == null) {
+            throw new BizException("产品不能为空");
+        }
+        SalesOrderItemStockVO vo = new SalesOrderItemStockVO();
+        vo.setStockQty(inventoryStockQueryApi.queryInstantQty(dto.getCorpid(), dto.getSkuId(), dto.getWarehouseId()));
+        return vo;
+    }
+
+    private List<SalesOrderBusinessSelectOptionVO> findBusinessSelectOptions(SalesOrderBusinessSelectQueryDTO dto,
+                                                                               Integer offset, Integer pageSize) {
+        AdminParamValidator.requireCorpid(dto);
+        return salesOrderRepository.findByCondition(businessSelectConditions(dto, offset, pageSize)).stream()
             .map(this::toBusinessSelectOption)
             .toList();
+    }
+
+    private static Map<String, Object> businessSelectConditions(SalesOrderBusinessSelectQueryDTO dto,
+                                                                  Integer offset, Integer pageSize) {
+        Map<String, Object> conditions = new java.util.HashMap<>();
+        conditions.put("corpid", dto.getCorpid());
+        conditions.put("customerId", dto.getCustomerId());
+        conditions.put("businessSelectAuditStatuses", List.of(ApprovalStatusEnum.APPROVED.getCode(),
+            ApprovalStatusEnum.NO_NEED_APPROVED.getCode()));
+        if (dto.getKeyword() != null && !dto.getKeyword().trim().isEmpty()) {
+            conditions.put("businessSelectKeyword", dto.getKeyword().trim());
+        }
+        if (offset != null && pageSize != null) {
+            conditions.put("offset", offset);
+            conditions.put("pageSize", pageSize);
+        }
+        return conditions;
     }
 
     private SalesOrderBusinessSelectOptionVO toBusinessSelectOption(SalesOrder salesOrder) {
@@ -124,6 +177,7 @@ public class SalesOrderQueryAppServiceImpl {
     private static Map<String, Object> linkageConfig() {
         return Map.of(
             "warehouseSync", Map.of("headerAttr", "main.warehouseId", "tableAttr", "items", "itemAttr", "warehouseId", "message", "是否将快捷选择仓库同步到所有产品行？"),
+            "itemStock", Map.of("tableAttr", "items", "skuAttr", "skuId", "warehouseAttr", "warehouseId", "stockAttr", "stockQty"),
             "rowAmount", Map.of("tableAttr", "items", "quantityAttr", "qty", "unitPriceAttr", "unitPrice", "amountAttr", "amount"),
             "aggregateAmount", Map.of("tableAttr", "items", "amountAttr", "amount", "targetAttr", "main.totalAmount")
         );
@@ -133,9 +187,12 @@ public class SalesOrderQueryAppServiceImpl {
         if (salesOrder == null || salesOrder.getId() == null) {
             return SalesOrderAdminAssembler.toSaveItemVO(salesOrder);
         }
-        return SalesOrderAdminAssembler.toSaveItemVO(
+        xbb.ai.erp.module.sales.admin.vo.SalesOrderSaveItemVO vo = SalesOrderAdminAssembler.toSaveItemVO(
             salesOrder,
             salesOrderItemRepository.findByCondition(Map.of("corpid", corpid, "salesOrderId", salesOrder.getId()))
         );
+        vo.getItems().forEach(item -> item.setStockQty(
+            inventoryStockQueryApi.queryInstantQty(corpid, item.getSkuId(), item.getWarehouseId())));
+        return vo;
     }
 }

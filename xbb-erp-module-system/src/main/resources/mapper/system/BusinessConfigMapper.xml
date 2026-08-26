@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="xbb.ai.erp.module.system.infrastructure.persistence.mapper.BusinessConfigMapper">
+    <select id="findByKey" resultType="xbb.ai.erp.module.system.infrastructure.persistence.po.BusinessConfigPO">
+        SELECT id, corpid, business_code AS businessCode, config_json AS configJson,
+               del, add_time AS addTime, update_time AS updateTime
+        FROM sys_business_config
+        WHERE corpid = #{corpid} AND business_code = #{businessCode} AND del = 0
+    </select>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO sys_business_config (corpid, business_code, config_json, del, add_time, update_time)
+        VALUES (#{corpid}, #{businessCode}, #{configJson}, #{del}, #{addTime}, #{updateTime})
+    </insert>
+    <update id="update">
+        UPDATE sys_business_config
+        SET config_json = #{configJson}, del = #{del}, update_time = #{updateTime}
+        WHERE id = #{id}
+    </update>
+    <update id="remove">
+        UPDATE sys_business_config SET del = 1, update_time = #{updateTime}
+        WHERE corpid = #{corpid} AND business_code = #{businessCode} AND del = 0
+    </update>
+</mapper>

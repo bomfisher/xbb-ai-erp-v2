@@ -17,6 +17,7 @@ public class SalesOrder {
     private Integer auditStatus;
     private Integer outboundStatus;
     private Integer receiptStatus;
+    private Integer invoiceStatus;
     private String creatorId;
     private String modifyId;
 }

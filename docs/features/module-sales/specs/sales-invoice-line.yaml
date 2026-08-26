@@ -1,0 +1,35 @@
+moduleDir: sales
+moduleCode: sales
+moduleName: 销售
+packageBase: xbb.ai.erp.module.sales
+pathStrategy: ddd-mybatis-plus
+aggregateRole: CHILD
+aggregateName: SalesInvoiceLine
+tableName: sales_invoice_line
+admin: false
+application: false
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: SalesInvoiceLine
+  tableName: sales_invoice_line
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: false, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: salesInvoiceId, column: sales_invoice_id, javaType: Long, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: lineNo, column: line_no, javaType: Integer, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: productId, column: product_id, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: productName, column: product_name, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: specification, column: specification, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: unitId, column: unit_id, javaType: Long, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: quantity, column: quantity, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: unitPrice, column: unit_price, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: taxRate, column: tax_rate, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: untaxedAmount, column: untaxed_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: taxAmount, column: tax_amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: amount, column: amount, javaType: java.math.BigDecimal, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: false, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: false, visibleInList: false, visibleInDetail: false }
+generate: { admin: false, application: false, domain: true, persistence: true, xml: true }

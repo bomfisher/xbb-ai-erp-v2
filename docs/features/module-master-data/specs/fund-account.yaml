@@ -1,0 +1,35 @@
+moduleDir: master-data
+moduleCode: module_master_data
+moduleApiName: masterData
+businessName: fundAccount
+businessCode: FUND_ACCOUNT
+moduleName: 主数据
+packageBase: xbb.ai.erp.module.masterdata
+pathStrategy: ddd-mybatis-plus
+aggregateName: FundAccount
+tableName: fund_account
+aggregateRole: ROOT
+admin: true
+application: true
+domain: true
+persistence: true
+xml: true
+aggregate:
+  aggregateName: FundAccount
+  tableName: fund_account
+  fields:
+    - { name: id, column: id, javaType: Long, primaryKey: true, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: corpid, column: corpid, javaType: String, queryable: true, visibleInList: false, visibleInDetail: false }
+    - { name: accountCode, column: account_code, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: accountName, column: account_name, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: currency, column: currency, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: bankAccountNo, column: bank_account_no, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: accountHolder, column: account_holder, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: bankName, column: bank_name, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: accountType, column: account_type, javaType: String, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: defaultFlag, column: default_flag, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: enabled, column: enabled, javaType: Integer, queryable: true, visibleInList: true, visibleInDetail: true }
+    - { name: remark, column: remark, javaType: String, queryable: false, visibleInList: true, visibleInDetail: true }
+    - { name: creatorId, column: creator_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: false }
+    - { name: modifyId, column: modify_id, javaType: String, queryable: true, visibleInList: true, visibleInDetail: false }
+generate: { admin: true, application: true, domain: true, persistence: true, xml: true }

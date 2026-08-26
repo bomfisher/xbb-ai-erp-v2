@@ -5,7 +5,7 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 import xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockBalancePO;
 import xbb.ai.erp.module.inventory.admin.dto.StockQueryDTO;
-import xbb.ai.erp.module.inventory.admin.vo.StockQueryItemVO;
+import xbb.ai.erp.module.inventory.domain.pojo.StockBalanceQueryPojo;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +25,8 @@ public interface StockBalanceMapper extends BaseMapper<StockBalancePO> {
     StockBalancePO findByWarehouseAndSku(@Param("corpid") String corpid, @Param("warehouseId") Long warehouseId,
                                          @Param("skuId") Long skuId);
 
+    List<StockBalancePO> findBySku(@Param("corpid") String corpid, @Param("skuId") Long skuId);
+
     List<StockBalancePO> findByWarehouseAndSkuPairs(@Param("corpid") String corpid, @Param("stockKeys") List<StockBalancePO> stockKeys);
 
     List<StockBalancePO> findByWarehouseAndSkuPairsForUpdate(@Param("corpid") String corpid,
@@ -35,6 +37,6 @@ public interface StockBalanceMapper extends BaseMapper<StockBalancePO> {
     List<StockBalancePO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);
-    List<StockQueryItemVO> queryList(@Param("query") StockQueryDTO query, @Param("offset") int offset, @Param("pageSize") int pageSize);
+    List<StockBalanceQueryPojo> queryList(@Param("query") StockQueryDTO query, @Param("offset") int offset, @Param("pageSize") int pageSize);
     Long queryCount(@Param("query") StockQueryDTO query);
 }

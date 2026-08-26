@@ -8,6 +8,12 @@
     </parent>
     <artifactId>xbb-erp-module-master-data</artifactId>
     <dependencies>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-master-data-contract</artifactId><version>${project.version}</version></dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-base-bizno</artifactId>
+            <version>${project.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-base-common</artifactId>

@@ -25,4 +25,5 @@ public class PurchaseOrderItemPO extends BaseEntity {
     private Integer inboundStatus;
     private String creatorId;
     private String modifyId;
+    private Long warehouseId;
 }

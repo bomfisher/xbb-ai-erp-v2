@@ -1,35 +1,29 @@
-<?xml version="1.0" encoding="UTF-8" ?>
-<!DOCTYPE mapper
-        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="xbb.ai.erp.module.inventory.infrastructure.persistence.mapper.StockTransactionMapper">
-
-    <sql id="BaseColumns">
+  <sql id="BaseColumns">
         id, corpid, warehouse_id, sku_id, action_type, qty_before, qty_change, qty_after, source_type, source_id, idempotency_key, operator_id, occurred_at, del, add_time, update_time, creator_id, modify_id
     </sql>
-
-    <sql id="BaseCondition">
+  <sql id="BaseCondition">
         corpid = #{conditionMap.corpid}
         and del = 0
 
     </sql>
-
-    <sql id="QueryTail">
-        <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
+  <sql id="QueryTail">
+    <if test="conditionMap.groupByStr != null and conditionMap.groupByStr != ''">
             group by ${conditionMap.groupByStr}
         </if>
-        <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
+    <if test="conditionMap.orderByStr != null and conditionMap.orderByStr != ''">
             order by ${conditionMap.orderByStr}
         </if>
-        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset != null">
+    <if test="conditionMap.pageSize != null and conditionMap.pageSize &gt; 0 and conditionMap.offset != null">
             limit #{conditionMap.offset}, #{conditionMap.pageSize}
         </if>
-        <if test="conditionMap.pageSize != null and conditionMap.pageSize > 0 and conditionMap.offset == null">
+    <if test="conditionMap.pageSize != null and conditionMap.pageSize &gt; 0 and conditionMap.offset == null">
             limit #{conditionMap.pageSize}
         </if>
-    </sql>
-
-    <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
+  </sql>
+  <insert id="insertBatch" useGeneratedKeys="true" keyProperty="id">
         insert into stock_transaction (
             corpid, warehouse_id, sku_id, action_type, qty_before, qty_change, qty_after, source_type, source_id, idempotency_key, operator_id, occurred_at, del, add_time, update_time, creator_id, modify_id
         )
@@ -38,16 +32,14 @@
             (#{item.corpid}, #{item.warehouseId}, #{item.skuId}, #{item.actionType}, #{item.qtyBefore}, #{item.qtyChange}, #{item.qtyAfter}, #{item.sourceType}, #{item.sourceId}, #{item.idempotencyKey}, #{item.operatorId}, #{item.occurredAt}, #{item.del}, #{item.addTime}, #{item.updateTime}, #{item.creatorId}, #{item.modifyId})
         </foreach>
     </insert>
-
-    <update id="removeById">
+  <update id="removeById">
         update stock_transaction
         set del = 1
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
     </update>
-
-    <update id="removeBatchByIds">
+  <update id="removeBatchByIds">
         update stock_transaction
         set del = 1
         where corpid = #{corpid}
@@ -57,56 +49,82 @@
             #{id}
         </foreach>
     </update>
-
-    <update id="update" parameterType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockTransactionPO">
+  <update id="update" parameterType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockTransactionPO">
         update stock_transaction
-        <set>
-            <if test="corpid != null">corpid = #{corpid},</if>
-            <if test="warehouseId != null">warehouse_id = #{warehouseId},</if>
-            <if test="skuId != null">sku_id = #{skuId},</if>
-            <if test="actionType != null">action_type = #{actionType},</if>
-            <if test="qtyBefore != null">qty_before = #{qtyBefore},</if>
-            <if test="qtyChange != null">qty_change = #{qtyChange},</if>
-            <if test="qtyAfter != null">qty_after = #{qtyAfter},</if>
-            <if test="sourceType != null">source_type = #{sourceType},</if>
-            <if test="sourceId != null">source_id = #{sourceId},</if>
-            <if test="idempotencyKey != null">idempotency_key = #{idempotencyKey},</if>
-            <if test="operatorId != null">operator_id = #{operatorId},</if>
-            <if test="occurredAt != null">occurred_at = #{occurredAt},</if>
-            <if test="del != null">del = #{del},</if>
-            <if test="addTime != null">add_time = #{addTime},</if>
-            <if test="updateTime != null">update_time = #{updateTime},</if>
-            <if test="creatorId != null">creator_id = #{creatorId},</if>
-            <if test="modifyId != null">modify_id = #{modifyId},</if>
-        </set>
+        <set><if test="corpid != null">corpid = #{corpid},</if><if test="warehouseId != null">warehouse_id = #{warehouseId},</if><if test="skuId != null">sku_id = #{skuId},</if><if test="actionType != null">action_type = #{actionType},</if><if test="qtyBefore != null">qty_before = #{qtyBefore},</if><if test="qtyChange != null">qty_change = #{qtyChange},</if><if test="qtyAfter != null">qty_after = #{qtyAfter},</if><if test="sourceType != null">source_type = #{sourceType},</if><if test="sourceId != null">source_id = #{sourceId},</if><if test="idempotencyKey != null">idempotency_key = #{idempotencyKey},</if><if test="operatorId != null">operator_id = #{operatorId},</if><if test="occurredAt != null">occurred_at = #{occurredAt},</if><if test="del != null">del = #{del},</if><if test="addTime != null">add_time = #{addTime},</if><if test="updateTime != null">update_time = #{updateTime},</if><if test="creatorId != null">creator_id = #{creatorId},</if><if test="modifyId != null">modify_id = #{modifyId},</if></set>
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
     </update>
-
-    <select id="findById" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockTransactionPO">
+  <select id="findById" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockTransactionPO">
         select <include refid="BaseColumns"/>
         from stock_transaction
         where corpid = #{corpid}
           and id = #{id}
           and del = 0
     </select>
-
-    <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockTransactionPO">
+  <select id="findByCondition" resultType="xbb.ai.erp.module.inventory.infrastructure.persistence.po.StockTransactionPO">
         select <include refid="BaseColumns"/>
         from stock_transaction
         where <include refid="BaseCondition"/>
-        <if test="conditionMap.conditions != null and conditionMap.conditions.size() > 0">
-            <foreach collection="conditionMap.conditions" item="c">
-                <include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/>
-            </foreach>
-        </if>
+        <if test="conditionMap.conditions != null and conditionMap.conditions.size() &gt; 0"><foreach collection="conditionMap.conditions" item="c"><include refid="xbb.ai.erp.module.common.application.filter.CommonListFilterMapper.dynamicCondition"/></foreach></if>
         <include refid="QueryTail"/>
     </select>
-
-    <select id="count" resultType="java.lang.Long">
+  <select id="count" resultType="java.lang.Long">
         select count(1)
         from stock_transaction
         where <include refid="BaseCondition"/>
     </select>
+  <sql id="TransactionQueryWhere">
+    t.corpid = #{query.corpid}
+    and t.del = 0
+    <if test="query.startAt != null">
+      and t.occurred_at &gt;= #{query.startAt}
+    </if>
+    <if test="query.endAt != null">
+      and t.occurred_at &lt; #{query.endAt}
+    </if>
+    <if test="query.warehouseId != null">
+      and t.warehouse_id = #{query.warehouseId}
+    </if>
+    <if test="query.skuId != null">
+      and t.sku_id = #{query.skuId}
+    </if>
+    <if test="query.sourceType != null and query.sourceType != ''">
+      and t.source_type = #{query.sourceType}
+    </if>
+  </sql>
+
+  <select id="queryList"
+          resultType="xbb.ai.erp.module.inventory.domain.pojo.StockTransactionQueryPojo">
+    select
+      t.id,
+      t.warehouse_id as warehouseId,
+      t.sku_id as skuId,
+      t.source_type as sourceType,
+      t.source_id as sourceId,
+      t.occurred_at as occurredAt,
+      t.qty_change as qtyChange,
+      case when t.qty_change &gt; 0 then c.unit_cost end as inboundUnitCost,
+      case when t.qty_change &lt; 0 then c.unit_cost end as outboundUnitCost,
+      case when t.qty_change &gt; 0 then c.total_cost_change end as inboundCost,
+      case when t.qty_change &lt; 0 then -c.total_cost_change end as outboundCost,
+      t.qty_after as qtyAfter,
+      c.unit_cost_after as unitCostAfter,
+      c.total_cost_after as totalCostAfter
+    from stock_transaction t
+    join stock_cost_transaction c
+      on c.corpid = t.corpid
+      and c.idempotency_key = t.idempotency_key
+      and c.del = 0
+    where <include refid="TransactionQueryWhere"/>
+    order by t.occurred_at, t.id
+    limit #{offset}, #{pageSize}
+  </select>
+
+  <select id="queryCount" resultType="java.lang.Long">
+    select count(1)
+    from stock_transaction t
+    where <include refid="TransactionQueryWhere"/>
+  </select>
 </mapper>

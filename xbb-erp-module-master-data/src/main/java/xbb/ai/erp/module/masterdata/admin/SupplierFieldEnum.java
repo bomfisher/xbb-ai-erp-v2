@@ -11,7 +11,7 @@ import xbb.ai.erp.scene.meta.SceneTypeEnum;
 
 @Getter
 public enum SupplierFieldEnum {
-    SUPPLIER_CODE("main.supplierCode", "供应商编码", FieldTypeEnum.TEXT, "supplier_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
+    SUPPLIER_CODE("main.supplierCode", "对接编号", FieldTypeEnum.SERIAL_NO, "supplier_code", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     SUPPLIER_NAME("main.supplierName", "供应商名称", FieldTypeEnum.TEXT, "supplier_name", true, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),
     DEFAULT_CONTACT_ID("main.defaultContactId", "默认联系人", FieldTypeEnum.SUB_ITEM, null, false, true, List.of(SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of(new SceneFieldMeta("name", "联系人名称", FieldTypeEnum.TEXT.getType(), 0, 1), new SceneFieldMeta("mobile", "手机号", FieldTypeEnum.TEXT.getType(), 0, 1))),
     MOBILE("main.mobile", "手机号", FieldTypeEnum.TEXT, null, false, true, List.of(SceneTypeEnum.LIST, SceneTypeEnum.CREATE, SceneTypeEnum.UPDATE), null, null, List.of()),

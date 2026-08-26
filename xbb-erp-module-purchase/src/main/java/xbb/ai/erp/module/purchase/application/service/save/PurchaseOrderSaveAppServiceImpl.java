@@ -2,7 +2,6 @@ package xbb.ai.erp.module.purchase.application.service.save;
 
 import lombok.RequiredArgsConstructor;
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,6 +13,7 @@ import xbb.ai.erp.base.common.dto.BatchBaseDTO;
 import xbb.ai.erp.base.common.enums.AuditStatusEnum;
 import xbb.ai.erp.base.common.enums.InboundStatusEnum;
 import xbb.ai.erp.base.common.enums.PaymentStatusEnum;
+import xbb.ai.erp.base.common.enums.InvoiceStatusEnum;
 import org.springframework.transaction.annotation.Transactional;
 import xbb.ai.erp.base.common.support.AdminParamValidator;
 import xbb.ai.erp.base.common.vo.BaseVO;
@@ -68,10 +68,10 @@ public class PurchaseOrderSaveAppServiceImpl {
             entity.setDel(0);
             if (entity.getSupplierName() == null || entity.getSupplierName().isBlank()) entity.setSupplierName("MOCK");
             if (entity.getTotalAmount() == null) entity.setTotalAmount(BigDecimal.ZERO);
-            if (entity.getStatus() == null || entity.getStatus().isBlank()) entity.setStatus("1");
             entity.setAuditStatus(AuditStatusEnum.PENDING.getCode());
             entity.setInboundStatus(InboundStatusEnum.NOT_INBOUNDED.getCode());
             entity.setPaymentStatus(PaymentStatusEnum.NOT_PAID.getCode());
+            entity.setInvoiceStatus(InvoiceStatusEnum.NOT_INVOICED.getCode());
             return purchaseOrderRepository.insert(entity);
         }
         purchaseOrderRepository.update(entity);
@@ -82,6 +82,45 @@ public class PurchaseOrderSaveAppServiceImpl {
         if (dto.getIdList() != null && !dto.getIdList().isEmpty()) {
             purchaseOrderRepository.removeBatchByIds(dto.getCorpid(), dto.getIdList());
         }
+    }
+
+    @Transactional
+    public BaseVO audit(xbb.ai.erp.base.common.dto.IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
+        PurchaseOrder order = requireOrder(dto.getCorpid(), dto.getId());
+        if (AuditStatusEnum.APPROVED.getCode().equals(order.getAuditStatus())) {
+            throw new xbb.ai.erp.base.common.exception.BizException("当前采购订单已审核");
+        }
+        order.setAuditStatus(AuditStatusEnum.APPROVED.getCode());
+        order.setModifyId(dto.getUserId());
+        order.setUpdateTime(System.currentTimeMillis());
+        purchaseOrderRepository.update(order);
+        return new BaseVO();
+    }
+
+    @Transactional
+    public BaseVO unaudit(xbb.ai.erp.base.common.dto.IdBaseDTO dto) {
+        AdminParamValidator.validateIdQuery(dto);
+        PurchaseOrder order = requireOrder(dto.getCorpid(), dto.getId());
+        if (!AuditStatusEnum.APPROVED.getCode().equals(order.getAuditStatus())) {
+            throw new xbb.ai.erp.base.common.exception.BizException("当前采购订单不可反审核");
+        }
+        if (!InboundStatusEnum.NOT_INBOUNDED.getCode().equals(order.getInboundStatus())) {
+            throw new xbb.ai.erp.base.common.exception.BizException("采购订单已有入库下游单据，不能反审核");
+        }
+        order.setAuditStatus(AuditStatusEnum.PENDING.getCode());
+        order.setModifyId(dto.getUserId());
+        order.setUpdateTime(System.currentTimeMillis());
+        purchaseOrderRepository.update(order);
+        return new BaseVO();
+    }
+
+    private PurchaseOrder requireOrder(String corpid, Long id) {
+        PurchaseOrder order = purchaseOrderRepository.findById(corpid, id);
+        if (order == null) {
+            throw new xbb.ai.erp.base.common.exception.BizException("采购订单不存在");
+        }
+        return order;
     }
 
     private void syncItems(PurchaseOrderSaveDTO dto, Long purchaseOrderId) {
@@ -108,6 +147,8 @@ public class PurchaseOrderSaveAppServiceImpl {
                 throw new xbb.ai.erp.base.common.exception.BizException("采购产品明细不存在或不属于当前订单");
             }
             item.setInboundQty(existing.getInboundQty());
+            item.setInboundStatus(existing.getInboundStatus() == null
+                ? InboundStatusEnum.NOT_INBOUNDED.getCode() : existing.getInboundStatus());
             item.setCreatorId(existing.getCreatorId());
             itemsToUpdate.add(item);
         }
@@ -128,7 +169,9 @@ public class PurchaseOrderSaveAppServiceImpl {
     }
 
     private static BigDecimal totalAmount(List<PurchaseOrderItemDTO> items) {
-        return items.stream().map(item -> item.getQty().multiply(item.getUnitPrice()))
-            .reduce(BigDecimal.ZERO, BigDecimal::add).setScale(2, RoundingMode.HALF_UP);
+        return items.stream()
+            .map(PurchaseOrderAdminAssembler::calculateItemAmount)
+            .reduce(BigDecimal.ZERO, BigDecimal::add)
+            .setScale(2, java.math.RoundingMode.HALF_UP);
     }
 }

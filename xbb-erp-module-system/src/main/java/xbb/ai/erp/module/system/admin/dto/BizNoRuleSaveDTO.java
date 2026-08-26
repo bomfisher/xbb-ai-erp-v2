@@ -10,5 +10,8 @@ public class BizNoRuleSaveDTO extends BaseDTO {
 
     private String businessCode;
     private String prefix;
+    private Integer includeDate;
+    private Integer suffixLength;
+    private String serialMode;
     private String ruleType;
 }

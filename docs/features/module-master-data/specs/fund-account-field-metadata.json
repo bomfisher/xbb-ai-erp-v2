@@ -1,0 +1,274 @@
+{
+  "businessCode": "FUND_ACCOUNT",
+  "fields": [
+    {
+      "name": "account_code",
+      "attr": "main.accountCode",
+      "attrName": "账户编码",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "account_code",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "account_name",
+      "attr": "main.accountName",
+      "attrName": "账户名称",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "account_name",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "currency",
+      "attr": "main.currency",
+      "attrName": "币别",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": "CNY",
+      "filterName": "currency",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "CNY:人民币"
+    },
+    {
+      "name": "bank_account_no",
+      "attr": "main.bankAccountNo",
+      "attrName": "银行账号",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": "bank_account_no",
+      "filterFieldType": "TEXT",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "account_holder",
+      "attr": "main.accountHolder",
+      "attrName": "开户名",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "bank_name",
+      "attr": "main.bankName",
+      "attrName": "开户行",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "account_type",
+      "attr": "main.accountType",
+      "attrName": "账户类型",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": "CASH",
+      "filterName": "account_type",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "CASH:现金,BANK:银行账户,OTHER:其他"
+    },
+    {
+      "name": "default_flag",
+      "attr": "main.defaultFlag",
+      "attrName": "默认账户",
+      "fieldType": "SWITCH",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": "0",
+      "filterName": "default_flag",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ]
+    },
+    {
+      "name": "enabled",
+      "attr": "main.enabled",
+      "attrName": "状态",
+      "fieldType": "COMB",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": true,
+      "editable": true,
+      "defaultValue": "1",
+      "filterName": "enabled",
+      "filterFieldType": "ENUM",
+      "supportedSymbols": [
+        "CONTAINS",
+        "NOT_CONTAINS",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "options": "0:禁用,1:可用"
+    },
+    {
+      "name": "remark",
+      "attr": "main.remark",
+      "attrName": "备注",
+      "fieldType": "TEXT",
+      "scenes": [
+        "LIST",
+        "CREATE",
+        "UPDATE"
+      ],
+      "required": false,
+      "editable": true,
+      "defaultValue": null,
+      "filterName": null
+    },
+    {
+      "name": "creator_id",
+      "attr": "main.creatorId",
+      "attrName": "创建人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "creator_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "ORG_MEMBER"
+    },
+    {
+      "name": "modify_id",
+      "attr": "main.modifyId",
+      "attrName": "修改人",
+      "fieldType": "USER",
+      "scenes": [
+        "LIST"
+      ],
+      "required": false,
+      "editable": false,
+      "defaultValue": null,
+      "filterName": "modify_id",
+      "filterFieldType": "ID",
+      "supportedSymbols": [
+        "EQ",
+        "NE",
+        "IN",
+        "IS_EMPTY",
+        "IS_NOT_EMPTY"
+      ],
+      "businessCode": "ORG_MEMBER"
+    }
+  ],
+  "listActions": {
+    "top": [
+      {
+        "actionCode": "ADD",
+        "actionName": "新建"
+      }
+    ],
+    "bottom": [
+
+    ],
+    "row": [
+      {
+        "actionCode": "EDIT",
+        "actionName": "编辑"
+      }
+    ]
+  }
+}

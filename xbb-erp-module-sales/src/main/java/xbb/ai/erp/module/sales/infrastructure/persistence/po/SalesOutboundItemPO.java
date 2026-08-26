@@ -14,6 +14,7 @@ public class SalesOutboundItemPO extends BaseEntity {
     private Long salesOrderItemId;
     private Long skuId;
     private String skuName;
+    private Long warehouseId;
     private String unitName;
     private java.math.BigDecimal qty;
     private java.math.BigDecimal unitPrice;

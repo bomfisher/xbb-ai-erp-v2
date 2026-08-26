@@ -35,6 +35,10 @@
     <file url="file://$PROJECT_DIR$/xbb-erp-base-web/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-codegen/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-codegen/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-approval-contract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-approval-contract/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-approval/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-approval/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-common/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-common/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-customer/src/main/java" charset="UTF-8" />
@@ -49,18 +53,30 @@
     <file url="file://$PROJECT_DIR$/xbb-erp-module-inventory-contract/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-inventory/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-inventory/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-master-data-contract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-master-data-contract/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-master-data/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-master-data/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-org/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-org/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-product/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-product/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-purchase-contract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-purchase-contract/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-purchase/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-purchase/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-sales-contract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-sales-contract/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-sales/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-sales/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-settlement-contract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-settlement-contract/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-settlement/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-settlement/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-supplier/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-supplier/src/main/resources" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-system-contract/src/main/java" charset="UTF-8" />
+    <file url="file://$PROJECT_DIR$/xbb-erp-module-system-contract/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-system/src/main/java" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-module-system/src/main/resources" charset="UTF-8" />
     <file url="file://$PROJECT_DIR$/xbb-erp-scene-meta/src/main/java" charset="UTF-8" />

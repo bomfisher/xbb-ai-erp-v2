@@ -20,6 +20,11 @@ import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSaveItemVO;
 import xbb.ai.erp.base.common.vo.DraftSaveVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOutboundDraftListItemVO;
 import xbb.ai.erp.module.sales.admin.vo.SalesOutboundDraftDetailVO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOutboundSelectionFillDTO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSelectionFillVO;
+import xbb.ai.erp.module.sales.admin.dto.SalesOutboundSourceProductQueryDTO;
+import xbb.ai.erp.module.sales.admin.vo.SalesOutboundSourceProductOptionVO;
+import java.util.List;
 
 import java.util.List;
 
@@ -30,9 +35,17 @@ public interface SalesOutboundAdminAppService {
 
     SaveItemVO<SalesOutboundSaveItemVO> updateItem(IdBaseDTO dto);
 
+    SalesOutboundSelectionFillVO selectionFill(SalesOutboundSelectionFillDTO dto);
+
+    List<SalesOutboundSourceProductOptionVO> sourceProductQuickSearch(SalesOutboundSourceProductQueryDTO dto);
+
     DraftSaveVO saveDraft(SalesOutboundDraftSaveDTO dto);
 
     BaseVO saveAndSubmit(SalesOutboundSubmitSaveDTO dto);
+
+    BaseVO audit(IdBaseDTO dto);
+
+    BaseVO unaudit(IdBaseDTO dto);
 
     List<SalesOutboundDraftListItemVO> draftList(SalesOutboundDraftListDTO dto);
 

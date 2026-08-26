@@ -8,5 +8,9 @@ public class BizNoRuleVO extends BaseVO {
 
     private String businessCode;
     private String prefix;
+    private Integer includeDate;
+    private Integer suffixLength;
+    private String serialMode;
     private String ruleType;
+    private Integer overridden;
 }

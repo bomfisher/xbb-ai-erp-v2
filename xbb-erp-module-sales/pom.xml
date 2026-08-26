@@ -10,6 +10,23 @@
     <dependencies>
         <dependency>
             <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-system-contract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-settlement-contract</artifactId><version>${project.version}</version></dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-base-bizno</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency><groupId>org.bomfish</groupId><artifactId>xbb-erp-module-sales-contract</artifactId><version>${project.version}</version></dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
+            <artifactId>xbb-erp-module-approval-contract</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.bomfish</groupId>
             <artifactId>xbb-erp-module-inventory-contract</artifactId>
             <version>${project.version}</version>
         </dependency>
@@ -51,6 +68,11 @@
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-core</artifactId>
             <scope>test</scope>
         </dependency>
     </dependencies>

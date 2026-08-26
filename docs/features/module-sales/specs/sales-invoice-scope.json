@@ -1,0 +1,533 @@
+{
+  "moduleCode": "sales",
+  "root": {
+    "spec": "docs/features/module-sales/specs/sales-invoice.yaml",
+    "aggregate": "SalesInvoice",
+    "table": "sales_invoice",
+    "role": "ROOT"
+  },
+  "children": [
+    {
+      "spec": "docs/features/module-sales/specs/sales-invoice-line.yaml",
+      "aggregate": "SalesInvoiceLine",
+      "table": "sales_invoice_line",
+      "role": "CHILD"
+    }
+  ],
+  "fieldMetadata": {
+    "businessCode": "SALES_INVOICE",
+    "fields": [
+      {
+        "name": "invoiceNo",
+        "attr": "main.invoiceNo",
+        "attrName": "销售发票编号",
+        "fieldType": "SERIAL_NO",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": null
+      },
+      {
+        "name": "customerId",
+        "attr": "main.customerId",
+        "attrName": "客户",
+        "fieldType": "BUSINESS",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null,
+        "businessCode": "CUSTOMER"
+      },
+      {
+        "name": "invoiceDate",
+        "attr": "main.invoiceDate",
+        "attrName": "发票日期",
+        "fieldType": "DATE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "invoice_date",
+        "filterFieldType": "DATE",
+        "supportedSymbols": [
+          "EQ",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "dueDate",
+        "attr": "main.dueDate",
+        "attrName": "应收到期日",
+        "fieldType": "DATE",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "due_date",
+        "filterFieldType": "DATE",
+        "supportedSymbols": [
+          "EQ",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "paymentTerm",
+        "attr": "main.paymentTerm",
+        "attrName": "付款条件",
+        "fieldType": "TEXT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": "payment_term",
+        "filterFieldType": "TEXT",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "untaxedAmount",
+        "attr": "main.untaxedAmount",
+        "attrName": "未税金额",
+        "fieldType": "AMOUNT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "untaxed_amount",
+        "filterFieldType": "AMOUNT",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "taxAmount",
+        "attr": "main.taxAmount",
+        "attrName": "税额",
+        "fieldType": "AMOUNT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "tax_amount",
+        "filterFieldType": "AMOUNT",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "amount",
+        "attr": "main.amount",
+        "attrName": "含税总金额",
+        "fieldType": "AMOUNT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "amount",
+        "filterFieldType": "AMOUNT",
+        "supportedSymbols": [
+          "EQ",
+          "NE",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "invoiceType",
+        "attr": "main.invoiceType",
+        "attrName": "发票类型",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": "SALE",
+        "filterName": "invoice_type",
+        "filterFieldType": "ENUM",
+        "supportedSymbols": [
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "options": "SALE:销售发票,CREDIT_NOTE:贷项发票"
+      },
+      {
+        "name": "status",
+        "attr": "main.status",
+        "attrName": "状态",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST"
+        ],
+        "required": true,
+        "editable": false,
+        "defaultValue": "DRAFT",
+        "filterName": "status",
+        "filterFieldType": "ENUM",
+        "supportedSymbols": [
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "options": "DRAFT:草稿,AUDITED:已审核,POSTED:已过账,VOIDED:已作废"
+      },
+      {
+        "name": "auditStatus",
+        "attr": "main.auditStatus",
+        "attrName": "审核状态",
+        "fieldType": "COMB",
+        "scenes": [
+          "LIST"
+        ],
+        "required": true,
+        "editable": false,
+        "defaultValue": 0,
+        "filterName": "audit_status",
+        "filterFieldType": "ENUM",
+        "supportedSymbols": [
+          "CONTAINS",
+          "NOT_CONTAINS",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ],
+        "options": "0:待审核,1:审核中,2:已审核,3:已拒绝"
+      },
+      {
+        "name": "auditTime",
+        "attr": "main.auditTime",
+        "attrName": "审核时间",
+        "fieldType": "DATE",
+        "scenes": [
+          "LIST",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": false,
+        "defaultValue": null,
+        "filterName": "audit_time",
+        "filterFieldType": "DATE",
+        "supportedSymbols": [
+          "EQ",
+          "GE",
+          "LE",
+          "BETWEEN",
+          "IS_EMPTY",
+          "IS_NOT_EMPTY"
+        ]
+      },
+      {
+        "name": "remark",
+        "attr": "main.remark",
+        "attrName": "备注",
+        "fieldType": "TEXT",
+        "scenes": [
+          "LIST",
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": false,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null
+      },
+      {
+        "name": "invoiceLines",
+        "attr": "lines",
+        "attrName": "发票明细",
+        "fieldType": "SUB_ITEM",
+        "scenes": [
+          "CREATE",
+          "UPDATE"
+        ],
+        "required": true,
+        "editable": true,
+        "defaultValue": null,
+        "filterName": null,
+        "subFields": [
+          {
+            "name": "productId",
+            "attr": "productId",
+            "attrName": "商品或服务",
+            "fieldType": "PRODUCT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null,
+            "businessCode": "PRODUCT_SKU"
+          },
+          {
+            "name": "productName",
+            "attr": "productName",
+            "attrName": "商品或服务名称",
+            "fieldType": "TEXT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "specification",
+            "attr": "specification",
+            "attrName": "规格型号",
+            "fieldType": "TEXT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "unitId",
+            "attr": "unitId",
+            "attrName": "单位",
+            "fieldType": "BUSINESS",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null,
+            "businessCode": "PRODUCT_SPU"
+          },
+          {
+            "name": "quantity",
+            "attr": "quantity",
+            "attrName": "数量",
+            "fieldType": "NUM_DOUBLE",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "unitPrice",
+            "attr": "unitPrice",
+            "attrName": "未税单价",
+            "fieldType": "AMOUNT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "taxRate",
+            "attr": "taxRate",
+            "attrName": "税率",
+            "fieldType": "NUM_DOUBLE",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": true,
+            "editable": true,
+            "defaultValue": 0,
+            "filterName": null
+          },
+          {
+            "name": "untaxedAmount",
+            "attr": "untaxedAmount",
+            "attrName": "未税金额",
+            "fieldType": "AMOUNT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": false,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "taxAmount",
+            "attr": "taxAmount",
+            "attrName": "税额",
+            "fieldType": "AMOUNT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": false,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "amount",
+            "attr": "amount",
+            "attrName": "含税金额",
+            "fieldType": "AMOUNT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": false,
+            "defaultValue": null,
+            "filterName": null
+          },
+          {
+            "name": "remark",
+            "attr": "remark",
+            "attrName": "备注",
+            "fieldType": "TEXT",
+            "scenes": [
+              "CREATE",
+              "UPDATE"
+            ],
+            "required": false,
+            "editable": true,
+            "defaultValue": null,
+            "filterName": null
+          }
+        ]
+      }
+    ],
+    "listActions": {
+      "top": [
+        {
+          "actionCode": "ADD",
+          "actionName": "新建"
+        }
+      ],
+      "bottom": [],
+      "row": [
+        {
+          "actionCode": "EDIT",
+          "actionName": "编辑"
+        }
+      ]
+    },
+    "formSections": [
+      {
+        "key": "basic",
+        "title": "基本信息",
+        "order": 10,
+        "fields": [
+          "main.invoiceNo",
+          "main.customerId",
+          "main.invoiceDate",
+          "main.dueDate",
+          "main.paymentTerm",
+          "main.invoiceType",
+          "main.remark"
+        ]
+      },
+      {
+        "key": "amount",
+        "title": "金额汇总",
+        "order": 20,
+        "fields": [
+          "main.untaxedAmount",
+          "main.taxAmount",
+          "main.amount"
+        ]
+      },
+      {
+        "key": "lines",
+        "title": "发票明细",
+        "order": 30,
+        "fields": [
+          "lines"
+        ]
+      }
+    ]
+  },
+  "rootEndpoints": [
+    "list",
+    "addItem",
+    "updateItem",
+    "saveDraft",
+    "saveAndSubmit",
+    "draftList",
+    "loadDraft"
+  ]
+}

@@ -21,6 +21,8 @@ public interface PurchaseOrderMapper {
 
     PurchaseOrderPO findById(@Param("corpid") String corpid, @Param("id") Long id);
 
+    List<PurchaseOrderPO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
+
     List<PurchaseOrderPO> findByCondition(@Param("conditionMap") Map<String, Object> conditionMap);
 
     Long count(@Param("conditionMap") Map<String, Object> conditionMap);

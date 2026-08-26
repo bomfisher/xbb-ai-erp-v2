@@ -10,6 +10,7 @@ import java.util.Map;
 
 @Mapper
 public interface WarehouseMapper extends BaseMapper<WarehousePO> {
+    List<WarehousePO> findByIds(@Param("corpid") String corpid, @Param("ids") java.util.Collection<Long> ids);
     int insertBatch(@Param("list") List<WarehousePO> poList);
 
     int removeById(@Param("corpid") String corpid, @Param("id") Long id);

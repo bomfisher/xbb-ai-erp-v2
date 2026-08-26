@@ -148,13 +148,22 @@ def validate_list_string_contract(source_root: Path, aggregate: str, metadata: d
     variable = aggregate[:1].lower() + aggregate[1:]
     for field in list_fields:
         name = field["name"]
-        setter = name[:1].upper() + name[1:]
-        if not re.search(rf"private\s+String\s+{re.escape(name)};", list_item_content):
+        property_name = "".join(
+            part if index == 0 else part[:1].upper() + part[1:]
+            for index, part in enumerate(name.split("_"))
+        )
+        setter = "".join(part[:1].upper() + part[1:] for part in name.split("_"))
+        if not re.search(rf"private\s+String\s+{re.escape(property_name)};", list_item_content):
             errors.append(f"列表 {field['fieldType']} 字段 {name} 必须在 ListItemVO 中声明为 String")
         expected_assignment = (
             f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
             f"Objects.toString({variable}.get{setter}()));"
         )
+        if field["fieldType"] == "DATE":
+            expected_assignment = (
+                f"vo.set{setter}(Objects.isNull({variable}.get{setter}()) ? \"\" : "
+                f"java.time.Instant.ofEpochMilli({variable}.get{setter}()).atZone(java.time.ZoneId.systemDefault()).toLocalDate().toString());"
+            )
         if expected_assignment not in assembler_content:
             errors.append(f"列表 {field['fieldType']} 字段 {name} 必须在 toListItemVO 中转换为 String")
     return errors
@@ -236,6 +245,12 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
             errors.append("Mapper XML 必须生成单条 insert，禁止依赖 MyBatis-Plus BaseMapper 默认实现")
         elif 'useGeneratedKeys="true"' not in single_insert_match.group("attributes") or 'keyProperty="id"' not in single_insert_match.group("attributes"):
             errors.append("单条 insert 必须配置 useGeneratedKeys=\"true\" 和 keyProperty=\"id\"")
+        else:
+            single_insert_body = single_insert_match.group("body")
+            required_single_insert_fragments = ("del", "add_time", "update_time", "#{del}", "#{addTime}", "#{updateTime}")
+            missing = [fragment for fragment in required_single_insert_fragments if fragment not in single_insert_body]
+            if missing:
+                errors.append("单条 insert 必须持久化 BaseEntity 初始化字段：" + "、".join(missing))
         batch_insert_match = re.search(r"<insert\s+id=\"insertBatch\"(?P<attributes>[^>]*)>(?P<body>.*?)</insert>", mapper_xml, re.DOTALL)
         if not batch_insert_match:
             errors.append("Mapper XML 缺少 insertBatch")
@@ -246,6 +261,10 @@ def validate_auto_increment_insert_contract(module_root: Path, source_root: Path
                 errors.append("insertBatch 必须配置 useGeneratedKeys=\"true\" 和 keyProperty=\"id\"")
             if column_match and re.search(r"\bid\b", column_match.group("columns")):
                 errors.append("AUTO_INCREMENT insertBatch 不得插入 id 列")
+            required_batch_insert_fragments = ("del", "add_time", "update_time", "#{item.del}", "#{item.addTime}", "#{item.updateTime}")
+            missing = [fragment for fragment in required_batch_insert_fragments if fragment not in batch_insert_match.group("body")]
+            if missing:
+                errors.append("insertBatch 必须持久化 BaseEntity 初始化字段：" + "、".join(missing))
     return errors
 
 

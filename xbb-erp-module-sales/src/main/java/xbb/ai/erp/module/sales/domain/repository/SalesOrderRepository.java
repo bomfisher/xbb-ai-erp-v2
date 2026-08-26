@@ -18,6 +18,8 @@ public interface SalesOrderRepository {
 
     SalesOrder findById(String corpid, Long id);
 
+    List<SalesOrder> findByIds(String corpid, java.util.Collection<Long> ids);
+
     List<SalesOrder> findByCondition(Map<String, Object> conditionMap);
 
     Long count(Map<String, Object> conditionMap);

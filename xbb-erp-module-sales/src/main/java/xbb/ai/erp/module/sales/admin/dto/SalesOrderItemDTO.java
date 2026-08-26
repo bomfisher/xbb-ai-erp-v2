@@ -12,6 +12,7 @@ public class SalesOrderItemDTO {
     private String skuName;
     private String specification;
     private String unitName;
+    private BigDecimal stockQty;
     private BigDecimal qty;
     private BigDecimal deliveredQty;
     private BigDecimal unitPrice;
